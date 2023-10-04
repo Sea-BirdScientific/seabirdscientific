@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "seabirdscientific"
+version = "0.0.1"
+authors = [
+    {name = "Jesse Templin", email = "jtemplin@seabird.com"},
+]
+description = "SeaBird Scientific Community Toolkit"
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Private :: Do Not Upload",
+]
+dependencies = [
+    "build==1.0.3",
+]
+
+[tool.setuptools]
+py-modules = [
+    "seabirdscientific"
+]
