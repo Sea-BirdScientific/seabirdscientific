@@ -1,5 +1,8 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = [
+    "setuptools>=61.0",
+    "build==1.0.3",
+]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -15,17 +18,8 @@ classifiers = [
     "Private :: Do Not Upload",
 ]
 dependencies = [
-    "build==1.0.3",
-    "autopep8==1.6.0",
-    "gsw==3.4.0",
-    "ipykernel==6.15.1",
-    "matplotlib==3.5.2",
-    "nbformat==5.3.0",
-    "numpy==1.22.3",
-    "pandas==1.4.2",
-    "pytest==7.1.2",
-    "plotly==5.7.0",
-    "scipy==1.8.1",
+    "sbs-data-processing",
+    "sbs-data-visualization"
 ]
 
 [tool.setuptools]

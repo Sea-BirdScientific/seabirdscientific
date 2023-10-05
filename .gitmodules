@@ -1,6 +1,0 @@
-[submodule "submodules/sbs-data-visualization"]
-	path = submodules/sbs-data-visualization
-	url = https://github.com/Sea-BirdScientific/sbs-data-visualization.git
-[submodule "submodules/python-data-processing"]
-	path = submodules/python-data-processing
-	url = https://github.com/Sea-BirdScientific/python-data-processing.git
