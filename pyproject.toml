@@ -1,8 +1,5 @@
 [build-system]
-requires = [
-    "setuptools>=61.0",
-    "build==1.0.3",
-]
+requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -18,11 +15,12 @@ classifiers = [
     "Private :: Do Not Upload",
 ]
 dependencies = [
-    "sbs-data-processing",
-    "sbs-data-visualization"
+    "notebook",
+    "sbs-data-processing==0.2.4",
+    "sbs-data-visualization==0.2.7"
 ]
 
-[tool.setuptools]
-py-modules = [
-    "seabirdscientific"
+[project.optional-dependencies]
+dev = [
+    "pytest"
 ]
