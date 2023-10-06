@@ -67,3 +67,22 @@ py -m build
 Package names (used by pip and PyPI) should be prefixed with `sbs-`, be short, and use hyphens if it improves readability.  
 Module names (used when importing in python) should be short and use underscores if it improves readability. It is not necessary to prefix module names with `sbs_` because they will already be part of the main `sbs` module.  
 [PEP8](https://peps.python.org/pep-0008/#package-and-module-names)
+
+## Notes from previous commit (work in progess)
+1.  Add a repo as a git submodule
+```
+git submodule add https://github.com/Sea-BirdScientific/sbs-data-visualization ./submodules/sbs-data-visualization 
+```
+
+2. Create a symbolic link to the git submodule's python package folder.  
+```
+New-Item -ItemType SymbolicLink -Path ./seabirdscientific/sbs_data_visualization -Target ./submodules/sbs-data-visualization/sbs_data_visualization/
+```
+
+3. Add dependencies to the seabirdscientific pyproject.toml  
+```
+dependencies = [
+    "build==1.0.3",
+    ...
+]
+```
