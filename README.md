@@ -10,13 +10,13 @@ OR from a cloned repo, in editable mode, with dev depenedencies
 py -m pip install -e .[dev]
 ```
 
-## Usage examples
+## Examples
 ```python
 import sbs
 from sbs.processing import contour
 from sbs.visualization import data_visualization as dv
 ```
-Refer to example notebooks for more details  
+The notebooks currently depend on data files that are not part of this repo, and can't be run as-is. For now, they are only for reference.  
 
 ## Included submodules
 - [sbs_data_processing](https://github.com/Sea-BirdScientific/python-data-processing) as `processing`  
@@ -26,9 +26,9 @@ Data visualization using Plotly
 
 ## How to add other SeaBird repos to the seabirdscientific package
 This project combines multiple Sea-Bird repos into one python package by adding repos as git submodules and then creating symlinks from the main python module folder to the sbs folder.  
-There are 5 easy steps:
+There are 6 easy steps:
 1.  Add your repo as a git submodule
-```
+```bash
 git submodule add https://github.com/Sea-BirdScientific/sbs-your-project ./submodules/sbs-your-project 
 ```
 
@@ -55,8 +55,6 @@ py -m build
 
 5. Connect remotely to `wl239.sbs.ewqg.com` with your Sea-Bird SSO
 
-6. Add the new `seabirdscientific-*.*.*.tar.gz` file to the temporary package index folder
-```bash
-c:/SBSPyPI/seabirdscientific
-```
+6. Add the new `seabirdscientific-*.*.*.tar.gz` file to the temporary package index `c:/SBSPyPI/seabirdscientific
+`
 
