@@ -1,0 +1,92 @@
+* Sea-Bird SBE 19plus Data File:
+* FileName = J:\SeasaveNew\RealTimeTestSuite\19plus\Data\20090602_101418.hex
+* Software Version Seasave V 7.19
+* Temperature SN = 4422
+* Conductivity SN = 4422
+* System UpLoad Time = Jun 02 2009 10:14:27
+# interval = seconds: 0.25
+# start_time = Jun 02 2009 10:14:27
+# <?xml version="1.0" encoding="UTF-8"?>
+# <Sensors count="3" >
+#   <sensor Channel="1" >
+#     <!-- Count, Temperature -->
+#     <TemperatureSensor SensorID="58" >
+#       <SerialNumber>4422</SerialNumber>
+#       <CalibrationDate>14-Apr-03</CalibrationDate>
+#       <A0>1.26423700e-003</A0>
+#       <A1>2.58150900e-004</A1>
+#       <A2>5.45311000e-007</A2>
+#       <A3>1.28571000e-007</A3>
+#       <Slope>1.00000000</Slope>
+#       <Offset>0.0000</Offset>
+#     </TemperatureSensor>
+#   </sensor>
+#   <sensor Channel="2" >
+#     <!-- Frequency 0, Conductivity -->
+#     <ConductivitySensor SensorID="3" >
+#       <SerialNumber>4422</SerialNumber>
+#       <CalibrationDate>14-Apr-03</CalibrationDate>
+#       <UseG_J>1</UseG_J>
+#       <!-- Cell const and series R are applicable only for wide range sensors. -->
+#       <SeriesR>0.0000</SeriesR>
+#       <CellConst>2000.0000</CellConst>
+#       <Coefficients equation="0" >
+#         <A>0.00000000e+000</A>
+#         <B>0.00000000e+000</B>
+#         <C>0.00000000e+000</C>
+#         <D>0.00000000e+000</D>
+#         <M>0.0</M>
+#         <CPcor>-9.57000000e-008</CPcor>
+#       </Coefficients>
+#       <Coefficients equation="1" >
+#         <G>-1.03388700e+000</G>
+#         <H>1.42898100e-001</H>
+#         <I>-2.70058500e-004</I>
+#         <J>4.21048800e-005</J>
+#         <CPcor>-9.57000000e-008</CPcor>
+#         <CTcor>3.2500e-006</CTcor>
+#       </Coefficients>
+#       <Slope>1.00000000</Slope>
+#       <Offset>0.00000</Offset>
+#     </ConductivitySensor>
+#   </sensor>
+#   <sensor Channel="3" >
+#     <!-- Count, Pressure, Strain Gauge -->
+#     <PressureSensor SensorID="46" >
+#       <SerialNumber>4422</SerialNumber>
+#       <CalibrationDate>27-Jan-04</CalibrationDate>
+#       <PA0>3.18236500e+001</PA0>
+#       <PA1>3.16553400e-002</PA1>
+#       <PA2>-2.06126500e-009</PA2>
+#       <PTEMPA0>-5.82417100e+001</PTEMPA0>
+#       <PTEMPA1>5.36452800e+001</PTEMPA1>
+#       <PTEMPA2>-5.48705700e-001</PTEMPA2>
+#       <PTCA0>5.24455600e+005</PTCA0>
+#       <PTCA1>6.63988500e+001</PTCA1>
+#       <PTCA2>-8.80381900e-001</PTCA2>
+#       <PTCB0>2.47512500e+001</PTCB0>
+#       <PTCB1>-7.50000000e-004</PTCB1>
+#       <PTCB2>0.00000000e+000</PTCB2>
+#       <Offset>0.000000</Offset>
+#     </PressureSensor>
+#   </sensor>
+# </Sensors>
+# datcnv_date = Jul 01 2009 08:05:07, 7.19
+# datcnv_in = J:\SeasaveNew\RealTimeTestSuite\19plus\Data\20090602_101418.hex J:\SeasaveNew\RealTimeTestSuite\19plus\Data\20090602_101418.con
+# datcnv_bottle_scan_range_source = BL file
+# bottlesum_date = Jul 01 2009 08:09:19, 7.19
+# bottlesum_in = J:\SeasaveNew\RealTimeTestSuite\19plus\Data\20090602_101418.ros J:\SeasaveNew\RealTimeTestSuite\19plus\Data\20090602_101418.CON J:\SeasaveNew\RealTimeTestSuite\19plus\Data\20090602_101418.BL
+    Bottle        Date      Sal00       Scan     Tv290C      C0S/m       PrdM     PtempC      TimeS
+  Position        Time                                                                             
+      1    Jun 02 2009     0.0000          9    22.9303  -0.000055     -0.984      23.19      1.875 (avg)
+              10:14:28                     2     0.0001   0.000005      0.012       0.00      0.468 (sdev)
+                                           6    22.9301  -0.000063     -0.994      23.18      1.250 (min)
+                                          11    22.9305  -0.000048     -0.968      23.19      2.500 (max)
+      6    Jun 02 2009     0.0000         14    22.9301  -0.000051     -0.976      23.18      3.250 (avg)
+              10:14:30                     2     0.0002   0.000004      0.027       0.01      0.395 (sdev)
+                                          12    22.9299  -0.000054     -1.012      23.18      2.750 (min)
+                                          16    22.9303  -0.000045     -0.944      23.19      3.750 (max)
+     11    Jun 02 2009     0.0000         21    22.9297  -0.000055     -0.985      23.18      5.000 (avg)
+              10:14:31                     3     0.0001   0.000005      0.021       0.01      0.685 (sdev)
+                                          17    22.9295  -0.000063     -1.016      23.17      4.000 (min)
+                                          25    22.9299  -0.000048     -0.946      23.19      6.000 (max)

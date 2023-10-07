@@ -1,0 +1,109 @@
+* Sea-Bird SBE 19plus Data File:
+* FileName = J:\SeasaveNew\RealTimeTestSuite\19plus\Data\20090602_101418.hex
+* Software Version Seasave V 7.19
+* Temperature SN = 4422
+* Conductivity SN = 4422
+* System UpLoad Time = Jun 02 2009 10:14:27
+# nquan = 8
+# nvalues = 20                                    
+# units = specified
+# name 0 = scan: Scan Count
+# name 1 = nbf: Bottles Fired
+# name 2 = tv290C: Temperature [ITS-90, deg C]
+# name 3 = c0S/m: Conductivity [S/m]
+# name 4 = prdM: Pressure, Strain Gauge [db]
+# name 5 = ptempC: Pressure Temperature [deg C]
+# name 6 = timeS: Time, Elapsed [seconds]
+# name 7 = flag:  0.000e+00
+# interval = seconds: 0.25
+# start_time = Jun 02 2009 10:14:27
+# bad_flag = -9.990e-29
+# <?xml version="1.0" encoding="UTF-8"?>
+# <Sensors count="3" >
+#   <sensor Channel="1" >
+#     <!-- Count, Temperature -->
+#     <TemperatureSensor SensorID="58" >
+#       <SerialNumber>4422</SerialNumber>
+#       <CalibrationDate>14-Apr-03</CalibrationDate>
+#       <A0>1.26423700e-003</A0>
+#       <A1>2.58150900e-004</A1>
+#       <A2>5.45311000e-007</A2>
+#       <A3>1.28571000e-007</A3>
+#       <Slope>1.00000000</Slope>
+#       <Offset>0.0000</Offset>
+#     </TemperatureSensor>
+#   </sensor>
+#   <sensor Channel="2" >
+#     <!-- Frequency 0, Conductivity -->
+#     <ConductivitySensor SensorID="3" >
+#       <SerialNumber>4422</SerialNumber>
+#       <CalibrationDate>14-Apr-03</CalibrationDate>
+#       <UseG_J>1</UseG_J>
+#       <!-- Cell const and series R are applicable only for wide range sensors. -->
+#       <SeriesR>0.0000</SeriesR>
+#       <CellConst>2000.0000</CellConst>
+#       <Coefficients equation="0" >
+#         <A>0.00000000e+000</A>
+#         <B>0.00000000e+000</B>
+#         <C>0.00000000e+000</C>
+#         <D>0.00000000e+000</D>
+#         <M>0.0</M>
+#         <CPcor>-9.57000000e-008</CPcor>
+#       </Coefficients>
+#       <Coefficients equation="1" >
+#         <G>-1.03388700e+000</G>
+#         <H>1.42898100e-001</H>
+#         <I>-2.70058500e-004</I>
+#         <J>4.21048800e-005</J>
+#         <CPcor>-9.57000000e-008</CPcor>
+#         <CTcor>3.2500e-006</CTcor>
+#       </Coefficients>
+#       <Slope>1.00000000</Slope>
+#       <Offset>0.00000</Offset>
+#     </ConductivitySensor>
+#   </sensor>
+#   <sensor Channel="3" >
+#     <!-- Count, Pressure, Strain Gauge -->
+#     <PressureSensor SensorID="46" >
+#       <SerialNumber>4422</SerialNumber>
+#       <CalibrationDate>27-Jan-04</CalibrationDate>
+#       <PA0>3.18236500e+001</PA0>
+#       <PA1>3.16553400e-002</PA1>
+#       <PA2>-2.06126500e-009</PA2>
+#       <PTEMPA0>-5.82417100e+001</PTEMPA0>
+#       <PTEMPA1>5.36452800e+001</PTEMPA1>
+#       <PTEMPA2>-5.48705700e-001</PTEMPA2>
+#       <PTCA0>5.24455600e+005</PTCA0>
+#       <PTCA1>6.63988500e+001</PTCA1>
+#       <PTCA2>-8.80381900e-001</PTCA2>
+#       <PTCB0>2.47512500e+001</PTCB0>
+#       <PTCB1>-7.50000000e-004</PTCB1>
+#       <PTCB2>0.00000000e+000</PTCB2>
+#       <Offset>0.000000</Offset>
+#     </PressureSensor>
+#   </sensor>
+# </Sensors>
+# datcnv_date = Jul 01 2009 08:05:07, 7.19
+# datcnv_in = J:\SeasaveNew\RealTimeTestSuite\19plus\Data\20090602_101418.hex J:\SeasaveNew\RealTimeTestSuite\19plus\Data\20090602_101418.con
+# datcnv_bottle_scan_range_source = BL file
+*END*
+          6          1    22.9303  -0.000054     -0.985      23.18      1.250  0.000e+00
+          7          1    22.9304  -0.000054     -0.972      23.19      1.500  0.000e+00
+          8          1    22.9302  -0.000048     -0.992      23.19      1.750  0.000e+00
+          9          1    22.9305  -0.000063     -0.968      23.19      2.000  0.000e+00
+         10          1    22.9304  -0.000054     -0.994      23.19      2.250  0.000e+00
+         11          1    22.9301  -0.000054     -0.994      23.19      2.500  0.000e+00
+         12          2    22.9303  -0.000054     -0.994      23.19      2.750  0.000e+00
+         13          2    22.9302  -0.000048     -1.012      23.19      3.000  0.000e+00
+         14          2    22.9302  -0.000045     -0.966      23.18      3.250  0.000e+00
+         15          2    22.9299  -0.000054     -0.944      23.18      3.500  0.000e+00
+         16          2    22.9299  -0.000054     -0.963      23.18      3.750  0.000e+00
+         17          3    22.9299  -0.000054     -0.961      23.17      4.000  0.000e+00
+         18          3    22.9299  -0.000063     -0.985      23.18      4.250  0.000e+00
+         19          3    22.9297  -0.000054     -1.016      23.19      4.500  0.000e+00
+         20          3    22.9297  -0.000054     -0.987      23.18      4.750  0.000e+00
+         21          3    22.9299  -0.000054     -0.946      23.19      5.000  0.000e+00
+         22          3    22.9295  -0.000054     -0.992      23.19      5.250  0.000e+00
+         23          3    22.9296  -0.000048     -0.987      23.18      5.500  0.000e+00
+         24          3    22.9297  -0.000054     -0.985      23.18      5.750  0.000e+00
+         25          3    22.9296  -0.000063     -1.009      23.18      6.000  0.000e+00

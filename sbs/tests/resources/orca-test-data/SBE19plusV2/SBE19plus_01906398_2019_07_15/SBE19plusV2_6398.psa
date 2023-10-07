@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Data_Conversion >
+  <Version value="7.27.0.20" />
+  <ServerName value="Data Conversion" />
+  <InstrumentPath value="C:\Users\brhoades\Documents\Projects\Git\orca-test-data\SBE19plusV2\SBE19plus_01906398_2019_07_15\SBE19plusV2_6398.xmlcon" />
+  <InstrumentMatch value="0" />
+  <InputDir value="C:\Users\brhoades\Documents\Projects\Git\orca-test-data\SBE19plusV2\SBE19plus_01906398_2019_07_15" />
+  <InputFileArray size="1" GrowBy="-1" >
+    <ArrayItem index="0" value="SBE19plus_01906398_2019_07_15_0033_cropped.hex" />
+  </InputFileArray>
+  <OutputDir value="C:\Users\brhoades\Documents\Projects\Git\orca-test-data\SBE19plusV2\SBE19plus_01906398_2019_07_15" />
+  <NameAppend value="" />
+  <OutputFile value="SBE19plus_01906398_2019_07_15_0033_hexCropped" />
+  <LastProcessed value="0" />
+  <ProcessScansToEnd value="1" />
+  <ScansToSkip value="0" />
+  <ScansToProcess value="400" />
+  <MergeHeaderFile value="0" />
+  <OutputFormat value="0" high="1" low="0" initialValue="0" />
+  <FromCast value="0" high="1" low="0" initialValue="0" />
+  <CreateFile value="0" high="2" low="0" initialValue="0" />
+  <ScanRangeSource value="3" high="3" low="0" initialValue="3" />
+  <ScanRangeOffset value="0.000000" />
+  <ScanRangeDuration value="2.000000" />
+  <StartTimeOption value="0" />
+  <PromptForNoteAndOrStartTime value="0" />
+  <CalcArray Size="4" >
+    <CalcArrayItem index="0" CalcID="84" >
+      <Calc UnitID="52" Ordinal="0" >
+        <FullName value="Time, Elapsed [seconds]" />
+      </Calc>
+    </CalcArrayItem>
+    <CalcArrayItem index="1" CalcID="12" >
+      <Calc UnitID="41" Ordinal="0" >
+        <FullName value="Conductivity [mS/cm]" />
+      </Calc>
+    </CalcArrayItem>
+    <CalcArrayItem index="2" CalcID="95" >
+      <Calc UnitID="3" Ordinal="0" >
+        <FullName value="Pressure, Strain Gauge [db]" />
+      </Calc>
+    </CalcArrayItem>
+    <CalcArrayItem index="3" CalcID="97" >
+      <Calc UnitID="6" Ordinal="0" >
+        <FullName value="Temperature [ITS-90, deg C]" />
+      </Calc>
+    </CalcArrayItem>
+  </CalcArray>
+  <MiscellaneousDataForCalculations >
+    <Latitude value="0.000000" />
+    <Longitude value="0.000000" />
+    <DescentRateAndAcceleration >
+      <WindowSize value="2.000000" />
+    </DescentRateAndAcceleration>
+    <Oxygen >
+      <WindowSize value="2.000000" />
+      <ApplyHysteresisCorrection value="1" />
+      <ApplyTauCorrection value="1" />
+    </Oxygen>
+    <AverageSoundVelocity >
+      <MinimumPressure value="20.000000" />
+      <MinimumSalinity value="20.000000" />
+      <PressureWindowSize value="20.000000" />
+      <TimeWindowSize value="60.000000" />
+    </AverageSoundVelocity>
+    <PlumeAnomaly >
+      <ThetaB value="0.000000" />
+      <SalinityB value="0.000000" />
+      <ThetaZSalinityZRatio value="0.000000" />
+      <ReferencePressure value="0.000000" />
+    </PlumeAnomaly>
+    <PotentialTempAnomaly >
+      <A0 value="0.000000" />
+      <A1 value="0.000000" />
+      <A1Multiplier value="0" />
+    </PotentialTempAnomaly>
+  </MiscellaneousDataForCalculations>
+</Data_Conversion>

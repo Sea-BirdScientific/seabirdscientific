@@ -1,0 +1,119 @@
+* Sea-Bird SBE37SM-RS232 Data File:
+* FileName = C:\Users\dlucas\Documents\Temp\Data-output-temp\37-SM_03715735_2022_10_17.hex
+* Software version Orca 0.0.45
+* Temperature SN = 03715735
+* Conductivity SN = 03715735
+* System UpLoad Time = Oct 17 2022 12:31:53
+* sample interval = 199 seconds
+* <ApplicationData>
+*     <Orca>
+*         <SoftwareVersion>0.0.45</SoftwareVersion>
+*         <BuildDate>13-Oct-2022</BuildDate>
+*     </Orca>
+* </ApplicationData>
+* <InstrumentState>
+* 
+* <HardwareData DeviceType = 'SBE37SM-RS232' SerialNumber = '03715735'>
+*    <Manufacturer>Sea-Bird Electronics, Inc.</Manufacturer>
+*    <FirmwareVersion>4.1</FirmwareVersion>
+*    <FirmwareDate>Jan 17 2012 15:32:03</FirmwareDate>
+*    <CommandSetVersion>1.0</CommandSetVersion>
+*    <PCBAssembly>41720E</PCBAssembly>
+*    <PCBSerialNum>120547</PCBSerialNum>
+*    <PCBAssembly>41697A</PCBAssembly>
+*    <PCBSerialNum>120549</PCBSerialNum>
+*    <PCBAssembly>41661C</PCBAssembly>
+*    <PCBSerialNum>120552</PCBSerialNum>
+*    <MfgDate>4/15/2017</MfgDate>
+*    <FirmwareLoader>SBE 37-232-V3 FirmwareLoader V 1.0</FirmwareLoader>
+*    <InternalSensors>
+*       <Sensor id = 'Temperature'>
+*          <type>temperature-1</type>
+*          <SerialNumber>03715735</SerialNumber>
+*       </Sensor>
+*       <Sensor id = 'Conductivity'>
+*          <type>conductivity-1</type>
+*          <SerialNumber>03715735</SerialNumber>
+*       </Sensor>
+*    </InternalSensors>
+* </HardwareData>
+* 
+* <StatusData DeviceType = 'SBE37SM-RS232' SerialNumber = '03715735'>
+*    <DateTime>2022-10-17T12:31:49</DateTime>
+*    <EventSummary numEvents = '258'/>
+*    <Power>
+*       <vMain>11.73</vMain>
+*       <vLith> 2.86</vLith>
+*    </Power>
+*    <MemorySummary>
+*       <Bytes>130</Bytes>
+*       <Samples>13</Samples>
+*       <SamplesFree>838847</SamplesFree>
+*       <SampleLength>10</SampleLength>
+*    </MemorySummary>
+*    <AutonomousSampling>no, stop command</AutonomousSampling>
+* </StatusData>
+* 
+* <ConfigurationData DeviceType = 'SBE37SM-RS232' SerialNumber = '03715735'>
+*    <PressureInstalled>no</PressureInstalled>
+*    <ReferencePressure>1.000000e+03</ReferencePressure>
+*    <PumpInstalled>yes</PumpInstalled>
+*    <MinCondFreq>3290.4</MinCondFreq>
+*    <SampleDataFormat>converted engineering</SampleDataFormat>
+*    <OutputSalinity>no</OutputSalinity>
+*    <OutputSV>no</OutputSV>
+*    <TxRealTime>no</TxRealTime>
+*    <SampleInterval>199</SampleInterval>
+*    <SyncMode>no</SyncMode>
+* </ConfigurationData>
+* 
+* <CalibrationCoefficients DeviceType = 'SBE37SM-RS232' SerialNumber = '03715735'>
+*    <Calibration format = 'TEMP1' id = 'Temperature'>
+*       <SerialNum>03715735</SerialNum>
+*       <CalDate>26-Sep-18</CalDate>
+*       <A0>-2.532901e-04</A0>
+*       <A1>3.275170e-04</A1>
+*       <A2>-5.543956e-06</A2>
+*       <A3>2.311865e-07</A3>
+*    </Calibration>
+*    <Calibration format = 'WBCOND0' id = 'Conductivity'>
+*       <SerialNum>03715735</SerialNum>
+*       <CalDate>26-Sep-18</CalDate>
+*       <G>-1.005866e+00</G>
+*       <H>1.293238e-01</H>
+*       <I>-1.143506e-04</I>
+*       <J>2.482706e-05</J>
+*       <PCOR>-9.570000e-08</PCOR>
+*       <TCOR>3.250000e-06</TCOR>
+*       <WBOTC>8.959367e-08</WBOTC>
+*    </Calibration>
+* </CalibrationCoefficients>
+* 
+* <EventCounters DeviceType = 'SBE37SM-RS232' SerialNumber = '03715735'>
+*    <EventSummary numEvents = '258'/>
+*    <Event type = 'PON reset' count = '255'/>
+*    <Event type = 'alarm short' count = '2'/>
+*    <Event type = 'LoggingRestartPON' count = '1'/>
+* </EventCounters>
+* </InstrumentState>
+* <UserHeaderInsert>
+* <![CDATA[
+** da ne
+** ss
+* ]]>
+* </UserHeaderInsert>
+* 
+*END*
+20508332805416858088
+0270009022001A080044
+C188E021110200912264
+82E0804084023FFBFFCD
+FF75F9BDDFE75EEFFEFC
+FB3AFFDFFBFFD7FFFFFD
+0371040AE64F2ADFF2DD
+036B600AE64F2AE00162
+036B520AE6502AE00229
+036AF50AE64F2AE002F0
+036A960AE64F2AE003B7
+036AEE0AE64F2AE0047E
+036B470AE64F2AE00545

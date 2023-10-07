@@ -1,0 +1,204 @@
+* Sea-Bird SBE19plus Data File:
+* FileName = C:\Users\randerson\OneDrive - Danaher\Desktop\orca/19plus_V2_01907627_2023_04_10.hex
+* Software version Orca 0.0.57
+* System UpLoad Time = Apr 10 2023 11:48:48
+* sample interval = 10 seconds
+* <ApplicationData>
+*     <Orca>
+*         <SoftwareVersion>0.0.57</SoftwareVersion>
+*         <BuildDate>03-Apr-2023</BuildDate>
+*     </Orca>
+* </ApplicationData>
+* <InstrumentState>
+* <HardwareData DeviceType="SBE19plus" SerialNumber="01907627">
+*   <Manufacturer>Sea-Bird Electronics, Inc.</Manufacturer>
+*   <FirmwareVersion>3.1.8</FirmwareVersion>
+*   <FirmwareDate>Mar  9 2016 16:22:29</FirmwareDate>
+*   <CommandSetVersion>1.4</CommandSetVersion>
+*   <PCBAssembly PCBSerialNum="126213" AssemblyNum="41054J"></PCBAssembly>
+*   <PCBAssembly PCBSerialNum="126208" AssemblyNum="41967A"></PCBAssembly>
+*   <PCBAssembly PCBSerialNum="126225" AssemblyNum="41606"></PCBAssembly>
+*   <PCBAssembly PCBSerialNum="126218" AssemblyNum="41059E"></PCBAssembly>
+*   <MfgDate>10-Oct-2017</MfgDate>
+*   <InternalSensors>
+*     <Sensor id="Main Temperature">
+*       <type>temperature0</type>
+*       <SerialNumber>01907627</SerialNumber>
+*     </Sensor>
+*     <Sensor id="Main Conductivity">
+*       <type>conductivity-0</type>
+*       <SerialNumber>01907627</SerialNumber>
+*     </Sensor>
+*     <Sensor id="Main Pressure">
+*       <type>strain-0</type>
+*       <SerialNumber>10680395</SerialNumber>
+*     </Sensor>
+*   </InternalSensors>
+*   <ExternalSensors>
+*     <Sensor id="volt 0">
+*       <type>not assigned</type>
+*       <SerialNumber>not assigned</SerialNumber>
+*     </Sensor>
+*     <Sensor id="volt 1">
+*       <type>not assigned</type>
+*       <SerialNumber>not assigned</SerialNumber>
+*     </Sensor>
+*     <Sensor id="volt 2">
+*       <type>not assigned</type>
+*       <SerialNumber>not assigned</SerialNumber>
+*     </Sensor>
+*     <Sensor id="volt 3">
+*       <type>not assigned</type>
+*       <SerialNumber>not assigned</SerialNumber>
+*     </Sensor>
+*     <Sensor id="volt 4">
+*       <type>not assigned</type>
+*       <SerialNumber>not assigned</SerialNumber>
+*     </Sensor>
+*     <Sensor id="volt 5">
+*       <type>not assigned</type>
+*       <SerialNumber>not assigned</SerialNumber>
+*     </Sensor>
+*     <Sensor id="serial">
+*       <type>not assigned</type>
+*       <SerialNumber>not assigned</SerialNumber>
+*     </Sensor>
+*   </ExternalSensors>
+* </HardwareData>
+* <Executed></Executed>
+* <StatusData DeviceType="SBE19plus" SerialNumber="01907627">
+*   <DateTime>2023-04-10T18:47:53</DateTime>
+*   <LoggingState>not logging</LoggingState>
+*   <EventSummary numEvents="408"></EventSummary>
+*   <Power>
+*     <vMain>11.7</vMain>
+*     <vLith>8.4</vLith>
+*     <iMain>62</iMain>
+*   </Power>
+*   <MemorySummary>
+*     <Bytes>75</Bytes>
+*     <Samples>5</Samples>
+*     <SamplesFree>4386537</SamplesFree>
+*     <SampleLength>15</SampleLength>
+*   </MemorySummary>
+* </StatusData>
+* <Executed></Executed>
+* <ConfigurationData>
+*   <batterySettings>
+*     <type></type>
+*     <cutOff>0</cutOff>
+*     <batterySettings>7.5</batterySettings>
+*   </batterySettings>
+*   <dataChannelSettings>
+*     <extVolt0>false</extVolt0>
+*     <extVolt1>false</extVolt1>
+*     <extVolt2>false</extVolt2>
+*     <extVolt3>false</extVolt3>
+*     <extVolt4>false</extVolt4>
+*     <extVolt5>false</extVolt5>
+*     <sbe38>false</sbe38>
+*     <wetlabs>false</wetlabs>
+*     <optode>false</optode>
+*     <sbe63>false</sbe63>
+*     <seafet>false</seafet>
+*     <gtd>false</gtd>
+*   </dataChannelSettings>
+*   <echoCharacters>true</echoCharacters>
+*   <outputExecutedTag>true</outputExecutedTag>
+*   <outputFormat>3</outputFormat>
+*   <outputSalinity>false</outputSalinity>
+*   <outputSoundVelocity>false</outputSoundVelocity>
+*   <outputSigmaT_V>false</outputSigmaT_V>
+*   <MooredMode>
+*     <sampleInterval>10</sampleInterval>
+*     <measurementsPerSample>1</measurementsPerSample>
+*     <pump>no pump</pump>
+*     <delayBeforeSampling>1</delayBeforeSampling>
+*     <delayAfterSampling>2</delayAfterSampling>
+*     <transmitRealTime>true</transmitRealTime>
+*   </MooredMode>
+* </ConfigurationData>
+* <CalibrationCoefficients DeviceType="SBE19plus" SerialNumber="01907627">
+*   <Calibration format="TEMP1" id="Main Temperature">
+*     <SerialNum>01907627</SerialNum>
+*     <CalDate>13-Oct-17</CalDate>
+*     <TA0>0.00124636</TA0>
+*     <TA1>0.0002745662</TA1>
+*     <TA2>-8.711791e-7</TA2>
+*     <TA3>1.70583e-7</TA3>
+*     <TOFFSET>0</TOFFSET>
+*   </Calibration>
+*   <Calibration format="WBCOND0" id="Main Conductivity">
+*     <SerialNum>01907627</SerialNum>
+*     <CalDate>13-Oct-17</CalDate>
+*     <G>-0.9863618</G>
+*     <H>0.1271088</H>
+*     <I>-0.0001242168</I>
+*     <J>0.00002521539</J>
+*     <CPCOR>-9.57e-8</CPCOR>
+*     <CTCOR>0.00000325</CTCOR>
+*     <CSLOPE>1</CSLOPE>
+*   </Calibration>
+*   <Calibration format="STRAIN0" id="Main Pressure">
+*     <SerialNum>10680395</SerialNum>
+*     <CalDate>03-Aug-15</CalDate>
+*     <PA0>-0.7019632</PA0>
+*     <PA1>0.0006175179</PA1>
+*     <PA2>1.119474e-11</PA2>
+*     <PTCA0>518703.4</PTCA0>
+*     <PTCA1>7.570067</PTCA1>
+*     <PTCA2>-0.2615924</PTCA2>
+*     <PTCB0>25.01163</PTCB0>
+*     <PTCB1>-0.000075</PTCB1>
+*     <PTCB2>0</PTCB2>
+*     <PTEMPA0>-57.04454</PTEMPA0>
+*     <PTEMPA1>54.4885</PTEMPA1>
+*     <PTEMPA2>-0.07588233</PTEMPA2>
+*     <POFFSET>-5</POFFSET>
+*     <PRANGE>160</PRANGE>
+*   </Calibration>
+*   <Calibration format="VOLT0" id="Volt 0">
+*     <OFFSET>-0.0478</OFFSET>
+*     <SLOPE>1.248422</SLOPE>
+*   </Calibration>
+*   <Calibration format="VOLT0" id="Volt 1">
+*     <OFFSET>-0.04806105</OFFSET>
+*     <SLOPE>1.248307</SLOPE>
+*   </Calibration>
+*   <Calibration format="VOLT0" id="Volt 2">
+*     <OFFSET>-0.04760632</OFFSET>
+*     <SLOPE>1.248448</SLOPE>
+*   </Calibration>
+*   <Calibration format="VOLT0" id="Volt 3">
+*     <OFFSET>-0.0467421</OFFSET>
+*     <SLOPE>1.248248</SLOPE>
+*   </Calibration>
+*   <Calibration format="VOLT0" id="Volt 4">
+*     <OFFSET>-0.04727368</OFFSET>
+*     <SLOPE>1.248861</SLOPE>
+*   </Calibration>
+*   <Calibration format="VOLT0" id="Volt 5">
+*     <OFFSET>-0.04624</OFFSET>
+*     <SLOPE>1.249641</SLOPE>
+*   </Calibration>
+*   <Calibration format="FREQ0" id="external frequency channel">
+*     <EXTFREQSF>1.000018</EXTFREQSF>
+*   </Calibration>
+* </CalibrationCoefficients>
+* <Executed></Executed>
+* <EventCounters DeviceType="SBE19plus" SerialNumber="01907627">
+*   <EventSummary numEvents="408"></EventSummary>
+*   <Event type="alarm long" count="2"></Event>
+*   <Event type="alarm short" count="255"></Event>
+*   <Event type="EEPROM read" count="73"></Event>
+*   <Event type="EEPROM write" count="78"></Event>
+* </EventCounters>
+* <Executed></Executed>
+* </InstrumentState>
+* 
+*END*
+E9CA036BE30A5371089D4ADB38C32B
+EDCA034FE30A5671089D4AE538C32B
+EFCA036BE30A577108954AEF38C32B
+F4CA036BE30A587108974AF938C32B
+F7CA036DE30A547108924A0339C32B

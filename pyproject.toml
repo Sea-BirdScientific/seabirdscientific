@@ -1,19 +1,20 @@
-[build-system]
-requires = ["setuptools>=61.0"]
-build-backend = "setuptools.build_meta"
-
 [project]
 name = "seabirdscientific"
-version = "0.0.2"
+version = "1.0.0-alpha"
+
 authors = [
+    {name = "Lukas Christensen", email = "lchristensen@seabird.com"},
     {name = "Jesse Templin", email = "jtemplin@seabird.com"},
 ]
+
 description = "SeaBird Scientific Community Toolkit"
 readme = "README.md"
 requires-python = ">=3.9"
+
 classifiers = [
     "Private :: Do Not Upload",
 ]
+
 dependencies = [
     "gsw==3.4.0",
     "matplotlib>=3.5.2",
@@ -26,8 +27,9 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-    "pytest"
+    "pytest",
 ]
 
-[tool.setuptools.packages.find]
-exclude = ["submodules"]
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
