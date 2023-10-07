@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "seabirdscientific"
-version = "0.0.1"
+version = "0.0.2"
 authors = [
     {name = "Jesse Templin", email = "jtemplin@seabird.com"},
 ]
@@ -15,12 +15,19 @@ classifiers = [
     "Private :: Do Not Upload",
 ]
 dependencies = [
+    "gsw==3.4.0",
+    "matplotlib>=3.5.2",
     "notebook",
-    "sbs-data-processing==0.2.4",
-    "sbs-data-visualization==0.2.7"
+    "numpy>=1.22.3",
+    "pandas>=1.4.2",
+    "plotly>=5.7.0",
+    "scipy>=1.8.1",
 ]
 
 [project.optional-dependencies]
 dev = [
     "pytest"
 ]
+
+[tool.setuptools.packages.find]
+exclude = ["submodules"]

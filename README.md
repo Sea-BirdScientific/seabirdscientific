@@ -1,5 +1,5 @@
 # seabirdscientific
-SeaBird Scientific Community Toolkit  
+Sea-Bird Scientific Community Toolkit  
 
 ## Installation
 ```bash
@@ -10,79 +10,53 @@ OR from a cloned repo, in editable mode, with dev depenedencies
 py -m pip install -e .[dev]
 ```
 
-## Usage
+## Usage examples
 ```python
 import sbs
+from sbs.processing import contour
+from sbs.visualization import data_visualization as dv
 ```
-OR
-```python
-from sbs import processing, visualization
-```
+Refer to example notebooks for more details  
 
-## Included packages
+## Included submodules
 - [sbs_data_processing](https://github.com/Sea-BirdScientific/python-data-processing) as `processing`  
 Data conversion and processing functions for CTDs, ported from SeaSoft, as well as [GSW](https://github.com/TEOS-10/GSW-python) derivations
 - [sbs_data_visualization](https://github.com/Sea-BirdScientific/sbs-data-visualization) as `visualization`  
 Data visualization using Plotly
 
 ## How to add other SeaBird repos to the seabirdscientific package
-1. Follow the instructions [here](https://github.com/Sea-BirdScientific/python-package-template) to build a `.tar.gz` file.
-
-2. Remotely connect to wl239.sbs.ewqg.com using your SeaBird SSO credentials
-
-3. Create a subfolder for the new package `c:/SBSPyPI/your-package-name`
-
-4. Add the `.tar.gz` file to the new subfolder
-
-5. Modify `c:/SBSPyPI/index.html` by adding a link to your package
-```html
-<!DOCTYPE html>
-<html>
-  <body>
-    ...
-    <a href="/your-package-name/">your-package-name</a>
-  </body>
-</html>
+This project combines multiple Sea-Bird repos into one python package by adding repos as git submodules and then creating symlinks from the main python module folder to the sbs folder.  
+There are 5 easy steps:
+1.  Add your repo as a git submodule
+```
+git submodule add https://github.com/Sea-BirdScientific/sbs-your-project ./submodules/sbs-your-project 
 ```
 
-6. Add a dependency to the seabirdscientific pyproject.toml  
+2. Create a symbolic link to the git submodule's python module folder.  
+This is an opportunity to rename the module for the community toolkit, which is imported as `sbs`. So if your module is called `sbs_your_project`, consider creating the symlink as simply `your_project`.  
+The target for the symlink should be the top-level module folder within the git repo, which is not necessarily the entire git repo.
 ```
-dependencies = [
-    ...
-    "your-package-name",
-]
-```
-
-7. Install the package and build a new version of seabirdscientific (remember to increment the version number in pyproject.toml)
-```
-py -m install your-package-name --extra-index-url http://wl239.sbs.ewqg.com:9000 --trusted-host wl239.sbs.ewqg.com  
-py -m build
-```
-
-8. Add the new `seabirdscientific-*.*.*.tar.gz` file to the remote `c:/SBSPyPI/seabirdscientific` folder
-
-9. Confirm that it all works by installing seabirdscientific to a clean virtual environment and importing your package
-
-## How to name your packages and modules
-Package names (used by pip and PyPI) should be prefixed with `sbs-`, be short, and use hyphens if it improves readability.  
-Module names (used when importing in python) should be short and use underscores if it improves readability. It is not necessary to prefix module names with `sbs_` because they will already be part of the main `sbs` module.  
-[PEP8](https://peps.python.org/pep-0008/#package-and-module-names)
-
-## Notes from previous commit (work in progess)
-1.  Add a repo as a git submodule
-```
-git submodule add https://github.com/Sea-BirdScientific/sbs-data-visualization ./submodules/sbs-data-visualization 
-```
-
-2. Create a symbolic link to the git submodule's python package folder.  
-```
-New-Item -ItemType SymbolicLink -Path ./seabirdscientific/sbs_data_visualization -Target ./submodules/sbs-data-visualization/sbs_data_visualization/
+New-Item -ItemType SymbolicLink -Path ./sbs/your_project -Target ./submodules/sbs-your-project/sbs_your_project/
 ```
 
 3. Add dependencies to the seabirdscientific pyproject.toml  
 ```
 dependencies = [
-    "build==1.0.3",
     ...
+    "your_project"
 ]
 ```
+
+4. Build the `.whl` and `.tar.gz` files (remember to increment the version number)
+```bash
+py -m pip install build
+py -m build
+```
+
+5. Connect remotely to `wl239.sbs.ewqg.com` with your Sea-Bird SSO
+
+6. Add the new `seabirdscientific-*.*.*.tar.gz` file to the temporary package index folder
+```bash
+c:/SBSPyPI/seabirdscientific
+```
+
