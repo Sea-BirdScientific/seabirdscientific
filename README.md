@@ -27,7 +27,7 @@ Data visualization using Plotly
 ## How to add other SeaBird repos to the seabirdscientific package
 This project combines multiple Sea-Bird repos into one python package by adding repos as git submodules and then creating symlinks from the main python module folder to the sbs folder.  
 There are 6 easy steps:
-1.  Add your repo as a git submodule
+1.  From the root directory of this project, add your repo as a git submodule
 ```bash
 git submodule add https://github.com/Sea-BirdScientific/sbs-your-project ./submodules/sbs-your-project 
 ```
@@ -55,6 +55,4 @@ py -m build
 
 5. Connect remotely to `wl239.sbs.ewqg.com` with your Sea-Bird SSO
 
-6. Add the new `seabirdscientific-*.*.*.tar.gz` file to the temporary package index `c:/SBSPyPI/seabirdscientific
-`
-
+6. Add the new `seabirdscientific-*.*.*.tar.gz` file to the temporary package index `c:/SBSPyPI/seabirdscientific`
