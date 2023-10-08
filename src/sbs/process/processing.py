@@ -619,14 +619,14 @@ def window_filter(
 
     # define the window filter
     if window_type == WindowFilterType.BOXCAR:
-        window = signal.boxcar(window_width)
+        window = signal.windows.boxcar(window_width)
 
     elif window_type == WindowFilterType.COSINE:
         for n in range(window_start, window_end):
             window = np.append(window, np.cos((n * np.pi)/(window_width + 1)))
 
     elif window_type == WindowFilterType.TRIANGLE:
-        window = signal.triang(window_width)
+        window = signal.windows.triang(window_width)
 
     elif window_type == WindowFilterType.GAUSSIAN:
         phase = offset / sample_interval
