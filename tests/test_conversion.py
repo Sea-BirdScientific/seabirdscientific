@@ -4,6 +4,7 @@
 """TODO: test_conversion docstring"""
 
 # Native imports
+import importlib.resources
 
 # Third-party imports
 import gsw
@@ -14,10 +15,11 @@ import pytest
 # Sea-Bird imports
 
 # Internal imports
-import ..process.conversion as dc
-import ..process.instrument_data as id
-import ..process.cal_coefficients as cc
+import sbs.process.conversion as dc
+import sbs.process.instrument_data as id
+import sbs.process.cal_coefficients as cc
 
+test_resources = importlib.resources.files('resources')
 
 DATASETS = [
 # cal
@@ -28,10 +30,10 @@ DATASETS = [
         (
             cc.SN6130, 
             id.cnv_to_instrument_data(
-                './orca-test-data/SBE19plusV2/E8001/E8001.cnv'
+                test_resources / 'orca-test-data/SBE19plusV2/E8001/E8001.cnv'
             ),
             id.read_hex_file(
-                './orca-test-data/SBE19plusV2/E8001/E8001.hex',
+                test_resources / 'orca-test-data/SBE19plusV2/E8001/E8001.hex',
                 id.InstrumentType.SBE19Plus,
                 [
                     id.Sensors.Temperature,
@@ -49,10 +51,10 @@ DATASETS = [
         (
             cc.SN03706385, 
             id.cnv_to_instrument_data(
-                './orca-test-data/SBE37SM/SBE37SM-6385/SBE37SM-6385.cnv'
+                test_resources / 'orca-test-data/SBE37SM/SBE37SM-6385/SBE37SM-6385.cnv'
             ),
             id.read_hex_file(
-                './orca-test-data/SBE37SM/SBE37SM-6385/SBE37SM-6385.hex',
+                test_resources / 'orca-test-data/SBE37SM/SBE37SM-6385/SBE37SM-6385.hex',
                 id.InstrumentType.SBE37SM,
                 [
                     id.Sensors.Temperature,
@@ -66,10 +68,10 @@ DATASETS = [
         (
             cc.SN03716125, 
             id.cnv_to_instrument_data(
-                './orca-test-data/SBE37SM/SBE37SM-RS232_03716125_2017_11_16/SBE37SM-RS232_03716125_2017_11_16.cnv'
+                test_resources / 'orca-test-data/SBE37SM/SBE37SM-RS232_03716125_2017_11_16/SBE37SM-RS232_03716125_2017_11_16.cnv'
             ),
             id.read_hex_file(
-                './orca-test-data/SBE37SM/SBE37SM-RS232_03716125_2017_11_16/SBE37SM-RS232_03716125_2017_11_16.hex',
+                test_resources / 'orca-test-data/SBE37SM/SBE37SM-RS232_03716125_2017_11_16/SBE37SM-RS232_03716125_2017_11_16.hex',
                 id.InstrumentType.SBE37SM,
                 [
                     id.Sensors.Temperature,
@@ -143,10 +145,10 @@ class TestConvertPressure:
 
 
 class TestConductivity19plus:
-    cnv_path = './orca-test-data/SBE19plusV2/E8001/E8001.cnv'
+    cnv_path = test_resources / 'orca-test-data/SBE19plusV2/E8001/E8001.cnv'
     expected_data = id.cnv_to_instrument_data(cnv_path)
 
-    hex_path = './orca-test-data/SBE19plusV2/E8001/E8001.hex'
+    hex_path = test_resources / 'orca-test-data/SBE19plusV2/E8001/E8001.hex'
     raw = id.read_hex_file(
         hex_path, 
         id.InstrumentType.SBE19Plus,
@@ -200,10 +202,10 @@ class TestConductivity19plus:
             assert np.allclose([expected[index]], [result], rtol=0, atol=1e-6)
 
 class TestConductivity37SM:
-    cnv_path = './orca-test-data/SBE37SM/SBE37SM-RS232_03716125_2017_11_16/SBE37SM-RS232_03716125_2017_11_16.cnv'
+    cnv_path = test_resources / 'orca-test-data/SBE37SM/SBE37SM-RS232_03716125_2017_11_16/SBE37SM-RS232_03716125_2017_11_16.cnv'
     expected_data = id.cnv_to_instrument_data(cnv_path)
 
-    hex_path = './orca-test-data/SBE37SM/SBE37SM-RS232_03716125_2017_11_16/SBE37SM-RS232_03716125_2017_11_16.hex'
+    hex_path = test_resources / 'orca-test-data/SBE37SM/SBE37SM-RS232_03716125_2017_11_16/SBE37SM-RS232_03716125_2017_11_16.hex'
     raw = id.read_hex_file(
         hex_path,
         id.InstrumentType.SBE37SM,
@@ -253,7 +255,7 @@ class TestConductivity37SM:
 
 class TestDeriveDensity:
 
-    data_path = './orca-test-data/SBE37SM/SBE37SM-RS232_03711722_2015_11_18/SBE37SM-RS232_03711722_2015_11_18_subset_derived.asc'
+    data_path = test_resources / 'orca-test-data/SBE37SM/SBE37SM-RS232_03711722_2015_11_18/SBE37SM-RS232_03711722_2015_11_18_subset_derived.asc'
     data = pd.read_csv(data_path)
 
     @pytest.mark.parametrize("reference_pressure, expected_column", [
@@ -310,7 +312,7 @@ class TestDeriveDensity:
 
 
 class TestDepthFromPressure:
-    data_path = './orca-test-data/SBE37SM/SBE37SM-6385/SBE37SM-6385.asc'
+    data_path = test_resources / 'orca-test-data/SBE37SM/SBE37SM-6385/SBE37SM-6385.asc'
     data = pd.read_csv(data_path).loc[6:10]
     
     @pytest.mark.parametrize("pressure, pressure_units, depth, depth_units", [
@@ -396,7 +398,7 @@ class TestConvertOxygen:
 
 # class TestContourFromTSP:
 #     # Note: this class doesn't actually test anything and is only for debug
-#     data_path = './orca-test-data/SBE37SM/SBE37SM-RS232_03711722_2015_11_18/SBE37SM-RS232_03711722_2015_11_18_subset_derived.asc'
+#     data_path = test_resources / 'orca-test-data/SBE37SM/SBE37SM-RS232_03711722_2015_11_18/SBE37SM-RS232_03711722_2015_11_18_subset_derived.asc'
 #     data = pd.read_csv(data_path)
 
 #     def test_contour_from_t_s_p_pass(self):
