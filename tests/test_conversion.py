@@ -15,9 +15,9 @@ import pytest
 # Sea-Bird imports
 
 # Internal imports
+import sbs.process.cal_coefficients as cc
 import sbs.process.conversion as dc
 import sbs.process.instrument_data as id
-import sbs.process.cal_coefficients as cc
 
 test_resources = importlib.resources.files('resources')
 

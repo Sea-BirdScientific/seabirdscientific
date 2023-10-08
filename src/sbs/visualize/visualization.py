@@ -5,7 +5,7 @@
 
 # Native imports
 import json
-import warnings
+from logging import getLogger
 from typing import Union
 
 # Third-party imports
@@ -20,6 +20,8 @@ from .interpret_sbs_variable import interpret_sbs_variable
 
 # TODO: check python version
 # TODO: translate warning and error messages
+
+logger = getLogger(__name__)
 
 PLOTLY_PATH = '/node_modules/plotly.js-dist/plotly.js'
 
@@ -125,7 +127,7 @@ def names_are_valid(axis_names: list[str], data_names: list[str]) -> bool:
         name_is_valid = axis_name in data_names
         list_is_valid &= name_is_valid
         if not name_is_valid:
-            warnings.warn(f"{axis_name} not found in header names")
+            logger.warning(f"{axis_name} not found in header names")
     return list_is_valid
 
 
@@ -156,10 +158,10 @@ def parse_instrument_data(source: Union[str, pd.DataFrame]) -> pd.DataFrame:
         elif source.endswith('.csv') or source.endswith('.asc'):
             data = pd.read_csv(source)
         else:
-            warnings.warn("Unknown data source")
+            logger.warning("Unknown data source")
             data = pd.DataFrame()
     else:
-        warnings.warn("Unknown data source")
+        logger.warning("Unknown data source")
         data = pd.DataFrame()
     
     columns = [interpret_sbs_variable(column)['name'] for column in data.columns]
@@ -237,7 +239,7 @@ def plot_xy_chart(data: ChartData, config: ChartConfig) -> go.Figure:
 
     # too many data sets
     elif len(data.x.columns) > 1 and len(data.y.columns) > 1:
-        warnings.warn("Only one axis can support multiple data sets")
+        logger.warning("Only one axis can support multiple data sets")
         # return go.Figure()
 
     # multiple data sets
@@ -271,7 +273,7 @@ def create_single_plot(x: pd.DataFrame, y: pd.DataFrame, config: ChartConfig) ->
     """
 
     if any(name in x.columns for name in y.columns):
-        warnings.warn("Duplicate data names will be omitted")
+        logger.warning("Duplicate data names will be omitted")
 
     figure = px.line(
         data_frame=pd.concat([x,y], axis=1),
@@ -299,7 +301,7 @@ def create_subplots(x: pd.DataFrame, y: pd.DataFrame, config: ChartConfig) -> go
     """
 
     if any(name in x.columns for name in y.columns):
-        warnings.warn("Duplicate data names will be omitted")
+        logger.warning("Duplicate data names will be omitted")
 
     figure = go.Figure()
     figure.layout.title = config.title
@@ -356,7 +358,7 @@ def create_overlay(x: pd.DataFrame, y: pd.DataFrame, config: ChartConfig) -> go.
     """
 
     if any(name in x.columns for name in y.columns):
-        warnings.warn("Duplicate data names will be omitted")
+        logger.warning("Duplicate data names will be omitted")
 
     figure = go.Figure()
     figure.layout.title = config.title
@@ -577,7 +579,7 @@ def plot_ts_chart(
     """
 
     if len(config.x_names) > 1 or len(config.y_names) > 1 or len(config.z_names) > 1:
-        warnings.warn("plot_ts_chart expects one data set for each x, y, and z parameter. Extra data sets are ignored")
+        logger.warning("plot_ts_chart expects one data set for each x, y, and z parameter. Extra data sets are ignored")
 
     # Create 2 plots using plotly (not plotly express)
     # T-S diagram with x-y values colored by z

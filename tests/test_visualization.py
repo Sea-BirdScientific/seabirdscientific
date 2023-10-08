@@ -4,6 +4,7 @@
 """TODO: test_visualization docstring"""
 
 # Native imports
+import importlib.resources
 
 # Third-party imports
 import numpy as np
@@ -14,7 +15,9 @@ import plotly.graph_objects as go
 # Sea-Bird imports
 
 # Internal imports
-from ..visualize import visualization as dv
+from sbs.visualize import visualization as dv
+
+test_resources = importlib.resources.files('resources')
 
 class TestNamesAreValid:
     def test_names_are_valid_empty_pass(self):
@@ -30,24 +33,24 @@ class TestNamesAreValid:
 
 class TestParseChartData:
     @pytest.mark.parametrize("path", [
-        "./unit_tests/data/example_pass.csv",
-        "./unit_tests/data/example_pass.asc"
+        test_resources / "example_pass.csv",
+        test_resources / "example_pass.asc"
     ])
     def test_parse_instrument_data_csv_pass(self, path):
         assert isinstance(dv.parse_instrument_data(path), pd.DataFrame)
 
     def test_parse_instrument_data_json_pass(self):
         assert isinstance(dv.parse_instrument_data(
-            "./unit_tests/data/example_pass.json"), pd.DataFrame)
+            test_resources / "example_pass.json"), pd.DataFrame)
 
     def test_parse_instrument_data_txt_warn(self):
         with pytest.warns(UserWarning, match="Unknown data source"):
             dv.parse_instrument_data(
-                "./unit_tests/data/example_fail_filetype.txt")
+                test_resources / "example_fail_filetype.txt")
 
 
 class TestSelectSubset:
-    data = dv.parse_instrument_data("./unit_tests/data/example_pass.asc")
+    data = dv.parse_instrument_data(test_resources / "example_pass.asc")
 
     def test_select_subset_empty_pass(self):
         assert np.all(dv.select_subset([], self.data) == pd.DataFrame({'Sample Count': [0, 1, 2]}))
@@ -59,7 +62,7 @@ class TestSelectSubset:
 
 
 class TestPlotXYChart:
-    data_path = './unit_tests/data/example_pass.asc'
+    data_path = test_resources / 'unit_tests/data/example_pass.asc'
     config = dv.ChartConfig(
         title=data_path,
         x_names=["Col1"],
@@ -98,7 +101,7 @@ class TestPlotXYChart:
 
 
 class TestChartData:
-    data_path = './unit_tests/data/example_pass.asc'
+    data_path = test_resources / 'unit_tests/data/example_pass.asc'
     config = dv.ChartConfig(
         title=data_path,
         x_names=["Col1"],
@@ -130,7 +133,7 @@ class TestChartData:
             data = dv.ChartData(self.data_path, config)
 
     def test_chart_data_slash_pass(self):
-        data_path = './unit_tests/data/example_fail_slash.csv'
+        data_path = test_resources / 'unit_tests/data/example_fail_slash.csv'
         config = dv.ChartConfig(
             title=data_path,
             x_names = ["Col/1"],
@@ -146,14 +149,14 @@ class TestChartData:
 class TestJsonToDataFrame:
     def test_json_to_dataframe_file_pass(self):
         assert isinstance(
-            dv.json_to_dataframe("./unit_tests/data/example_pass.json"), pd.DataFrame)
+            dv.json_to_dataframe(test_resources / "example_pass.json"), pd.DataFrame)
 
     def test_json_to_dataframe_str_pass(self):
         assert isinstance(
             dv.json_to_dataframe('{"Col1": [1.0, 4.0, 7.0], "Col2": [2.0, 5.0, 8.0], "Col3": [3.0, 6.0, 9.0]}'), pd.DataFrame)
 
     def test_json_to_dataframe_none_pass(self):
-        assert (dv.json_to_dataframe("./unit_tests/data/example_fail_filetype.txt") is None)
+        assert (dv.json_to_dataframe(test_resources / "example_fail_filetype.txt") is None)
 
 
 class TestPlotXYChart:
@@ -205,7 +208,7 @@ class TestPlotTSChart:
 
 
 class TestChartBounds:
-    data_path = './unit_tests/data/example_pass.asc'
+    data_path = test_resources / 'unit_tests/data/example_pass.asc'
     
     def test_chart_bounds_multiple_x_pass(self):
         config = dv.ChartConfig(

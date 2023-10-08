@@ -5,13 +5,16 @@
 
 # Native imports
 from datetime import datetime
+import importlib.resources
 
 # Third-party imports
 
 # Sea-Bird imports
 
 # Internal imports
-import ..process.instrument_data as id
+import sbs.process.instrument_data as id
+
+test_resources = importlib.resources.files('resources')
 
 class TestCnvToOceanData:
     measurement_series = id.MeasurementSeries(
@@ -38,7 +41,7 @@ class TestCnvToOceanData:
             assert(True) # fails before assert if data fails to instantiate
 
     def test_cnv_to_instrument_data_pass(self):
-            file_path = './orca-test-data/SBE37SM/SBE37SM-6385/SBE37SM-6385.cnv'
+            file_path = test_resources / 'orca-test-data/SBE37SM/SBE37SM-6385/SBE37SM-6385.cnv'
             data = id.cnv_to_instrument_data(file_path)
             
             expected_labels = ['tv290C', 'cond0S/m', 'prdM', 'prdE', 'depSM', 'depSF', 'sal00', 'flag']
@@ -56,7 +59,7 @@ class TestCnvToOceanData:
 
 
 class TestReadHex:
-    filepath = './orca-test-data/SBE19plusV2/E8001/E8001.hex'
+    filepath = test_resources / 'orca-test-data/SBE19plusV2/E8001/E8001.hex'
     raw = id.read_hex_file(
         filepath, 
         id.InstrumentType.SBE19Plus,
