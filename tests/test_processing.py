@@ -14,14 +14,14 @@ import pandas as pd
 # Sea-Bird imports
 
 # Internal imports
-from ..process import instrument_data as id
-from ..process import processing as dp
-from ..process import conversion as dc
-from ..process.utils import close_enough
+from sbs.process import instrument_data as id
+from sbs.process import processing as dp
+from sbs.process import conversion as dc
+from sbs.process.utils import close_enough
 
 logger = getLogger(__name__)
 
-test_resources = importlib.resources.files('sbs.tests.resources')
+test_resources = importlib.resources.files('resources')
 microcat6385_resources = test_resources / 'orca-test-data' / 'SBE37SM' / 'SBE37SM-6385'
 
 class TestLowPassFilter:
