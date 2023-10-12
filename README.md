@@ -1,5 +1,5 @@
 # seabirdscientific
-Sea-Bird Scientific Community Toolkit  
+Sea-Bird Scientific Community Toolkit
 
 ## Installation
 ```bash
