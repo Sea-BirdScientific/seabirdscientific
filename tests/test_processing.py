@@ -26,10 +26,10 @@ microcat6385_resources = test_resources / 'orca-test-data' / 'SBE37SM' / 'SBE37S
 
 class TestLowPassFilter:
 
-    expected_path = microcat6385_resources / 'SBE37SM-6385_filtered_10000.asc'
+    expected_path = str(microcat6385_resources / 'SBE37SM-6385_filtered_10000.asc')
     expected = pd.read_csv(expected_path)["Tv290C"].values
 
-    source_path = microcat6385_resources / 'SBE37SM-6385_unfiltered.asc'
+    source_path = str(microcat6385_resources / 'SBE37SM-6385_unfiltered.asc')
     source = pd.read_csv(source_path)["Tv290C"].values
 
     def test_low_pass_filter(self):
@@ -40,7 +40,7 @@ class TestLowPassFilter:
 
 class TestAlignCtd:
 
-    expected_data_path = microcat6385_resources / 'SBE37SM-6385_align.cnv'
+    expected_data_path = str(microcat6385_resources / 'SBE37SM-6385_align.cnv')
     expected_data = id.cnv_to_instrument_data(expected_data_path)
     # expected data was algined with: 
     #   sample_interval=120,
@@ -51,14 +51,14 @@ class TestAlignCtd:
     #   sal00 - 240s
 
 
-    source_data_path = microcat6385_resources / 'SBE37SM-6385.cnv'
+    source_data_path = str(microcat6385_resources / 'SBE37SM-6385.cnv')
     source_data = id.cnv_to_instrument_data(source_data_path)
     
     def test_align_ctd_add_simple_pass(self):
-        expected_data_path = microcat6385_resources / 'SBE37SM-6385_align.cnv'
+        expected_data_path = str(microcat6385_resources / 'SBE37SM-6385_align.cnv')
         expected_data = id.cnv_to_instrument_data(expected_data_path)
 
-        source_data_path = microcat6385_resources / 'SBE37SM-6385.cnv'
+        source_data_path = str(microcat6385_resources / 'SBE37SM-6385.cnv')
         source_data = id.cnv_to_instrument_data(source_data_path).measurements['tv290C'].values
 
         # Fix last valid sample
@@ -69,11 +69,11 @@ class TestAlignCtd:
         ))
         
     def test_align_ctd_add_simple_pass_2(self):
-        expected_data_path = microcat6385_resources / 'SBE37SM-6385_align.cnv'
+        expected_data_path = str(microcat6385_resources / 'SBE37SM-6385_align.cnv')
         expected_data = id.cnv_to_instrument_data(expected_data_path)
 
 
-        source_data_path = microcat6385_resources / 'SBE37SM-6385.cnv'
+        source_data_path = str(microcat6385_resources / 'SBE37SM-6385.cnv')
         source_data = id.cnv_to_instrument_data(source_data_path)
 
         # Fix last valid sample
@@ -84,11 +84,11 @@ class TestAlignCtd:
         ))
 
     def test_align_ctd_add_exact_factor(self):
-        expected_data_path = microcat6385_resources / 'SBE37SM-6385_align.cnv'
+        expected_data_path = str(microcat6385_resources / 'SBE37SM-6385_align.cnv')
         expected_data = id.cnv_to_instrument_data(expected_data_path)
 
 
-        source_data_path = microcat6385_resources / 'SBE37SM-6385.cnv'
+        source_data_path = str(microcat6385_resources / 'SBE37SM-6385.cnv')
         source_data = id.cnv_to_instrument_data(source_data_path)
 
         result = dp.align_ctd(source_data.measurements['prdM'].values, 120, 120)
@@ -97,11 +97,11 @@ class TestAlignCtd:
         ))
 
     def test_align_ctd_no_change(self):
-        expected_data_path = microcat6385_resources / 'SBE37SM-6385_align.cnv'
+        expected_data_path = str(microcat6385_resources / 'SBE37SM-6385_align.cnv')
         expected_data = id.cnv_to_instrument_data(expected_data_path)
 
 
-        source_data_path = microcat6385_resources / 'SBE37SM-6385.cnv'
+        source_data_path = str(microcat6385_resources / 'SBE37SM-6385.cnv')
         source_data = id.cnv_to_instrument_data(source_data_path)
 
         result = dp.align_ctd(source_data.measurements['prdE'].values, 0, 120)
@@ -110,11 +110,11 @@ class TestAlignCtd:
         ))
 
     def test_align_ctd_subtract(self):
-        expected_data_path = microcat6385_resources / 'SBE37SM-6385_align.cnv'
+        expected_data_path = str(microcat6385_resources / 'SBE37SM-6385_align.cnv')
         expected_data = id.cnv_to_instrument_data(expected_data_path)
 
 
-        source_data_path = microcat6385_resources / 'SBE37SM-6385.cnv'
+        source_data_path = str(microcat6385_resources / 'SBE37SM-6385.cnv')
         source_data = id.cnv_to_instrument_data(source_data_path)
 
         # Fix last valid sample
@@ -130,9 +130,9 @@ class TestAlignCtd:
 class TestCellThermalMass:
 
     def test_cell_thermal_mass_pass(self):
-        expected_data_path = microcat6385_resources / 'SBE37SM-6385_ctm.cnv'
+        expected_data_path = str(microcat6385_resources / 'SBE37SM-6385_ctm.cnv')
         expected_data = id.cnv_to_instrument_data(expected_data_path)
-        source_data_path = microcat6385_resources / 'SBE37SM-6385.cnv'
+        source_data_path = str(microcat6385_resources / 'SBE37SM-6385.cnv')
         source_data = id.cnv_to_instrument_data(source_data_path)
         corrected_conductivity = dp.cell_thermal_mass(
             source_data.measurements['tv290C'].values,
@@ -145,10 +145,13 @@ class TestCellThermalMass:
 
 
 class TestLoopEdit:
+    cast0002 = test_resources / 'orca-test-data' / 'SBE19' / 'CAST0002'
 
     def test_loop_edit_pressure_min_velocity_pass(self):
-        expected_data = id.cnv_to_instrument_data(test_resources / 'orca-test-data/SBE19/CAST0002/CAST0002_mod_filt_loop_min_v.cnv')
-        data = id.cnv_to_instrument_data(test_resources / 'orca-test-data/SBE19/CAST0002/CAST0002_mod_filt.cnv')
+        expected_path = str(self.cast0002 / 'CAST0002_mod_filt_loop_min_v.cnv')
+        data_path = str(self.cast0002 / 'CAST0002_mod_filt.cnv')
+        expected_data = id.cnv_to_instrument_data(expected_path)
+        data = id.cnv_to_instrument_data(data_path)
 
         dp.loop_edit_pressure(
             pressure=data.measurements['prSM'].values, 
@@ -183,8 +186,10 @@ class TestLoopEdit:
 
 
     def test_loop_edit_pressure_min_velocity_remove_soak_pass(self):
-        expected_data = id.cnv_to_instrument_data(test_resources / 'orca-test-data/SBE19/CAST0002/CAST0002_mod_filt_loop_min_v_remove_soak.cnv')
-        data = id.cnv_to_instrument_data(test_resources / 'orca-test-data/SBE19/CAST0002/CAST0002_mod_filt.cnv')
+        expected_data_path = str(self.cast0002 / 'CAST0002_mod_filt_loop_min_v_remove_soak.cnv')
+        data_path = str(self.cast0002 / 'CAST0002_mod_filt.cnv')
+        expected_data = id.cnv_to_instrument_data(expected_data_path)
+        data = id.cnv_to_instrument_data(data_path)
 
         dp.loop_edit_pressure(
             pressure=data.measurements['prSM'].values, 
@@ -219,8 +224,10 @@ class TestLoopEdit:
 
 
     def test_loop_edit_pressure_min_velocity_reset_flags_pass(self):
-        expected_data = id.cnv_to_instrument_data(test_resources / 'orca-test-data/SBE19/CAST0002/CAST0002_mod_filt_loop_min_v.cnv')
-        data = id.cnv_to_instrument_data(test_resources / 'orca-test-data/SBE19/CAST0002/CAST0002_mod_filt_loop_min_v_remove_soak.cnv')
+        expected_data_path = str(self.cast0002 / 'CAST0002_mod_filt_loop_min_v.cnv')
+        data_path = str(self.cast0002 / 'CAST0002_mod_filt_loop_min_v_remove_soak.cnv')
+        expected_data = id.cnv_to_instrument_data(expected_data_path)
+        data = id.cnv_to_instrument_data(data_path)
         
         dp.loop_edit_pressure(
             pressure=data.measurements['prSM'].values,
@@ -255,8 +262,10 @@ class TestLoopEdit:
 
 
     def test_loop_edit_pressure_min_velocity_exclude_flags_pass(self):
-        expected_data = id.cnv_to_instrument_data(test_resources / 'orca-test-data/SBE19/CAST0002/CAST0002_mod_filt_loop_min_v_remove_soak.cnv')
-        data = id.cnv_to_instrument_data(test_resources / 'orca-test-data/SBE19/CAST0002/CAST0002_mod_filt_loop_min_v_exclude_flags_from_remove_soak.cnv')
+        expected_data_path = str(self.cast0002 / 'CAST0002_mod_filt_loop_min_v_remove_soak.cnv')
+        data_path = str(self.cast0002 / 'CAST0002_mod_filt_loop_min_v_exclude_flags_from_remove_soak.cnv')
+        expected_data = id.cnv_to_instrument_data(expected_data_path)
+        data = id.cnv_to_instrument_data(data_path)
         
         dp.loop_edit_pressure(
             pressure=data.measurements['prSM'].values,
@@ -292,8 +301,10 @@ class TestLoopEdit:
 
 
     def test_loop_edit_pressure_mean_speed_percent_remove_soak_pass(self):
-        expected_data = id.cnv_to_instrument_data(test_resources / 'orca-test-data/SBE19/CAST0002/CAST0002_mod_filt_loop_percent_remove_soak.cnv')
-        data = id.cnv_to_instrument_data(test_resources / 'orca-test-data/SBE19/CAST0002/CAST0002_mod_filt.cnv')
+        expected_data_path = str(self.cast0002 / 'CAST0002_mod_filt_loop_percent_remove_soak.cnv')
+        data_path = str(self.cast0002 / 'CAST0002_mod_filt.cnv')
+        expected_data = id.cnv_to_instrument_data(expected_data_path)
+        data = id.cnv_to_instrument_data(data_path)
 
         dp.loop_edit_pressure(
             pressure=data.measurements['prSM'].values,
@@ -329,8 +340,10 @@ class TestLoopEdit:
 
 
     def test_loop_edit_pressure_mean_speed_percent_pass(self):
-        expected_data = id.cnv_to_instrument_data(test_resources / 'orca-test-data/SBE19/CAST0002/CAST0002_mod_filt_loop_percent.cnv')
-        data = id.cnv_to_instrument_data(test_resources / 'orca-test-data/SBE19/CAST0002/CAST0002_mod_filt.cnv')
+        expected_data_path = str(self.cast0002 / 'CAST0002_mod_filt_loop_percent.cnv')
+        data_path = str(self.cast0002 / 'CAST0002_mod_filt.cnv')
+        expected_data = id.cnv_to_instrument_data(expected_data_path)
+        data = id.cnv_to_instrument_data(data_path)
 
         dp.loop_edit_pressure(
             pressure=data.measurements['prSM'].values,
@@ -368,8 +381,11 @@ class TestLoopEdit:
 
 
     def test_loop_edit_pressure_min_velocity_pass_2(self):
-        expected_data = id.cnv_to_instrument_data(test_resources / 'orca-test-data/SBE19plusV2/SBE19plus_01906398_2019_07_15/SBE19plus_01906398_2019_07_15_0033_loop_edit.cnv')
-        data = id.cnv_to_instrument_data(test_resources / 'orca-test-data/SBE19plusV2/SBE19plus_01906398_2019_07_15/SBE19plus_01906398_2019_07_15_0033.cnv')
+        sbe19plus = test_resources / 'orca-test-data' / 'SBE19plusV2' / 'SBE19plus_01906398_2019_07_15'
+        expected_data_path = str(sbe19plus / 'SBE19plus_01906398_2019_07_15_0033_loop_edit.cnv')
+        data_path = str(sbe19plus / 'SBE19plus_01906398_2019_07_15_0033.cnv')
+        expected_data = id.cnv_to_instrument_data(expected_data_path)
+        data = id.cnv_to_instrument_data(data_path)
 
         dp.loop_edit_pressure(
             pressure=data.measurements['prdM'].values,
@@ -411,10 +427,12 @@ class TestLoopEdit:
 class TestWildEdit:
 
     def test_wild_edit_pass(self):
-        expected_dataset = id.cnv_to_instrument_data(test_resources / r'orca-test-data\SBE19plusV2\E8001\E8001_wild_edit.cnv')
+        expected_path = test_resources / 'orca-test-data\SBE19plusV2\E8001\E8001_wild_edit.cnv'
+        expected_dataset = id.cnv_to_instrument_data(expected_path)
         expected_output = expected_dataset.measurements['prdM'].values
 
-        dataset = id.cnv_to_instrument_data(test_resources / r'orca-test-data\SBE19plusV2\E8001\E8001.cnv')
+        dataset_path = test_resources / 'orca-test-data\SBE19plusV2\E8001\E8001.cnv'
+        dataset = id.cnv_to_instrument_data(dataset_path)
         pressure = dataset.measurements['prdM'].values
         flags = dataset.measurements['flag'].values
 
@@ -425,7 +443,7 @@ class TestWildEdit:
 
 class TestWindowFilter:
     
-    file_prefix = test_resources / 'orca-test-data/SBE19plusV2/E8001/E8001_window_filter'
+    file_prefix = str(test_resources / 'orca-test-data/SBE19plusV2/E8001/E8001_window_filter')
     cnvdata = id.cnv_to_instrument_data(f'{file_prefix}.cnv')
     pressure = cnvdata.measurements['prdM'].values
     flags = cnvdata.measurements['flag'].values

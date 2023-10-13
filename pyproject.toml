@@ -1,6 +1,6 @@
 [project]
 name = "seabirdscientific"
-version = "1.0.0-alpha"
+version = "0.0.3"
 
 authors = [
     {name = "Lukas Christensen", email = "lchristensen@seabird.com"},
@@ -9,7 +9,7 @@ authors = [
 
 description = "SeaBird Scientific Community Toolkit"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 
 classifiers = [
     "Private :: Do Not Upload",

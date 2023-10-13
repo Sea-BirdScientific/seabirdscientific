@@ -19,17 +19,6 @@ from sbs.visualize import visualization as dv
 
 test_resources = importlib.resources.files('resources')
 
-class TestNamesAreValid:
-    def test_names_are_valid_empty_pass(self):
-        assert dv.names_are_valid([], ['a', 'b', 'c'])
-
-    def test_names_are_valid_multiple_pass(self):
-        assert dv.names_are_valid(['a', 'b'], ['a', 'b', 'c'])
-
-    def test_names_are_valid_multiple_warn(self):
-        with pytest.warns(UserWarning, match="d not found in header names"):
-            assert not dv.names_are_valid(['c', 'd'], ['a', 'b', 'c'])
-
 
 class TestParseChartData:
     @pytest.mark.parametrize("path", [
@@ -40,20 +29,20 @@ class TestParseChartData:
         assert isinstance(dv.parse_instrument_data(path), pd.DataFrame)
 
     def test_parse_instrument_data_json_pass(self):
-        assert isinstance(dv.parse_instrument_data(
-            test_resources / "example_pass.json"), pd.DataFrame)
+        assert isinstance(dv.parse_instrument_data(test_resources / "example_pass.json"), pd.DataFrame)
 
-    def test_parse_instrument_data_txt_warn(self):
-        with pytest.warns(UserWarning, match="Unknown data source"):
-            dv.parse_instrument_data(
-                test_resources / "example_fail_filetype.txt")
+    def test_parse_instrument_data_txt_warn(self, caplog):
+        dv.parse_instrument_data(test_resources / "example_fail_filetype.txt")
+        assert 'Unknown data source' in caplog.text
 
 
 class TestSelectSubset:
-    data = dv.parse_instrument_data(test_resources / "example_pass.asc")
+    data = dv.parse_instrument_data(str(test_resources / "example_pass.asc"))
 
     def test_select_subset_empty_pass(self):
-        assert np.all(dv.select_subset([], self.data) == pd.DataFrame({'Sample Count': [0, 1, 2]}))
+        result = dv.select_subset([], self.data)
+        expected = pd.DataFrame({'Sample Count': [0, 1, 2]})
+        assert np.all(result == expected)
 
     def test_select_subset_single_pass(self):
         subset = dv.select_subset(['Col1'], self.data)
@@ -62,7 +51,7 @@ class TestSelectSubset:
 
 
 class TestPlotXYChart:
-    data_path = test_resources / 'unit_tests/data/example_pass.asc'
+    data_path = str(test_resources / 'example_pass.asc')
     config = dv.ChartConfig(
         title=data_path,
         x_names=["Col1"],
@@ -91,17 +80,17 @@ class TestPlotXYChart:
         assert isinstance(dv.plot_xy_chart(self.data, self.config), go.Figure)
 
     @pytest.mark.parametrize("chart_type", ["overlay", "subplots"])
-    def test_plot_xy_chart_warn(self, chart_type):
+    def test_plot_xy_chart_warn(self, chart_type, caplog):
         self.config.x_names = ["Col1", "Col2"]
         self.config.y_names = ["Col1", "Col2"]
         self.config.chart_type = chart_type
         data = dv.ChartData(self.data_path, self.config)
-        with pytest.warns(UserWarning, match="Only one axis can support multiple data sets"):
-            dv.plot_xy_chart(data, self.config)
+        dv.plot_xy_chart(data, self.config)
+        assert 'Only one axis can support multiple data sets' in caplog.messages
 
 
 class TestChartData:
-    data_path = test_resources / 'unit_tests/data/example_pass.asc'
+    data_path = str(test_resources / 'example_pass.asc')
     config = dv.ChartConfig(
         title=data_path,
         x_names=["Col1"],
@@ -133,7 +122,7 @@ class TestChartData:
             data = dv.ChartData(self.data_path, config)
 
     def test_chart_data_slash_pass(self):
-        data_path = test_resources / 'unit_tests/data/example_fail_slash.csv'
+        data_path = str(test_resources / 'example_fail_slash.csv')
         config = dv.ChartConfig(
             title=data_path,
             x_names = ["Col/1"],
@@ -148,15 +137,16 @@ class TestChartData:
 
 class TestJsonToDataFrame:
     def test_json_to_dataframe_file_pass(self):
-        assert isinstance(
-            dv.json_to_dataframe(test_resources / "example_pass.json"), pd.DataFrame)
+        dataframe = dv.json_to_dataframe(str(test_resources / "example_pass.json"))
+        assert isinstance(dataframe, pd.DataFrame)
 
     def test_json_to_dataframe_str_pass(self):
-        assert isinstance(
-            dv.json_to_dataframe('{"Col1": [1.0, 4.0, 7.0], "Col2": [2.0, 5.0, 8.0], "Col3": [3.0, 6.0, 9.0]}'), pd.DataFrame)
+        dataframe_string = '{"Col1": [1.0, 4.0, 7.0], "Col2": [2.0, 5.0, 8.0], "Col3": [3.0, 6.0, 9.0]}'
+        assert isinstance(dv.json_to_dataframe(dataframe_string), pd.DataFrame)
 
     def test_json_to_dataframe_none_pass(self):
-        assert (dv.json_to_dataframe(test_resources / "example_fail_filetype.txt") is None)
+        dataframe = dv.json_to_dataframe(str(test_resources / "example_fail_filetype.txt"))
+        assert (dataframe is None)
 
 
 class TestPlotXYChart:
@@ -208,7 +198,7 @@ class TestPlotTSChart:
 
 
 class TestChartBounds:
-    data_path = test_resources / 'unit_tests/data/example_pass.asc'
+    data_path = str(test_resources / 'example_pass.asc')
     
     def test_chart_bounds_multiple_x_pass(self):
         config = dv.ChartConfig(

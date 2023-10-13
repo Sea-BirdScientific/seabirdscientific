@@ -99,7 +99,7 @@ class ChartData:
         """
         data = parse_instrument_data(data_source)
         data.mask(data == config.flag_value, inplace=True)
-        if not config.plot_loop_edit_flags:
+        if not config.plot_loop_edit_flags and 'flag' in data.keys():
             mask = data['flag'].isnull()
             data.loc[mask, :] = np.nan
         self.x = select_subset(config.x_names, data)
@@ -107,28 +107,6 @@ class ChartData:
         self.z = select_subset(config.z_names, data)
 
         pass
-
-
-def names_are_valid(axis_names: list[str], data_names: list[str]) -> bool:
-    """Checks that all of the names in axis_names are also in data_names.
-    There is a known bug that removes special characters from data names.
-    When that bug is fixed replace this function with:
-        all(axis_name in data_names for axis_name in axis_names)
-
-    Args:
-        axis_names (list of strings): List of axis names to plot
-        data_names (list of string): List of valid names in the dataset
-
-    Returns:
-        bool: True if all axis_names are valid, otherwise false
-    """
-    list_is_valid = True
-    for axis_name in axis_names:
-        name_is_valid = axis_name in data_names
-        list_is_valid &= name_is_valid
-        if not name_is_valid:
-            logger.warning(f"{axis_name} not found in header names")
-    return list_is_valid
 
 
 def parse_instrument_data(source: Union[str, pd.DataFrame]) -> pd.DataFrame:

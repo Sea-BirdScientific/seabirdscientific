@@ -130,6 +130,7 @@ def cnv_to_instrument_data(filepath: str) -> InstrumentData:
 
     logger.info("Unpacking instrument data from file: %s", filepath)
 
+    # TODO: Speed this up. Parsing large files is very very slow
     with open(filepath, 'r') as cnv:
         for line in cnv:
             if line.startswith('*') or line.startswith('#'):
