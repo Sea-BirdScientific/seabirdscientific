@@ -1,6 +1,3 @@
-#!/usr/bin/python3
-# -*- coding: utf-8 -*-
-
 """TODO: instrument_data docstring"""
 
 # Native imports
@@ -9,6 +6,7 @@ from dataclasses import dataclass
 from datetime import date, datetime
 from logging import getLogger
 from typing import List, Dict
+from pathlib import Path
 
 # Third-party imports
 import numpy as np
@@ -115,7 +113,7 @@ class InstrumentData:
     sample_count: int
 
 
-def cnv_to_instrument_data(filepath: str) -> InstrumentData:
+def cnv_to_instrument_data(filepath: Path) -> InstrumentData:
     """TODO: make this an InstrumentData class method"""
 
     data = InstrumentData(
