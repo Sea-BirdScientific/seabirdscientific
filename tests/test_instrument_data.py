@@ -1,6 +1,3 @@
-#!/usr/bin/python3
-# -*- coding: utf-8 -*-
-
 """TODO: test_instrument_data docstring"""
 
 # Native imports
@@ -16,7 +13,7 @@ import sbs.process.instrument_data as id
 
 test_resources = importlib.resources.files('resources')
 
-class TestCnvToOceanData:
+class TestCnvToInstrumentData:
     measurement_series = id.MeasurementSeries(
         label='test',
         description='',

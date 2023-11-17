@@ -1,0 +1,3 @@
+[submodule "orca-test-data"]
+	path = tests/resources/orca-test-data
+	url = https://github.com/Sea-BirdScientific/orca-test-data.git
