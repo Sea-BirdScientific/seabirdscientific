@@ -1,12 +1,10 @@
-#!/usr/bin/python3
-# -*- coding: utf-8 -*-
-
 """TODO: visualization docstring"""
 
 # Native imports
 import json
 from logging import getLogger
 from typing import Union
+from pathlib import Path
 
 # Third-party imports
 import numpy as np
@@ -98,46 +96,23 @@ class ChartData:
             config (ChartConfig): A ChartConfig object to configure plotly
         """
         data = parse_instrument_data(data_source)
-        data.mask(data == config.flag_value, inplace=True)
-        if not config.plot_loop_edit_flags:
-            mask = data['flag'].isnull()
-            data.loc[mask, :] = np.nan
-        self.x = select_subset(config.x_names, data)
-        self.y = select_subset(config.y_names, data)
-        self.z = select_subset(config.z_names, data)
-
-        pass
-
-
-def names_are_valid(axis_names: list[str], data_names: list[str]) -> bool:
-    """Checks that all of the names in axis_names are also in data_names.
-    There is a known bug that removes special characters from data names.
-    When that bug is fixed replace this function with:
-        all(axis_name in data_names for axis_name in axis_names)
-
-    Args:
-        axis_names (list of strings): List of axis names to plot
-        data_names (list of string): List of valid names in the dataset
-
-    Returns:
-        bool: True if all axis_names are valid, otherwise false
-    """
-    list_is_valid = True
-    for axis_name in axis_names:
-        name_is_valid = axis_name in data_names
-        list_is_valid &= name_is_valid
-        if not name_is_valid:
-            logger.warning(f"{axis_name} not found in header names")
-    return list_is_valid
+        if data is not None:
+            data.mask(data == config.flag_value, inplace=True)
+            if not config.plot_loop_edit_flags:
+                mask = data['flag'].isnull()
+                data.loc[mask, :] = np.nan
+            self.x = select_subset(config.x_names, data)
+            self.y = select_subset(config.y_names, data)
+            self.z = select_subset(config.z_names, data)
 
 
-def parse_instrument_data(source: Union[str, pd.DataFrame]) -> pd.DataFrame:
+def parse_instrument_data(source: Union[str, Path, pd.DataFrame]) -> pd.DataFrame:
     """Top level function for converting instrument data to numpy array.
     Currently supports pandas dataframes, json strings, and a string path to
     the following file types: .csv, .asc (comma separated), and .json.
 
     Args:
-        source (str | pd.DataFrame): A file path (.csv, .asc, .json), JSON string,
+        source (str | | pathlib.Path | pd.DataFrame): A JSON string, file path (.csv, .asc, .json),
         or pandas DataFrame
 
     Returns:
@@ -147,48 +122,36 @@ def parse_instrument_data(source: Union[str, pd.DataFrame]) -> pd.DataFrame:
         array = parse_instrument_data("./example.csv")
     """
     
-    if isinstance(source, pd.DataFrame):
-        data = source.copy()
-
-    elif isinstance(source, str):
-        json_dataframe = json_to_dataframe(source)
-
-        if isinstance(json_dataframe, pd.DataFrame):
-            data = json_dataframe.copy()
-        elif source.endswith('.csv') or source.endswith('.asc'):
-            data = pd.read_csv(source)
-        else:
-            logger.warning("Unknown data source")
-            data = pd.DataFrame()
-    else:
-        logger.warning("Unknown data source")
-        data = pd.DataFrame()
-    
-    columns = [interpret_sbs_variable(column)['name'] for column in data.columns]
-    for old_column, new_column in zip(data.columns, columns):
-        data.rename(columns={old_column: new_column}, inplace=True)
-    return data
-
-
-def json_to_dataframe(source: str) -> pd.DataFrame:
-    """Creates a dict from a JSON string or a file if it is valid JSON, otherwise returns None
-
-    Args:
-        source (str): JSON string or path to the JSON file
-
-    Returns:
-        dict: The JSON string or file converted to a dict
-    """
-
     try:
-        # return json.loads(source)
-        return pd.DataFrame.from_dict(json.loads(source), orient='columns')
-    except (ValueError, TypeError):  # TODO get opinions on try/except usage here
-        if source.endswith('.json'):
-            with open(source, encoding="utf-8") as js_data:
-                # return json.load(js_data)
-                return pd.DataFrame.from_dict(json.load(js_data), orient='columns')
-        return None
+        if isinstance(source, pd.DataFrame):
+            data = source.copy()
+
+        elif isinstance(source, Path):
+            suffix = source.suffix.lower()
+            if suffix == '.csv' or suffix == '.asc':
+                data = pd.read_csv(source)
+            elif suffix == '.json':
+                with open(source, encoding="utf-8") as js_data:
+                    data = pd.DataFrame.from_dict(json.load(js_data), orient='columns')
+
+        elif isinstance(source, str):
+            data = pd.DataFrame.from_dict(json.loads(source), orient='columns')
+
+        else:
+            raise Exception
+
+        if 'data' not in locals() or not isinstance(data, pd.DataFrame):
+            raise Exception
+
+        columns = [interpret_sbs_variable(column)['name'] for column in data.columns]
+        for old_column, new_column in zip(data.columns, columns):
+            data.rename(columns={old_column: new_column}, inplace=True)
+        return data
+
+    except Exception as e:
+        logger.error(e)
+    
+
 
 
 def select_subset(axis_names: list[str], data: pd.DataFrame) -> pd.DataFrame:
