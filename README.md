@@ -2,9 +2,9 @@
 Sea-Bird Scientific Community Toolkit
 
 ## Installation
-**Note:** the wl239 system is currently down. Install from a cloned repo until it is back up
+
 ```bash
-py -m pip install seabirdscientific --extra-index-url http://wl239.sbs.ewqg.com:9000 --trusted-host wl239.sbs.ewqg.com  
+py -m pip install seabirdscientific --extra-index-url http://winbuilder02.sbs.ewqg.com/SBSPyPi/ --trusted-host winbuilder02.sbs.ewqg.com
 ```
 OR from a cloned repo, in editable mode, with dev depenedencies
 ```bash

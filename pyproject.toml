@@ -1,6 +1,6 @@
 [project]
 name = "seabirdscientific"
-version = "1.0.0-alpha"
+version = "1.0.4"
 
 authors = [
     {name = "Lukas Christensen", email = "lchristensen@seabird.com"},
