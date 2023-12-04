@@ -16,7 +16,6 @@ py -m pip install -e .[dev]
 ```python
 import sbs
 from sbs.process import contour
-from sbs.visualize import visualization as v
+from sbs.visualize import visualization as viz
 ```
-The notebooks currently depend on data files that are not part of this repo, and can't be run as-is. For now, they are only for reference.  
-
+There is a ctd-processing notebook \([ctd-processing.ipynb](https://github.com/Sea-BirdScientific/seabirdscientific/blob/Install-from-winbuilder02/documentation/ctd-processing.ipynb)\) in the documentation folder of the repository. It shows examples of how to use some of the CTD related processing and visualization toolkit functions. It uses sample data from the included documentation\example_data folder.
