@@ -7,7 +7,7 @@
 DESCRIPTION:
 Converts the strings that define SBE variables to strings that matlab can
 use as functions. Gives units for each variable and defines whether
-it is a number or a text string. 
+it is a number or a text string.
 
 All variables imported from SBEDataProcessing_7.26.4.pdf. There may be
 additional variables added in future versions of Sea-Bird Data processing
@@ -17,14 +17,14 @@ you find one to keep the code current.
 INPUT:
   sbs_var         =   text string with variable name
 
-OUTPUT: 
+OUTPUT:
   kvar_name       =   converted, matlab code readable variable name
   kvar_format     =   defines whether variable is a float or a string
   kvar_units      =   variable units. Empty string if undefined.
 
 
 KiM MARTiNi 07.2017
-Sea-Bird Scientific 
+Sea-Bird Scientific
 """
 
 # Native imports

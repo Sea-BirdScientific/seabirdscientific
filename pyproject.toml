@@ -1,35 +1,37 @@
 [project]
 name = "seabirdscientific"
 version = "1.0.4"
-
+description = "SeaBird Scientific Community Toolkit"
+readme = "README.md"
 authors = [
     {name = "Lukas Christensen", email = "lchristensen@seabird.com"},
     {name = "Jesse Templin", email = "jtemplin@seabird.com"},
 ]
-
-description = "SeaBird Scientific Community Toolkit"
-readme = "README.md"
 requires-python = ">=3.9"
-
 classifiers = [
-    "Private :: Do Not Upload",
+  "Private :: Do Not Upload",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
 ]
-
 dependencies = [
-    "gsw",
-    "matplotlib",
-    "numpy",
-    "pandas",
-    "plotly",
-    "scipy",
+  "gsw",
+  "matplotlib",
+  "numpy",
+  "pandas",
+  "plotly",
+  "scipy",
 ]
-
 [project.optional-dependencies]
 dev = [
-    "notebook",
-    "pytest",
+  "notebook",
+  "pytest",
 ]
 
 [build-system]
-requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
+requires = [
+  "setuptools>=61",
+]
