@@ -16,56 +16,56 @@ from dataclasses import dataclass
 
 
 @dataclass
-class SN6130: # cal coefficients for E8001
+class SN6130:  # cal coefficients for E8001
     # temperature
     A0 = 1.28015621e-003
     A1 = 2.58367774e-004
     A2 = -1.39527596e-008
     A3 = 1.39024630e-007
 
-    # pressure 
+    # pressure
     PA0 = 6.51546669e-002
     PA1 = 1.54424116e-003
     PA2 = 6.13653149e-012
-    PTCA0 = 5.24108391e+005
-    PTCA1 = 5.47371611e+000
+    PTCA0 = 5.24108391e005
+    PTCA1 = 5.47371611e000
     PTCA2 = -1.53365246e-001
-    PTCB0 = 2.59008750e+001
+    PTCB0 = 2.59008750e001
     PTCB1 = 7.75000000e-004
-    PTCB2 = 0.00000000e+000
-    PTEMPA0 = -6.28624239e+001
-    PTEMPA1 = 5.41620689e+001
+    PTCB2 = 0.00000000e000
+    PTEMPA0 = -6.28624239e001
+    PTEMPA1 = 5.41620689e001
     PTEMPA2 = -2.96026659e-001
 
     # conductivity
-    G = -1.02365730e+00
+    G = -1.02365730e00
     H = 1.49306223e-01
     I = -5.63206187e-04
     J = 6.51821272e-05
     CPCOR = -9.570000e-08
     CTCOR = 3.250000e-06
-    WBOTC = 0.00000000e+000
+    WBOTC = 0.00000000e000
 
 
 @dataclass
-class SN03706385: # cal coefficients for SBE37SM-6385
+class SN03706385:  # cal coefficients for SBE37SM-6385
     # temperature
     A0 = 1.62680600e-004
     A1 = 2.45695900e-004
     A2 = -2.34056800e-007
     A3 = 9.32450300e-008
 
-    # pressure 
+    # pressure
     PA0 = 6.60137700e-001
     PA1 = 9.63297700e-003
     PA2 = -1.65805500e-010
-    PTCA0 = 5.24536600e+005
-    PTCA1 = 4.77095200e+000
+    PTCA0 = 5.24536600e005
+    PTCA1 = 4.77095200e000
     PTCA2 = -9.34045100e-002
-    PTCB0 = 2.60416300e+001
+    PTCB0 = 2.60416300e001
     PTCB1 = -1.67500000e-003
-    PTCB2 = 0.00000000e+000
-    PTEMPA0 = -6.83823200e+001
+    PTCB2 = 0.00000000e000
+    PTEMPA0 = -6.83823200e001
     PTEMPA1 = 5.19557000e-002
     PTEMPA2 = -6.69832900e-007
 
@@ -88,7 +88,7 @@ class SN03716125:
     A3 = 2.01978100e-007
 
     # conductivity
-    G = -1.00193200e+000
+    G = -1.00193200e000
     H = 1.28425000e-001
     I = -9.96045200e-005
     J = 2.34704100e-005
@@ -100,15 +100,16 @@ class SN03716125:
     PA0 = 1.05494900e-003
     PA1 = 4.85370000e-004
     PA2 = -2.07071300e-012
-    PTEMPA0 = -6.15215600e+001
+    PTEMPA0 = -6.15215600e001
     PTEMPA1 = 5.18166200e-002
     PTEMPA2 = -2.89409800e-007
-    PTCA0 = 5.23607500e+005
-    PTCA1 = 4.34649000e+000
+    PTCA0 = 5.23607500e005
+    PTCA1 = 4.34649000e000
     PTCA2 = -1.75847200e-001
-    PTCB0 = 2.52622500e+001
+    PTCB0 = 2.52622500e001
     PTCB1 = 6.50000000e-004
-    PTCB2 = 0.00000000e+000
+    PTCB2 = 0.00000000e000
+
 
 @dataclass
 class SN06302568:

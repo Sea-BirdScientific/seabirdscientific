@@ -18,7 +18,7 @@ def close_enough(
     test_values: np.ndarray,
     expected_values: np.ndarray,
     rounding_order: int,
-    absolute_tolerance: float
+    absolute_tolerance: float,
 ) -> bool:
     """Compares ndarrays, accounting for rounding errors introduced by SeaSoft.
     Frequently a float will be accurate to the 14th decimal, for example, but the
@@ -39,17 +39,26 @@ def close_enough(
     results = np.full(len(test_values), False)
     for n in range(len(test_values)):
         results[n] = (
-            np.round(test_values[n], rounding_order) == expected_values[n] or
-            np.isclose(test_values[n], expected_values[n] - 0.5*10**-rounding_order, rtol=0, atol=absolute_tolerance) or
-            np.isclose(test_values[n], expected_values[n] + 0.5*10**-rounding_order, rtol=0, atol=absolute_tolerance)
+            np.round(test_values[n], rounding_order) == expected_values[n]
+            or np.isclose(
+                test_values[n],
+                expected_values[n] - 0.5 * 10**-rounding_order,
+                rtol=0,
+                atol=absolute_tolerance,
+            )
+            or np.isclose(
+                test_values[n],
+                expected_values[n] + 0.5 * 10**-rounding_order,
+                rtol=0,
+                atol=absolute_tolerance,
+            )
         )
     return np.all(results)
 
 
 def plot(**kwargs: np.ndarray):
-    """Plots a dictionary of ndarrays
-    """
-    fig, ax = plt.subplots(figsize=(20,10))
+    """Plots a dictionary of ndarrays"""
+    fig, ax = plt.subplots(figsize=(20, 10))
     for key in kwargs.keys():
         x = range(len(kwargs[key]))
         ax.plot(x, kwargs[key], label=key)
@@ -58,4 +67,4 @@ def plot(**kwargs: np.ndarray):
 
 
 def percent_match(x1: np.ndarray, x2: np.ndarray) -> str:
-    return f'{100 - (x1 != x2).sum()*100 / len(x1):0.2f}% match'
+    return f"{100 - (x1 != x2).sum()*100 / len(x1):0.2f}% match"
