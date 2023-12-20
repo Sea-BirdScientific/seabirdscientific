@@ -323,7 +323,7 @@ def depth_from_pressure(pressure_in: np.ndarray, latitude: float, depth_units='m
 
     return depth
 
-def convert_oxygen_array(raw_oxygen_phase: np.ndarray, raw_thermistor_temp: np.ndarray, pressure: np.ndarray, 
+def convert_sbe63_oxygen_array(raw_oxygen_phase: np.ndarray, raw_thermistor_temp: np.ndarray, pressure: np.ndarray, 
                                salinity: np.ndarray, a0: float, a1: float, a2: float, b0: float, b1: float,
                                c0: float, c1: float, c2: float, ta0: float, ta1: float, ta2: float, ta3: float, e: float):
     """ Returns the data after converting it to ml/l
@@ -351,7 +351,7 @@ def convert_oxygen_array(raw_oxygen_phase: np.ndarray, raw_thermistor_temp: np.n
     """ 
     thermistor_temperature = convert_SBE63_thermistor_array(raw_thermistor_temp, ta0, ta1, ta2, ta3)
     # oxygen = np.empty(shape = (raw_oxygen_phase.size))
-    convert_vectorized = np.vectorize(convert_oxygen_val, excluded=["a0", "a1", "a2", "a3", "b0", "b1", "c0", "c1", "c2", "e"])
+    convert_vectorized = np.vectorize(convert_sbe63_oxygen_val, excluded=["a0", "a1", "a2", "a3", "b0", "b1", "c0", "c1", "c2", "e"])
     oxygen = convert_vectorized(raw_oxygen_phase, thermistor_temperature, pressure, salinity, a0, a1, a2, b0, b1, c0, c1, c2, e)
     
     return oxygen
