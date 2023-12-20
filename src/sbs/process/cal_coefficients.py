@@ -46,6 +46,14 @@ class SN6130: # cal coefficients for E8001
     CTCOR = 3.250000e-06
     WBOTC = 0.00000000e+000
 
+    # ECO chlorophyll-a
+    ScaleFactorChla = 10
+    Vblank = 0.0680
+
+    # ECO turbidity
+    ScaleFactorTurbidity = 5
+    DarkVoltage = 0.059000
+
 
 @dataclass
 class SN03706385: # cal coefficients for SBE37SM-6385

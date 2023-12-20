@@ -357,7 +357,7 @@ def convert_oxygen_array(raw_oxygen_phase: np.ndarray, raw_thermistor_temp: np.n
     return oxygen
 
 
-def convert_oxygen_val(raw_oxygen_phase: float, temperature: float, pressure: float, 
+def convert_sbe63_oxygen_val(raw_oxygen_phase: float, temperature: float, pressure: float, 
                                salinity: float, a0: float, a1: float, a2: float, b0: float, b1: float,
                                c0: float, c1: float, c2: float, e: float):
     """ Returns the data after converting it to ml/l
@@ -528,7 +528,7 @@ def convert_sbe43_oxygen_array(
     result_values = np.zeros(len(voltage))
     for i in range(len(correct_ox_voltages)):
         result_values[i] = convert_sbe43_oxygen_val(correct_ox_voltages[i], temperature[i], pressure[i], salinity[i],
-            Soc, offset, Tau20, A, B, C, E, D1, D2, H1, H2, H3, apply_hysteresis_correction, dvdt_values[i])
+            Soc, offset, Tau20, A, B, C, E, D1, D2, dvdt_values[i])
     return result_values
 
 def convert_sbe43_oxygen_val(
