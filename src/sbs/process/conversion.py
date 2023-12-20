@@ -4,11 +4,12 @@
 """TODO: conversion docstring"""
 
 # Native imports
-from math import sqrt, e, log
+from math import sqrt, e, log, exp, floor
 
 # Third-party imports
 import gsw
 import numpy as np
+from scipy import stats
 
 # Sea-Bird imports
 
@@ -491,8 +492,8 @@ def convert_sbe43_oxygen_array(
         H3 (float): calibration coefficient for the SBE43 sensor, used for hysteresis correction
         apply_tau_correction (bool): whether or not to run tau correction
         apply_hysteresis_correction (bool): whether or not to run hysteresis correction
-        window_size (float): size of the window to use for tau correction, if applicable
-        sample_interval (float): sample rate of the data to be used for tau correction, if applicable
+        window_size (float): size of the window to use for tau correction, if applicable. In seconds.
+        sample_interval (float): sample rate of the data to be used for tau correction, if applicable. In seconds.
     Returns:
         np.ndarray: converted Oxygen values, in ml/l
     """
@@ -548,7 +549,8 @@ def convert_sbe43_oxygen_val(
 ):
     """ Returns the data after converting it to ml/l
         voltage is expected to be in volts, temperature in deg c, pressure in dbar, and salinity in practical salinity (PSU)
-        All equation information comes from the June 2013 revision of the SBE43 manual
+        All equation information comes from the June 2013 revision of the SBE43 manual.
+        Expects that hysteresis correction is already performed on the incoming voltage, if desired.
     Args:
         voltage (float): SBE43 voltage
         temperature (float): temperature value converted to deg C
@@ -563,10 +565,6 @@ def convert_sbe43_oxygen_val(
         E (float): calibration coefficient for the SBE43 sensor
         D1 (float): calibration coefficient for the SBE43 sensor
         D2 (float): calibration coefficient for the SBE43 sensor
-        H1 (float): calibration coefficient for the SBE43 sensor, used for hysteresis correction
-        H2 (float): calibration coefficient for the SBE43 sensor, used for hysteresis correction
-        H3 (float): calibration coefficient for the SBE43 sensor, used for hysteresis correction
-        apply_hysteresis_correction (bool): whether or not to run hysteresis correction
         dvdt_value (float): derivative value of voltage with respect to time at this point. Expected to be 0 if not using Tau correction
     Returns:
         float: converted Oxygen value, in ml/l
@@ -597,9 +595,6 @@ def convert_sbe43_oxygen_val(
     socTerm = Soc * (voltage + offset + tau)
     tempTerm = 1.0 + A * temperature + B * temperature ** 2 + C * temperature ** 3
     oxVal = socTerm * oxSol * tempTerm * exp((E * pressure) / (temperature + KELVIN_OFFSET))
-
-    # TODO: perform tau correction and hysterisis correction if needed
-
     return oxVal
 
 def convert_oxygen_to_mg_per_l(ox_values: np.ndarray):
