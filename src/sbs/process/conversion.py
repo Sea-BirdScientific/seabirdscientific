@@ -4,11 +4,12 @@
 """TODO: conversion docstring"""
 
 # Native imports
-from math import sqrt, e, log
+from math import sqrt, e, log, exp, floor
 
 # Third-party imports
 import gsw
 import numpy as np
+from scipy import stats
 
 # Sea-Bird imports
 
@@ -19,6 +20,8 @@ DBAR_TO_PSI = 1.450377
 PSI_TO_DBAR = 0.6894759
 OXYGEN_PHASE_TO_VOLTS = 39.457071
 KELVIN_OFFSET = 273.15
+OXYGEN_MLPERL_TO_MGPERL = 1.42903
+OXYGEN_MLPERL_TO_UMOLPERKG = 44660
 
 def convert_temperature_array(
     temperature_counts: np.ndarray, a0: float, a1: float, a2: float, a3: float, ITS90: bool, celsius: bool, use_MV_R: bool
@@ -320,7 +323,7 @@ def depth_from_pressure(pressure_in: np.ndarray, latitude: float, depth_units='m
 
     return depth
 
-def convert_oxygen_array(raw_oxygen_phase: np.ndarray, raw_thermistor_temp: np.ndarray, pressure: np.ndarray, 
+def convert_sbe63_oxygen_array(raw_oxygen_phase: np.ndarray, raw_thermistor_temp: np.ndarray, pressure: np.ndarray, 
                                salinity: np.ndarray, a0: float, a1: float, a2: float, b0: float, b1: float,
                                c0: float, c1: float, c2: float, ta0: float, ta1: float, ta2: float, ta3: float, e: float):
     """ Returns the data after converting it to ml/l
@@ -348,13 +351,13 @@ def convert_oxygen_array(raw_oxygen_phase: np.ndarray, raw_thermistor_temp: np.n
     """ 
     thermistor_temperature = convert_SBE63_thermistor_array(raw_thermistor_temp, ta0, ta1, ta2, ta3)
     # oxygen = np.empty(shape = (raw_oxygen_phase.size))
-    convert_vectorized = np.vectorize(convert_oxygen_val, excluded=["a0", "a1", "a2", "a3", "b0", "b1", "c0", "c1", "c2", "e"])
+    convert_vectorized = np.vectorize(convert_sbe63_oxygen_val, excluded=["a0", "a1", "a2", "a3", "b0", "b1", "c0", "c1", "c2", "e"])
     oxygen = convert_vectorized(raw_oxygen_phase, thermistor_temperature, pressure, salinity, a0, a1, a2, b0, b1, c0, c1, c2, e)
     
     return oxygen
 
 
-def convert_oxygen_val(raw_oxygen_phase: float, temperature: float, pressure: float, 
+def convert_sbe63_oxygen_val(raw_oxygen_phase: float, temperature: float, pressure: float, 
                                salinity: float, a0: float, a1: float, a2: float, b0: float, b1: float,
                                c0: float, c1: float, c2: float, e: float):
     """ Returns the data after converting it to ml/l
@@ -444,3 +447,218 @@ def convert_SBE63_thermistor_value(
     logVal = log((100000 * instrument_output) / (3.3 - instrument_output))
     temperature = 1 / (ta0 + ta1 * logVal + ta2 * logVal ** 2 + ta3 * logVal ** 3) - KELVIN_OFFSET
     return temperature
+
+def convert_sbe43_oxygen_array(
+    voltage: np.ndarray,
+    temperature: np.ndarray,
+    pressure: np.ndarray,
+    salinity: np.ndarray,
+    Soc: float,
+    offset: float,
+    Tau20: float,
+    A: float,
+    B: float,
+    C: float,
+    E: float,
+    D1: float,
+    D2: float,
+    H1: float,
+    H2: float,
+    H3: float,
+    apply_tau_correction: bool,
+    apply_hysteresis_correction: bool,
+    window_size: float,
+    sample_interval: float
+):
+    """ Returns the data after converting it to ml/l
+        voltage is expected to be in volts, temperature in deg c, pressure in dbar, and salinity in practical salinity (PSU)
+        All equation information comes from the June 2013 revision of the SBE43 manual
+    Args:
+        voltage (float): SBE43 voltage
+        temperature (float): temperature value converted to deg C
+        pressure (float): Converted pressure value from the attached CTD, in dbar
+        salinity (float): Converted salinity value from the attached CTD, in practical salinity PSU
+        Soc (float): calibration coefficient for the SBE43 sensor
+        offset (float): calibration coefficient for the SBE43 sensor
+        Tau20 (float): calibration coefficient for the SBE43 sensor, used for tau correction
+        A (float): calibration coefficient for the SBE43 sensor
+        B (float): calibration coefficient for the SBE43 sensor
+        C (float): calibration coefficient for the SBE43 sensor
+        E (float): calibration coefficient for the SBE43 sensor
+        D1 (float): calibration coefficient for the SBE43 sensor
+        D2 (float): calibration coefficient for the SBE43 sensor
+        H1 (float): calibration coefficient for the SBE43 sensor, used for hysteresis correction
+        H2 (float): calibration coefficient for the SBE43 sensor, used for hysteresis correction
+        H3 (float): calibration coefficient for the SBE43 sensor, used for hysteresis correction
+        apply_tau_correction (bool): whether or not to run tau correction
+        apply_hysteresis_correction (bool): whether or not to run hysteresis correction
+        window_size (float): size of the window to use for tau correction, if applicable. In seconds.
+        sample_interval (float): sample rate of the data to be used for tau correction, if applicable. In seconds.
+    Returns:
+        np.ndarray: converted Oxygen values, in ml/l
+    """
+    # start with all 0 for the dvdt
+    dvdt_values = np.zeros(len(voltage))
+    if apply_tau_correction:
+        # Calculates how many scans to have on either side of our median point, accounting for going out of index bounds
+        scans_per_side = floor(window_size / 2 / sample_interval)
+        for i in range(scans_per_side, len(voltage) - scans_per_side):
+            ox_subset = voltage[i - scans_per_side:i + scans_per_side + 1]
+
+            time_subset = np.arange(0, len(ox_subset) * sample_interval, sample_interval, dtype=float)
+
+            result = stats.linregress(time_subset, ox_subset)
+
+            dvdt_values[i] = result.slope
+
+    correct_ox_voltages = voltage.copy()
+    if apply_hysteresis_correction:
+        # Hysteresis starts at 1 because 0 can't be corrected
+        for i in range(1, len(correct_ox_voltages)):
+            # All Equation info from APPLICATION NOTE NO. 64-3
+            D = 1 + H1 * (exp(pressure[i] / H2) - 1)
+            C = exp(-1 * sample_interval / H3)
+            ox_volts = correct_ox_voltages[i] + offset
+
+            prev_ox_volts_new = correct_ox_voltages[i-1] + offset
+            ox_volts_new = ((ox_volts + prev_ox_volts_new * C * D) - (prev_ox_volts_new * C)) / D
+            ox_volts_final = ox_volts_new - offset
+            correct_ox_voltages[i] = ox_volts_final
+
+    result_values = np.zeros(len(voltage))
+    for i in range(len(correct_ox_voltages)):
+        result_values[i] = convert_sbe43_oxygen_val(correct_ox_voltages[i], temperature[i], pressure[i], salinity[i],
+            Soc, offset, Tau20, A, B, C, E, D1, D2, dvdt_values[i])
+    return result_values
+
+def convert_sbe43_oxygen_val(
+    voltage: float,
+    temperature: float,
+    pressure: float,
+    salinity: float,
+    Soc: float,
+    offset: float,
+    Tau20: float,
+    A: float,
+    B: float,
+    C: float,
+    E: float,
+    D1: float,
+    D2: float,
+    dvdt_value: float
+):
+    """ Returns the data after converting it to ml/l
+        voltage is expected to be in volts, temperature in deg c, pressure in dbar, and salinity in practical salinity (PSU)
+        All equation information comes from the June 2013 revision of the SBE43 manual.
+        Expects that hysteresis correction is already performed on the incoming voltage, if desired.
+    Args:
+        voltage (float): SBE43 voltage
+        temperature (float): temperature value converted to deg C
+        pressure (float): Converted pressure value from the attached CTD, in dbar
+        salinity (float): Converted salinity value from the attached CTD, in practical salinity PSU
+        Soc (float): calibration coefficient for the SBE43 sensor
+        offset (float): calibration coefficient for the SBE43 sensor
+        Tau20 (float): calibration coefficient for the SBE43 sensor, used for tau correction
+        A (float): calibration coefficient for the SBE43 sensor
+        B (float): calibration coefficient for the SBE43 sensor
+        C (float): calibration coefficient for the SBE43 sensor
+        E (float): calibration coefficient for the SBE43 sensor
+        D1 (float): calibration coefficient for the SBE43 sensor
+        D2 (float): calibration coefficient for the SBE43 sensor
+        dvdt_value (float): derivative value of voltage with respect to time at this point. Expected to be 0 if not using Tau correction
+    Returns:
+        float: converted Oxygen value, in ml/l
+    """
+
+    # Oxygen Solubility equation constants, From SBE43 Manual Appendix A
+    a0 = 2.00907
+    a1 = 3.22014
+    a2 = 4.0501
+    a3 = 4.94457
+    a4 = -0.256847
+    a5 = 3.88767
+    b0 = -0.00624523
+    b1 = -0.00737614
+    b2 = -0.010341
+    b3 = -0.00817083
+    c0 = -0.000000488682
+
+    ts = log((298.15 - temperature) / (KELVIN_OFFSET + temperature))
+    aTerm = a0 + a1 * ts + a2 * ts ** 2 + a3 * ts ** 3 + a4 * ts ** 4 + a5 * ts ** 5
+    bTerm = salinity * (b0 + b1 * ts + b2 * ts ** 2 + b3 * ts ** 3)
+    cTerm = c0 * salinity ** 2
+    oxSol = exp(aTerm + bTerm + cTerm)
+
+    # Tau correction
+    tau = Tau20 * exp(D1 * pressure + D2 * (temperature - 20)) * dvdt_value
+
+    socTerm = Soc * (voltage + offset + tau)
+    tempTerm = 1.0 + A * temperature + B * temperature ** 2 + C * temperature ** 3
+    oxVal = socTerm * oxSol * tempTerm * exp((E * pressure) / (temperature + KELVIN_OFFSET))
+    return oxVal
+
+def convert_oxygen_to_mg_per_l(ox_values: np.ndarray):
+    """ Converts given oxygen values to milligrams/Liter
+        Expects oxygen values to be in Ml/L
+    Args:
+        ox_values (np.ndarray): oxygen values, already converted to ml/L
+    Returns:
+        np.ndarray: oxygen values converted to milligrams/Liter
+    """
+    # From the SBE43 and SBE63 manual
+    return ox_values * OXYGEN_MLPERL_TO_MGPERL
+
+def convert_oxygen_to_umol_per_kg(ox_values: np.ndarray, potential_density: np.ndarray):
+    """ Converts given oxygen values to micromoles/Kilogram
+        Expects oxygen values to be in Ml/L
+        Note: Sigma-Theta is expected to be calculated via gsw_sigma0, meaning is it technically potential density anomaly.
+        Calculating using gsw_rho(SA, CT, p_ref = 0) results in actual potential density, but this function already does the converison,
+        So values will need to have 1000 subtracted from them before being passed into this function.
+        The function is done this way to stay matching to the manual for the SBE63 and SBE43, but the results of either method are identical.
+    Args:
+        ox_values (np.ndarray): oxygen values, already converted to ml/L
+        potential_density (np.ndarray): potential density (sigma-theta) values. 
+                                        Expected to be the same length as ox_values
+    Returns:
+        np.ndarray: oxygen values converted to milligrams/Liter
+    """
+    # From the SBE43 and SBE63 manual
+    convertedVals = np.divide(ox_values * OXYGEN_MLPERL_TO_UMOLPERKG, (potential_density + 1000))
+    return convertedVals
+
+def convert_ECO_chlorophylla_val(
+        rawChlorophylla: float,
+        ScaleFactor: float,
+        Vblank: float,
+):
+    """ Converts a raw value for chlorophyll-a channel on a ECO-FLNTU or ECO-FL
+        All equation information comes from ECO-FLNTU calibration sheets
+    Args:
+        rawChlorophylla (float): raw counts for digital, raw volts for analog
+        ScaleFactor (float): μg/l/count for digital, μg/l/V for analog
+        Vblank (float): dark counts: counts for digital, V for analog
+    Returns:
+        float: converted chlorophyll-a in μg/l)
+    """
+    chlorophylla = ScaleFactor * (rawChlorophylla - Vblank)
+
+    return chlorophylla
+
+
+def convert_ECO_turbidity_val(
+        rawTurbidity: float,
+        ScaleFactor: float,
+        DarkVoltage: float,
+):
+    """ Converts a raw value for turbidity channel on a ECO-FLNTU
+        All equation information comes from ECO-FLNTU calibration sheets
+    Args:
+        rawTurbidity(float): raw counts for digital, raw volts for analog
+        ScaleFactor (float): scale factor: NTU/count for digital, NTU/V for analog
+        Vblank (float): dark counts: counts for digital, V for analog
+    Returns:
+        float: converted turbidity in nephelometric turbidity unit (NTU)
+    """
+    turbidity = ScaleFactor * (rawTurbidity - DarkVoltage)
+
+    return turbidity
