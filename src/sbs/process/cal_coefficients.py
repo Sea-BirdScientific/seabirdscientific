@@ -46,6 +46,14 @@ class SN6130:  # cal coefficients for E8001
     CTCOR = 3.250000e-06
     WBOTC = 0.00000000e000
 
+    # ECO chlorophyll-a
+    ScaleFactorChla = 10
+    Vblank = 0.0680
+
+    # ECO turbidity
+    ScaleFactorTurbidity = 5
+    DarkVoltage = 0.059000
+
 
 @dataclass
 class SN03706385:  # cal coefficients for SBE37SM-6385
@@ -123,3 +131,37 @@ class SN06302568:
     c1 = 4.4295e-3
     c2 = 6.0011e-5
     e = 1.1e-2
+
+@dataclass
+class SN3287:
+    #SBE43 Oxygen
+    soc = 0.4792
+    v_offset = -0.484
+    tau_20 = 2.05
+    a = -3.661e-3
+    b = 1.7812e-4
+    c = -2.5951e-6
+    e = 0.036
+    d1 = 1.92634e-4
+    d2 = -4.64803e-2
+    h1 = -3.3e-2
+    h2 = 5e3
+    h3 = 1.45e3
+    e = 1.1e-2
+
+@dataclass
+class SN431686:
+    #SBE43 Oxygen
+    soc = 3.898e-1
+    v_offset = -0.498
+    tau_20 = 1.08
+    a = -3.3982e-3
+    b = 1.5817e-4
+    c = -2.6651e-6
+    e = 0.036
+    d0 = 2.5826; # TODO: the sensor lists a d0 coefficient, but it doesn't seem to be used?
+    d1 = 1.92634e-4
+    d2 = -4.64803e-2
+    h1 = -3.3e-2
+    h2 = 5e3
+    h3 = 1.45e3
