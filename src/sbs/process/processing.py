@@ -45,9 +45,7 @@ def butterworth_filter(x: np.ndarray, time_constant: float, sample_interval: flo
     return y
 
 
-def low_pass_filter(
-    x: np.ndarray, time_constant: float, sample_interval: float
-) -> np.ndarray:
+def low_pass_filter(x: np.ndarray, time_constant: float, sample_interval: float) -> np.ndarray:
     """Applies a low pass filter as defined in the SeaSoft manual v7.26.8 page 101
 
     Args:
@@ -73,9 +71,7 @@ def low_pass_filter(
     return y
 
 
-def align_ctd(
-    x: np.ndarray, offset: float, sample_interval: float, flag_value=-9.99e-29
-) -> np.ndarray:
+def align_ctd(x: np.ndarray, offset: float, sample_interval: float, flag_value=-9.99e-29) -> np.ndarray:
     """Takes an ndarray object of data for a single variable, applies a time offset to the series
     Performs interpolation when offset is not a factor of sampleinterval
     Args:
@@ -90,9 +86,7 @@ def align_ctd(
     """
 
     sample_times = np.arange(0, len(x) * sample_interval, sample_interval)
-    interp_res = np.interp(
-        sample_times + offset, sample_times, x, flag_value, flag_value
-    )
+    interp_res = np.interp(sample_times + offset, sample_times, x, flag_value, flag_value)
     return interp_res
 
 
@@ -224,12 +218,8 @@ def loop_edit_depth(
     )
 
     if min_velocity_type == MinVelocityType.FIXED:
-        downcast_mask = min_velocity_mask(
-            depth, sample_interval, min_velocity, min_depth_n, max_depth_n + 1, False
-        )
-        upcast_mask = min_velocity_mask(
-            depth, sample_interval, min_velocity, max_depth_n, len(depth), True
-        )
+        downcast_mask = min_velocity_mask(depth, sample_interval, min_velocity, min_depth_n, max_depth_n + 1, False)
+        upcast_mask = min_velocity_mask(depth, sample_interval, min_velocity, max_depth_n, len(depth), True)
 
     elif min_velocity_type == MinVelocityType.PERCENT:
         diff_length = int(window_size / sample_interval)
@@ -290,22 +280,16 @@ def find_depth_peaks(
     # first index where min_soak_depth < depth < max_soak_depth
     if remove_surface_soak:
         min_soak_depth_n = min(
-            n
-            for n, d in enumerate(depth)
-            if flag[n] != flag_value and min_soak_depth < d and d < max_soak_depth
+            n for n, d in enumerate(depth) if flag[n] != flag_value and min_soak_depth < d and d < max_soak_depth
         )
     else:
         min_soak_depth_n = 0
 
-    max_soak_depth_n = min(
-        n for n, d in enumerate(depth) if flag[n] != flag_value and d > max_soak_depth
-    )
+    max_soak_depth_n = min(n for n, d in enumerate(depth) if flag[n] != flag_value and d > max_soak_depth)
 
     # beginning of possible downcast domain
     min_depth_n = min(
-        (d, n)
-        for n, d in enumerate(depth)
-        if flag[n] != flag_value and min_soak_depth_n <= n and n < max_soak_depth_n
+        (d, n) for n, d in enumerate(depth) if flag[n] != flag_value and min_soak_depth_n <= n and n < max_soak_depth_n
     )[1]
 
     # beginning of possible upcast domain
@@ -390,16 +374,10 @@ def mean_speed_percent_mask(
     mask1 = sign * np.diff(depth[1 : diff_length + 1]) / interval > min_velocity
     first_window_mask = np.concatenate([[False], (mask0 & mask1)])
 
-    mean_speed = (
-        sign * (depth[diff_length:] - depth[:-diff_length]) / diff_length / interval
-    )
-    speed = (
-        sign * np.diff(depth[diff_length:], prepend=depth[diff_length - 1]) / interval
-    )
+    mean_speed = sign * (depth[diff_length:] - depth[:-diff_length]) / diff_length / interval
+    speed = sign * np.diff(depth[diff_length:], prepend=depth[diff_length - 1]) / interval
 
-    mask = np.concatenate(
-        (first_window_mask, (speed > (mean_speed * mean_speed_percent / 100.0)))
-    )
+    mask = np.concatenate((first_window_mask, (speed > (mean_speed * mean_speed_percent / 100.0))))
     mask[:domain_start] = False
     mask[domain_end:] = False
 
@@ -474,9 +452,7 @@ def bin_average(
     # create the bins to sort into
     # note that we create an inital "dummy" bin from -bin_min to bin_min to catch extra low values
     # TODO: Above issue can be addressed by surface bin likely
-    bin_targets = np.arange(
-        start=bin_min - bin_size, stop=max_val + bin_size, step=bin_size
-    )
+    bin_targets = np.arange(start=bin_min - bin_size, stop=max_val + bin_size, step=bin_size)
 
     # setup bins to indicate where each index should be sorted into
     bins = np.digitize(x=bin_row, bins=bin_targets, right=True)
@@ -508,29 +484,19 @@ def bin_average(
                 first_row = row
                 first_row_index = index
             else:
-                prev_presure = prev_row[
-                    bin_variable
-                ]  # use bin_variable since this could be pressure or depth
-                curr_pressure = row[
-                    bin_variable
-                ]  # use bin_variable since this could be pressure or depth
+                prev_presure = prev_row[bin_variable]  # use bin_variable since this could be pressure or depth
+                curr_pressure = row[bin_variable]  # use bin_variable since this could be pressure or depth
                 center_pressure = index * bin_size
 
                 for col_name, col_data in dataset.items():
-                    if (
-                        col_name == "nbin"
-                        or col_name == "flag"
-                        or col_name == "bin_number"
-                    ):
+                    if col_name == "nbin" or col_name == "flag" or col_name == "bin_number":
                         continue
                     prev_val = prev_row[col_name]
                     curr_val = row[col_name]
 
                     # formula from the seasoft data processing manual, page 89, version 7.26.8-3
                     interpolated_val = (
-                        (curr_val - prev_val)
-                        * (center_pressure - prev_presure)
-                        / (curr_pressure - prev_presure)
+                        (curr_val - prev_val) * (center_pressure - prev_presure) / (curr_pressure - prev_presure)
                     ) + prev_val
                     # print('interpolated to ' + str(interpolated_val) + ' for ' + str(col_name) + ', ' + str(index))
                     new_dataset.loc[index, col_name] = interpolated_val
@@ -541,9 +507,7 @@ def bin_average(
 
         # back to the first row now
         prev_presure = second_row[bin_variable]  # reference second row's value
-        curr_pressure = first_row[
-            bin_variable
-        ]  # use bin_variable since this could be pressure or depth
+        curr_pressure = first_row[bin_variable]  # use bin_variable since this could be pressure or depth
         center_pressure = first_row_index * bin_size
 
         for col_name, col_data in dataset.items():
@@ -554,9 +518,7 @@ def bin_average(
 
             # formula from the seasoft manual, page 89
             interpolated_val = (
-                (curr_val - prev_val)
-                * (center_pressure - prev_presure)
-                / (curr_pressure - prev_presure)
+                (curr_val - prev_val) * (center_pressure - prev_presure) / (curr_pressure - prev_presure)
             ) + prev_val
             new_dataset.loc[first_row_index, col_name] = interpolated_val
 
@@ -696,10 +658,7 @@ def flag_data(
     std = data_copy.std()
 
     for n, value in enumerate(flagged_data):
-        if (
-            abs(value - mean) > std * std_pass_2
-            and abs(value - mean) > distance_to_mean
-        ):
+        if abs(value - mean) > std * std_pass_2 and abs(value - mean) > distance_to_mean:
             flagged_data[n] = flag_value
 
     return flagged_data

@@ -47,9 +47,7 @@ def convert_temperature_array(
         ndarray: temperature values converted to ITS-90 degrees C, in the same order as input
     """
     ipts68_converison = 1.00024  # taken from https://blog.seabird.com/ufaqs/what-is-the-difference-in-temperature-expressions-between-ipts-68-and-its-90/
-    convert_vectorized = np.vectorize(
-        convert_temperature_val_ITS90_c, excluded=["a0", "a1", "a2", "a3", "use_MV_R"]
-    )
+    convert_vectorized = np.vectorize(convert_temperature_val_ITS90_c, excluded=["a0", "a1", "a2", "a3", "use_MV_R"])
     result = convert_vectorized(temperature_counts, a0, a1, a2, a3, use_MV_R)
     if not ITS90:
         result = result * ipts68_converison
@@ -316,12 +314,8 @@ def potential_density_from_t_s_p(
     """
 
     absolute_salinity = gsw.SA_from_SP(salinity_PSU, pressure_dbar, lon, lat)
-    conservative_temperature = gsw.CT_from_t(
-        absolute_salinity, temperature_C, pressure_dbar
-    )
-    potential_density = (
-        gsw.rho(absolute_salinity, conservative_temperature, reference_pressure) - 1000
-    )
+    conservative_temperature = gsw.CT_from_t(absolute_salinity, temperature_C, pressure_dbar)
+    potential_density = gsw.rho(absolute_salinity, conservative_temperature, reference_pressure) - 1000
     return potential_density
 
 
@@ -349,9 +343,7 @@ def potential_density_from_t_c_p(
     """
 
     salinity_PSU = gsw.SP_from_C(conductivity_mScm, temperature_C, pressure_dbar)
-    return potential_density_from_t_s_p(
-        temperature_C, salinity_PSU, pressure_dbar, lon, lat, reference_pressure
-    )
+    return potential_density_from_t_s_p(temperature_C, salinity_PSU, pressure_dbar, lon, lat, reference_pressure)
 
 
 def density_from_t_s_p(
@@ -376,9 +368,7 @@ def density_from_t_s_p(
     """
 
     absolute_salinity = gsw.SA_from_SP(salinity_PSU, pressure_dbar, lon, lat)
-    conservative_temperature = gsw.CT_from_t(
-        absolute_salinity, temperature_C, pressure_dbar
-    )
+    conservative_temperature = gsw.CT_from_t(absolute_salinity, temperature_C, pressure_dbar)
     density = gsw.rho(absolute_salinity, conservative_temperature, pressure_dbar)
     return density
 
@@ -408,9 +398,7 @@ def density_from_t_c_p(
     return density_from_t_s_p(temperature_C, salinity_PSU, pressure_dbar, lon, lat)
 
 
-def depth_from_pressure(
-    pressure_in: np.ndarray, latitude: float, depth_units="m", pressure_units="dbar"
-):
+def depth_from_pressure(pressure_in: np.ndarray, latitude: float, depth_units="m", pressure_units="dbar"):
     """Derive depth from pressure and latitude
 
     Args:
@@ -476,9 +464,7 @@ def convert_oxygen_array(
     Returns:
         ndarray: converted Oxygen values, in ml/l, in the same order as input
     """
-    thermistor_temperature = convert_SBE63_thermistor_array(
-        raw_thermistor_temp, ta0, ta1, ta2, ta3
-    )
+    thermistor_temperature = convert_SBE63_thermistor_array(raw_thermistor_temp, ta0, ta1, ta2, ta3)
     # oxygen = np.empty(shape = (raw_oxygen_phase.size))
     convert_vectorized = np.vectorize(
         convert_oxygen_val,
@@ -557,10 +543,7 @@ def convert_oxygen_val(
 
     # Ts = ln [(298.15 – T) / (273.15 + T)]
     ts = log((298.15 - temperature) / (KELVIN_OFFSET + temperature))
-    s_corr_exp = (
-        salinity * (Sol_B0 + Sol_B1 * ts + Sol_B2 * ts**2 + Sol_B3 * ts**3)
-        + Sol_C0 * salinity**2
-    )
+    s_corr_exp = salinity * (Sol_B0 + Sol_B1 * ts + Sol_B2 * ts**2 + Sol_B3 * ts**3) + Sol_C0 * salinity**2
     s_corr = e**s_corr_exp
 
     # Pcorr = exp (E * P / K)
@@ -570,16 +553,7 @@ def convert_oxygen_val(
     p_corr = e**p_corr_exp
 
     ox_val = (
-        (
-            (
-                (a0 + a1 * temperature + a2 * oxygen_volts**2)
-                / (b0 + b1 * oxygen_volts)
-                - 1.0
-            )
-            / ksv
-        )
-        * s_corr
-        * p_corr
+        (((a0 + a1 * temperature + a2 * oxygen_volts**2) / (b0 + b1 * oxygen_volts) - 1.0) / ksv) * s_corr * p_corr
     )
 
     return ox_val
@@ -602,9 +576,7 @@ def convert_SBE63_thermistor_array(
     Returns:
         np.ndarray: converted thermistor temperature values in ITS-90 deg C
     """
-    convert_vectorized = np.vectorize(
-        convert_SBE63_thermistor_value, excluded=["ta0", "ta1", "ta2", "ta3"]
-    )
+    convert_vectorized = np.vectorize(convert_SBE63_thermistor_value, excluded=["ta0", "ta1", "ta2", "ta3"])
     temperature = convert_vectorized(instrument_output, ta0, ta1, ta2, ta3)
     return temperature
 
@@ -627,7 +599,5 @@ def convert_SBE63_thermistor_value(
             np.ndarray: converted thermistor temperature values in ITS-90 deg C
     """
     logVal = log((100000 * instrument_output) / (3.3 - instrument_output))
-    temperature = (
-        1 / (ta0 + ta1 * logVal + ta2 * logVal**2 + ta3 * logVal**3) - KELVIN_OFFSET
-    )
+    temperature = 1 / (ta0 + ta1 * logVal + ta2 * logVal**2 + ta3 * logVal**3) - KELVIN_OFFSET
     return temperature

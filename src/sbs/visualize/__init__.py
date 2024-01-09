@@ -234,9 +234,7 @@ def plot_xy_chart(data: ChartData, config: ChartConfig) -> go.Figure:
     return figure
 
 
-def create_single_plot(
-    x: pd.DataFrame, y: pd.DataFrame, config: ChartConfig
-) -> go.Figure:
+def create_single_plot(x: pd.DataFrame, y: pd.DataFrame, config: ChartConfig) -> go.Figure:
     """Creates a single XY plot, with one or more data sets.
     If there are multiple datasets for the x or y axis, an overlay plot will be generated
 
@@ -351,11 +349,7 @@ def create_overlay(x: pd.DataFrame, y: pd.DataFrame, config: ChartConfig) -> go.
     if len(x.columns) > 1 and len(y.columns) == 1:
         x_axis = 1
         for x_column in x.columns:
-            figure.add_trace(
-                go.Scatter(
-                    x=x[x_column], y=y[y.columns[0]], name=x_column, xaxis=f"x{x_axis}"
-                )
-            )
+            figure.add_trace(go.Scatter(x=x[x_column], y=y[y.columns[0]], name=x_column, xaxis=f"x{x_axis}"))
             x_axis += 1
 
         apply_overlay_config(figure, config)
@@ -363,11 +357,7 @@ def create_overlay(x: pd.DataFrame, y: pd.DataFrame, config: ChartConfig) -> go.
     elif len(x.columns) == 1 and len(y.columns) > 1:
         y_axis = 1
         for y_column in y.columns:
-            figure.add_trace(
-                go.Scatter(
-                    x=x[x.columns[0]], y=y[y_column], name=y_column, yaxis=f"y{y_axis}"
-                )
-            )
+            figure.add_trace(go.Scatter(x=x[x.columns[0]], y=y[y_column], name=y_column, yaxis=f"y{y_axis}"))
             y_axis += 1
 
         apply_overlay_config(figure, config)
@@ -423,9 +413,7 @@ def apply_subplots_x_config(figure: go.Figure, config: ChartConfig):
             title="" if len(config.x_units) < 4 else config.x_units[3],
             range=None if len(config.bounds["x"]) < 4 else config.bounds["x"][3],
         ),
-        yaxis=dict(
-            title="" if len(config.y_units) < 1 else config.y_units[0], range=y_range
-        ),
+        yaxis=dict(title="" if len(config.y_units) < 1 else config.y_units[0], range=y_range),
         yaxis2=dict(range=y_range),
         yaxis3=dict(range=y_range),
         yaxis4=dict(range=y_range),
@@ -446,9 +434,7 @@ def apply_subplots_y_config(figure: go.Figure, config: ChartConfig):
         xaxis=dict(range=x_range),
         xaxis2=dict(range=x_range),
         xaxis3=dict(range=x_range),
-        xaxis4=dict(
-            title="" if len(config.x_units) < 1 else config.x_units[0], range=x_range
-        ),
+        xaxis4=dict(title="" if len(config.x_units) < 1 else config.x_units[0], range=x_range),
         yaxis=dict(
             title="" if len(config.y_units) < 1 else config.y_units[0],
             range=None if len(config.bounds["y"]) < 1 else config.bounds["y"][0],
@@ -548,9 +534,7 @@ def plot_ts_chart(
     """
 
     if len(config.x_names) > 1 or len(config.y_names) > 1 or len(config.z_names) > 1:
-        logger.warning(
-            "plot_ts_chart expects one data set for each x, y, and z parameter. Extra data sets are ignored"
-        )
+        logger.warning("plot_ts_chart expects one data set for each x, y, and z parameter. Extra data sets are ignored")
 
     # Create 2 plots using plotly (not plotly express)
     # T-S diagram with x-y values colored by z
@@ -599,9 +583,7 @@ def plot_ts_chart(
     return fig
 
 
-def api_xy_chart_html(
-    source: str, title: str, x_names: str, y_names: str, z_names: str, chart_type: str
-) -> str:
+def api_xy_chart_html(source: str, title: str, x_names: str, y_names: str, z_names: str, chart_type: str) -> str:
     """Wrapper for plot_xy_chart to be called from React Native
 
     Args:
