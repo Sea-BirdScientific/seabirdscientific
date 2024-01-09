@@ -132,9 +132,10 @@ class SN06302568:
     c2 = 6.0011e-5
     e = 1.1e-2
 
+
 @dataclass
 class SN3287:
-    #SBE43 Oxygen
+    # SBE43 Oxygen
     soc = 0.4792
     v_offset = -0.484
     tau_20 = 2.05
@@ -149,9 +150,10 @@ class SN3287:
     h3 = 1.45e3
     e = 1.1e-2
 
+
 @dataclass
 class SN431686:
-    #SBE43 Oxygen
+    # SBE43 Oxygen
     soc = 3.898e-1
     v_offset = -0.498
     tau_20 = 1.08
@@ -159,7 +161,8 @@ class SN431686:
     b = 1.5817e-4
     c = -2.6651e-6
     e = 0.036
-    d0 = 2.5826; # TODO: the sensor lists a d0 coefficient, but it doesn't seem to be used?
+    d0 = 2.5826
+    # TODO: the sensor lists a d0 coefficient, but it doesn't seem to be used?
     d1 = 1.92634e-4
     d2 = -4.64803e-2
     h1 = -3.3e-2

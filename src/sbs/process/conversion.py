@@ -424,10 +424,27 @@ def depth_from_pressure(pressure_in: np.ndarray, latitude: float, depth_units="m
 
     return depth
 
-def convert_sbe63_oxygen_array(raw_oxygen_phase: np.ndarray, raw_thermistor_temp: np.ndarray, pressure: np.ndarray, 
-                               salinity: np.ndarray, a0: float, a1: float, a2: float, b0: float, b1: float,
-                               c0: float, c1: float, c2: float, ta0: float, ta1: float, ta2: float, ta3: float, e: float):
-    """ Returns the data after converting it to ml/l
+
+def convert_sbe63_oxygen_array(
+    raw_oxygen_phase: np.ndarray,
+    raw_thermistor_temp: np.ndarray,
+    pressure: np.ndarray,
+    salinity: np.ndarray,
+    a0: float,
+    a1: float,
+    a2: float,
+    b0: float,
+    b1: float,
+    c0: float,
+    c1: float,
+    c2: float,
+    ta0: float,
+    ta1: float,
+    ta2: float,
+    ta3: float,
+    e: float,
+):
+    """Returns the data after converting it to ml/l
         raw_oxygen_phase is expected to be in raw phase, raw_thermistor_temp in counts, pressure in dbar, and salinity in practical salinity (PSU)
     Args:
         raw_oxygen_phase (np.ndarray): SBE63 phase values, in microseconds
@@ -452,16 +469,32 @@ def convert_sbe63_oxygen_array(raw_oxygen_phase: np.ndarray, raw_thermistor_temp
     """
     thermistor_temperature = convert_SBE63_thermistor_array(raw_thermistor_temp, ta0, ta1, ta2, ta3)
     # oxygen = np.empty(shape = (raw_oxygen_phase.size))
-    convert_vectorized = np.vectorize(convert_sbe63_oxygen_val, excluded=["a0", "a1", "a2", "a3", "b0", "b1", "c0", "c1", "c2", "e"])
-    oxygen = convert_vectorized(raw_oxygen_phase, thermistor_temperature, pressure, salinity, a0, a1, a2, b0, b1, c0, c1, c2, e)
-    
+    convert_vectorized = np.vectorize(
+        convert_sbe63_oxygen_val, excluded=["a0", "a1", "a2", "a3", "b0", "b1", "c0", "c1", "c2", "e"]
+    )
+    oxygen = convert_vectorized(
+        raw_oxygen_phase, thermistor_temperature, pressure, salinity, a0, a1, a2, b0, b1, c0, c1, c2, e
+    )
+
     return oxygen
 
 
-def convert_sbe63_oxygen_val(raw_oxygen_phase: float, temperature: float, pressure: float, 
-                               salinity: float, a0: float, a1: float, a2: float, b0: float, b1: float,
-                               c0: float, c1: float, c2: float, e: float):
-    """ Returns the data after converting it to ml/l
+def convert_sbe63_oxygen_val(
+    raw_oxygen_phase: float,
+    temperature: float,
+    pressure: float,
+    salinity: float,
+    a0: float,
+    a1: float,
+    a2: float,
+    b0: float,
+    b1: float,
+    c0: float,
+    c1: float,
+    c2: float,
+    e: float,
+):
+    """Returns the data after converting it to ml/l
         raw_oxygen_phase is expected to be in raw phase, raw_thermistor_temp in counts, pressure in dbar, and salinity in practical salinity (PSU)
     Args:
         raw_oxygen_phase (np.ndarray): SBE63 phase value, in microseconds
@@ -559,6 +592,7 @@ def convert_SBE63_thermistor_value(
     temperature = 1 / (ta0 + ta1 * logVal + ta2 * logVal**2 + ta3 * logVal**3) - KELVIN_OFFSET
     return temperature
 
+
 def convert_sbe43_oxygen_array(
     voltage: np.ndarray,
     temperature: np.ndarray,
@@ -579,9 +613,9 @@ def convert_sbe43_oxygen_array(
     apply_tau_correction: bool,
     apply_hysteresis_correction: bool,
     window_size: float,
-    sample_interval: float
+    sample_interval: float,
 ):
-    """ Returns the data after converting it to ml/l
+    """Returns the data after converting it to ml/l
         voltage is expected to be in volts, temperature in deg c, pressure in dbar, and salinity in practical salinity (PSU)
         All equation information comes from the June 2013 revision of the SBE43 manual
     Args:
@@ -614,7 +648,7 @@ def convert_sbe43_oxygen_array(
         # Calculates how many scans to have on either side of our median point, accounting for going out of index bounds
         scans_per_side = floor(window_size / 2 / sample_interval)
         for i in range(scans_per_side, len(voltage) - scans_per_side):
-            ox_subset = voltage[i - scans_per_side:i + scans_per_side + 1]
+            ox_subset = voltage[i - scans_per_side : i + scans_per_side + 1]
 
             time_subset = np.arange(0, len(ox_subset) * sample_interval, sample_interval, dtype=float)
 
@@ -631,16 +665,31 @@ def convert_sbe43_oxygen_array(
             C = exp(-1 * sample_interval / H3)
             ox_volts = correct_ox_voltages[i] + offset
 
-            prev_ox_volts_new = correct_ox_voltages[i-1] + offset
+            prev_ox_volts_new = correct_ox_voltages[i - 1] + offset
             ox_volts_new = ((ox_volts + prev_ox_volts_new * C * D) - (prev_ox_volts_new * C)) / D
             ox_volts_final = ox_volts_new - offset
             correct_ox_voltages[i] = ox_volts_final
 
     result_values = np.zeros(len(voltage))
     for i in range(len(correct_ox_voltages)):
-        result_values[i] = convert_sbe43_oxygen_val(correct_ox_voltages[i], temperature[i], pressure[i], salinity[i],
-            Soc, offset, Tau20, A, B, C, E, D1, D2, dvdt_values[i])
+        result_values[i] = convert_sbe43_oxygen_val(
+            correct_ox_voltages[i],
+            temperature[i],
+            pressure[i],
+            salinity[i],
+            Soc,
+            offset,
+            Tau20,
+            A,
+            B,
+            C,
+            E,
+            D1,
+            D2,
+            dvdt_values[i],
+        )
     return result_values
+
 
 def convert_sbe43_oxygen_val(
     voltage: float,
@@ -656,9 +705,9 @@ def convert_sbe43_oxygen_val(
     E: float,
     D1: float,
     D2: float,
-    dvdt_value: float
+    dvdt_value: float,
 ):
-    """ Returns the data after converting it to ml/l
+    """Returns the data after converting it to ml/l
         voltage is expected to be in volts, temperature in deg c, pressure in dbar, and salinity in practical salinity (PSU)
         All equation information comes from the June 2013 revision of the SBE43 manual.
         Expects that hysteresis correction is already performed on the incoming voltage, if desired.
@@ -695,21 +744,22 @@ def convert_sbe43_oxygen_val(
     c0 = -0.000000488682
 
     ts = log((298.15 - temperature) / (KELVIN_OFFSET + temperature))
-    aTerm = a0 + a1 * ts + a2 * ts ** 2 + a3 * ts ** 3 + a4 * ts ** 4 + a5 * ts ** 5
-    bTerm = salinity * (b0 + b1 * ts + b2 * ts ** 2 + b3 * ts ** 3)
-    cTerm = c0 * salinity ** 2
+    aTerm = a0 + a1 * ts + a2 * ts**2 + a3 * ts**3 + a4 * ts**4 + a5 * ts**5
+    bTerm = salinity * (b0 + b1 * ts + b2 * ts**2 + b3 * ts**3)
+    cTerm = c0 * salinity**2
     oxSol = exp(aTerm + bTerm + cTerm)
 
     # Tau correction
     tau = Tau20 * exp(D1 * pressure + D2 * (temperature - 20)) * dvdt_value
 
     socTerm = Soc * (voltage + offset + tau)
-    tempTerm = 1.0 + A * temperature + B * temperature ** 2 + C * temperature ** 3
+    tempTerm = 1.0 + A * temperature + B * temperature**2 + C * temperature**3
     oxVal = socTerm * oxSol * tempTerm * exp((E * pressure) / (temperature + KELVIN_OFFSET))
     return oxVal
 
+
 def convert_oxygen_to_mg_per_l(ox_values: np.ndarray):
-    """ Converts given oxygen values to milligrams/Liter
+    """Converts given oxygen values to milligrams/Liter
         Expects oxygen values to be in Ml/L
     Args:
         ox_values (np.ndarray): oxygen values, already converted to ml/L
@@ -719,8 +769,9 @@ def convert_oxygen_to_mg_per_l(ox_values: np.ndarray):
     # From the SBE43 and SBE63 manual
     return ox_values * OXYGEN_MLPERL_TO_MGPERL
 
+
 def convert_oxygen_to_umol_per_kg(ox_values: np.ndarray, potential_density: np.ndarray):
-    """ Converts given oxygen values to micromoles/Kilogram
+    """Converts given oxygen values to micromoles/Kilogram
         Expects oxygen values to be in Ml/L
         Note: Sigma-Theta is expected to be calculated via gsw_sigma0, meaning is it technically potential density anomaly.
         Calculating using gsw_rho(SA, CT, p_ref = 0) results in actual potential density, but this function already does the converison,
@@ -728,7 +779,7 @@ def convert_oxygen_to_umol_per_kg(ox_values: np.ndarray, potential_density: np.n
         The function is done this way to stay matching to the manual for the SBE63 and SBE43, but the results of either method are identical.
     Args:
         ox_values (np.ndarray): oxygen values, already converted to ml/L
-        potential_density (np.ndarray): potential density (sigma-theta) values. 
+        potential_density (np.ndarray): potential density (sigma-theta) values.
                                         Expected to be the same length as ox_values
     Returns:
         np.ndarray: oxygen values converted to milligrams/Liter
@@ -737,12 +788,13 @@ def convert_oxygen_to_umol_per_kg(ox_values: np.ndarray, potential_density: np.n
     convertedVals = np.divide(ox_values * OXYGEN_MLPERL_TO_UMOLPERKG, (potential_density + 1000))
     return convertedVals
 
+
 def convert_ECO_chlorophylla_val(
-        rawChlorophylla: float,
-        ScaleFactor: float,
-        Vblank: float,
+    rawChlorophylla: float,
+    ScaleFactor: float,
+    Vblank: float,
 ):
-    """ Converts a raw value for chlorophyll-a channel on a ECO-FLNTU or ECO-FL
+    """Converts a raw value for chlorophyll-a channel on a ECO-FLNTU or ECO-FL
         All equation information comes from ECO-FLNTU calibration sheets
     Args:
         rawChlorophylla (float): raw counts for digital, raw volts for analog
@@ -757,11 +809,11 @@ def convert_ECO_chlorophylla_val(
 
 
 def convert_ECO_turbidity_val(
-        rawTurbidity: float,
-        ScaleFactor: float,
-        DarkVoltage: float,
+    rawTurbidity: float,
+    ScaleFactor: float,
+    DarkVoltage: float,
 ):
-    """ Converts a raw value for turbidity channel on a ECO-FLNTU
+    """Converts a raw value for turbidity channel on a ECO-FLNTU
         All equation information comes from ECO-FLNTU calibration sheets
     Args:
         rawTurbidity(float): raw counts for digital, raw volts for analog
