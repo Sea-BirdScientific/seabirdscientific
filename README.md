@@ -1,10 +1,57 @@
 # seabirdscientific
-Sea-Bird Scientific Community Toolkit
+This is the repository for the Sea-Bird Scientific Community Toolkit. It is a collection of:
+- Python code to assist in user developed processing of data collected using Sea-Bird instruments
+- Example Sea-Bird instrument data
+- Jupyter notebooks that document the processing options that can be applied to data collected using Sea-Bird instruments
 
-## Installation
+## Installation/Setup
+### Related Software
+Prior to setup, you may wish to install one or more of the following:
+1. [Python](https://www.python.org/downloads/) version 3.9 or higher
+1. [Git](https://www.git-scm.com/downloads) 
+1. [Git GUI clients](https://www.git-scm.com/downloads/guis)
+1. [Anaconda]() or [Miniconda]()
+1. [Visual Studio Code](https://code.visualstudio.com/)
+    1. Install and start VSCode
+    1. Type Ctl-Shift-X to open the extension manager
+       1. Ensure that the Python extension from Microsoft is installed 
+       1. Ensure that the Jupyter extension from Microsoft is installed
 
-See the [installation.md](documentation/installation.md) document
+### Setup using a Local Checkout of the Toolkit Repository and VSCode
+If you have [VSCode](https://code.visualstudio.com/), [Git](https://www.git-scm.com/downloads) and [Python](https://www.python.org/downloads/) or [Anaconda]() or [Miniconda]() already installed on your computer:
+1. Checkout the [Sea-Bird Scientific](https://github.com/Sea-BirdScientific/seabirdscientific.git) repository from GitHub using a Git GUI Client or one of the following command line methods:
+    - To place the toolkit in a folder named seabirdscientific:
+        1. At a command prompt, change to the parent directory of where you would like the toolkit to reside.
+        1. Run the command ```git clone https://github.com/Sea-BirdScientific/seabirdscientific.git```
+    - To place the toolkit in a folder with a different name:
+        1. At a command prompt, change to the parent directory of where you would like the toolkit to reside.
+        1. Run the command ```git clone https://github.com/Sea-BirdScientific/seabirdscientific.git yourFolderName```
+1. Run VSCode and choose File | Open Folder. 
+1. Use the file picker to select the toolkit folder that was just created.
+1. Use the [VS Code - Creating Environments](https://code.visualstudio.com/docs/python/environments#_creating-environments) page as a guide to setup a virtual environment for your work. 
+    - Use the .venv environment if solely using Python
+    - Use the .conda environment if using Anaconda or Miniconda
+1. Open a VSCode power shell terminal if one is not currently active.
+1. Ensure that the virtual environment is active by hovering over the terminal tab and checking for the __Python: Activated environment__ extension (see below).
+    <!-- - For .venv environments, run ```.\.venv\Scripts\activate.PS1``` in the powershell terminal
+    - for .conda environments run ```TBD``` in the powershell terminal -->
 
+    <kbd><img src="documentation/images/VerifyEnv.PNG" width=400></kbd>
+
+1. If the virtual environment does not appear to be running type ```Ctl```+```Shift```+```P``` and run the command ```Developer:Reload Window```
+1. Execute the appropriate command below in the powershell terminal to install the toolkit and its dependencies
+    - For a .venv envronment:
+    ``` bash
+    py -m pip install -e .[dev]
+    ```
+    - For a .conda environment:
+    ``` bash
+    pip install -e .[dev]
+    ```
+    If the your .conda virtual environment does not include pip, you may need to install it using the command ```conda install pip```.
+
+1. Open the file documentation/ctd-processing.ipynp notebook in VSCode and run the cells to see the notebook in action. If prompted to choose a kernel source, select the Python Environments... option and then the virtual environment that was just created.
+    
 ## Examples
 ```python
 import sbs
