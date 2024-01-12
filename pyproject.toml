@@ -1,6 +1,6 @@
 [project]
 name = "seabirdscientific"
-version = "1.0.4"
+version = "1.0.5"
 
 authors = [
     {name = "Lukas Christensen", email = "lchristensen@seabird.com"},
@@ -22,6 +22,7 @@ dependencies = [
     "pandas",
     "plotly",
     "scipy",
+    "nbformat"
 ]
 
 [project.optional-dependencies]
