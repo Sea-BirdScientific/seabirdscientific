@@ -2,7 +2,7 @@
 This is the repository for the Sea-Bird Scientific Community Toolkit. It is a collection of:
 - Python code to assist in user developed processing of data collected using Sea-Bird instruments
 - Example Sea-Bird instrument data
-- Jupyter notebooks that document the processing options that can be applied to data collected using Sea-Bird instruments
+- A jupyter notebook that documents the current toolkit processing options that can be applied to data collected using Sea-Bird SeaCAT and MicroCAT CTDs.
 
 ## Installation
 The seabirdscientific package is designed to run on Python 3.9 or greater. To install it run the following command:
@@ -119,8 +119,6 @@ If you have [Git](https://www.git-scm.com/downloads) and [Python](https://www.py
 1. Create a conda or python virtual environment
     - If using python, at a command prompt run ```python -m venv folderPath``` where folderPath is the location for the new virtual environment.
     - If using conda, at a command prompt run ```conda create -p folderPath python=3.9``` where folderPath is the location for the new virtual environment.
-1. Using the instance of Python.exe installed in the new virtual environment, execute the command ```python -m pip install notebook```.
-    - If your virtual environment does not include pip, you may need to install it using the command ```python install pip```.
 1. Using the instance of Python.exe installed in the new virtual environment, execute the command ```python -m pip install -e .[dev]``` to install the notebook's depencencies into the virtual environment
 1. Change the directory in the command terminal to the directory created in step 1.
 1. Using the instance of Python.exe installed in the new virtual environment, execute the command ```python -m notebook``` to start the Jupyter web browser server. This should launch the Jupyter web interface ```http://localhost:8888/tree``` in your browser. Leave the command terminal running while accessing the web interface.
