@@ -4,22 +4,27 @@ This is the repository for the Sea-Bird Scientific Community Toolkit. It is a co
 - Example Sea-Bird instrument data
 - A jupyter notebook that documents the current toolkit processing options that can be applied to data collected with Sea-Bird SeaCAT and MicroCAT CTDs.
 
-## Installation
-The seabirdscientific package uses Python 3.9 or greater. To install it send the command that follows:
+## Package Installation
+### With pip
+The seabirdscientific package uses Python 3.9 or greater. To install the package in a Python environment using pip send the command:
 
 On Windows:
 ``` bash
 py -m pip install seabirdscientific
 ```
-On Anaconda/Conda:
 
-Please wait for us to publish a conda package.
-<!-- On Conda:
+On Unix/macOS:
+
 ``` bash
 pip install seabirdscientific
-``` -->
+```
+For additional information see the [Installing Packages](https://packaging.python.org/en/latest/tutorials/installing-packages/#installing-packages) reference.
 
-### Example use within python code
+### With Anaconda/Conda
+
+We are working on publishing a conda packge. Thanks for your patience.
+
+### Example package use within python code
 ```python
 import sbs
 from sbs.process import contour
