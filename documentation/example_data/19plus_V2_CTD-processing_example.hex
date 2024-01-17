@@ -6,7 +6,7 @@
 * System UpLoad Time = Dec 12 2016 13:25:15
 * ds
 * SBE 19plus V 2.5.2  SERIAL NO. 6130    12 Dec 2016 09:24:17
-* vbatt = 12.6, vlith =  8.5, ioper =  61.9 ma, ipump =  43.5 ma, 
+* vbatt = 12.6, vlith =  8.5, ioper =  61.9 ma, ipump =  43.5 ma,
 * iext01 =  31.4 ma, iext2345 =  40.5 ma
 * status = not logging
 * number of scans to average = 1
@@ -24,7 +24,7 @@
 
 
 * S>
-* 
+*
 * SBE 19plus V 2.5.2  SERIAL NO. 6130    12 Dec 2016 09:24:23
 * temperature:  22-Jul-16
 *     TA0 = 1.280156e-03
@@ -66,7 +66,7 @@
 * cast   1 10 Dec 2016 06:16:51 samples 1 to 3069, avg = 1, stop = mag switch
 
 
-* S> 
+* S>
 *END*
 04ECEE0A4E570824235091061C3C390A9AAE14
 04ECF80A4E4C0824225092061F3C2C0AB1B01A
