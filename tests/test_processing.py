@@ -54,18 +54,12 @@ class TestAlignCtd:
         expected_data = id.cnv_to_instrument_data(expected_data_path)
 
         source_data_path = microcat6385_resources / "SBE37SM-6385.cnv"
-        source_data = (
-            id.cnv_to_instrument_data(source_data_path).measurements["tv290C"].values
-        )
+        source_data = id.cnv_to_instrument_data(source_data_path).measurements["tv290C"].values
 
         # Fix last valid sample
-        expected_data.measurements["tv290C"].values[
-            len(expected_data.measurements["tv290C"].values) - 1
-        ] = -9.99e-29
+        expected_data.measurements["tv290C"].values[len(expected_data.measurements["tv290C"].values) - 1] = -9.99e-29
         result = dp.align_ctd(source_data, 12, 120)
-        assert np.allclose(
-            expected_data.measurements["tv290C"].values, result, atol=0.0001
-        )
+        assert np.allclose(expected_data.measurements["tv290C"].values, result, atol=0.0001)
 
     def test_align_ctd_add_simple_pass_2(self):
         expected_data_path = microcat6385_resources / "SBE37SM-6385_align.cnv"
@@ -79,9 +73,7 @@ class TestAlignCtd:
             len(expected_data.measurements["cond0S/m"].values) - 2
         ] = -9.99e-29
         result = dp.align_ctd(source_data.measurements["cond0S/m"].values, 150, 120)
-        assert np.allclose(
-            expected_data.measurements["cond0S/m"].values, result, atol=0.0001
-        )
+        assert np.allclose(expected_data.measurements["cond0S/m"].values, result, atol=0.0001)
 
     def test_align_ctd_add_exact_factor(self):
         expected_data_path = microcat6385_resources / "SBE37SM-6385_align.cnv"
@@ -91,9 +83,7 @@ class TestAlignCtd:
         source_data = id.cnv_to_instrument_data(source_data_path)
 
         result = dp.align_ctd(source_data.measurements["prdM"].values, 120, 120)
-        assert np.allclose(
-            expected_data.measurements["prdM"].values, result, atol=0.0001
-        )
+        assert np.allclose(expected_data.measurements["prdM"].values, result, atol=0.0001)
 
     def test_align_ctd_no_change(self):
         expected_data_path = microcat6385_resources / "SBE37SM-6385_align.cnv"
@@ -103,9 +93,7 @@ class TestAlignCtd:
         source_data = id.cnv_to_instrument_data(source_data_path)
 
         result = dp.align_ctd(source_data.measurements["prdE"].values, 0, 120)
-        assert np.allclose(
-            expected_data.measurements["prdE"].values, result, atol=0.0001
-        )
+        assert np.allclose(expected_data.measurements["prdE"].values, result, atol=0.0001)
 
     def test_align_ctd_subtract(self):
         expected_data_path = microcat6385_resources / "SBE37SM-6385_align.cnv"
@@ -118,9 +106,7 @@ class TestAlignCtd:
         # expected_data.measurements['sal00'].values[len(expected_data.measurements['sal00'].values) - 2] = -9.99e-29
 
         result = dp.align_ctd(source_data.measurements["sal00"].values, -240, 120)
-        assert np.allclose(
-            expected_data.measurements["sal00"].values, result, atol=0.0001
-        )
+        assert np.allclose(expected_data.measurements["sal00"].values, result, atol=0.0001)
 
 
 class TestCellThermalMass:
@@ -146,12 +132,9 @@ class TestCellThermalMass:
 class TestLoopEdit:
     def test_loop_edit_pressure_min_velocity_pass(self):
         expected_data = id.cnv_to_instrument_data(
-            test_resources
-            / "orca-test-data/SBE19/CAST0002/CAST0002_mod_filt_loop_min_v.cnv"
+            test_resources / "orca-test-data/SBE19/CAST0002/CAST0002_mod_filt_loop_min_v.cnv"
         )
-        data = id.cnv_to_instrument_data(
-            test_resources / "orca-test-data/SBE19/CAST0002/CAST0002_mod_filt.cnv"
-        )
+        data = id.cnv_to_instrument_data(test_resources / "orca-test-data/SBE19/CAST0002/CAST0002_mod_filt.cnv")
 
         dp.loop_edit_pressure(
             pressure=data.measurements["prSM"].values,
@@ -183,12 +166,9 @@ class TestLoopEdit:
 
     def test_loop_edit_pressure_min_velocity_remove_soak_pass(self):
         expected_data = id.cnv_to_instrument_data(
-            test_resources
-            / "orca-test-data/SBE19/CAST0002/CAST0002_mod_filt_loop_min_v_remove_soak.cnv"
+            test_resources / "orca-test-data/SBE19/CAST0002/CAST0002_mod_filt_loop_min_v_remove_soak.cnv"
         )
-        data = id.cnv_to_instrument_data(
-            test_resources / "orca-test-data/SBE19/CAST0002/CAST0002_mod_filt.cnv"
-        )
+        data = id.cnv_to_instrument_data(test_resources / "orca-test-data/SBE19/CAST0002/CAST0002_mod_filt.cnv")
 
         dp.loop_edit_pressure(
             pressure=data.measurements["prSM"].values,
@@ -220,12 +200,10 @@ class TestLoopEdit:
 
     def test_loop_edit_pressure_min_velocity_reset_flags_pass(self):
         expected_data = id.cnv_to_instrument_data(
-            test_resources
-            / "orca-test-data/SBE19/CAST0002/CAST0002_mod_filt_loop_min_v.cnv"
+            test_resources / "orca-test-data/SBE19/CAST0002/CAST0002_mod_filt_loop_min_v.cnv"
         )
         data = id.cnv_to_instrument_data(
-            test_resources
-            / "orca-test-data/SBE19/CAST0002/CAST0002_mod_filt_loop_min_v_remove_soak.cnv"
+            test_resources / "orca-test-data/SBE19/CAST0002/CAST0002_mod_filt_loop_min_v_remove_soak.cnv"
         )
 
         dp.loop_edit_pressure(
@@ -258,8 +236,7 @@ class TestLoopEdit:
 
     def test_loop_edit_pressure_min_velocity_exclude_flags_pass(self):
         expected_data = id.cnv_to_instrument_data(
-            test_resources
-            / "orca-test-data/SBE19/CAST0002/CAST0002_mod_filt_loop_min_v_remove_soak.cnv"
+            test_resources / "orca-test-data/SBE19/CAST0002/CAST0002_mod_filt_loop_min_v_remove_soak.cnv"
         )
         data = id.cnv_to_instrument_data(
             test_resources
@@ -296,12 +273,9 @@ class TestLoopEdit:
 
     def test_loop_edit_pressure_mean_speed_percent_remove_soak_pass(self):
         expected_data = id.cnv_to_instrument_data(
-            test_resources
-            / "orca-test-data/SBE19/CAST0002/CAST0002_mod_filt_loop_percent_remove_soak.cnv"
+            test_resources / "orca-test-data/SBE19/CAST0002/CAST0002_mod_filt_loop_percent_remove_soak.cnv"
         )
-        data = id.cnv_to_instrument_data(
-            test_resources / "orca-test-data/SBE19/CAST0002/CAST0002_mod_filt.cnv"
-        )
+        data = id.cnv_to_instrument_data(test_resources / "orca-test-data/SBE19/CAST0002/CAST0002_mod_filt.cnv")
 
         dp.loop_edit_pressure(
             pressure=data.measurements["prSM"].values,
@@ -334,12 +308,9 @@ class TestLoopEdit:
 
     def test_loop_edit_pressure_mean_speed_percent_pass(self):
         expected_data = id.cnv_to_instrument_data(
-            test_resources
-            / "orca-test-data/SBE19/CAST0002/CAST0002_mod_filt_loop_percent.cnv"
+            test_resources / "orca-test-data/SBE19/CAST0002/CAST0002_mod_filt_loop_percent.cnv"
         )
-        data = id.cnv_to_instrument_data(
-            test_resources / "orca-test-data/SBE19/CAST0002/CAST0002_mod_filt.cnv"
-        )
+        data = id.cnv_to_instrument_data(test_resources / "orca-test-data/SBE19/CAST0002/CAST0002_mod_filt.cnv")
 
         dp.loop_edit_pressure(
             pressure=data.measurements["prSM"].values,
@@ -424,9 +395,7 @@ class TestWildEdit:
         )
         expected_output = expected_dataset.measurements["prdM"].values
 
-        dataset = id.cnv_to_instrument_data(
-            test_resources / r"orca-test-data\SBE19plusV2\E8001\E8001.cnv"
-        )
+        dataset = id.cnv_to_instrument_data(test_resources / r"orca-test-data\SBE19plusV2\E8001\E8001.cnv")
         pressure = dataset.measurements["prdM"].values
         flags = dataset.measurements["flag"].values
 
@@ -436,9 +405,7 @@ class TestWildEdit:
 
 
 class TestWindowFilter:
-    file_prefix = (
-        test_resources / "orca-test-data/SBE19plusV2/E8001/E8001_window_filter"
-    )
+    file_prefix = test_resources / "orca-test-data/SBE19plusV2/E8001/E8001_window_filter"
     cnvdata = id.cnv_to_instrument_data(f"{file_prefix}.cnv")
     pressure = cnvdata.measurements["prdM"].values
     flags = cnvdata.measurements["flag"].values
@@ -465,9 +432,7 @@ class TestWindowFilter:
         assert close_enough(filtered_pressure, expected_pressure, 3, 1e-12)
 
     def test_boxcar_filter_exclude_flags(self):
-        expected_dataset = id.cnv_to_instrument_data(
-            f"{self.file_prefix}_boxcar_5_excluded.cnv"
-        )
+        expected_dataset = id.cnv_to_instrument_data(f"{self.file_prefix}_boxcar_5_excluded.cnv")
         expected_pressure = expected_dataset.measurements["prdM"].values
 
         filtered_pressure = dp.window_filter(
@@ -501,9 +466,7 @@ class TestWindowFilter:
         assert close_enough(filtered_pressure, expected_pressure, 3, 1e-12)
 
     def test_cosine_filter_exclude_flags(self):
-        expected_dataset = id.cnv_to_instrument_data(
-            f"{self.file_prefix}_cosine_5_excluded.cnv"
-        )
+        expected_dataset = id.cnv_to_instrument_data(f"{self.file_prefix}_cosine_5_excluded.cnv")
         expected_pressure = expected_dataset.measurements["prdM"].values
 
         filtered_pressure = dp.window_filter(
@@ -520,9 +483,7 @@ class TestWindowFilter:
         assert close_enough(filtered_pressure, expected_pressure, 3, 1e-12)
 
     def test_triangle_filter(self):
-        expected_dataset = id.cnv_to_instrument_data(
-            f"{self.file_prefix}_triangle_5.cnv"
-        )
+        expected_dataset = id.cnv_to_instrument_data(f"{self.file_prefix}_triangle_5.cnv")
         expected_pressure = expected_dataset.measurements["prdM"].values
 
         filtered_pressure = dp.window_filter(
@@ -539,9 +500,7 @@ class TestWindowFilter:
         assert close_enough(filtered_pressure, expected_pressure, 3, 1e-12)
 
     def test_triangle_filter_exclude_flags(self):
-        expected_dataset = id.cnv_to_instrument_data(
-            f"{self.file_prefix}_triangle_5_excluded.cnv"
-        )
+        expected_dataset = id.cnv_to_instrument_data(f"{self.file_prefix}_triangle_5_excluded.cnv")
         expected_pressure = expected_dataset.measurements["prdM"].values
 
         filtered_pressure = dp.window_filter(
@@ -558,9 +517,7 @@ class TestWindowFilter:
         assert close_enough(filtered_pressure, expected_pressure, 3, 1e-12)
 
     def test_gaussian_filter(self):
-        expected_dataset = id.cnv_to_instrument_data(
-            f"{self.file_prefix}_gaussian_5_1_025.cnv"
-        )
+        expected_dataset = id.cnv_to_instrument_data(f"{self.file_prefix}_gaussian_5_1_025.cnv")
         expected_pressure = expected_dataset.measurements["prdM"].values
 
         filtered_pressure = dp.window_filter(
@@ -577,9 +534,7 @@ class TestWindowFilter:
         assert close_enough(filtered_pressure, expected_pressure, 3, 1e-12)
 
     def test_gaussian_filter_exclude_flags(self):
-        expected_dataset = id.cnv_to_instrument_data(
-            f"{self.file_prefix}_gaussian_5_1_0_excluded.cnv"
-        )
+        expected_dataset = id.cnv_to_instrument_data(f"{self.file_prefix}_gaussian_5_1_0_excluded.cnv")
         expected_pressure = expected_dataset.measurements["prdM"].values
 
         filtered_pressure = dp.window_filter(

@@ -39,9 +39,7 @@ class TestParseChartData:
 class TestSelectSubset:
     def test_select_subset_empty_pass(self):
         data = viz.parse_instrument_data(test_resources / "example_pass.asc")
-        assert np.all(
-            viz.select_subset([], data) == pd.DataFrame({"Sample Count": [0, 1, 2]})
-        )
+        assert np.all(viz.select_subset([], data) == pd.DataFrame({"Sample Count": [0, 1, 2]}))
 
     def test_select_subset_single_pass(self):
         data = viz.parse_instrument_data(test_resources / "example_pass.asc")
@@ -52,9 +50,7 @@ class TestSelectSubset:
 
 class TestPlotXYChart:
     data_path = test_resources / "example_pass.asc"
-    config = viz.ChartConfig(
-        title=data_path.name, x_names=["Col1"], y_names=[], z_names=[], chart_type=""
-    )
+    config = viz.ChartConfig(title=data_path.name, x_names=["Col1"], y_names=[], z_names=[], chart_type="")
     data = viz.ChartData(data_path, config)
 
     def test_plot_xy_chart_pass(self):
@@ -81,9 +77,7 @@ class TestPlotXYChart:
         self.config.y_names = ["Col1", "Col2"]
         self.config.chart_type = chart_type
         data = viz.ChartData(self.data_path, self.config)
-        with pytest.warns(
-            UserWarning, match="Only one axis can support multiple data sets"
-        ):
+        with pytest.warns(UserWarning, match="Only one axis can support multiple data sets"):
             viz.plot_xy_chart(data, self.config)
 
 

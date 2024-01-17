@@ -37,9 +37,7 @@ class TestCnvToInstrumentData:
         assert True  # fails before assert if data fails to instantiate
 
     def test_cnv_to_instrument_data_pass(self):
-        file_path = (
-            test_resources / "orca-test-data/SBE37SM/SBE37SM-6385/SBE37SM-6385.cnv"
-        )
+        file_path = test_resources / "orca-test-data/SBE37SM/SBE37SM-6385/SBE37SM-6385.cnv"
         data = id.cnv_to_instrument_data(file_path)
 
         expected_labels = [
@@ -60,9 +58,7 @@ class TestCnvToInstrumentData:
         assert data.measurements["tv290C"].label == "tv290C"
         assert data.measurements["tv290C"].description == "Temperature"
         assert data.measurements["tv290C"].units == "ITS-90, deg C"
-        assert data.measurements["tv290C"].start_time == datetime(
-            2014, 2, 19, 13, 30, 1
-        )
+        assert data.measurements["tv290C"].start_time == datetime(2014, 2, 19, 13, 30, 1)
         assert data.measurements["tv290C"].values[0] == 20.8989
         assert data.measurements["tv290C"].values[-1] == -45.7713
 
