@@ -13,16 +13,18 @@ from scipy import signal
 # Internal imports
 from .conversion import depth_from_pressure
 
+
 class MinVelocityType(Enum):
     FIXED = 0
     PERCENT = 1
 
+
 class WindowFilterType(Enum):
-    BOXCAR = 'boxcar'
-    COSINE = 'cosine'
-    TRIANGLE = 'triangle'
-    GAUSSIAN = 'gaussian'
-    MEDIAN = 'median'
+    BOXCAR = "boxcar"
+    COSINE = "cosine"
+    TRIANGLE = "triangle"
+    GAUSSIAN = "gaussian"
+    MEDIAN = "median"
 
 
 def butterworth_filter(x: np.ndarray, time_constant: float, sample_interval: float):
@@ -31,7 +33,7 @@ def butterworth_filter(x: np.ndarray, time_constant: float, sample_interval: flo
     Args:
         x (np.ndarray): A numpy array of floats
         time_constant (float): 1 / (2 * pi * cutoff_frequency)
-        sample_interval (float): 1 / sampling_frequency 
+        sample_interval (float): 1 / sampling_frequency
 
     Returns:
         np.ndarray: Filtered data
@@ -43,15 +45,13 @@ def butterworth_filter(x: np.ndarray, time_constant: float, sample_interval: flo
     return y
 
 
-def low_pass_filter(
-    x: np.ndarray, time_constant: float, sample_interval: float
-) -> np.ndarray:
+def low_pass_filter(x: np.ndarray, time_constant: float, sample_interval: float) -> np.ndarray:
     """Applies a low pass filter as defined in the SeaSoft manual v7.26.8 page 101
 
     Args:
         x (np.ndarray): A numpy array of floats
         time_constant (float): 1 / (2 * pi * cutoff_frequency)
-        sample_interval (float): 1 / sampling_frequency 
+        sample_interval (float): 1 / sampling_frequency
 
     Returns:
         np.ndarray: Filtered data
@@ -59,14 +59,14 @@ def low_pass_filter(
 
     a = 1 / (1 + 2 * time_constant / sample_interval)
     b = a * (1 - 2 * time_constant / sample_interval)
-    
+
     x2 = x.copy()
     for n in range(1, len(x)):
-        x2[n] = a*x[n] + a*x[n-1] - b*x2[n-1]
+        x2[n] = a * x[n] + a * x[n - 1] - b * x2[n - 1]
 
     y = x2.copy()
     for n in range(len(x) - 2, -1, -1):
-        y[n] = a*x2[n] + a*x2[n+1] - b*y[n+1]
+        y[n] = a * x2[n] + a * x2[n + 1] - b * y[n + 1]
 
     return y
 
@@ -91,11 +91,14 @@ def align_ctd(x: np.ndarray, offset: float, sample_interval: float, flag_value=-
 
 
 def cell_thermal_mass(
-    temperature_C: np.ndarray, conductivity_Sm: np.ndarray,
-    amplitude: float, time_constant: float, sample_interval: float
+    temperature_C: np.ndarray,
+    conductivity_Sm: np.ndarray,
+    amplitude: float,
+    time_constant: float,
+    sample_interval: float,
 ) -> np.ndarray:
     """From the SeaSoft manual, page 92:
-    Cell Thermal Mass uses a recursive filter to remove conductivity cell thermal 
+    Cell Thermal Mass uses a recursive filter to remove conductivity cell thermal
     mass effects from the measured conductivity
 
     Args:
@@ -110,15 +113,15 @@ def cell_thermal_mass(
     """
     a = 2 * amplitude / (sample_interval / time_constant + 2)
     b = 1 - (2 * a / amplitude)
-    ctm = np.zeros(len(temperature_C)) # cell thermal mass
+    ctm = np.zeros(len(temperature_C))  # cell thermal mass
     corrected_conductivity = np.array(conductivity_Sm)
 
-    for n in range(1,len(ctm)):
+    for n in range(1, len(ctm)):
         dc_dT = 0.1 * (1.0 + 0.006 * (temperature_C[n] - 20.0))
-        dT = temperature_C[n] - temperature_C[n-1]
-        ctm[n] = -1.0 * b * ctm[n-1] + a * dc_dT * dT
+        dT = temperature_C[n] - temperature_C[n - 1]
+        ctm[n] = -1.0 * b * ctm[n - 1] + a * dc_dT * dT
         corrected_conductivity[n] += ctm[n]
-    
+
     return corrected_conductivity
 
 
@@ -143,15 +146,25 @@ def loop_edit_pressure(
     Args:
         pressure (np.ndarray): A pressure array in dbar
         latitude (float): A single latitude value where the cast occurred
-        
+
         See loop_edit_depth for remaining args
 
     """
     depth = depth_from_pressure(pressure, latitude)
     return loop_edit_depth(
-        depth, flag, sample_interval, min_velocity_type, min_velocity, window_size,
-        mean_speed_percent, remove_surface_soak, min_soak_depth, max_soak_depth, 
-        use_deck_pressure_offset, exclude_flags, flag_value
+        depth,
+        flag,
+        sample_interval,
+        min_velocity_type,
+        min_velocity,
+        window_size,
+        mean_speed_percent,
+        remove_surface_soak,
+        min_soak_depth,
+        max_soak_depth,
+        use_deck_pressure_offset,
+        exclude_flags,
+        flag_value,
     )
 
 
@@ -199,24 +212,38 @@ def loop_edit_depth(
     if use_deck_pressure_offset:
         min_soak_depth -= depth[0]
         max_soak_depth -= depth[0]
-    
+
     (min_depth_n, max_depth_n) = find_depth_peaks(
         depth, flag, remove_surface_soak, flag_value, min_soak_depth, max_soak_depth
     )
 
     if min_velocity_type == MinVelocityType.FIXED:
-        downcast_mask = min_velocity_mask(depth, sample_interval, min_velocity, min_depth_n, max_depth_n+1, False)
+        downcast_mask = min_velocity_mask(depth, sample_interval, min_velocity, min_depth_n, max_depth_n + 1, False)
         upcast_mask = min_velocity_mask(depth, sample_interval, min_velocity, max_depth_n, len(depth), True)
 
     elif min_velocity_type == MinVelocityType.PERCENT:
         diff_length = int(window_size / sample_interval)
         downcast_mask = mean_speed_percent_mask(
-            depth, sample_interval, min_velocity, mean_speed_percent, min_depth_n, max_depth_n, False, diff_length
+            depth,
+            sample_interval,
+            min_velocity,
+            mean_speed_percent,
+            min_depth_n,
+            max_depth_n,
+            False,
+            diff_length,
         )
         upcast_mask = mean_speed_percent_mask(
-            depth, sample_interval, min_velocity, mean_speed_percent, max_depth_n, len(depth), True, diff_length
+            depth,
+            sample_interval,
+            min_velocity,
+            mean_speed_percent,
+            max_depth_n,
+            len(depth),
+            True,
+            diff_length,
         )
-    
+
     flag[~downcast_mask & ~upcast_mask] = flag_value
 
     flag_by_minima_maxima(depth, flag, min_depth_n, max_depth_n, flag_value)
@@ -224,12 +251,16 @@ def loop_edit_depth(
     cast = np.array([0 for _ in range(len(flag))])
     cast[downcast_mask] = -1
     cast[upcast_mask] = 1
-    return cast # TODO: refactor to handle cast and flag in seperate functions
+    return cast  # TODO: refactor to handle cast and flag in seperate functions
 
 
 def find_depth_peaks(
-    depth: np.ndarray, flag: np.ndarray, remove_surface_soak: bool, flag_value:float,
-    min_soak_depth: float, max_soak_depth: float
+    depth: np.ndarray,
+    flag: np.ndarray,
+    remove_surface_soak: bool,
+    flag_value: float,
+    min_soak_depth: float,
+    max_soak_depth: float,
 ) -> tuple[int, int]:
     """Finds the global depth minima and maxima for determining the earliest
     point where the downcast and upcast can begin
@@ -253,10 +284,8 @@ def find_depth_peaks(
         )
     else:
         min_soak_depth_n = 0
-    
-    max_soak_depth_n = min(
-        n for n, d in enumerate(depth) if flag[n] != flag_value and d > max_soak_depth
-    )
+
+    max_soak_depth_n = min(n for n, d in enumerate(depth) if flag[n] != flag_value and d > max_soak_depth)
 
     # beginning of possible downcast domain
     min_depth_n = min(
@@ -264,17 +293,28 @@ def find_depth_peaks(
     )[1]
 
     # beginning of possible upcast domain
-    max_depth_n = -1 if min_depth_n == len(depth)-1 else [
-        # TODO Refactor. Converting to a dataframe here is expensive
-        # n for n,d in enumerate(depth) if d == max(pd.DataFrame(depth).dropna().values) and n > min_depth_n
-        n for n,d in enumerate(depth) if d == max(depth) and n > min_depth_n
-    ][0]
+    max_depth_n = (
+        -1
+        if min_depth_n == len(depth) - 1
+        else [
+            # TODO Refactor. Converting to a dataframe here is expensive
+            # n for n,d in enumerate(depth) if d == max(pd.DataFrame(depth).dropna().values) and n > min_depth_n
+            n
+            for n, d in enumerate(depth)
+            if d == max(depth) and n > min_depth_n
+        ][0]
+    )
 
     return (min_depth_n, max_depth_n)
 
 
 def min_velocity_mask(
-    depth: np.ndarray, interval: float, min_velocity: float, domain_start: int, domain_end: int, is_upcast: bool
+    depth: np.ndarray,
+    interval: float,
+    min_velocity: float,
+    domain_start: int,
+    domain_end: int,
+    is_upcast: bool,
 ) -> np.ndarray:
     """creates a mask to assign bad flags where velocity is less that the provided minimum
 
@@ -290,8 +330,8 @@ def min_velocity_mask(
         np.ndarray: true/false mask where true means velocity is at least the minimum
     """
     sign = -1 if is_upcast else 1
-    mask0 = (sign * np.diff(depth, prepend=depth[0]) / interval >= min_velocity)
-    mask1 = (sign * np.diff(depth, append=depth[-1]) / interval >= min_velocity)
+    mask0 = sign * np.diff(depth, prepend=depth[0]) / interval >= min_velocity
+    mask1 = sign * np.diff(depth, append=depth[-1]) / interval >= min_velocity
 
     mask = mask0 & mask1
 
@@ -302,8 +342,14 @@ def min_velocity_mask(
 
 
 def mean_speed_percent_mask(
-    depth: np.ndarray, interval: float, min_velocity: float, mean_speed_percent: float,
-    domain_start: int, domain_end: int, is_upcast: bool, diff_length: int
+    depth: np.ndarray,
+    interval: float,
+    min_velocity: float,
+    mean_speed_percent: float,
+    domain_start: int,
+    domain_end: int,
+    is_upcast: bool,
+    diff_length: int,
 ) -> np.ndarray:
     """creates a mask to assign bad flags where the velocity is less than a
     given percentage of the mean accross a number of samples according to
@@ -312,7 +358,7 @@ def mean_speed_percent_mask(
     Args:
         depth (np.ndarray): depth data
         interval (float): sampling interval in seconds
-        min_velocity (float): minimum velocity 
+        min_velocity (float): minimum velocity
         mean_speed_percent (float): the minimum percentage of the mean speed that qualifies a sample as good
         domain_start (int): earliest possible beginning of downcast
         domain_end (int): earliest possible beginning of upcast
@@ -324,12 +370,12 @@ def mean_speed_percent_mask(
         least the given percentage of the mean
     """
     sign = -1 if is_upcast else 1
-    mask0 = (sign * np.diff(depth[0:diff_length]) / interval > min_velocity)
-    mask1 = (sign * np.diff(depth[1:diff_length+1]) / interval > min_velocity)
+    mask0 = sign * np.diff(depth[0:diff_length]) / interval > min_velocity
+    mask1 = sign * np.diff(depth[1 : diff_length + 1]) / interval > min_velocity
     first_window_mask = np.concatenate([[False], (mask0 & mask1)])
-    
+
     mean_speed = sign * (depth[diff_length:] - depth[:-diff_length]) / diff_length / interval
-    speed = sign * np.diff(depth[diff_length:], prepend=depth[diff_length-1]) / interval
+    speed = sign * np.diff(depth[diff_length:], prepend=depth[diff_length - 1]) / interval
 
     mask = np.concatenate((first_window_mask, (speed > (mean_speed * mean_speed_percent / 100.0))))
     mask[:domain_start] = False
@@ -339,7 +385,11 @@ def mean_speed_percent_mask(
 
 
 def flag_by_minima_maxima(
-    depth: np.ndarray, flag: np.ndarray, min_depth_n: int, max_depth_n: int, flag_value: float
+    depth: np.ndarray,
+    flag: np.ndarray,
+    min_depth_n: int,
+    max_depth_n: int,
+    flag_value: float,
 ):
     """following a ship heave, where velocity temporarily inverts, this function
     flags data that is less than the most recent local minima or maxima
@@ -351,7 +401,7 @@ def flag_by_minima_maxima(
         max_depth_n (int): index of global maximum depth
         flag_value (float): value assigned to bad flags
     """
-    
+
     local_max = -10000.0
     local_min = 10000.0
 
@@ -365,7 +415,16 @@ def flag_by_minima_maxima(
             flag[n] = flag_value
 
 
-def bin_average(dataset: pd.DataFrame, bin_variable: str, bin_size: float, include_scan_count: bool, min_scans: int, max_scans: int, exclude_bad_scans: bool, interpolate: bool):
+def bin_average(
+    dataset: pd.DataFrame,
+    bin_variable: str,
+    bin_size: float,
+    include_scan_count: bool,
+    min_scans: int,
+    max_scans: int,
+    exclude_bad_scans: bool,
+    interpolate: bool,
+):
     """Averages data into a number of set bins, averaging values within each bin.
     Bins with fewer than min_scans or larger than max_scans get removed.
     Updates the passed dataset to be in bins.
@@ -380,88 +439,94 @@ def bin_average(dataset: pd.DataFrame, bin_variable: str, bin_size: float, inclu
         exclude_bad_scans (boolean): indicates whether to include bad scans within the bins.
         interpolate (boolean): indicates whether to interpolate the balues in the bins after averaging. Only possible for pressure or depth bins
     """
-    if (exclude_bad_scans and 'flag' in dataset.columns):
+    if exclude_bad_scans and "flag" in dataset.columns:
         # remove all scans marked as bad (i.e. flag greater than 0)
-        dataset.drop(dataset[dataset['flag'] > 0].index, inplace=True)
-    bin_row = dataset[bin_variable].to_numpy() # pd series containing the variable we want to bin for, converted to ndarray
+        dataset.drop(dataset[dataset["flag"] > 0].index, inplace=True)
+    bin_row = dataset[
+        bin_variable
+    ].to_numpy()  # pd series containing the variable we want to bin for, converted to ndarray
     max_val = np.amax(bin_row)
 
-    bin_min = bin_size - (bin_size / 2.0) # min value of first bin
+    bin_min = bin_size - (bin_size / 2.0)  # min value of first bin
 
     # create the bins to sort into
     # note that we create an inital "dummy" bin from -bin_min to bin_min to catch extra low values
     # TODO: Above issue can be addressed by surface bin likely
-    bin_targets = np.arange(start = bin_min - bin_size, stop = max_val + bin_size, step = bin_size)
+    bin_targets = np.arange(start=bin_min - bin_size, stop=max_val + bin_size, step=bin_size)
 
     # setup bins to indicate where each index should be sorted into
-    bins = np.digitize(x = bin_row, bins = bin_targets, right = True)
+    bins = np.digitize(x=bin_row, bins=bin_targets, right=True)
 
-    dataset['bin_number'] = bins
+    dataset["bin_number"] = bins
 
-    dataset = dataset.groupby('bin_number').mean()
+    dataset = dataset.groupby("bin_number").mean()
 
     # get the number of scans in each bin
     nbin_unfiltered = np.bincount(bins)
     nbin = np.delete(nbin_unfiltered, np.where(nbin_unfiltered == 0))
-    dataset['nbin'] = nbin
+    dataset["nbin"] = nbin
 
-    dataset.drop(dataset[dataset['nbin'] < min_scans].index, inplace=True)
-    dataset.drop(dataset[dataset['nbin'] > max_scans].index, inplace=True)
-    
+    dataset.drop(dataset[dataset["nbin"] < min_scans].index, inplace=True)
+    dataset.drop(dataset[dataset["nbin"] > max_scans].index, inplace=True)
 
     print(dataset.to_string())
 
     # TODO: validate that this is running correctly
-    if (interpolate):
+    if interpolate:
         new_dataset = dataset.copy()
         prev_row = None
         first_row = None
         first_row_index = None
         second_row = None
         for index, row in dataset.iterrows():
-            if (prev_row is None):
+            if prev_row is None:
                 # we'll come back to the first row at the end
                 first_row = row
                 first_row_index = index
             else:
-                prev_presure = prev_row[bin_variable] # use bin_variable since this could be pressure or depth
-                curr_pressure = row[bin_variable] # use bin_variable since this could be pressure or depth
+                prev_presure = prev_row[bin_variable]  # use bin_variable since this could be pressure or depth
+                curr_pressure = row[bin_variable]  # use bin_variable since this could be pressure or depth
                 center_pressure = index * bin_size
 
-                for (col_name, col_data) in dataset.items():
-                    if (col_name == 'nbin' or col_name == 'flag' or col_name == 'bin_number'):
+                for col_name, col_data in dataset.items():
+                    if col_name == "nbin" or col_name == "flag" or col_name == "bin_number":
                         continue
                     prev_val = prev_row[col_name]
                     curr_val = row[col_name]
 
                     # formula from the seasoft data processing manual, page 89, version 7.26.8-3
-                    interpolated_val = ((curr_val - prev_val) * (center_pressure - prev_presure) / (curr_pressure - prev_presure)) + prev_val
-                    #print('interpolated to ' + str(interpolated_val) + ' for ' + str(col_name) + ', ' + str(index))
+                    interpolated_val = (
+                        (curr_val - prev_val) * (center_pressure - prev_presure) / (curr_pressure - prev_presure)
+                    ) + prev_val
+                    # print('interpolated to ' + str(interpolated_val) + ' for ' + str(col_name) + ', ' + str(index))
                     new_dataset.loc[index, col_name] = interpolated_val
             prev_row = row
-            if (index == 2):
+            if index == 2:
                 # save this so we can reference it at the end for interpolating the first row
                 second_row = row
 
         # back to the first row now
-        prev_presure = second_row[bin_variable] # reference second row's value
-        curr_pressure = first_row[bin_variable] # use bin_variable since this could be pressure or depth
+        prev_presure = second_row[bin_variable]  # reference second row's value
+        curr_pressure = first_row[bin_variable]  # use bin_variable since this could be pressure or depth
         center_pressure = first_row_index * bin_size
 
-        for (col_name, col_data) in dataset.items():
-            if (col_name == 'nbin' or col_name == 'flag' or col_name == 'bin_number'):
+        for col_name, col_data in dataset.items():
+            if col_name == "nbin" or col_name == "flag" or col_name == "bin_number":
                 continue
-            prev_val = second_row[col_name] # reference second row's value
+            prev_val = second_row[col_name]  # reference second row's value
             curr_val = first_row[col_name]
 
             # formula from the seasoft manual, page 89
-            interpolated_val = ((curr_val - prev_val) * (center_pressure - prev_presure) / (curr_pressure - prev_presure)) + prev_val
+            interpolated_val = (
+                (curr_val - prev_val) * (center_pressure - prev_presure) / (curr_pressure - prev_presure)
+            ) + prev_val
             new_dataset.loc[first_row_index, col_name] = interpolated_val
 
         dataset = new_dataset
         print(dataset.to_string())
-    if (not include_scan_count):
-        dataset.drop('nbin', axis=1, inplace=True)
+    if not include_scan_count:
+        dataset.drop("nbin", axis=1, inplace=True)
+
 
 # TODO: move to a unit test?
 # data = {'pressure': [0, 0.5, 1, 1.2, 1.3, 1.5, 1.9, 2.5, 2.9, 3.5, 4, 5, 6, 7, 8, 9, 11, 13],
@@ -482,18 +547,24 @@ def bin_average(dataset: pd.DataFrame, bin_variable: str, bin_size: float, inclu
 
 
 def wild_edit(
-    data: np.ndarray, flags: np.ndarray, std_pass_1: float, std_pass_2: float,
-    scans_per_block: int, distance_to_mean: float, exclude_bad_flags: bool, flag_value=-9.99e-29
+    data: np.ndarray,
+    flags: np.ndarray,
+    std_pass_1: float,
+    std_pass_2: float,
+    scans_per_block: int,
+    distance_to_mean: float,
+    exclude_bad_flags: bool,
+    flag_value=-9.99e-29,
 ) -> np.ndarray:
     """Flags outliers in a dataset by iterating over the data in blocks, taking the
     mean and standard deviation, and flagging data outside the combined variance (standard
-    deviation of the block multiplied by the standard deviation argument). 
+    deviation of the block multiplied by the standard deviation argument).
     Each block is processed three times: first to remove loop edit flags if applicable,
     second to temporarily remove outliers outside std_pass_1, third to remove outliers
-    outside std_pass_2 from the returned data. 
+    outside std_pass_2 from the returned data.
 
     If the final block contains fewer samples than scans_per_block, data is backfilled
-    from the previous block before computing the mean and standard deviation.  
+    from the previous block before computing the mean and standard deviation.
 
     This algorithm may introduce nonlinearities in the data because it runs one block
     at a time instead of a rolling window but that is to keep parity with seasoft.
@@ -515,11 +586,16 @@ def wild_edit(
     lower_index = 0
     upper_index = scans_per_block
     flagged_data = data.copy()
-    
-    while(upper_index <= len(data)):
+
+    while upper_index <= len(data):
         flagged_data[lower_index:upper_index] = flag_data(
-            data[lower_index:upper_index], flags, std_pass_1, std_pass_2,
-            distance_to_mean, exclude_bad_flags, flag_value
+            data[lower_index:upper_index],
+            flags,
+            std_pass_1,
+            std_pass_2,
+            distance_to_mean,
+            exclude_bad_flags,
+            flag_value,
         )
         lower_index += scans_per_block
         upper_index += scans_per_block
@@ -527,17 +603,27 @@ def wild_edit(
     if lower_index < len(data):
         lower_index = len(data) - scans_per_block
         upper_index = len(data)
-        flagged_data[len(data) - len(data) % scans_per_block:] = flag_data(
-            data[lower_index:upper_index], flags, std_pass_1, std_pass_2,
-            distance_to_mean, exclude_bad_flags, flag_value
-        )[scans_per_block - len(data) % scans_per_block:]
-        
+        flagged_data[len(data) - len(data) % scans_per_block :] = flag_data(
+            data[lower_index:upper_index],
+            flags,
+            std_pass_1,
+            std_pass_2,
+            distance_to_mean,
+            exclude_bad_flags,
+            flag_value,
+        )[scans_per_block - len(data) % scans_per_block :]
+
     return flagged_data
 
-        
+
 def flag_data(
-    data: np.ndarray, flags: np.ndarray, std_pass_1: float, std_pass_2: float,
-    distance_to_mean: float, exclude_bad_flags: bool, flag_value=-9.99e-29
+    data: np.ndarray,
+    flags: np.ndarray,
+    std_pass_1: float,
+    std_pass_2: float,
+    distance_to_mean: float,
+    exclude_bad_flags: bool,
+    flag_value=-9.99e-29,
 ):
     """Helper function for wild_edit() that handles the three main loops
 
@@ -556,11 +642,11 @@ def flag_data(
     """
     data_copy = pd.Series(data.copy())
     flagged_data = data.copy()
-    
+
     for n, value in enumerate(data_copy):
         if exclude_bad_flags and flags[n] == flag_value:
             data_copy[n] = np.nan
-    
+
     mean = data_copy.mean()
     std = data_copy.std()
 
@@ -579,11 +665,18 @@ def flag_data(
 
 
 def window_filter(
-    data_in: np.ndarray, flags: np.ndarray, window_type: WindowFilterType, window_width: int,
-    sample_interval: float, half_width=1, offset=0.0, exclude_flags=False, flag_value=-9.99e-29
+    data_in: np.ndarray,
+    flags: np.ndarray,
+    window_type: WindowFilterType,
+    window_width: int,
+    sample_interval: float,
+    half_width=1,
+    offset=0.0,
+    exclude_flags=False,
+    flag_value=-9.99e-29,
 ) -> np.ndarray:
     """Filters a dataset by convolving it with an array of weights. The available
-    window filter types are boxcar, cosine, triangle, gaussian and median.  
+    window filter types are boxcar, cosine, triangle, gaussian and median.
 
     Refer to the SeaSoft data processing manual version 7.26.8, page 108
 
@@ -620,7 +713,7 @@ def window_filter(
 
     elif window_type == WindowFilterType.COSINE:
         for n in range(window_start, window_end):
-            window = np.append(window, np.cos((n * np.pi)/(window_width + 1)))
+            window = np.append(window, np.cos((n * np.pi) / (window_width + 1)))
 
     elif window_type == WindowFilterType.TRIANGLE:
         window = signal.windows.triang(window_width)
@@ -628,9 +721,9 @@ def window_filter(
     elif window_type == WindowFilterType.GAUSSIAN:
         phase = offset / sample_interval
         # the manual defines scale with sample rate, but seasoft uses sample interval
-        scale = np.log(2) * (2 * sample_interval / half_width)**2
+        scale = np.log(2) * (2 * sample_interval / half_width) ** 2
         for n in range(window_start, window_end):
-            window = np.append(window, np.exp(-(n-phase)**2 * scale))
+            window = np.append(window, np.exp(-((n - phase) ** 2) * scale))
 
     data_valid = np.nan_to_num(data)
     data_out = data_valid.copy()
@@ -641,25 +734,25 @@ def window_filter(
     for n in range(len(data)):
         if data_start <= n and n < data_end:
             value = 0
-            
+
             if window_type == WindowFilterType.MEDIAN:
                 window = data[n + window_start : n + window_end]
                 value = np.nanmedian(window)
             else:
                 window_valid = window.copy()
-                
+
                 # exclude weights from normalization if they correspond to nans in the data
                 for n2 in range(len(window)):
-                    if np.isnan(data[n+data_start-n2]):
+                    if np.isnan(data[n + data_start - n2]):
                         window_valid[n2] = 0
 
                 window_valid /= window_valid.sum()
-                
+
                 for n2 in range(len(window)):
-                    value += window_valid[n2] * data_valid[n+data_start-n2]
+                    value += window_valid[n2] * data_valid[n + data_start - n2]
 
             data_out[n] = value
-    
+
     return data_out
 
 
