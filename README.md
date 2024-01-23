@@ -4,13 +4,15 @@ This is the repository for the Sea-Bird Scientific (SBS) Community Toolkit. It i
 - Example SBS instrument data (see the repository documentation/example_data folder).
 - A [Jupyter](https://jupyter.org/) notebook that documents the current toolkit processing options that can be applied to data collected with SBE 37 and SBE 19plus V2 CTDs (see the repository documentation folder).
 
-### Repostory Structure
+## Repostory Contents
 ```
 seabirdscientific/
 |
 ├── documentation/
 |   ├── example_data/          [sample data files]
-|   └── ctd-processing.ipynb   [CTD Jupyter notebook]
+|   ├── ctd-processing.ipynb   [CTD Jupyter notebook]
+|   ├── ctd-notebook.pdf       [static pdf notebook]
+|   └── ctd-notebook.html      [static html notebook]
 |
 ├── src/
 |   └── sbs/
@@ -43,6 +45,9 @@ from sbs.process import contour
 import sbs.visualize as viz
 ```
 
-## Toolkit Required Software
+## Required Software
 You must have [Python](https://www.python.org/downloads/) version 3.9 or higher installed in order to use the toolkit.
+
+## CTD Jupyter Notebook
+The ctd-processing.ipynb notebook in the documentation folder provides examples of the methods that can be applied to SBS CTD data. There are a number of online references available with information on Jupyter notebook setup for different platforms and environments. For those who are not interested in an interactive notebook, there are static versions available in [HTML](./documentation/ctd-notebook.html) and [PDF](./documentation/ctd-notebook.pdf).
 
