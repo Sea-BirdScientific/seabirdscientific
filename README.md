@@ -1,11 +1,27 @@
 # seabirdscientific
-This is the repository for the Sea-Bird Scientific Community Toolkit. It is a collection of:
-- Python code to help in user developed processing of data collected with Sea-Bird instruments
-- Example Sea-Bird instrument data
-- A jupyter notebook that documents the current toolkit processing options that can be applied to data collected with Sea-Bird SeaCAT and MicroCAT CTDs.
+This is the repository for the Sea-Bird Scientific (SBS) Community Toolkit. It is a collection of:
+- Python code to help in user developed processing of data collected with SBS instruments (see the repository src/sbs folder).
+- Example SBS instrument data (see the repository documentation/example_data folder).
+- A [Jupyter](https://jupyter.org/) notebook that documents the current toolkit processing options that can be applied to data collected with SBE 37 and SBE 19plus V2 CTDs (see the repository documentation folder).
 
-## Package Installation
-### With pip
+### Repostory Structure
+```
+seabirdscientific/
+|
+├── documentation/
+|   ├── example_data/          [sample data files]
+|   └── ctd-processing.ipynb   [CTD Jupyter notebook]
+|
+├── src/
+|   └── sbs/
+|       ├── process/           [python processing modules]
+|       └── visualize/         [python visualization modules]
+|
+├── tests/                     [python unit tests]
+|
+└── README.md
+```
+## Package Installation With pip
 The seabirdscientific package uses Python 3.9 or greater. To install the package in a Python environment using pip send the command:
 
 On Windows:
@@ -16,129 +32,17 @@ py -m pip install seabirdscientific
 On Unix/macOS:
 
 ``` bash
-pip install seabirdscientific
+python3 -m pip install seabirdscientific
 ```
-For additional information see the [Installing Packages](https://packaging.python.org/en/latest/tutorials/installing-packages/#installing-packages) reference.
+For additional information see the [Python.org Installing Packages](https://packaging.python.org/en/latest/tutorials/installing-packages/#installing-packages) reference.
 
-### With Anaconda/Conda
-
-We are working on publishing a conda packge. Thanks for your patience.
-
-### Example package use within python code
+## Example package use within python code
 ```python
 import sbs
 from sbs.process import contour
 import sbs.visualize as viz
 ```
 
-## Jupyter Notebook Setup
-### Required Software
+## Toolkit Required Software
 You must have [Python](https://www.python.org/downloads/) version 3.9 or higher installed in order to use the toolkit.
-
-### Related Software
-Prior to setup, you may wish to install one or more of the applications below:
-1. [Git](https://www.git-scm.com/downloads) 
-2. [Git GUI clients](https://www.git-scm.com/downloads/guis)
-3. [Anaconda](https://docs.anaconda.com/free/anaconda/install/index.html) or [Miniconda](https://docs.conda.io/projects/miniconda/en/latest/miniconda-install.html)
-4. [Visual Studio Code](https://code.visualstudio.com/)
-    1. Install and start VSCode
-    2. Push Ctrl-Shift-X to open the extension manager
-       1. Make sure that the Python extension from Microsoft is installed 
-       2. Make sure that the Jupyter extension from Microsoft is installed
-
-### Setup with seabirdscientific from PyPi with VSCode
-If you have [VSCode](https://code.visualstudio.com/), [Python](https://www.python.org/downloads) or [Anaconda](https://docs.anaconda.com/free/anaconda/install/index.html) already installed on your computer:
-<!-- TODO: try the follwing once repo is public to replace the following three steps -->
-<!-- 1. Download from DownGit link https://minhaskamal.github.io/DownGit/#/home?url=https://github.com/Sea-BirdScientific/seabirdscientific/tree/main/documentation -->
-<!-- TODO: change dev to main in following URLs when published -->
-1. Download the [ctd-processing.ipynb](https://github.com/Sea-BirdScientific/seabirdscientific/blob/dev/documentation/ctd-processing.ipynb) notebook from github into a new folder. See the image below for the download icon location.
-
-    <kbd><img src="documentation/images/GitHubDownload.PNG" width=150></kbd>
-
-2. Open the new folder in VSCode.
-3. Create an example_data sub-folder in the new folder.
-4. Download [19plus_V2_CTD-processing_example.hex](https://github.com/Sea-BirdScientific/seabirdscientific/blob/dev/documentation/example_data/19plus_V2_CTD-processing_example.hex) from GitHub into the newly created example_data folder. See the image below for the how the new files appear in VSCode with a parent folder named Demo.
-
-    <kbd><img src="documentation/images/NotebookFiles.PNG" width=250></kbd>
-
-5. Use the [VS Code - Creating Environments](https://code.visualstudio.com/docs/python/environments#_creating-environments) page as a guide to setup a virtual environment for your work. 
-    - Use the .venv environment if Python only is used
-    - Use the .conda environment with Anaconda or Miniconda
-6. Open a VSCode power shell terminal if one is not currently active.
-7. Make sure that the virtual environment is active: hover over the terminal tab and look for the __Python: Activated environment__ extension (see below).
-
-    <kbd><img src="documentation/images/VerifyEnv.PNG" width=400></kbd>
-
-8. If the virtual environment does not appear to operate type ```Ctrl```+```Shift```+```P``` and send the command ```Developer:Reload Window```
-9. Send the appropriate command below in the powershell terminal to install the toolkit and its dependencies
-    <!-- 
-    Todo: once published, change below to just ... install seabirdscientific 
-    -->
-    - For a .venv envronment:
-    ``` bash
-    py -m pip install seabirdscientific --extra-index-url http://winbuilder02.sbs.ewqg.com/SBSPyPi/ --trusted-host winbuilder02.sbs.ewqg.com
-    ```
-    - For a .conda environment:
-    ``` bash
-    pip install seabirdscientific --extra-index-url http://winbuilder02.sbs.ewqg.com/SBSPyPi/ --trusted-host winbuilder02.sbs.ewqg.com
-    ```
-    If your .conda virtual environment does not include pip, you may need to install it with the command ```conda install pip```.
-
-10. Open the ctd-processing.ipynp notebook in VSCode and select the __Run All__ option to look at the notebook in action. If prompted to choose a kernel source, select the Python Environments... option and then the virtual environment that was just created. For more information on the use of Jupyter notebooks in VSCode, please see [Jupyter Notebooks in VS Code](https://code.visualstudio.com/docs/datascience/jupyter-notebooks). 
-
-### Setup with a Git Checkout of the Toolkit Repository and VSCode
-If you have [VSCode](https://code.visualstudio.com/), [Git](https://www.git-scm.com/downloads) and [Python](https://www.python.org/downloads/) or [Anaconda](https://docs.anaconda.com/free/anaconda/install/index.html) or [Miniconda](https://docs.conda.io/projects/miniconda/en/latest/miniconda-install.html) already installed on your computer:
-1. Check out the [Sea-Bird Scientific](https://github.com/Sea-BirdScientific/seabirdscientific.git) repository from GitHub with a Git GUI Client or one of the following command line methods:
-    - To put the toolkit in a folder named seabirdscientific:
-        1. At a command prompt, change to the parent directory of where you would like the toolkit to reside.
-        2. Send the command ```git clone https://github.com/Sea-BirdScientific/seabirdscientific.git```
-    - To put the toolkit in a folder with a different name:
-        1. At a command prompt, change to the parent directory of where you would like the toolkit to reside.
-        2. Send the command ```git clone https://github.com/Sea-BirdScientific/seabirdscientific.git yourFolderName```
-2. Open VSCode and choose File | Open Folder. 
-3. Use the file picker to select the toolkit folder that was just created.
-4. Use the [VS Code - Creating Environments](https://code.visualstudio.com/docs/python/environments#_creating-environments) page as a guide to setup a virtual environment for your work. 
-    - Use the .venv environment if Python only is used
-    - Use the .conda environment with Anaconda or Miniconda
-5. Open a VSCode power shell terminal if one is not currently active.
-6. Make sure that the virtual environment is active: hover over the terminal tab and look for the __Python: Activated environment__ extension (see below).
-
-    <kbd><img src="documentation/images/VerifyEnv.PNG" width=400></kbd>
-
-7. If the virtual environment does not appear to operate type ```Ctrl```+```Shift```+```P``` and send the command ```Developer:Reload Window```
-8. Send the appropriate command below in the powershell terminal to install the toolkit and its dependencies
-    - For a .venv envronment:
-    ``` bash
-    py -m pip install -e .[dev]
-    ```
-    - For a .conda environment:
-    ``` bash
-    pip install -e .[dev]
-    ```
-    If your .conda virtual environment does not include pip, you may need to install it with the command ```conda install pip```.
-
-9. Open the ctd-processing.ipynp notebook in VSCode and select the __Run All__ option to look at the notebook in action. If prompted to choose a kernel source, select the Python Environments... option and then the virtual environment that was just created. For more information on the use of Jupyter notebooks in VSCode, please see [Jupyter Notebooks in VS Code](https://code.visualstudio.com/docs/datascience/jupyter-notebooks).
-    
-### Setup the Notebook With a Git Checkout of the Toolkit Repository and the Jupyter Web Browser Interface
-If you have [Git](https://www.git-scm.com/downloads) and [Python](https://www.python.org/downloads/) or [Anaconda](https://docs.anaconda.com/free/anaconda/install/index.html) or [Miniconda](https://docs.conda.io/projects/miniconda/en/latest/miniconda-install.html) already installed on your computer:
-1. Check out the [Sea-Bird Scientific](https://github.com/Sea-BirdScientific/seabirdscientific.git) repository from GitHub with a Git GUI Client or one of the following command line methods:
-    - To place the toolkit in a folder named seabirdscientific:
-        1. At a command prompt, change to the parent directory of where you would like the toolkit to reside.
-        2. Send the command ```git clone https://github.com/Sea-BirdScientific/seabirdscientific.git```
-    - To place the toolkit in a folder with a different name:
-        1. At a command prompt, change to the parent directory of where you would like the toolkit to reside.
-        2. Send the command ```git clone https://github.com/Sea-BirdScientific/seabirdscientific.git yourFolderName```
-2. Create a conda or python virtual environment
-    - With python, at a command prompt send ```python -m venv folderPath```, where folderPath is the location for the new virtual environment.
-    - With conda, at a command prompt send ```conda create -p folderPath python=3.9```, where folderPath is the location for the new virtual environment.
-3. With the instance of Python.exe that is installed in the new virtual environment, send the command ```python -m pip install -e .[dev]``` to install the notebook's depencencies into the virtual environment
-4. Change the directory in the command terminal to the directory created in step 1.
-5. With the instance of Python.exe installed in the new virtual environment, send the command ```python -m notebook``` to start the Jupyter web browser server. This should launch the Jupyter web interface ```http://localhost:8888/tree``` in your browser. Leave the command terminal open while accessing the web interface.
-6. In the Jupyter web interface, select the ctd-processing.ipynp notebook file in the the documentation folder and select the __Open__ button.
-
-    <kbd><img src="documentation/images/JupyterWebOpen.PNG" width=300></kbd>
-
-7. A new web page will open with the notebook loaded. Select the __Run | Run All Cells__ menu option to look at the notebook in action. For more information on this interface and Jupyter notebooks, see the [Project Jupyter documentation](https://docs.jupyter.org/en/latest/).
-
-    <kbd><img src="documentation/images/JupyterWebRunAll.PNG" width=300></kbd>
 
