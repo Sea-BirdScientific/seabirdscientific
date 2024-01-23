@@ -23,13 +23,13 @@ dependencies = [
   "pandas",
   "plotly",
   "scipy",
-  "nbformat"
 ]
 [project.optional-dependencies]
 dev = [
   "notebook",
   "pytest",
   "black",
+  "nbformat"
 ]
 
 [build-system]
