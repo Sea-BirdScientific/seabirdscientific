@@ -2,7 +2,7 @@
 This is the repository for the Sea-Bird Scientific (SBS) Community Toolkit. It is a collection of:
 - Python code to help in user developed processing of data collected with SBS instruments (see the repository src/sbs folder).
 - Example SBS instrument data (see the repository documentation/example_data folder).
-- A [Jupyter](https://jupyter.org/) notebook that documents the current toolkit processing options that can be applied to data collected with SBE 37 and SBE 19plus V2 CTDs (see the repository documentation folder).
+- A [Jupyter](https://jupyter.org/) notebook that documents the current toolkit processing options that can be applied to data collected with SBE 37 and SBE 19plus V2 CTDs (see the repository documentation folder). This notebook also serves to document the processing options available in the SBS Fathom application.
 
 ## Repostory Contents
 ```
@@ -16,10 +16,10 @@ seabirdscientific/
 |
 ├── src/
 |   └── sbs/
-|       ├── process/           [python processing modules]
-|       └── visualize/         [python visualization modules]
+|       ├── process/           [processing modules]
+|       └── visualize/         [visualization modules]
 |
-├── tests/                     [python unit tests]
+├── tests/                     [unit tests]
 |
 └── README.md
 ```
@@ -49,5 +49,5 @@ import sbs.visualize as viz
 You must have [Python](https://www.python.org/downloads/) version 3.9 or higher installed in order to use the toolkit.
 
 ## CTD Jupyter Notebook
-The ctd-processing.ipynb notebook in the documentation folder provides examples of the methods that can be applied to SBS CTD data. There are a number of online references available with information on Jupyter notebook setup for different platforms and environments. For those who are not interested in an interactive notebook, there are static versions available in [HTML](./documentation/ctd-notebook.html) and [PDF](./documentation/ctd-notebook.pdf).
+The ctd-processing.ipynb notebook in the documentation folder provides examples of the methods that can be applied to SBS CTD data within both the toolkit and the SBS Fathom application. There are a number of online references available with information on Jupyter notebook setup for different platforms and environments. For those who are not interested in an interactive notebook, there are static versions available in [HTML](./documentation/ctd-notebook.html) and [PDF](./documentation/ctd-notebook.pdf).
 
