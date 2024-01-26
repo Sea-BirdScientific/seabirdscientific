@@ -1,6 +1,6 @@
 [project]
 name = "seabirdscientific"
-version = "1.0.4"
+version = "1.0.5"
 description = "SeaBird Scientific Community Toolkit"
 readme = "README.md"
 authors = [
@@ -29,6 +29,7 @@ dev = [
   "notebook",
   "pytest",
   "black",
+  "nbformat"
 ]
 
 [build-system]
