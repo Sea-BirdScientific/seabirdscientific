@@ -1,4 +1,6 @@
-"""TODO: test_processing docstring"""
+"""Data processing unit tests.
+
+"""
 
 # Native imports
 import importlib.resources

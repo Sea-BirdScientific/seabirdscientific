@@ -1,7 +1,14 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-"""TODO: conversion docstring"""
+"""TODO: conversion docstring
+
+Classes:
+
+
+Functions:
+
+"""
 
 # Native imports
 from math import sqrt, e, log, exp, floor

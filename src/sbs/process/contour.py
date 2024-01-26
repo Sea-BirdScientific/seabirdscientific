@@ -1,7 +1,18 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-"""TODO: countour docstring"""
+"""Contains a class and functions to support calculation of temperature and salinity contours.
+
+Classes:
+
+    ContourData
+
+Functions:
+
+    contour_from_t_s_p(temperature_C, salinity_PSU, pressure_dbar, min_salinity=0, lat=0, lon=0) -> ContourData
+    contour_from_t_c_p(temperature_C, conductivity_mScm, pressure_dbar, min_salinity=0, lat=0, lon=0) -> ContourData
+
+"""
 
 # Native imports
 from dataclasses import dataclass

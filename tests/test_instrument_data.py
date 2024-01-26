@@ -1,4 +1,6 @@
-"""TODO: test_instrument_data docstring"""
+"""instrument data conversion unit tests.
+
+"""
 
 # Native imports
 from datetime import datetime
