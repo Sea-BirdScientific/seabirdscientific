@@ -42,7 +42,8 @@ For additional information see the [Python.org Installing Packages](https://pack
 ```python
 import sbs
 from sbs.process import contour
-import sbs.visualize as viz
+import sbs.process.conversion as conv
+import sbs.process.processing as proc
 ```
 
 ## Required Software
