@@ -261,7 +261,7 @@ def plot_xy_chart(data: ChartData, config: ChartConfig) -> go.Figure:
 
 def create_single_plot(x: pd.DataFrame, y: pd.DataFrame, config: ChartConfig) -> go.Figure:
     """Creates a single XY plot, with one or more data sets.
-    
+
     If there are multiple datasets for the x or y axis, an overlay plot will be generated
 
     Args:
@@ -451,7 +451,7 @@ def apply_subplots_x_config(figure: go.Figure, config: ChartConfig):
 
 def apply_subplots_y_config(figure: go.Figure, config: ChartConfig):
     """Updates various chart settings for charts with multiple y axes.
-    
+
     Config parameters may contain upto 4 arguments per axis, and must be in the same order as the data. Hence all of the magic number indexing below
 
     Args:
@@ -486,9 +486,9 @@ def apply_subplots_y_config(figure: go.Figure, config: ChartConfig):
 
 
 def apply_overlay_config(figure: go.Figure, config: ChartConfig):
-    """Updates various chart settings for charts with multiple y axes. 
-    
-    Config parameters may contain upto 4 arguments per axis, and must be in the same order as the data. 
+    """Updates various chart settings for charts with multiple y axes.
+
+    Config parameters may contain upto 4 arguments per axis, and must be in the same order as the data.
     Hence all of the magic number indexing below
 
     Args:

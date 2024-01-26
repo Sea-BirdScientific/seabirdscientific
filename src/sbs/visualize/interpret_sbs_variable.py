@@ -28,8 +28,8 @@ import re
 
 
 def interpret_sbs_variable(sbs_var):
-    """Converts SBE variable strings s to strings that matlab can make use of. 
-    
+    """Converts SBE variable strings s to strings that matlab can make use of.
+
     Gives units for each variable and defines whether it is a number or a text string.
 
     Args:
@@ -41,7 +41,7 @@ def interpret_sbs_variable(sbs_var):
             kvar_format     =   defines whether variable is a float or a string
             kvar_units      =   variable units. Empty string if undefined.
     """
-    
+
     # TEMPERATURE
     # primary sensor
     kvar_format = r"%f"
