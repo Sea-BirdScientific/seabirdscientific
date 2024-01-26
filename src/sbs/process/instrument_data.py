@@ -1,9 +1,22 @@
-"""TODO: instrument_data docstring
+"""A collection of classes and functions related to the processing of instrument data.
 
 Classes:
 
+    InstrumentType(Enum)
+    HexDataTypes(Enum)
+    Sensors(Enum)
+    MeasurementSeries
+    InstrumentData
 
 Functions:
+
+    def cnv_to_instrument_data(Path) -> InstrumentData
+    fix_exponents(List[str]) -> List[str]
+    read_hex_file(str, InstrumentType, List[Sensors], bool) -> pd.DataFrame
+    preallocate_dataframe(InstrumentType, str, List[Sensors], bool, int) -> pd.DataFrame
+    read_hex(InstrumentType, str, List[Sensors], bool) -> dict
+    read_SBE19plus_format_0(str, List[Sensors], bool) -> dict
+    read_SBE37SM_format_0(str, List[Sensors]) -> dict
 
 """
 
@@ -107,7 +120,7 @@ class Sensors(Enum):
 
 @dataclass
 class MeasurementSeries:  # TODO make this inherit from a pandas DataFrame
-    """Container for measurement data"""
+    """Container for measurement data."""
 
     label: str
     description: str
@@ -126,7 +139,16 @@ class InstrumentData:
 
 
 def cnv_to_instrument_data(filepath: Path) -> InstrumentData:
-    """TODO: make this an InstrumentData class method"""
+    """Import the data from a .cnv file and put it into an InstrumentData object.
+
+    Args:
+        filepath (Path): the path to the .cnv file to be imported
+
+    Returns:
+        InstrumentData: the imported data from the .cnv file
+
+    # TODO: make this an InstrumentData class method
+    """
 
     data = InstrumentData(
         measurements={},
@@ -190,10 +212,11 @@ def cnv_to_instrument_data(filepath: Path) -> InstrumentData:
     return data
 
 
-def fix_exponents(values: List[str]):
-    """Fixes flag values and other numbers with negative exponents by merging
-    numbers that end in 'e' with the following number in the list (the exponent),
-    then deleting the exponent
+def fix_exponents(values: List[str]) -> List[str]:
+    """Fixes flag values and other numbers with negative exponents.
+
+    The fixes are performed by merging numbers that end in 'e' with the
+        following number in the list (the exponent), then deleting the exponent
 
     Args:
         values (List[str]): List of strings representing numbers
@@ -201,6 +224,7 @@ def fix_exponents(values: List[str]):
     Returns:
         List[str]: List of strings where eponents have been fixed
     """
+
     del_indices = [n + 1 for n, value in enumerate(values) if value.endswith("e")]
     for n in del_indices:
         values[n - 1] = f"{values[n-1]}{values[n]}"
@@ -260,20 +284,25 @@ def preallocate_dataframe(
     return pd.DataFrame(sensors)
 
 
-# /**
-#  * Converts a hex string into engineering units
-#  * @param instrumentType determines how units are converted
-#  * @param hex one line from a hex data file
-#  * @param mooredMode parses time for 19plus in moored mode if true
-#  * @param enabledSensors array of Sensors that are enabled. For 37 this is always temperature, conductivity, pressure
-#  * @returns
-#  */
 def read_hex(
     instrument_type: InstrumentType,
     hex: str,
     enabled_sensors: List[Sensors],
     moored_mode=False,
-):
+) -> dict:
+    """Converts an instrument data hex string into engineering units.
+
+    Args:
+        instrument_type (InstrumentType): determines how units are converted
+        hex (str): one line from a hex data file
+        enabled_sensors (List[Sensors]): mooredMode parses time for 19plus in moored mode if true
+        moored_mode (bool, optional): array of Sensors that are enabled. For 37 this is always
+            temperature, conductivity, pressure. Defaults to False.
+
+    Returns:
+        dict: the sensor values in engineering units that were extracted from the input hex string
+    """
+
     if instrument_type == InstrumentType.SBE19Plus:
         return read_SBE19plus_format_0(hex, enabled_sensors, moored_mode)
 
@@ -281,7 +310,21 @@ def read_hex(
         return read_SBE37SM_format_0(hex, enabled_sensors)
 
 
-def read_SBE19plus_format_0(hex: str, enabled_sensors: List[Sensors], moored_mode=False):
+def read_SBE19plus_format_0(hex: str, enabled_sensors: List[Sensors], moored_mode=False) -> dict:
+    """Converts a 19plus V2 data hex string into engineering units.
+
+    Args:
+        hex (str): one line from a hex data file
+        enabled_sensors (List[Sensors]): mooredMode parses time for 19plus in moored mode if true
+        moored_mode (bool, optional): array of Sensors that are enabled. For 37 this is always temperature, conductivity, pressure. Defaults to False.
+
+    Returns:
+        dict: the 19plus V2 sensor values in engineering units that were extracted from the input hex string
+
+    Raises:
+        RuntimeWarning: if the hex string length does not match the expected length
+    """
+
     results = {}
     n = 0
     for sensor in Sensors:
@@ -377,7 +420,16 @@ def read_SBE19plus_format_0(hex: str, enabled_sensors: List[Sensors], moored_mod
     return results
 
 
-def read_SBE37SM_format_0(hex: str, enabled_sensors: List[Sensors]):
+def read_SBE37SM_format_0(hex: str, enabled_sensors: List[Sensors]) -> dict:
+    """Converts a 37 family data hex string into engineering units.
+
+    Args:
+        hex (str): one line from a hex data file
+        enabled_sensors (List[Sensors]): mooredMode parses time for 19plus in moored mode if true
+
+    Returns:
+        dict: the 37 family sensor values in engineering units that were extracted from the input hex string
+    """
     results = {}
     n = 0
     results[HexDataTypes.temperature.value] = int(hex[n : HEX_LENGTH["temperature"]], 16)

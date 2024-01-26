@@ -1,4 +1,16 @@
-"""TODO: processing docstring"""
+"""A collection of functions for processing converted SBS instrument data.
+
+Classes:
+
+    MinVelocityType(Enum)
+    WindowFilterType(Enum)
+
+Functions:
+
+    butterworth_filter(np.ndarray, float, float) -> np.ndarray
+    # TODO: add remaining fuctions
+
+"""
 
 # Native imports
 from enum import Enum
@@ -27,8 +39,8 @@ class WindowFilterType(Enum):
     MEDIAN = "median"
 
 
-def butterworth_filter(x: np.ndarray, time_constant: float, sample_interval: float):
-    """Applies a butterworth filter to a dataset
+def butterworth_filter(x: np.ndarray, time_constant: float, sample_interval: float) -> np.ndarray:
+    """Applies a butterworth filter to a dataset.
 
     Args:
         x (np.ndarray): A numpy array of floats
@@ -36,8 +48,9 @@ def butterworth_filter(x: np.ndarray, time_constant: float, sample_interval: flo
         sample_interval (float): 1 / sampling_frequency
 
     Returns:
-        np.ndarray: Filtered data
+        np.ndarray: the filtered data
     """
+
     cutoff_frequency = 1 / (2 * np.pi * time_constant)
     sampling_frequency = 1 / sample_interval
     b, a = signal.butter(1, cutoff_frequency, fs=sampling_frequency)
@@ -46,7 +59,7 @@ def butterworth_filter(x: np.ndarray, time_constant: float, sample_interval: flo
 
 
 def low_pass_filter(x: np.ndarray, time_constant: float, sample_interval: float) -> np.ndarray:
-    """Applies a low pass filter as defined in the SeaSoft manual v7.26.8 page 101
+    """Applies a low pass filter as defined in the SeaSoft manual v7.26.8 page 101.
 
     Args:
         x (np.ndarray): A numpy array of floats
@@ -54,7 +67,7 @@ def low_pass_filter(x: np.ndarray, time_constant: float, sample_interval: float)
         sample_interval (float): 1 / sampling_frequency
 
     Returns:
-        np.ndarray: Filtered data
+        np.ndarray: the filtered data
     """
 
     a = 1 / (1 + 2 * time_constant / sample_interval)
@@ -72,17 +85,19 @@ def low_pass_filter(x: np.ndarray, time_constant: float, sample_interval: float)
 
 
 def align_ctd(x: np.ndarray, offset: float, sample_interval: float, flag_value=-9.99e-29) -> np.ndarray:
-    """Takes an ndarray object of data for a single variable, applies a time offset to the series
+    """Takes an ndarray object of data for a single variable and applies a time offset to the series.
+
     Performs interpolation when offset is not a factor of sampleinterval
+
     Args:
         x (np.ndarray): array of values to apply shift to
         offset (float): offset value to shift by (s)
         sample_interval: time between samples (s)
-    TODO: There's something weird that happens on the last sample (index: len(x) - 1 - (offset // sample_interval))
-    Where it performs some sort of pseudo-interpolation even if there isn't anything to interpolate on.
-    I personally think this is stupid and it doesn't actually do anything useful, so leaving it as a bad flag for now.
-    The formula for it is also quite arcane: interp_res[last_valid_sample] = x[last_valid_sample] - (((x[last_valid_sample] - x[last_valid_sample - 1]) / (sample_interval / 2)) * offset_remainder / 2)
-    This only works if offset // sample_interval = 0
+
+    Returns:
+        np.ndarray: the aligned data
+
+    TODO: See JIRA issue NSI-1658
     """
 
     sample_times = np.arange(0, len(x) * sample_interval, sample_interval)
@@ -97,9 +112,10 @@ def cell_thermal_mass(
     time_constant: float,
     sample_interval: float,
 ) -> np.ndarray:
-    """From the SeaSoft manual, page 92:
+    """Removes conductivity cell thermal mass effects from measured conductivity.
+
     Cell Thermal Mass uses a recursive filter to remove conductivity cell thermal
-    mass effects from the measured conductivity
+        mass effects from the measured conductivity [From the SeaSoft manual, page 92]
 
     Args:
         temperature_C (np.ndarray): temperature in degrees C
@@ -109,8 +125,9 @@ def cell_thermal_mass(
         sample_interval (float): time between samples
 
     Returns:
-        np.ndarray: corrected conductivity in S/m
+        np.ndarray: the corrected conductivity in S/m
     """
+
     a = 2 * amplitude / (sample_interval / time_constant + 2)
     b = 1 - (2 * a / amplitude)
     ctm = np.zeros(len(temperature_C))  # cell thermal mass
@@ -141,7 +158,7 @@ def loop_edit_pressure(
     exclude_flags: bool,
     flag_value=-9.99e-29,
 ) -> np.ndarray:
-    """Variation of loop_edit_depth that derives depth from pressure and latitude
+    """Variation of loop_edit_depth that derives depth from pressure and latitude.
 
     Args:
         pressure (np.ndarray): A pressure array in dbar
@@ -149,7 +166,10 @@ def loop_edit_pressure(
 
         See loop_edit_depth for remaining args
 
+    Returns:
+        np.ndarray: the input data with updated flags
     """
+
     depth = depth_from_pressure(pressure, latitude)
     return loop_edit_depth(
         depth,
@@ -183,14 +203,17 @@ def loop_edit_depth(
     exclude_flags: bool,
     flag_value=-9.99e-29,
 ) -> np.ndarray:
-    """Loop Edit marks scans bad by setting the flag value associated with the scan to
-    badflag in input .cnv files that have pressure slowdowns or reversals (typically
+    """Marks scans determined to be part of a pressure loop as bad.
+
+    Loop Edit marks scans bad by setting the flag value associated with the scan to
+    badflag in data that has pressure slowdowns or reversals (typically
     caused by ship heave).
 
     Args:
         depth (np.ndarray): Salt water depth as an array of positive numbers.
             Colloquially used interchangeably with pressure in dbar
-        flag (np.ndarray): Array of flag values. Passing is 0.0, failing defaults to -9.99e-29
+        flag (np.ndarray): Array of flag values. The flag for a good value is 0.0.
+            The flag for a detected loop value defaults to -9.99e-29
         sample_interval (float): Time interval between samples in seconds
         min_velocity_type (MinVelocityType): Sets whether flags are based on min
             velocity or a percentage of mean speed
@@ -205,7 +228,11 @@ def loop_edit_depth(
             by the first value in the depth array
         exclude_flags (bool): If true, existing bad flags are preserved
         flag_value (_type_, optional): Passing is 0.0, failing defaults to -9.99e-29.
+
+    Returns:
+        np.ndarray: the input data with updated flags
     """
+
     if not exclude_flags:
         flag[:] = 0.0
 
@@ -262,8 +289,9 @@ def find_depth_peaks(
     min_soak_depth: float,
     max_soak_depth: float,
 ) -> tuple[int, int]:
-    """Finds the global depth minima and maxima for determining the earliest
-    point where the downcast and upcast can begin
+    """Finds the global depth minima and maxima.
+
+    This determinines the earliest points where the downcast and upcast can begin
 
     Args:
         depth (np.ndarray): depth data
@@ -316,7 +344,7 @@ def min_velocity_mask(
     domain_end: int,
     is_upcast: bool,
 ) -> np.ndarray:
-    """creates a mask to assign bad flags where velocity is less that the provided minimum
+    """Creates a mask to assign bad flags where velocity is less that the provided minimum.
 
     Args:
         depth (np.ndarray): depth data
@@ -329,6 +357,7 @@ def min_velocity_mask(
     Returns:
         np.ndarray: true/false mask where true means velocity is at least the minimum
     """
+
     sign = -1 if is_upcast else 1
     mask0 = sign * np.diff(depth, prepend=depth[0]) / interval >= min_velocity
     mask1 = sign * np.diff(depth, append=depth[-1]) / interval >= min_velocity
@@ -351,7 +380,9 @@ def mean_speed_percent_mask(
     is_upcast: bool,
     diff_length: int,
 ) -> np.ndarray:
-    """creates a mask to assign bad flags where the velocity is less than a
+    """Assigns bad flags to scans below a specified velocity.
+
+    This creates a mask to assign bad flags where the velocity is less than a
     given percentage of the mean accross a number of samples according to
     diff_length (determined by the window and sample_rate)
 
@@ -367,8 +398,9 @@ def mean_speed_percent_mask(
 
     Returns:
         np.ndarray: true/false mask where true means the sample velocity is at
-        least the given percentage of the mean
+            least the given percentage of the mean
     """
+
     sign = -1 if is_upcast else 1
     mask0 = sign * np.diff(depth[0:diff_length]) / interval > min_velocity
     mask1 = sign * np.diff(depth[1 : diff_length + 1]) / interval > min_velocity
@@ -391,12 +423,13 @@ def flag_by_minima_maxima(
     max_depth_n: int,
     flag_value: float,
 ):
-    """following a ship heave, where velocity temporarily inverts, this function
-    flags data that is less than the most recent local minima or maxima
+    """Flags data that is less than the most recent local minima or maxima.
+
+    This condition occurs following a ship heave, where velocity temporarily inverts
 
     Args:
         depth (np.ndarray): depth data
-        flag (np.ndarray): flag data
+        flag (np.ndarray): flag data.  Will be modified by this function.
         min_depth_n (int): index of global minimum depth
         max_depth_n (int): index of global maximum depth
         flag_value (float): value assigned to bad flags
@@ -426,11 +459,12 @@ def bin_average(
     interpolate: bool,
 ):
     """Averages data into a number of set bins, averaging values within each bin.
+
     Bins with fewer than min_scans or larger than max_scans get removed.
-    Updates the passed dataset to be in bins.
-    TODO: Currently unimplemented: surface bin, begin/end scans to omit, processing upcast vs downcast vs both, time bins, scan number bins
+    Updates the dataset argument to be in bins.
+
     Args:
-        dataset (pd.DataFrame): Data frame containing all data to group into bins. Will be modified during this function.
+        dataset (pd.DataFrame): Data frame containing all data to group into bins. Will be modified by this function.
         bin_variable (string): name of the variable to use bins for. Expected to be one of "pressure", "depth", "scan_number", or "time"
         bin_size (number): size for each bin of data
         include_scan_count (bool): indicates whether to include a column in the updated dataset for the number of scans in each bin
@@ -438,7 +472,10 @@ def bin_average(
         max_scans (number): indicates the maximum number of scans allowed to be in a bin for it to be included in the dataset. Bins with more scans than max_Scans will be dropped.
         exclude_bad_scans (boolean): indicates whether to include bad scans within the bins.
         interpolate (boolean): indicates whether to interpolate the balues in the bins after averaging. Only possible for pressure or depth bins
+
+    TODO: Currently unimplemented: surface bin, begin/end scans to omit, processing upcast vs downcast vs both, time bins, scan number bins
     """
+
     if exclude_bad_scans and "flag" in dataset.columns:
         # remove all scans marked as bad (i.e. flag greater than 0)
         dataset.drop(dataset[dataset["flag"] > 0].index, inplace=True)
@@ -556,7 +593,9 @@ def wild_edit(
     exclude_bad_flags: bool,
     flag_value=-9.99e-29,
 ) -> np.ndarray:
-    """Flags outliers in a dataset by iterating over the data in blocks, taking the
+    """Flags outliers in a dataset.
+
+    Outliers are flagged by iterating over the data in blocks, taking the
     mean and standard deviation, and flagging data outside the combined variance (standard
     deviation of the block multiplied by the standard deviation argument).
     Each block is processed three times: first to remove loop edit flags if applicable,
@@ -567,7 +606,7 @@ def wild_edit(
     from the previous block before computing the mean and standard deviation.
 
     This algorithm may introduce nonlinearities in the data because it runs one block
-    at a time instead of a rolling window but that is to keep parity with seasoft.
+    at a time instead of a rolling window. This is done to maintain parity with SBE Data Processing.
 
     Args:
         data (np.ndarray): The data to be flagged, such as temperature, pressure, etc.
@@ -583,6 +622,7 @@ def wild_edit(
     Returns:
         np.ndarray: The data with flag values in place of outliers
     """
+
     lower_index = 0
     upper_index = scans_per_block
     flagged_data = data.copy()
@@ -624,8 +664,8 @@ def flag_data(
     distance_to_mean: float,
     exclude_bad_flags: bool,
     flag_value=-9.99e-29,
-):
-    """Helper function for wild_edit() that handles the three main loops
+) -> np.ndarray:
+    """Helper function for wild_edit() that handles the three main loops.
 
     Args:
         data (np.ndarray): The data to be flagged, such as temperature, pressure, etc.
@@ -638,8 +678,9 @@ def flag_data(
         flag_value (_type_, optional): The flag value written in place of data. Defaults to -9.99e-29.
 
     Returns:
-        _type_: The data with flag values in place of outliers
+        np.ndarray: The data with flag values in place of outliers
     """
+
     data_copy = pd.Series(data.copy())
     flagged_data = data.copy()
 
@@ -675,9 +716,9 @@ def window_filter(
     exclude_flags=False,
     flag_value=-9.99e-29,
 ) -> np.ndarray:
-    """Filters a dataset by convolving it with an array of weights. The available
-    window filter types are boxcar, cosine, triangle, gaussian and median.
+    """Filters a dataset by convolving it with an array of weights.
 
+    The available window filter types are boxcar, cosine, triangle, gaussian and median.
     Refer to the SeaSoft data processing manual version 7.26.8, page 108
 
     Args:
@@ -756,14 +797,14 @@ def window_filter(
     return data_out
 
 
-
 def calc_N2_buoyancy_modern(
     temp_conservative_subset: np.ndarray,
     salinity_abs_subset: np.ndarray,
     pressure_dbar_subset: np.ndarray,
-    gravity: float
-): 
-    '''Calculates an N^2 value (buoyancy frequency) for the given window of temperature, salinity, and pressure, at the given latitude.
+    gravity: float,
+):
+    """Calculates an N^2 value (buoyancy frequency) for the given window of temperature, salinity, and pressure, at the given latitude.
+
     Expect temperature as conservative temperature, salinity as abslute salinity, and pressure as dbar, all of the same length
     Performs the calculation in a modern way using TEOS-10 and specific volume.
 
@@ -775,7 +816,8 @@ def calc_N2_buoyancy_modern(
 
     Returns:
         float: A single N^2 [Brunt-Väisälä (buoyancy) frequency]
-    '''
+    """
+
     db_to_pa = 1e4
     # Wrap these as a length-1 array so that GSW accepts them
     pressure_bar = [np.mean(pressure_dbar_subset)]
@@ -795,21 +837,18 @@ def calc_N2_buoyancy_modern(
 
     # Compute N2 combining computed ceofficients and vertical gradients.
     # we index into v_bar, alpha_bar, and beta_bar as they are all arrays of len 1
-    N2 = gravity ** 2 / (v_bar[0] * db_to_pa)
-    N2 *= (beta_bar[0] * dSAdp_result.slope - alpha_bar[0] * dCTdp_result.slope)
+    N2 = gravity**2 / (v_bar[0] * db_to_pa)
+    N2 *= beta_bar[0] * dSAdp_result.slope - alpha_bar[0] * dCTdp_result.slope
     return N2
 
 
 def calc_N2_buoyancy_retro(
-    temp_ITS_subset: np.ndarray,
-    salinity_prac_subset: np.ndarray,
-    pressure_dbar_subset: np.ndarray,
-    gravity: float
-): 
-    '''Calculates an N^2 value (buoyancy frequency) for the given window of temperature, salinity, and pressure, at the given latitude.
-    Expect temperature as ITS-90 temperature, salinity as practical salinity, and pressure as dbar, all of the same length
-    Performs the calculation following the SBE Data Processing formula using E0S-80 calculations for potential temp and density
+    temp_ITS_subset: np.ndarray, salinity_prac_subset: np.ndarray, pressure_dbar_subset: np.ndarray, gravity: float
+):
+    """Calculates an N^2 value (buoyancy frequency) for the given window of temperature, salinity, and pressure, at the given latitude.
 
+    Expects temperature as ITS-90 temperature, salinity as practical salinity, and pressure as dbar, all of the same length
+    Performs the calculation following the SBE Data Processing formula using E0S-80 calculations for potential temp and density
 
     Args:
         temp_ITS_subset (np.ndarray): ITS-90 temperature values for the given window
@@ -819,8 +858,9 @@ def calc_N2_buoyancy_retro(
 
     Returns:
         float: A single N^2 [Brunt-Väisälä (buoyancy) frequency]
-    '''
-    db_to_pa = 1e4 
+    """
+
+    db_to_pa = 1e4
 
     # Wrap these as a length-1 array so that GSW accepts them
     pressure_bar = [np.mean(pressure_dbar_subset)]
@@ -829,7 +869,7 @@ def calc_N2_buoyancy_retro(
 
     # Compute average density over the window
     # rho_bar0 = gsw.rho(salinity_bar, temperature_bar, pressure_bar)[0]
-    rho_bar  = Density(salinity_bar, temperature_bar, pressure_bar)[0]
+    rho_bar = Density(salinity_bar, temperature_bar, pressure_bar)[0]
 
     # Use SBE DP (EOS-80) formulas for potential temp and density
     theta = PoTemp(salinity_prac_subset, temp_ITS_subset, pressure_dbar_subset, pressure_bar)
@@ -838,46 +878,50 @@ def calc_N2_buoyancy_retro(
     # Estimate vertical gradient of specific volume
     dvdp_result = stats.linregress(pressure_dbar_subset, v_vals)
 
-    # Compute EOS-80 N2 combining computed average density and vertical gradient 
+    # Compute EOS-80 N2 combining computed average density and vertical gradient
     # we index into v_bar, alpha_bar, and beta_bar as they are all arrays of len 1
-    N2 = 0 - (rho_bar ** 2 * gravity ** 2 * dvdp_result.slope / db_to_pa)
+    N2 = 0 - (rho_bar**2 * gravity**2 * dvdp_result.slope / db_to_pa)
     return N2
+
 
 def buoyancy(
     temperature_c: np.ndarray,
-	salinity_prac: np.ndarray,
-	pressure_dbar: np.ndarray,
-	latitude: np.ndarray,
+    salinity_prac: np.ndarray,
+    pressure_dbar: np.ndarray,
+    latitude: np.ndarray,
     longitude: np.ndarray,
-	window_size: float,
+    window_size: float,
     use_modern_formula=True,
-    flag_value=-9.99e-29
-): 
-    '''Calculates the 4 buoyancy values based off the incoming data.
+    flag_value=-9.99e-29,
+):
+    """Calculates the 4 buoyancy values based off the incoming data.
+
     Data is expected to have already been binned via Bin_Average using decibar pressure bins.
     All arrays are expected to be the same length, except for latitude and longitude, which can be length 1.
     Optionally can use the former calculation for N^2 from the SBE Data Processing Manual, but defaults to a newer formula using TEOS-10.
-    
+
     Args:
         temperature_c (np.ndarray): Temperature in ITS-90 degrees C
         salinity_prac (np.ndarray): Practical salinity in PSU
         pressure_dbar (np.ndarray): Pressure in dbar
         latitude (np.ndarray): latitude values. If length 1, gets applied to all values.
         longitude (np.ndarray): longitude values. If length 1, gets applied to all values.
-        window_size (float): window size to use. 
-                If this number is smaller than the binned window size, rounds up to a minium of 3 scans.
-                I.E. uses the center scan and one scan on each side of it at the very least
-        use_modern_formula (bool): Whether to use a modern formula for calculating N^2. Defualts to true.
+        window_size (float): window size to use.
+            If this number is smaller than the binned window size, round up to a minium of 3 scans.
+            I.E. uses the center scan and one scan on each side of it at the very least
+        use_modern_formula (bool): Whether to use a modern formula for calculating N^2. Defaults to true.
         flag_value (float): Bad Flag value to use for marking bad scans. Defaults to -9.99e-29
+
     Returns:
         pd.DataFrame: dataframe with 4 columns, one with each calculated variable. The columns are as follows:
+    """
 
-    '''
-
-    salinity_prac, temperature_c, pressure_dbar, latitude, longitude = np.broadcast_arrays(salinity_prac, temperature_c, pressure_dbar, latitude, longitude)
+    salinity_prac, temperature_c, pressure_dbar, latitude, longitude = np.broadcast_arrays(
+        salinity_prac, temperature_c, pressure_dbar, latitude, longitude
+    )
     pressure_dbar = pressure_dbar.astype(np.double)
 
-    # Get the original bin size that we're working with, using the second and third bin so we don't have to worry about the surface bin 
+    # Get the original bin size that we're working with, using the second and third bin so we don't have to worry about the surface bin
     original_bin_size = abs(pressure_dbar[2] - pressure_dbar[1])
 
     # Calculates how many scans to have on either side of our median point, but need at least 1 (for a total of 3 scans)
@@ -897,7 +941,7 @@ def buoyancy(
     # start loop at scans_per_side
     for i in range(scans_per_side, len(temperature_conservative) - scans_per_side):
         min_index = i - scans_per_side
-        max_index = i + scans_per_side + 1 # add + 1 because slicing does not include the max_index
+        max_index = i + scans_per_side + 1  # add + 1 because slicing does not include the max_index
 
         pressure_subset = pressure_dbar[min_index:max_index]
         temperature_cons_subset = temperature_conservative[min_index:max_index]
@@ -907,7 +951,7 @@ def buoyancy(
         pressure_bar = [np.mean(pressure_subset)]
         gravity = gsw.grav([latitude[i]], pressure_bar)[0]
 
-        if (use_modern_formula):
+        if use_modern_formula:
             salinity_subset = salinity_abs[min_index:max_index]
             N2 = calc_N2_buoyancy_modern(temperature_cons_subset, salinity_subset, pressure_subset, gravity)
         else:
@@ -915,26 +959,33 @@ def buoyancy(
             N2 = calc_N2_buoyancy_retro(temperature_ITS_subset, salinity_subset, pressure_subset, gravity)
 
         N2_arr[i] = N2
-        if (N2 >= 0) :
+        if N2 >= 0:
             N_arr[i] = math.sqrt(N2) * 3600 / (2 * np.pi)
         else:
             N_arr[i] = np.nan
         E_arr[i] = N2 / gravity
         E_pow_8_arr[i] = E_arr[i] * 1e8
 
-    result_dataframe['N2'] = N2_arr
-    result_dataframe['N'] = N_arr
-    result_dataframe['E'] = E_arr
-    result_dataframe['E10^-8'] = E_pow_8_arr
+    result_dataframe["N2"] = N2_arr
+    result_dataframe["N"] = N_arr
+    result_dataframe["E"] = E_arr
+    result_dataframe["E10^-8"] = E_pow_8_arr
     return result_dataframe
 
-def Density(
-	s0: np.ndarray,
-    t: np.ndarray,
-	p0: np.ndarray       
-) -> np.ndarray :
-    
-    """EOS-80 density calculation ( ported from CSharedCalc::Density() )"""
+
+def Density(s0: np.ndarray, t: np.ndarray, p0: np.ndarray) -> np.ndarray:
+    """EOS-80 density calculation.
+
+    This was ported from CSharedCalc::Density()
+
+    Args:
+        s0 (np.ndarray): salinity data
+        t (np.ndarray): temperature data
+        p0 (np.ndarray): pressure data
+
+    Returns:
+        np.ndarray: resulting density data
+    """
 
     B0 = 8.24493e-1
     B1 = -4.0899e-3
@@ -989,77 +1040,116 @@ def Density(
     K1 = -6.12293e-6
     K2 = 5.2787e-8
 
-
-    s0, t, p0 = np.broadcast_arrays(s0, t, p0) 
+    s0, t, p0 = np.broadcast_arrays(s0, t, p0)
     p = p0.copy()
     s = s0.copy()
 
-    t2 = t*t
-    t3 = t*t2
-    t4 = t*t3
-    t5 = t*t4
+    t2 = t * t
+    t3 = t * t2
+    t4 = t * t3
+    t5 = t * t4
     s[s <= 0.0] = 0.000001
     s32 = s**1.5
     p /= 10.0
-    sigma = A0 + A1*t + A2*t2 + A3*t3 + A4*t4 + A5*t5 + (B0 + B1*t + B2*t2 + B3*t3 + B4*t4)*s + (C0 + C1*t + C2*t2)*s32 + D0*s*s
-    
-    kw = E0 + E1*t + E2*t2 + E3*t3 + E4*t4
-    aw = H0 + H1*t + H2*t2 + H3*t3
-    bw = K0 + K1*t + K2*t2
+    sigma = (
+        A0
+        + A1 * t
+        + A2 * t2
+        + A3 * t3
+        + A4 * t4
+        + A5 * t5
+        + (B0 + B1 * t + B2 * t2 + B3 * t3 + B4 * t4) * s
+        + (C0 + C1 * t + C2 * t2) * s32
+        + D0 * s * s
+    )
 
-    k = kw + (FQ0 + FQ1*t + FQ2*t2 + FQ3*t3)*s + (G0 + G1*t + G2*t2)*s32 + (aw + (i0 + i1*t + i2*t2)*s + (J0*s32))*p + (bw + (M0 + M1*t + M2*t2)*s)*p*p
+    kw = E0 + E1 * t + E2 * t2 + E3 * t3 + E4 * t4
+    aw = H0 + H1 * t + H2 * t2 + H3 * t3
+    bw = K0 + K1 * t + K2 * t2
+
+    k = (
+        kw
+        + (FQ0 + FQ1 * t + FQ2 * t2 + FQ3 * t3) * s
+        + (G0 + G1 * t + G2 * t2) * s32
+        + (aw + (i0 + i1 * t + i2 * t2) * s + (J0 * s32)) * p
+        + (bw + (M0 + M1 * t + M2 * t2) * s) * p * p
+    )
 
     val = 1 - p / k
-    
+
     val[val <= 0] = np.nan
     val = sigma / val
 
     return val
 
-def PoTemp(
-	s: np.ndarray,
-    t0: np.ndarray,
-	p0: np.ndarray,
-	pr: np.ndarray       
-) -> np.ndarray :
 
-    """EOS-80 potential temperature calculation ( ported from CSharedCalc::PoTemp() )"""
+def PoTemp(s: np.ndarray, t0: np.ndarray, p0: np.ndarray, pr: np.ndarray) -> np.ndarray:
+    """EOS-80 potential temperature calculation.
 
-    s, t0, p0, pr = np.broadcast_arrays(s, t0, p0, pr) 
+    This was ported from CSharedCalc::PoTemp()
+
+    Args:
+        s (np.ndarray): sainity data
+        t0 (np.ndarray): temperature data
+        p0 (np.ndarray): subset pressure data
+        pr (np.ndarray): pressure data
+
+    Returns:
+        np.ndarray: calculated potential temperature data
+    """
+
+    s, t0, p0, pr = np.broadcast_arrays(s, t0, p0, pr)
 
     p = p0.copy()
     t = t0.copy()
     h = pr - p
-    xk = h * ATG(s,t,p)
+    xk = h * ATG(s, t, p)
     t += 0.5 * xk
     q = xk
     p += 0.5 * h
-    xk = h * ATG(s,t,p)
-    t += 0.29289322 * (xk-q)
+    xk = h * ATG(s, t, p)
+    t += 0.29289322 * (xk - q)
     q = 0.58578644 * xk + 0.121320344 * q
-    xk = h * ATG(s,t,p)
-    t += 1.707106781 * (xk-q)
+    xk = h * ATG(s, t, p)
+    t += 1.707106781 * (xk - q)
     q = 3.414213562 * xk - 4.121320344 * q
     p += 0.5 * h
-    xk = h * ATG(s,t,p)
+    xk = h * ATG(s, t, p)
     temp = t + (xk - 2.0 * q) / 6.0
-    
+
     return temp
 
 
 def ATG(
-	s: np.ndarray,
+    s: np.ndarray,
     t: np.ndarray,
-	p: np.ndarray,        
-) :
+    p: np.ndarray,
+) -> np.ndarray:
+    """EOS-80 adiabatic lapse rate calculation.
 
-    """EOS-80 adibiatic lapse rate calculation ( ported from CSharedCalc::ATG() )"""
+    This was ported from CSharedCalc::ATG()
 
-    s, t, p = np.broadcast_arrays(s, t, p) 
+    Args:
+        s (np.ndarray): salinity data
+        t (np.ndarray): temperature data
+        p (np.ndarray): pressure data
+
+    Returns:
+        np.ndarray: the resulting adiabatic lapse rate
+    """
+
+    s, t, p = np.broadcast_arrays(s, t, p)
 
     ds = s - 35.0
-    atg = (((-2.1687e-16 * t + 1.8676e-14) * t - 4.6206e-13) * p
-		+ ((2.7759e-12 * t - 1.1351e-10) * ds + ((-5.4481e-14 * t
-		+ 8.733e-12) * t - 6.7795e-10) * t + 1.8741e-8)) * p + (-4.2393e-8 * t + 1.8932e-6) * ds + ((6.6228e-10 * t - 6.836e-8) * t + 8.5258e-6) * t + 3.5803e-5
-    
+    atg = (
+        (
+            ((-2.1687e-16 * t + 1.8676e-14) * t - 4.6206e-13) * p
+            + ((2.7759e-12 * t - 1.1351e-10) * ds + ((-5.4481e-14 * t + 8.733e-12) * t - 6.7795e-10) * t + 1.8741e-8)
+        )
+        * p
+        + (-4.2393e-8 * t + 1.8932e-6) * ds
+        + ((6.6228e-10 * t - 6.836e-8) * t + 8.5258e-6) * t
+        + 3.5803e-5
+    )
+
     return atg

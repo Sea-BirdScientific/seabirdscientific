@@ -1,12 +1,16 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-"""TODO: conversion docstring
-
-Classes:
-
+"""A collection of raw data conversion functions.
 
 Functions:
+
+    convert_temperature_array(np.ndarray, float, float, float, float, bool, bool, bool)
+    convert_temperature_val_ITS90_c( int, float, float, float, float, bool)
+    convert_pressure_array( np.ndarray, np.ndarray, bool, float, float, float, float, float, float, float, float, float, float, float, float)
+    convert_pressure_val_strain( float, float, bool, float, float, float, float, float, float, float, float, float, float, float, float)
+    
+    # TODO: add remaining fuctions
 
 """
 
@@ -42,20 +46,23 @@ def convert_temperature_array(
     use_MV_R: bool,
 ):
     """Returns the data after converting it to degrees C, ITS-90.
-        Data is expected to be raw data from instrument in A/D counts
+
+    Data is expected to be raw data from an instrument in A/D counts
+
     Args:
-        temperature_counts (np.ndarray): temperature data to convert, in A/D counts
+        temperature_counts (np.ndarray): temperature data to convert in A/D counts
         a0 (float): a0 calibration coefficient for the temperature sensor
         a1 (float): a1 calibration coefficient for the temperature sensor
         a2 (float): a2 calibration coefficient for the temperature sensor
         a3 (float): a3 calibration coefficient for the temperature sensor
         ITS90 (bool): whether to use ITS90 or to use IPTS-68 conventions
         celsius (bool): whether to use celsius or to convert to fahrenheit
-        use_MV_R (bool): passed into convert_temperature_val_ITS90_c to perform
-            extra conversion steps required by some instruments
+        use_MV_R (bool): true to perform extra conversion steps required by some instruments
+
     Returns:
         ndarray: temperature values converted to ITS-90 degrees C, in the same order as input
     """
+
     ipts68_converison = 1.00024  # taken from https://blog.seabird.com/ufaqs/what-is-the-difference-in-temperature-expressions-between-ipts-68-and-its-90/
     convert_vectorized = np.vectorize(convert_temperature_val_ITS90_c, excluded=["a0", "a1", "a2", "a3", "use_MV_R"])
     result = convert_vectorized(temperature_counts, a0, a1, a2, a3, use_MV_R)
@@ -75,17 +82,21 @@ def convert_temperature_val_ITS90_c(
     use_MV_R: bool,
 ):
     """Returns the value after converting it to degrees C, ITS-90.
-        Data is expected to be raw data from instrument in A/D counts
+
+    Data is expected to be raw data from an instrument in A/D counts
+
     Args:
-        temperature_counts_in (int): temperature value to convert, in A/D counts
+        temperature_counts_in (int): temperature value to convert in A/D counts
         a0 (float): a0 calibration coefficient for the temperature sensor
         a1 (float): a1 calibration coefficient for the temperature sensor
         a2 (float): a2 calibration coefficient for the temperature sensor
         a3 (float): a3 calibration coefficient for the temperature sensor
-        use_MV_R (bool): whether to perform extra conversion steps required by some instruments
+        use_MV_R (bool): true to perform extra conversion steps required by some instruments
+
     Returns:
         int: temperature val converted to ITS-90 degrees C
     """
+
     if use_MV_R:
         MV = (temperature_counts_in - 524288) / 1.6e007
         R = (MV * 2.900e009 + 1.024e008) / (2.048e004 - MV * 2.0e005)
@@ -123,11 +134,13 @@ def convert_pressure_array(
     PTCB2: float,
 ):
     """Calls convert_pressure_val_strain on an array of raw pressure data.
-        Data is expected to be raw data from instrument in A/D counts
+
+    Data is expected to be raw data from an instrument in A/D counts
+
     Args:
-        pressure_counts (np.ndarray): pressure data to convert, in A/D counts
-        compensation_voltages (np.ndarray): pressure temperature compensation voltages,
-            in counts or volts depending on instrument
+        pressure_counts (np.ndarray): pressure data to convert in A/D counts
+        compensation_voltages (np.ndarray): pressure temperature compensation voltages
+            in counts or volts depending on the instrument
         is_dbar (bool): whether or not to use psia as the returned unit type. If false, uses dbar
         PA0 (float): PA0 calibration coefficient for the pressure sensor
         PA1 (float): PA1 calibration coefficient for the pressure sensor
@@ -141,6 +154,7 @@ def convert_pressure_array(
         PTCB0 (float): PTCB0 calibration coefficient for the pressure sensor
         PTCB1 (float): PTCB1 calibration coefficient for the pressure sensor
         PTCB2 (float): PTCB2 calibration coefficient for the pressure sensor
+
     Returns:
         ndarray: pressure values
     """
@@ -184,8 +198,10 @@ def convert_pressure_val_strain(
     PTCB1: float,
     PTCB2: float,
 ):
-    """Returns the value after converting it to PSIA (pounds per square inch, abolute)
-        pressure_count and compensation_voltage are expected to be raw data from instrument in A/D counts
+    """Returns the value after converting it to PSIA (pounds per square inch, abolute).
+
+    pressure_count and compensation_voltage are expected to be raw data from an instrument in A/D counts
+
     Args:
         pressure_count (int): pressure value to convert, in A/D counts
         compensation_voltage (float): pressure temperature compensation voltage,
@@ -202,6 +218,7 @@ def convert_pressure_val_strain(
         PTCB0 (float): PTCB0 calibration coefficient for the pressure sensor
         PTCB1 (float): PTCB1 calibration coefficient for the pressure sensor
         PTCB2 (float): PTCB2 calibration coefficient for the pressure sensor
+
     Returns:
         int: pressure val in PSIA
     """
@@ -230,12 +247,14 @@ def convert_conductivity_array(
     CTcor: float,
     WBOTC: float,
 ):
-    """Returns the data after converting it to Siemens/meter (S/m)
-        cond_data is expected to be in raw counts, temp_data in C, and press_data in dbar
+    """Returns the data after converting it to Siemens/meter (S/m).
+
+    cond_data is expected to be in raw counts, temp_data in C, and press_data in dbar
+
     Args:
-        conductivity_counts (np.ndarray): conductivity data to convert, in A/D counts
-        temperature (np.ndarray): temperature data to use are reference, in degrees C
-        pressure (np.ndarray): pressure data to use are reference, in dbar
+        conductivity_counts (np.ndarray): conductivity data to convert in A/D counts
+        temperature (np.ndarray): temperature data to use as a reference in degrees C
+        pressure (np.ndarray): pressure data to use as a reference in dbar
         g (float): g calibration coefficient for the conductivity sensor
         h (float): h calibration coefficient for the conductivity sensor
         i (float): i calibration coefficient for the conductivity sensor
@@ -243,7 +262,8 @@ def convert_conductivity_array(
         CPcor (float): CPcor calibration coefficient for the conductivity sensor
         CTcor (float): CTcor calibration coefficient for the conductivity sensor
         WBOTC (float): Wien bridge oscillator temperature coefficient
-            https://sndl.ucmerced.edu/files/MHWG/Sensors_and_Loggers/Manuals/37SMmanual34829.pdf
+            see the 37 Manual: https://www.seabird.com/asset-get.download.jsa?id=54627862348
+
     Returns:
         ndarray: conductivity values converted to S/m, in the same order as input
     """
@@ -277,8 +297,10 @@ def convert_conductivity_val(
     CTcor: float,
     WBOTC,
 ):
-    """Returns the value after converting it to S/m
-        Data is expected to be raw data from instrument in A/D counts
+    """Returns the value after converting it to S/m.
+
+    Data is expected to be raw data from instrument in A/D counts
+
     Args:
         conductivity_count (np.ndarray): conductivity value to convert, in A/D counts
         temperature (np.ndarray): temperature value to use are reference, in degrees C
@@ -308,7 +330,8 @@ def potential_density_from_t_s_p(
     lat=0.0,
     reference_pressure=0.0,
 ):
-    """Derive potential density from measured temperature, salinity, and pressure
+    """Derive potential density from measured temperature, salinity, and pressure.
+
     See: TEOS_10.cpp line 953
 
     Args:
@@ -337,7 +360,8 @@ def potential_density_from_t_c_p(
     lat=0.0,
     reference_pressure=0.0,
 ):
-    """Derive potential density from measured temperature, salinity, and pressure
+    """Derive potential density from measured temperature, salinity, and pressure.
+
     See: TEOS_10.cpp line 953
 
     Args:
@@ -363,7 +387,8 @@ def density_from_t_s_p(
     lon=0.0,
     lat=0.0,
 ):
-    """Derive potential density from measured temperature, salinity, and pressure
+    """Derive potential density from measured temperature, salinity, and pressure.
+
     See: TEOS_10.cpp line 953
 
     Args:
@@ -390,7 +415,8 @@ def density_from_t_c_p(
     lon=0.0,
     lat=0.0,
 ):
-    """Derive potential density from measured temperature, salinity, and pressure
+    """Derive potential density from measured temperature, salinity, and pressure.
+
     See: TEOS_10.cpp line 953
 
     Args:
@@ -409,7 +435,7 @@ def density_from_t_c_p(
 
 
 def depth_from_pressure(pressure_in: np.ndarray, latitude: float, depth_units="m", pressure_units="dbar"):
-    """Derive depth from pressure and latitude
+    """Derive depth from pressure and latitude.
 
     Args:
         pressure (np.ndarray): Numpy array of floats representing pressure in dbar or psi
@@ -451,8 +477,10 @@ def convert_sbe63_oxygen_array(
     ta3: float,
     e: float,
 ):
-    """Returns the data after converting it to ml/l
-        raw_oxygen_phase is expected to be in raw phase, raw_thermistor_temp in counts, pressure in dbar, and salinity in practical salinity (PSU)
+    """Returns the data after converting it to ml/l.
+
+    raw_oxygen_phase is expected to be in raw phase, raw_thermistor_temp in counts, pressure in dbar, and salinity in practical salinity (PSU)
+
     Args:
         raw_oxygen_phase (np.ndarray): SBE63 phase values, in microseconds
         raw_thermistor_temp (np.ndarray): SBE63 thermistor data to use are reference, in counts
@@ -501,8 +529,10 @@ def convert_sbe63_oxygen_val(
     c2: float,
     e: float,
 ):
-    """Returns the data after converting it to ml/l
-        raw_oxygen_phase is expected to be in raw phase, raw_thermistor_temp in counts, pressure in dbar, and salinity in practical salinity (PSU)
+    """Returns the data after converting it to ml/l.
+
+    raw_oxygen_phase is expected to be in raw phase, raw_thermistor_temp in counts, pressure in dbar, and salinity in practical salinity (PSU)
+
     Args:
         raw_oxygen_phase (np.ndarray): SBE63 phase value, in microseconds
         temperature (np.ndarray): SBE63 thermistor value converted to deg C
@@ -549,9 +579,7 @@ def convert_sbe63_oxygen_val(
     p_corr_exp = (e * pressure) / K
     p_corr = e**p_corr_exp
 
-    ox_val = (
-        (((a0 + a1 * temperature + a2 * oxygen_volts**2) / (b0 + b1 * oxygen_volts) - 1.0) / ksv) * s_corr * p_corr
-    )
+    ox_val = (((a0 + a1 * temperature + a2 * oxygen_volts**2) / (b0 + b1 * oxygen_volts) - 1.0) / ksv) * s_corr * p_corr
 
     return ox_val
 
@@ -564,12 +592,14 @@ def convert_SBE63_thermistor_array(
     ta3: float,
 ):
     """Converts a SBE63 thermistor raw output array to temperature in ITS-90 deg C.
+
     Args:
         instrument_output (np.ndarray) raw values from the thermistor
         ta0 (float): calibration coefficient for the thermistor in the SBE63 sensor
         ta1 (float): calibration coefficient for the thermistor in the SBE63 sensor
         ta2 (float): calibration coefficient for the thermistor in the SBE63 sensor
         ta3 (float): calibration coefficient for the thermistor in the SBE63 sensor
+
     Returns:
         np.ndarray: converted thermistor temperature values in ITS-90 deg C
     """
@@ -586,14 +616,16 @@ def convert_SBE63_thermistor_value(
     ta3: float,
 ):
     """Converts a SBE63 thermistor raw output array to temperature in ITS-90 deg C.
-        Args:
-            instrument_output (np.ndarray) raw values from the thermistor
-            ta0 (float): calibration coefficient for the thermistor in the SBE63 sensor
-            ta1 (float): calibration coefficient for the thermistor in the SBE63 sensor
-            ta2 (float): calibration coefficient for the thermistor in the SBE63 sensor
-            ta3 (float): calibration coefficient for the thermistor in the SBE63 sensor
+
+    Args:
+        instrument_output (np.ndarray) raw values from the thermistor
+        ta0 (float): calibration coefficient for the thermistor in the SBE63 sensor
+        ta1 (float): calibration coefficient for the thermistor in the SBE63 sensor
+        ta2 (float): calibration coefficient for the thermistor in the SBE63 sensor
+        ta3 (float): calibration coefficient for the thermistor in the SBE63 sensor
+
     Returns:
-            np.ndarray: converted thermistor temperature values in ITS-90 deg C
+        np.ndarray: converted thermistor temperature values in ITS-90 deg C
     """
     logVal = log((100000 * instrument_output) / (3.3 - instrument_output))
     temperature = 1 / (ta0 + ta1 * logVal + ta2 * logVal**2 + ta3 * logVal**3) - KELVIN_OFFSET
@@ -622,9 +654,11 @@ def convert_sbe43_oxygen_array(
     window_size: float,
     sample_interval: float,
 ):
-    """Returns the data after converting it to ml/l
-        voltage is expected to be in volts, temperature in deg c, pressure in dbar, and salinity in practical salinity (PSU)
-        All equation information comes from the June 2013 revision of the SBE43 manual
+    """Returns the data after converting it to ml/l.
+
+    voltage is expected to be in volts, temperature in deg c, pressure in dbar, and salinity in practical salinity (PSU)
+    All equation information comes from the June 2013 revision of the SBE43 manual
+
     Args:
         voltage (float): SBE43 voltage
         temperature (float): temperature value converted to deg C
@@ -646,6 +680,7 @@ def convert_sbe43_oxygen_array(
         apply_hysteresis_correction (bool): whether or not to run hysteresis correction
         window_size (float): size of the window to use for tau correction, if applicable. In seconds.
         sample_interval (float): sample rate of the data to be used for tau correction, if applicable. In seconds.
+
     Returns:
         np.ndarray: converted Oxygen values, in ml/l
     """
@@ -714,10 +749,12 @@ def convert_sbe43_oxygen_val(
     D2: float,
     dvdt_value: float,
 ):
-    """Returns the data after converting it to ml/l
-        voltage is expected to be in volts, temperature in deg c, pressure in dbar, and salinity in practical salinity (PSU)
-        All equation information comes from the June 2013 revision of the SBE43 manual.
-        Expects that hysteresis correction is already performed on the incoming voltage, if desired.
+    """Returns the data after converting it to ml/l.
+
+    voltage is expected to be in volts, temperature in deg c, pressure in dbar, and salinity in practical salinity (PSU)
+    All equation information comes from the June 2013 revision of the SBE43 manual.
+    Expects that hysteresis correction is already performed on the incoming voltage, if desired.
+
     Args:
         voltage (float): SBE43 voltage
         temperature (float): temperature value converted to deg C
@@ -733,6 +770,7 @@ def convert_sbe43_oxygen_val(
         D1 (float): calibration coefficient for the SBE43 sensor
         D2 (float): calibration coefficient for the SBE43 sensor
         dvdt_value (float): derivative value of voltage with respect to time at this point. Expected to be 0 if not using Tau correction
+
     Returns:
         float: converted Oxygen value, in ml/l
     """
@@ -766,10 +804,13 @@ def convert_sbe43_oxygen_val(
 
 
 def convert_oxygen_to_mg_per_l(ox_values: np.ndarray):
-    """Converts given oxygen values to milligrams/Liter
-        Expects oxygen values to be in Ml/L
+    """Converts given oxygen values to milligrams/Liter.
+
+    Expects oxygen values to be in Ml/L
+
     Args:
         ox_values (np.ndarray): oxygen values, already converted to ml/L
+
     Returns:
         np.ndarray: oxygen values converted to milligrams/Liter
     """
@@ -778,16 +819,19 @@ def convert_oxygen_to_mg_per_l(ox_values: np.ndarray):
 
 
 def convert_oxygen_to_umol_per_kg(ox_values: np.ndarray, potential_density: np.ndarray):
-    """Converts given oxygen values to micromoles/Kilogram
-        Expects oxygen values to be in Ml/L
-        Note: Sigma-Theta is expected to be calculated via gsw_sigma0, meaning is it technically potential density anomaly.
-        Calculating using gsw_rho(SA, CT, p_ref = 0) results in actual potential density, but this function already does the converison,
-        So values will need to have 1000 subtracted from them before being passed into this function.
-        The function is done this way to stay matching to the manual for the SBE63 and SBE43, but the results of either method are identical.
+    """Converts given oxygen values to micromoles/Kilogram.
+
+    Expects oxygen values to be in Ml/L
+    Note: Sigma-Theta is expected to be calculated via gsw_sigma0, meaning is it technically potential density anomaly.
+    Calculating using gsw_rho(SA, CT, p_ref = 0) results in actual potential density, but this function already does the converison,
+    So values will need to have 1000 subtracted from them before being passed into this function.
+    The function is done this way to stay matching to the manual for the SBE63 and SBE43, but the results of either method are identical.
+
     Args:
         ox_values (np.ndarray): oxygen values, already converted to ml/L
         potential_density (np.ndarray): potential density (sigma-theta) values.
                                         Expected to be the same length as ox_values
+
     Returns:
         np.ndarray: oxygen values converted to milligrams/Liter
     """
@@ -801,14 +845,17 @@ def convert_ECO_chlorophylla_val(
     ScaleFactor: float,
     Vblank: float,
 ):
-    """Converts a raw value for chlorophyll-a channel on a ECO-FLNTU or ECO-FL
-        All equation information comes from ECO-FLNTU calibration sheets
+    """Converts a raw value for chlorophyll-a channel on a ECO-FLNTU or ECO-FL.
+
+    All equation information comes from ECO-FLNTU calibration sheets
+
     Args:
         rawChlorophylla (float): raw counts for digital, raw volts for analog
         ScaleFactor (float): μg/l/count for digital, μg/l/V for analog
-        Vblank (float): dark counts: counts for digital, V for analog
+        Vblank (float): dark counts for digital, V for analog
+
     Returns:
-        float: converted chlorophyll-a in μg/l)
+        float: converted chlorophyll-a in μg/l
     """
     chlorophylla = ScaleFactor * (rawChlorophylla - Vblank)
 
@@ -820,14 +867,17 @@ def convert_ECO_turbidity_val(
     ScaleFactor: float,
     DarkVoltage: float,
 ):
-    """Converts a raw value for turbidity channel on a ECO-FLNTU
-        All equation information comes from ECO-FLNTU calibration sheets
+    """Converts a raw value for turbidity channel on a ECO-FLNTU.
+
+    All equation information comes from ECO-FLNTU calibration sheets
+
     Args:
         rawTurbidity(float): raw counts for digital, raw volts for analog
-        ScaleFactor (float): scale factor: NTU/count for digital, NTU/V for analog
-        Vblank (float): dark counts: counts for digital, V for analog
+        ScaleFactor (float): NTU/count for digital, NTU/V for analog
+        Vblank (float): dark counts for digital, V for analog
+
     Returns:
-        float: converted turbidity in nephelometric turbidity unit (NTU)
+        float: converted turbidity in nephelometric turbidity units (NTU)
     """
     turbidity = ScaleFactor * (rawTurbidity - DarkVoltage)
 

@@ -1,4 +1,6 @@
-"""TODO: test_visualization docstring"""
+"""Visualization unit tests
+
+"""
 
 # Native imports
 import importlib.resources

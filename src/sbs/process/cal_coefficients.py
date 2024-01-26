@@ -1,9 +1,10 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-"""Some cal data for individual serial number units.
+"""A collection of calibration data from SBS instruments.
 
-TODO: move outside of python code?"""
+These are calibration coefficients from specific SBS intstruments that are primarily used for test purposes.
+"""
 
 # Native imports
 from dataclasses import dataclass
@@ -13,6 +14,8 @@ from dataclasses import dataclass
 # Sea-Bird imports
 
 # Internal imports
+
+# TODO: Move these outside of the src folder?
 
 
 @dataclass

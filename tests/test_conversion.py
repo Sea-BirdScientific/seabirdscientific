@@ -473,12 +473,15 @@ class TestSalinityFromTCP:
 
     @pytest.mark.parametrize("cal, cnv, hex, cond_label, use_MV_R", DATASETS)
     def test_salinity_from_tcp_raw(self, cal, cnv, hex, cond_label, use_MV_R):
-        """Converts data from raw hex values. The unused data loaded from cnv are
-        not needed for the test, but are useful for comparing during a debug session.
+        """Converts data from raw hex values. 
+        
+        The unused data loaded from cnv are not needed for the test, 
+        but are useful for comparing during a debug session.
 
         Args:
             parameterized from the DATASET const at the top of the file
         """
+        
         salinity_expected = cnv.measurements["sal00"].values[800:810]
         temperature = cnv.measurements["tv290C"].values[800:810]
         temperature_raw = hex.temperature.values[800:810]

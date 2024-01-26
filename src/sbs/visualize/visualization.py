@@ -1,7 +1,28 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-"""TODO: visualization docstring"""
+"""A collection of classes and functions to support visualization of data
+
+Classes:
+
+    ChartConfig
+    ChartData
+
+Functions:
+
+    parse_instrument_data(Union[str, Path, pd.DataFrame]) -> pd.DataFrame
+    select_subset(list[str], pd.DataFrame) -> pd.DataFrame
+    plot_xy_chart(ChartData, ChartConfig) -> go.Figure:
+    create_single_plot(pd.DataFrame, pd.DataFrame, ChartConfig) -> go.Figure
+    create_subplots(pd.DataFrame, pd.DataFrame, ChartConfig) -> go.Figure:
+    create_overlay(pd.DataFrame, pd.DataFrame, ChartConfig) -> go.Figure
+    apply_single_config(go.Figure, ChartConfig)
+    apply_subplots_x_config(go.Figure, ChartConfig)
+    apply_subplots_y_config(go.Figure, ChartConfig)
+    apply_overlay_config(go.Figure, ChartConfig)
+    plot_ts_chart(np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, ChartConfig) -> go.Figure
+
+"""
 
 # Native imports
 import json
@@ -47,6 +68,7 @@ class ChartConfig:
         flag_value=-9.99e-29,
     ):
         """Initializes a chart config object to store the names, units, and data format.
+
         Config parameters must be in the same order as the data.
 
         Args:
@@ -55,7 +77,7 @@ class ChartConfig:
             y_names (list[str]): Y axis names
             z_names (list[str]): Z axis names
             chart_type (str): Optional string to select type of chart "overlay" for multiple datasets sharing one axis,
-            or "subplots" for multiple datasets on separate subplots.
+                or "subplots" for multiple datasets on separate subplots.
             bounds (dict): Chart axis bounds, structure as:
                 bounds = {
                     'x': {0: [n, m], 1: [n, m], 2: [n, m], 3: [n, m]}
@@ -72,6 +94,7 @@ class ChartConfig:
                 between points surrounding flagged data (see SeaSoft manual, page 122)
             flag_value (float): A user configurable value that identifies flagged data
         """
+
         self.title = title
         x_info = [interpret_sbs_variable(name) for name in x_names]
         y_info = [interpret_sbs_variable(name) for name in y_names]
@@ -102,13 +125,14 @@ class ChartData:
     # TODO: move helper functions into ChartData
 
     def __init__(self, data_source, config):
-        """Initializes an object to store chart data
+        """Initializes an object to store chart data.
 
         Args:
             data_source (str | pd.DataFrame): A file path (.csv, .asc, .json),
             JSON string, or pandas DataFrame
             config (ChartConfig): A ChartConfig object to configure plotly
         """
+
         data = parse_instrument_data(data_source)
         if data is not None:
             data.mask(data == config.flag_value, inplace=True)
@@ -122,6 +146,7 @@ class ChartData:
 
 def parse_instrument_data(source: Union[str, Path, pd.DataFrame]) -> pd.DataFrame:
     """Top level function for converting instrument data to numpy array.
+
     Currently supports pandas dataframes, json strings, and a string path to
     the following file types: .csv, .asc (comma separated), and .json.
 
@@ -196,7 +221,7 @@ def select_subset(axis_names: list[str], data: pd.DataFrame) -> pd.DataFrame:
 
 
 def plot_xy_chart(data: ChartData, config: ChartConfig) -> go.Figure:
-    """Takes instrument data and a config and plots an XY chart with one or more data sets
+    """Takes instrument data and a config and plots an XY chart with one or more data sets.
 
     Args:
         data (ChartData): Data object with x, y, z, data selected according to the config
@@ -236,6 +261,7 @@ def plot_xy_chart(data: ChartData, config: ChartConfig) -> go.Figure:
 
 def create_single_plot(x: pd.DataFrame, y: pd.DataFrame, config: ChartConfig) -> go.Figure:
     """Creates a single XY plot, with one or more data sets.
+    
     If there are multiple datasets for the x or y axis, an overlay plot will be generated
 
     Args:
@@ -264,7 +290,7 @@ def create_single_plot(x: pd.DataFrame, y: pd.DataFrame, config: ChartConfig) ->
 
 
 def create_subplots(x: pd.DataFrame, y: pd.DataFrame, config: ChartConfig) -> go.Figure:
-    """Creates a chart with multiple subplots
+    """Creates a chart with multiple subplots.
 
     Args:
         x (DataFrame): Pandas DataFrame of data for the x axis
@@ -366,12 +392,13 @@ def create_overlay(x: pd.DataFrame, y: pd.DataFrame, config: ChartConfig) -> go.
 
 
 def apply_single_config(figure: go.Figure, config: ChartConfig):
-    """Updates various chart settings for single plots
+    """Updates various chart settings for single plots.
 
     Args:
         figure (go.Figure): The figure being updated
         config (ChartConfig): The user defined config being applied to the figure
     """
+
     figure.update_layout(
         xaxis=dict(
             title="" if len(config.x_units) < 1 else config.x_units[0],
@@ -388,12 +415,14 @@ def apply_single_config(figure: go.Figure, config: ChartConfig):
 
 def apply_subplots_x_config(figure: go.Figure, config: ChartConfig):
     """Updates various chart settings for charts with multiple x axes.
+
     Config parameters may contain upto 4 arguments per axis, and must be in the same order as the data. Hence all of the magic number indexing below
 
     Args:
         figure (go.Figure): The figure being updated
         config (ChartConfig): The user defined config being applied to the figure
     """
+
     y_range = None if len(config.bounds["y"]) < 1 else config.bounds["y"][0]
 
     figure.update_layout(
@@ -422,12 +451,14 @@ def apply_subplots_x_config(figure: go.Figure, config: ChartConfig):
 
 def apply_subplots_y_config(figure: go.Figure, config: ChartConfig):
     """Updates various chart settings for charts with multiple y axes.
+    
     Config parameters may contain upto 4 arguments per axis, and must be in the same order as the data. Hence all of the magic number indexing below
 
     Args:
         figure (go.Figure): The figure being updated
         config (ChartConfig): The user defined config being applied to the figure
     """
+
     x_range = None if len(config.bounds["x"]) < 1 else config.bounds["x"][0]
 
     figure.update_layout(
@@ -455,12 +486,16 @@ def apply_subplots_y_config(figure: go.Figure, config: ChartConfig):
 
 
 def apply_overlay_config(figure: go.Figure, config: ChartConfig):
-    """Updates various chart settings for charts with multiple y axes. Config parameters may contain upto 4 arguments per axis, and must be in the same order as the data. Hence all of the magic number indexing below
+    """Updates various chart settings for charts with multiple y axes. 
+    
+    Config parameters may contain upto 4 arguments per axis, and must be in the same order as the data. 
+    Hence all of the magic number indexing below
 
     Args:
         figure (go.Figure): The figure being updated
         config (ChartConfig): The user defined config being applied to the figure
     """
+
     figure.update_layout(
         xaxis=dict(
             title="" if len(config.x_units) < 1 else config.x_units[0],
@@ -521,7 +556,7 @@ def plot_ts_chart(
     z_mat: np.ndarray,
     config: ChartConfig,
 ) -> go.Figure:
-    """Calls various conversion functions (such as ct_sa_pd_from_t_s_p) and creates a TS plot
+    """Calls various conversion functions (such as ct_sa_pd_from_t_s_p) and creates a TS plot.
 
     Args:
         data (ChartData): Data object with x, y, z, data selected according to the config
