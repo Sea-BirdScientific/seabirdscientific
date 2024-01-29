@@ -19,7 +19,7 @@ from dataclasses import dataclass
 
 
 @dataclass
-class SN6130:  # cal coefficients for E8001
+class SN6130:  # cal coefficients for example 19pV2 data
     # temperature
     A0 = 1.28015621e-003
     A1 = 2.58367774e-004
