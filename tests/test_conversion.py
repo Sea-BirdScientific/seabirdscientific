@@ -25,7 +25,7 @@ DATASETS = [
     # use_MV_R
     (
         cc.SN6130,
-        id.cnv_to_instrument_data("./documentation/example_data/19plus_V2_CTD-processing_example.hex"),
+        id.cnv_to_instrument_data("./tests/resources/test-data/19plus_V2_CTD-processing_example.cnv"),
         id.read_hex_file("./documentation/example_data/19plus_V2_CTD-processing_example.hex",
             id.InstrumentType.SBE19Plus,
             [

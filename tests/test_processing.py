@@ -130,9 +130,9 @@ class TestCellThermalMass:
 class TestLoopEdit:
     def test_loop_edit_pressure_min_velocity_pass(self):
         expected_data = id.cnv_to_instrument_data(
-            test_resources / "orca-test-data/SBE19/CAST0002/CAST0002_mod_filt_loop_min_v.cnv"
+            "./tests/resources/test-data/CAST0002_mod_filt_loop_min_v.cnv"
         )
-        data = id.cnv_to_instrument_data(test_resources / "orca-test-data/SBE19/CAST0002/CAST0002_mod_filt.cnv")
+        data = id.cnv_to_instrument_data("./tests/resources/test-data/CAST0002_mod_filt.cnv")
 
         dp.loop_edit_pressure(
             pressure=data.measurements["prSM"].values,
@@ -164,9 +164,9 @@ class TestLoopEdit:
 
     def test_loop_edit_pressure_min_velocity_remove_soak_pass(self):
         expected_data = id.cnv_to_instrument_data(
-            test_resources / "orca-test-data/SBE19/CAST0002/CAST0002_mod_filt_loop_min_v_remove_soak.cnv"
+            "./tests/resources/test-data/CAST0002_mod_filt_loop_min_v_remove_soak.cnv"
         )
-        data = id.cnv_to_instrument_data(test_resources / "orca-test-data/SBE19/CAST0002/CAST0002_mod_filt.cnv")
+        data = id.cnv_to_instrument_data("./tests/resources/test-data/CAST0002_mod_filt.cnv")
 
         dp.loop_edit_pressure(
             pressure=data.measurements["prSM"].values,
@@ -198,10 +198,10 @@ class TestLoopEdit:
 
     def test_loop_edit_pressure_min_velocity_reset_flags_pass(self):
         expected_data = id.cnv_to_instrument_data(
-            test_resources / "orca-test-data/SBE19/CAST0002/CAST0002_mod_filt_loop_min_v.cnv"
+            "./tests/resources/test-data/CAST0002_mod_filt_loop_min_v.cnv"
         )
         data = id.cnv_to_instrument_data(
-            test_resources / "orca-test-data/SBE19/CAST0002/CAST0002_mod_filt_loop_min_v_remove_soak.cnv"
+            "./tests/resources/test-data/CAST0002_mod_filt_loop_min_v_remove_soak.cnv"
         )
 
         dp.loop_edit_pressure(
@@ -234,11 +234,10 @@ class TestLoopEdit:
 
     def test_loop_edit_pressure_min_velocity_exclude_flags_pass(self):
         expected_data = id.cnv_to_instrument_data(
-            test_resources / "orca-test-data/SBE19/CAST0002/CAST0002_mod_filt_loop_min_v_remove_soak.cnv"
+            "./tests/resources/test-data/CAST0002_mod_filt_loop_min_v_remove_soak.cnv"
         )
         data = id.cnv_to_instrument_data(
-            test_resources
-            / "orca-test-data/SBE19/CAST0002/CAST0002_mod_filt_loop_min_v_exclude_flags_from_remove_soak.cnv"
+            "./tests/resources/test-data/CAST0002_mod_filt_loop_min_v_exclude_flags_from_remove_soak.cnv"
         )
 
         dp.loop_edit_pressure(
@@ -271,9 +270,9 @@ class TestLoopEdit:
 
     def test_loop_edit_pressure_mean_speed_percent_remove_soak_pass(self):
         expected_data = id.cnv_to_instrument_data(
-            test_resources / "orca-test-data/SBE19/CAST0002/CAST0002_mod_filt_loop_percent_remove_soak.cnv"
+            "./tests/resources/test-data/CAST0002_mod_filt_loop_percent_remove_soak.cnv"
         )
-        data = id.cnv_to_instrument_data(test_resources / "orca-test-data/SBE19/CAST0002/CAST0002_mod_filt.cnv")
+        data = id.cnv_to_instrument_data("./tests/resources/test-data/CAST0002_mod_filt.cnv")
 
         dp.loop_edit_pressure(
             pressure=data.measurements["prSM"].values,
@@ -306,9 +305,9 @@ class TestLoopEdit:
 
     def test_loop_edit_pressure_mean_speed_percent_pass(self):
         expected_data = id.cnv_to_instrument_data(
-            test_resources / "orca-test-data/SBE19/CAST0002/CAST0002_mod_filt_loop_percent.cnv"
+            "./tests/resources/test-data/CAST0002_mod_filt_loop_percent.cnv"
         )
-        data = id.cnv_to_instrument_data(test_resources / "orca-test-data/SBE19/CAST0002/CAST0002_mod_filt.cnv")
+        data = id.cnv_to_instrument_data("./tests/resources/test-data/CAST0002_mod_filt.cnv")
 
         dp.loop_edit_pressure(
             pressure=data.measurements["prSM"].values,
@@ -343,12 +342,10 @@ class TestLoopEdit:
 
     def test_loop_edit_pressure_min_velocity_pass_2(self):
         expected_data = id.cnv_to_instrument_data(
-            test_resources
-            / "orca-test-data/SBE19plusV2/SBE19plus_01906398_2019_07_15/SBE19plus_01906398_2019_07_15_0033_loop_edit.cnv"
+            "./tests/resources/test-data/SBE19plus_loop_edit.cnv"
         )
         data = id.cnv_to_instrument_data(
-            test_resources
-            / "orca-test-data/SBE19plusV2/SBE19plus_01906398_2019_07_15/SBE19plus_01906398_2019_07_15_0033.cnv"
+            "./tests/resources/test-data/SBE19plus.cnv"
         )
 
         dp.loop_edit_pressure(
@@ -389,11 +386,11 @@ class TestLoopEdit:
 # class TestWildEdit:
     # def test_wild_edit_pass(self):
     #     expected_dataset = id.cnv_to_instrument_data(
-    #         test_resources / r"orca-test-data\SBE19plusV2\E8001\E8001_wild_edit.cnv"
+    #         r"orca-test-data\SBE19plusV2\E8001\E8001_wild_edit.cnv"
     #     )
     #     expected_output = expected_dataset.measurements["prdM"].values
 
-    #     dataset = id.cnv_to_instrument_data(test_resources / r"orca-test-data\SBE19plusV2\E8001\E8001.cnv")
+    #     dataset = id.cnv_to_instrument_data(r"orca-test-data\SBE19plusV2\E8001\E8001.cnv")
     #     pressure = dataset.measurements["prdM"].values
     #     flags = dataset.measurements["flag"].values
 
@@ -403,7 +400,7 @@ class TestLoopEdit:
 
 
 # class TestWindowFilter:
-#     # file_prefix = test_resources / "orca-test-data/SBE19plusV2/E8001/E8001_window_filter"
+#     # file_prefix = "orca-test-data/SBE19plusV2/E8001/E8001_window_filter"
 #     cnvdata = id.cnv_to_instrument_data(f"{file_prefix}.cnv")
 #     pressure = cnvdata.measurements["prdM"].values
 #     flags = cnvdata.measurements["flag"].values

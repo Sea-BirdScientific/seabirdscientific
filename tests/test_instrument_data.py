@@ -4,7 +4,6 @@
 
 # Native imports
 from datetime import datetime
-import importlib.resources
 
 # Third-party imports
 
@@ -12,8 +11,6 @@ import importlib.resources
 
 # Internal imports
 import sbs.process.instrument_data as id
-
-test_resources = importlib.resources.files("resources")
 
 
 class TestCnvToInstrumentData:
