@@ -196,7 +196,7 @@
 #   </sensor>
 # </Sensors>
 # datcnv_date = Aug 25 2022 13:31:32, 7.26.7.129 [datcnv_vars = 7]
-# datcnv_in = C:\Users\jtemplin\git\orca-test-data\SBE19plusV2\E8001\E8001.hex C:\Users\jtemplin\git\orca-test-data\SBE19plusV2\E8001\SBE19plusV2_6130.xmlcon
+# datcnv_in = C:\seabirdscientific\documentation\example_data\19plus_V2_CTD-processing_example.hex C:\seabirdscientific\documentation\example_data\19plus_V2_CTD-processing_example.xmlcon
 # datcnv_skipover = 0
 # file_type = ascii
 *END*

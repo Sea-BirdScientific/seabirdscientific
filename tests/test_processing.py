@@ -386,11 +386,11 @@ class TestLoopEdit:
 # class TestWildEdit:
     # def test_wild_edit_pass(self):
     #     expected_dataset = id.cnv_to_instrument_data(
-    #         r"orca-test-data\SBE19plusV2\E8001\E8001_wild_edit.cnv"
+    #         r"C:\seabirdscientific\documentation\example_data\19plus_V2_CTD-processing_example_wild_edit.cnv"
     #     )
     #     expected_output = expected_dataset.measurements["prdM"].values
 
-    #     dataset = id.cnv_to_instrument_data(r"orca-test-data\SBE19plusV2\E8001\E8001.cnv")
+    #     dataset = id.cnv_to_instrument_data(r"C:\seabirdscientific\documentation\example_data\19plus_V2_CTD-processing_example.cnv")
     #     pressure = dataset.measurements["prdM"].values
     #     flags = dataset.measurements["flag"].values
 
@@ -400,7 +400,7 @@ class TestLoopEdit:
 
 
 # class TestWindowFilter:
-#     # file_prefix = "orca-test-data/SBE19plusV2/E8001/E8001_window_filter"
+#     # file_prefix = "C:\seabirdscientific\documentation\example_data\19plus_V2_CTD-processing_example_window_filter"
 #     cnvdata = id.cnv_to_instrument_data(f"{file_prefix}.cnv")
 #     pressure = cnvdata.measurements["prdM"].values
 #     flags = cnvdata.measurements["flag"].values
