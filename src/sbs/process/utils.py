@@ -5,8 +5,8 @@
 
 Functions:
 
+    close_enough(np.ndarray, np.ndarray, int, float) -> bool
     plot(np.ndarray)
-    percent_match(np.ndarray, np.ndarray) -> str
     percent_match(np.ndarray, np.ndarray) -> str
 
 """

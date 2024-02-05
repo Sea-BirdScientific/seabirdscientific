@@ -1,5 +1,5 @@
 * Sea-Bird SBE37SM-RS232  Data File:
-* FileName = C:\Users\Nick\Documents\SeaBird\Troubleshooting\SBE37SM-RS232_03716125_2017_11_16.hex
+* FileName = C:\seabirdscientific\tests\resources\test-data\SBE37SM-RS232_03716125_2017_11_16.hex
 * Software version SeatermV2 2.6.3.104
 * Temperature SN = 16125
 * Conductivity SN = 16125
@@ -287,7 +287,7 @@
 #   </sensor>
 # </Sensors>
 # datcnv_date = Aug 26 2022 14:20:00, 7.26.7.129 [datcnv_vars = 4]
-# datcnv_in = C:\Users\jtemplin\git\orca-test-data\SBE37SM\SBE37SM-RS232_03716125_2017_11_16\SBE37SM-RS232_03716125_2017_11_16.hex C:\Users\jtemplin\git\orca-test-data\SBE37SM\SBE37SM-RS232_03716125_2017_11_16\SBE37SM-RS232_03716125_2017_11_16.XMLCON
+# datcnv_in = C:\seabirdscientific\tests\resources\test-data\SBE37SM-RS232_03716125_2017_11_16.hex C:\seabirdscientific\tests\resources\test-data\SBE37SM-RS232_03716125_2017_11_16.XMLCON
 # datcnv_skipover = 0
 # file_type = ascii
 *END*

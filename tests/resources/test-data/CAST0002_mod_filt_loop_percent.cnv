@@ -5,11 +5,6 @@
 * Conductivity SN = 2835
 * System UpLoad Time = Wed Jan 19 11:48:56 2005
 
-** Ship: ORCA
-** Cruise: Mooring
-** Station: Carr Inlet
-** Latitude: 47 16.67 N
-** Longitude: 122 43.39 W
 * S>ds
 * SEACAT PROFILER V3.1b-22420 SN 2835   01/19/05  12:53:36.273
 * strain gauge pressure sensor: S/N = 193005,  range=500 psia,  tc = 26
@@ -160,16 +155,16 @@
 #   </sensor>
 # </Sensors>
 # datcnv_date = Aug 16 2022 12:58:21, 7.26.7.129 [datcnv_vars = 3]
-# datcnv_in = C:\Users\jtemplin\git\python-data-processing\tests\data\CAST0002.HEX C:\Users\jtemplin\git\python-data-processing\tests\data\testing.CON
+# datcnv_in = C:\seabirdscientific\tests\resources\test-data\CAST0002.HEX C:\seabirdscientific\tests\resources\test-data\testing.CON
 # datcnv_skipover = 0
 # filter_date = Aug 16 2022 13:12:13, 7.26.7.129
-# filter_in = C:\Users\jtemplin\git\python-data-processing\tests\data\CAST0002_mod.cnv
+# filter_in = C:\seabirdscientific\tests\resources\test-data\CAST0002_mod.cnv
 # filter_low_pass_tc_A = 2.000
 # filter_low_pass_tc_B = 200.000
 # filter_low_pass_A_vars = prSM
 # filter_low_pass_B_vars =
 # loopedit_date = Aug 16 2022 13:24:03, 7.26.7.129
-# loopedit_in = C:\Users\jtemplin\git\python-data-processing\tests\data\CAST0002_mod_filt.cnv
+# loopedit_in = C:\seabirdscientific\tests\resources\test-data\CAST0002_mod_filt.cnv
 # loopedit_percentMeanSpeed: minV = 0.100, ws = 3, percent = 20.00                                                        
 # loopedit_surfaceSoak: do not remove                                                                                     
 # loopedit_excl_bad_scans = no

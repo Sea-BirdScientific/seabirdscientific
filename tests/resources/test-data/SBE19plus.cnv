@@ -1,5 +1,5 @@
 * Sea-Bird SBE19plus  Data File:
-* FileName = C:\Users\Matt.Talbot\Desktop\CTD Stuff\Field Sampling Casts\07.02.2019\SBE19plus_01906398_2019_07_15_0033.hex
+* FileName = C:\seabirdscientific\tests\resources\test-data\SBE19plus_01906398_2019_07_15_0033.hex
 * Software version 2.8.0.119
 * Temperature SN = 6398
 * Conductivity SN = 6398
@@ -488,7 +488,7 @@
 #   </sensor>
 # </Sensors>
 # datcnv_date = Oct 08 2020 08:59:09, 7.26.7.129 [datcnv_vars = 6]
-# datcnv_in = C:\Users\brhoades\Documents\Projects\NSI\SoftwareWorkflow\SBE19plus_01906398_2019_07_15_0033.hex C:\Users\brhoades\Documents\Projects\NSI\SoftwareWorkflow\SBE19plusV2_6398.xmlcon
+# datcnv_in = C:\seabirdscientific\tests\resources\test-data\SBE19plus_01906398_2019_07_15_0033.hex C:\seabirdscientific\tests\resources\test-data\SBE19plusV2_6398.xmlcon
 # datcnv_skipover = 0
 # datcnv_ox_hysteresis_correction = yes
 # file_type = ascii
