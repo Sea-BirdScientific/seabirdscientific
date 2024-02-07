@@ -1293,7 +1293,7 @@ def interpret_sbs_variable(sbs_var):
         # find and replace all the characters that are not alphabetic,
         # numbers or underscores with underscores
         kvar_name = re.sub(r"\W", "_", kvar_name)
-        print(f"Assigning {sbs_var} as {kvar_name}")
+        # print(f"Assigning {sbs_var} as {kvar_name}")
         kvar_units = ""
 
     #     elif sbs_var in  ''
