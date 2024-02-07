@@ -5,12 +5,31 @@
 
 Functions:
 
-    convert_temperature_array(np.ndarray, float, float, float, float, bool, bool, bool)
-    convert_temperature_val_ITS90_c( int, float, float, float, float, bool)
-    convert_pressure_array( np.ndarray, np.ndarray, bool, float, float, float, float, float, float, float, float, float, float, float, float)
-    convert_pressure_val_strain( float, float, bool, float, float, float, float, float, float, float, float, float, float, float, float)
-    
-    # TODO: add remaining fuctions
+    convert_temperature_array (np.ndarray, float, float, float, float, bool, bool, bool)
+    convert_temperature_val_ITS90_c ( int, float, float, float, float, bool)
+    convert_pressure_array ( np.ndarray, np.ndarray, bool, float, float, float, float, float, float, float, float, float, float, float, float)
+    convert_pressure_val_strain ( float, float, bool, float, float, float, float, float, float, float, float, float, float, float, float)
+    convert_temperature_array (np.ndarray, float, float, float, float, bool, bool, bool)
+    convert_temperature_val_ITS90_c (int, float, float, float, float, bool)
+    convert_pressure_array (np.ndarray, np.ndarray, bool, float, float, float, float, float, float, float, float, float, float, float, float)  
+    convert_pressure_val_strain (float, float, bool, float, float, float, float, float, float, float, float, float, float, float, float)
+    convert_conductivity_array (np.ndarray, np.ndarray, np.ndarray, float, float, float, float, float, float, float)
+    convert_conductivity_val (float, float, float, float, float, float, float, float, float, float)
+    potential_density_from_t_s_p (np.ndarray, np.ndarray, np.ndarray, float, float, float)
+    potential_density_from_t_c_p (np.ndarray, np.ndarray, np.ndarray, float, float, float)
+    density_from_t_s_p (np.ndarray, np.ndarray, np.ndarray, float, float)
+    density_from_t_c_p (np.ndarray, np.ndarray, np.ndarray, float, float)
+    depth_from_pressure (np.ndarray, float, depth_units="m", pressure_units="dbar")
+    convert_sbe63_oxygen_array (np.ndarray, np.ndarray, np.ndarray, np.ndarray, float, float, float, float, float, float, float, float, float, float, float, float, float)
+    convert_sbe63_oxygen_val (float, float, float, float, float, float, float, float, float, float, float, float, float)
+    convert_SBE63_thermistor_array (np.ndarray, float, float, float, float)
+    convert_SBE63_thermistor_value (float, float, float, float, float)
+    convert_sbe43_oxygen_array (np.ndarray, np.ndarray, np.ndarray, np.ndarray, float, float, float, float, float, float, float, float, float, float, float, float, bool, bool, float, float)
+    convert_sbe43_oxygen_val (float, float, float, float, float, float, float, float, float, float, float, float, float, float)
+    convert_oxygen_to_mg_per_l (np.ndarray)
+    convert_oxygen_to_umol_per_kg (np.ndarray, np.ndarray)
+    convert_ECO_chlorophylla_val (float, float, float)
+    convert_ECO_turbidity_val (float, float, float)
 
 """
 

@@ -9,8 +9,8 @@ Classes:
 
 Functions:
 
-    contour_from_t_s_p(np.ndarray, np.ndarray, np.ndarray, float, float, float) -> ContourData
-    contour_from_t_c_p(np.ndarray, np.ndarray, np.ndarray, float, float, float) -> ContourData
+    contour_from_t_s_p (np.ndarray, np.ndarray, np.ndarray, float, float, float) -> ContourData
+    contour_from_t_c_p (np.ndarray, np.ndarray, np.ndarray, float, float, float) -> ContourData
 
 """
 

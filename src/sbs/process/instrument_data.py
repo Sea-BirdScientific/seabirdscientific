@@ -2,21 +2,21 @@
 
 Classes:
 
-    InstrumentType(Enum)
-    HexDataTypes(Enum)
-    Sensors(Enum)
+    InstrumentType (Enum)
+    HexDataTypes (Enum)
+    Sensors (Enum)
     MeasurementSeries
     InstrumentData
 
 Functions:
 
-    def cnv_to_instrument_data(Path) -> InstrumentData
-    fix_exponents(List[str]) -> List[str]
-    read_hex_file(str, InstrumentType, List[Sensors], bool) -> pd.DataFrame
-    preallocate_dataframe(InstrumentType, str, List[Sensors], bool, int) -> pd.DataFrame
-    read_hex(InstrumentType, str, List[Sensors], bool) -> dict
-    read_SBE19plus_format_0(str, List[Sensors], bool) -> dict
-    read_SBE37SM_format_0(str, List[Sensors]) -> dict
+    cnv_to_instrument_data (Path) -> InstrumentData
+    fix_exponents (List[str]) -> List[str]
+    read_hex_file (str, InstrumentType, List[Sensors], bool) -> pd.DataFrame
+    preallocate_dataframe (InstrumentType, str, List[Sensors], bool, int) -> pd.DataFrame
+    read_hex (InstrumentType, str, List[Sensors], bool) -> dict
+    read_SBE19plus_format_0 (str, List[Sensors], bool) -> dict
+    read_SBE37SM_format_0 (str, List[Sensors]) -> dict
 
 """
 

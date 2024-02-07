@@ -10,17 +10,17 @@ Classes:
 
 Functions:
 
-    parse_instrument_data(Union[str, Path, pd.DataFrame]) -> pd.DataFrame
-    select_subset(list[str], pd.DataFrame) -> pd.DataFrame
-    plot_xy_chart(ChartData, ChartConfig) -> go.Figure:
-    create_single_plot(pd.DataFrame, pd.DataFrame, ChartConfig) -> go.Figure
-    create_subplots(pd.DataFrame, pd.DataFrame, ChartConfig) -> go.Figure:
-    create_overlay(pd.DataFrame, pd.DataFrame, ChartConfig) -> go.Figure
-    apply_single_config(go.Figure, ChartConfig)
-    apply_subplots_x_config(go.Figure, ChartConfig)
-    apply_subplots_y_config(go.Figure, ChartConfig)
-    apply_overlay_config(go.Figure, ChartConfig)
-    plot_ts_chart(np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, ChartConfig) -> go.Figure
+    parse_instrument_data (Union[str, Path, pd.DataFrame]) -> pd.DataFrame
+    select_subset (list[str], pd.DataFrame) -> pd.DataFrame
+    plot_xy_chart (ChartData, ChartConfig) -> go.Figure:
+    create_single_plot (pd.DataFrame, pd.DataFrame, ChartConfig) -> go.Figure
+    create_subplots (pd.DataFrame, pd.DataFrame, ChartConfig) -> go.Figure:
+    create_overlay (pd.DataFrame, pd.DataFrame, ChartConfig) -> go.Figure
+    apply_single_config (go.Figure, ChartConfig)
+    apply_subplots_x_config (go.Figure, ChartConfig)
+    apply_subplots_y_config (go.Figure, ChartConfig)
+    apply_overlay_config (go.Figure, ChartConfig)
+    plot_ts_chart (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, ChartConfig) -> go.Figure
 
 """
 
