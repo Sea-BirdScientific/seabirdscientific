@@ -4,11 +4,11 @@
 """SBE variable name conversion to matlab friendly strings.
 
 DESCRIPTION:
-Converts the strings that define SBE variables to strings that matlab can
-make use of. Gives units for each variable and defines whether
-it is a number or a text string.
+Converts the strings that define SBE variables to strings that exclude special characters. 
 
-All variables are taken from SBEDataProcessing_7.26.4.pdf. There may be
+Gives units for each variable and defines whether it is a number or a text string.
+
+All variables imported from SBEDataProcessing_7.26.4.pdf. There may be
 additional variables added in future versions of Sea-Bird Data processing
 modules that are not included here.
 
@@ -28,7 +28,7 @@ import re
 
 
 def interpret_sbs_variable(sbs_var):
-    """Converts SBE variable strings s to strings that matlab can make use of.
+    """Converts the strings that define SBE variables to strings that exclude special characters.
 
     Gives units for each variable and defines whether it is a number or a text string.
 
