@@ -838,7 +838,7 @@ def convert_oxygen_to_mg_per_l(ox_values: np.ndarray):
 
 
 def convert_oxygen_to_umol_per_kg(ox_values: np.ndarray, potential_density: np.ndarray):
-    """Converts given oxygen values to micromoles/Kilogram.
+    """Converts given oxygen values to milligrams/Liter.
 
     Expects oxygen values to be in Ml/L
     Note: Sigma-Theta is expected to be calculated via gsw_sigma0, meaning is it technically potential density anomaly.
