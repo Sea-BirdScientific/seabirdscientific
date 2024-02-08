@@ -4,7 +4,7 @@ This is the repository for the Sea-Bird Scientific (SBS) Community Toolkit. It i
 - Example SBS instrument data (see the repository documentation/example_data folder).
 - A [Jupyter](https://jupyter.org/) notebook that documents the current toolkit processing options that can be applied to data collected with SBE 37 and SBE 19plus V2 CTDs (see the repository documentation folder). This notebook also serves to document the processing options available in the SBS Fathom application.
 
-## Repostory Contents
+## Repository Contents
 ```
 seabirdscientific/
 |
