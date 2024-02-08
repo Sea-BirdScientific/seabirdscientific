@@ -623,7 +623,7 @@ class TestBuoyancy:
     expected_E_pow_8_win30 = np.asarray([-9.990e-29, 589.0, 1959.6, 2729.0, 2234.2, 2206.9, 1773.5, 1608.9, 1725.6, 1643.3, -9.990e-29])
 
     def test_modern_calc(self):
-
+        # TODO: This test is failing. Fix as part of NSI-3061
         output_dataframe = dp.buoyancy(
             self.temperature,
             self.salinity,
@@ -658,7 +658,7 @@ class TestBuoyancy:
         assert(output_dataframe['E10^-8'].to_numpy() == pytest.approx(self.expected_E_pow_8_win30, rel=rel_tol))
 
     def test_retro_calc(self): 
-
+        # TODO: This test is failing. Fix as part of NSI-3061
         output_dataframe = dp.buoyancy(
             self.temperature,
             self.salinity,

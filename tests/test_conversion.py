@@ -622,6 +622,7 @@ class TestConvertOxygen:
             assert np.allclose([expected[index]], [result], rtol=0, atol=1e-3)
 
     def test_convert_sbe43_oxygen_from_hex_with_Hysteresis(self):
+        # TODO: This test is failing. Fix as part of NSI-3061
         # From SBE19plus_01906398_2019_07_15_0033.hex
         # TODO: hysteresis correction only has a real impact on deep data, will need some to better validate this
         raw_oxygen = [2.5575, 2.5586, 2.5606, 2.5627, 2.5638, 2.5637, 2.5635, 2.5629, 2.5621, 2.5618]
