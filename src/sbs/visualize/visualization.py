@@ -1,4 +1,28 @@
-"""TODO: visualization docstring"""
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""A collection of classes and functions to support visualization of data
+
+Classes:
+
+    ChartConfig
+    ChartData
+
+Functions:
+
+    parse_instrument_data (Union[str, Path, pd.DataFrame]) -> pd.DataFrame
+    select_subset (list[str], pd.DataFrame) -> pd.DataFrame
+    plot_xy_chart (ChartData, ChartConfig) -> go.Figure:
+    create_single_plot (pd.DataFrame, pd.DataFrame, ChartConfig) -> go.Figure
+    create_subplots (pd.DataFrame, pd.DataFrame, ChartConfig) -> go.Figure:
+    create_overlay (pd.DataFrame, pd.DataFrame, ChartConfig) -> go.Figure
+    apply_single_config (go.Figure, ChartConfig)
+    apply_subplots_x_config (go.Figure, ChartConfig)
+    apply_subplots_y_config (go.Figure, ChartConfig)
+    apply_overlay_config (go.Figure, ChartConfig)
+    plot_ts_chart (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, ChartConfig) -> go.Figure
+
+"""
 
 # Native imports
 import json
@@ -21,18 +45,30 @@ from .interpret_sbs_variable import interpret_sbs_variable
 
 logger = getLogger(__name__)
 
-PLOTLY_PATH = '/node_modules/plotly.js-dist/plotly.js'
+PLOTLY_PATH = "/node_modules/plotly.js-dist/plotly.js"
+
 
 class ChartConfig:
-    """Dataclass to contain chart information and plotly settings
-    """
+    """Dataclass to contain chart information and plotly settings"""
+
     # TODO: replace chart_type with enum
-    def __init__(self, title, x_names, y_names, z_names, chart_type,
-            bounds={}, x_titles=[""], y_titles=[""], z_titles=[""],
-            plot_loop_edit_flags=False, lift_pen_over_bad_data=False,
-            flag_value=-9.99e-29
-            ):
-        """Initializes a chart config object to store the names, units, and data format.  
+    def __init__(
+        self,
+        title,
+        x_names,
+        y_names,
+        z_names,
+        chart_type,
+        bounds={},
+        x_titles=[""],
+        y_titles=[""],
+        z_titles=[""],
+        plot_loop_edit_flags=False,
+        lift_pen_over_bad_data=False,
+        flag_value=-9.99e-29,
+    ):
+        """Initializes a chart config object to store the names, units, and data format.
+
         Config parameters must be in the same order as the data.
 
         Args:
@@ -40,8 +76,8 @@ class ChartConfig:
             x_names (list[str]): X axis names
             y_names (list[str]): Y axis names
             z_names (list[str]): Z axis names
-            chart_type (str): Optional string to select type of chart "overlay" for multiple datasets sharing one axis, 
-            or "subplots" for multiple datasets on separate subplots.
+            chart_type (str): Optional string to select type of chart "overlay" for multiple datasets sharing one axis,
+                or "subplots" for multiple datasets on separate subplots.
             bounds (dict): Chart axis bounds, structure as:
                 bounds = {
                     'x': {0: [n, m], 1: [n, m], 2: [n, m], 3: [n, m]}
@@ -58,48 +94,50 @@ class ChartConfig:
                 between points surrounding flagged data (see SeaSoft manual, page 122)
             flag_value (float): A user configurable value that identifies flagged data
         """
-        self.title=title
-        x_info=[interpret_sbs_variable(name) for name in x_names]
-        y_info=[interpret_sbs_variable(name) for name in y_names]
-        z_info=[interpret_sbs_variable(name) for name in z_names]
-        self.x_names=[info["name"] for info in x_info]
-        self.y_names=[info["name"] for info in y_info]
-        self.z_names=[info["name"] for info in z_info]
-        self.x_units=[info["units"] for info in x_info]
-        self.y_units=[info["units"] for info in y_info]
-        self.z_units=[info["units"] for info in z_info]
-        self.bounds=bounds
-        self.chart_type=chart_type
-        self.x_titles=x_titles
-        self.y_titles=y_titles
-        self.z_titles=z_titles
-        self.plot_loop_edit_flags=plot_loop_edit_flags
-        self.lift_pen_over_bad_data=lift_pen_over_bad_data
-        self.flag_value=flag_value
 
-        for axis in ['x', 'y', 'z']:
+        self.title = title
+        x_info = [interpret_sbs_variable(name) for name in x_names]
+        y_info = [interpret_sbs_variable(name) for name in y_names]
+        z_info = [interpret_sbs_variable(name) for name in z_names]
+        self.x_names = [info["name"] for info in x_info]
+        self.y_names = [info["name"] for info in y_info]
+        self.z_names = [info["name"] for info in z_info]
+        self.x_units = [info["units"] for info in x_info]
+        self.y_units = [info["units"] for info in y_info]
+        self.z_units = [info["units"] for info in z_info]
+        self.bounds = bounds
+        self.chart_type = chart_type
+        self.x_titles = x_titles
+        self.y_titles = y_titles
+        self.z_titles = z_titles
+        self.plot_loop_edit_flags = plot_loop_edit_flags
+        self.lift_pen_over_bad_data = lift_pen_over_bad_data
+        self.flag_value = flag_value
+
+        for axis in ["x", "y", "z"]:
             if axis not in self.bounds.keys():
                 self.bounds[axis] = {}
 
 
 class ChartData:
-    """Class to contain chart data and helper functions
-    """
+    """Class to contain chart data and helper functions"""
+
     # TODO: move helper functions into ChartData
 
     def __init__(self, data_source, config):
-        """Initializes an object to store chart data
+        """Initializes an object to store chart data.
 
         Args:
             data_source (str | pd.DataFrame): A file path (.csv, .asc, .json),
             JSON string, or pandas DataFrame
             config (ChartConfig): A ChartConfig object to configure plotly
         """
+
         data = parse_instrument_data(data_source)
         if data is not None:
             data.mask(data == config.flag_value, inplace=True)
             if not config.plot_loop_edit_flags:
-                mask = data['flag'].isnull()
+                mask = data["flag"].isnull()
                 data.loc[mask, :] = np.nan
             self.x = select_subset(config.x_names, data)
             self.y = select_subset(config.y_names, data)
@@ -108,6 +146,7 @@ class ChartData:
 
 def parse_instrument_data(source: Union[str, Path, pd.DataFrame]) -> pd.DataFrame:
     """Top level function for converting instrument data to numpy array.
+
     Currently supports pandas dataframes, json strings, and a string path to
     the following file types: .csv, .asc (comma separated), and .json.
 
@@ -121,47 +160,45 @@ def parse_instrument_data(source: Union[str, Path, pd.DataFrame]) -> pd.DataFram
     Example:
         array = parse_instrument_data("./example.csv")
     """
-    
+
     try:
         if isinstance(source, pd.DataFrame):
             data = source.copy()
 
         elif isinstance(source, Path):
             suffix = source.suffix.lower()
-            if suffix == '.csv' or suffix == '.asc':
+            if suffix == ".csv" or suffix == ".asc":
                 data = pd.read_csv(source)
-            elif suffix == '.json':
+            elif suffix == ".json":
                 with open(source, encoding="utf-8") as js_data:
-                    data = pd.DataFrame.from_dict(json.load(js_data), orient='columns')
+                    data = pd.DataFrame.from_dict(json.load(js_data), orient="columns")
 
         elif isinstance(source, str):
-            data = pd.DataFrame.from_dict(json.loads(source), orient='columns')
+            data = pd.DataFrame.from_dict(json.loads(source), orient="columns")
 
         else:
             raise Exception
 
-        if 'data' not in locals() or not isinstance(data, pd.DataFrame):
+        if "data" not in locals() or not isinstance(data, pd.DataFrame):
             raise Exception
 
-        columns = [interpret_sbs_variable(column)['name'] for column in data.columns]
+        columns = [interpret_sbs_variable(column)["name"] for column in data.columns]
         for old_column, new_column in zip(data.columns, columns):
             data.rename(columns={old_column: new_column}, inplace=True)
         return data
 
     except Exception as e:
         logger.error(e)
-    
-
 
 
 def select_subset(axis_names: list[str], data: pd.DataFrame) -> pd.DataFrame:
-    """Takes a list of axis names and returns a data set for each name in the list. 
+    """Takes a list of axis names and returns a data set for each name in the list.
 
-    If axis_names is empty the function will return a DataFrame 
-    of integers representing the sample count of the data. 
+    If axis_names is empty the function will return a DataFrame
+    of integers representing the sample count of the data.
     This could be used in a single series chart for example.
 
-    Otherwise, the function will return a DataFrame for each name in the list. 
+    Otherwise, the function will return a DataFrame for each name in the list.
     This would be for a single xy chart or an overlay/subplot chart.
 
     Args:
@@ -178,13 +215,13 @@ def select_subset(axis_names: list[str], data: pd.DataFrame) -> pd.DataFrame:
     """
 
     if len(axis_names) == 0:
-        return pd.DataFrame({'Sample Count': list(range(0, len(data)))})
+        return pd.DataFrame({"Sample Count": list(range(0, len(data)))})
     else:
         return data[axis_names]
 
 
 def plot_xy_chart(data: ChartData, config: ChartConfig) -> go.Figure:
-    """Takes instrument data and a config and plots an XY chart with one or more data sets
+    """Takes instrument data and a config and plots an XY chart with one or more data sets.
 
     Args:
         data (ChartData): Data object with x, y, z, data selected according to the config
@@ -215,15 +252,16 @@ def plot_xy_chart(data: ChartData, config: ChartConfig) -> go.Figure:
     else:
         # getting here should not be possible unless data and config are altered outside their init functions
         raise Exception
-        
+
     if not config.lift_pen_over_bad_data:
         figure.update_traces(connectgaps=True)
-    
+
     return figure
 
 
 def create_single_plot(x: pd.DataFrame, y: pd.DataFrame, config: ChartConfig) -> go.Figure:
-    """Creates a single XY plot, with one or more data sets. 
+    """Creates a single XY plot, with one or more data sets.
+
     If there are multiple datasets for the x or y axis, an overlay plot will be generated
 
     Args:
@@ -239,7 +277,7 @@ def create_single_plot(x: pd.DataFrame, y: pd.DataFrame, config: ChartConfig) ->
         logger.warning("Duplicate data names will be omitted")
 
     figure = px.line(
-        data_frame=pd.concat([x,y], axis=1),
+        data_frame=pd.concat([x, y], axis=1),
         x=x.columns[0] if len(x.columns) == 1 else x.columns,
         y=y.columns[0] if len(y.columns) == 1 else y.columns,
         title=config.title,
@@ -252,7 +290,7 @@ def create_single_plot(x: pd.DataFrame, y: pd.DataFrame, config: ChartConfig) ->
 
 
 def create_subplots(x: pd.DataFrame, y: pd.DataFrame, config: ChartConfig) -> go.Figure:
-    """Creates a chart with multiple subplots
+    """Creates a chart with multiple subplots.
 
     Args:
         x (DataFrame): Pandas DataFrame of data for the x axis
@@ -275,15 +313,19 @@ def create_subplots(x: pd.DataFrame, y: pd.DataFrame, config: ChartConfig) -> go
             cols=len(x.columns),
             column_titles=list(x.columns),
             y_title=y.columns[0],
-            figure=figure
+            figure=figure,
         )
         column = 1
         for x_column in x.columns:
-            figure.add_trace(go.Scatter(
-                x=x[x_column],
-                y=y[y.columns[0]],
-                name=x_column,
-            ), row=1, col=column)
+            figure.add_trace(
+                go.Scatter(
+                    x=x[x_column],
+                    y=y[y.columns[0]],
+                    name=x_column,
+                ),
+                row=1,
+                col=column,
+            )
             column += 1
         apply_subplots_x_config(figure, config)
 
@@ -293,15 +335,19 @@ def create_subplots(x: pd.DataFrame, y: pd.DataFrame, config: ChartConfig) -> go
             cols=len(x.columns),
             row_titles=list(y.columns),
             x_title=x.columns[0],
-            figure=figure
+            figure=figure,
         )
         row = 1
         for y_column in y.columns:
-            figure.add_trace(go.Scatter(
-                x=x[x.columns[0]],
-                y=y[y_column],
-                name=y_column,
-            ), row=row, col=1)
+            figure.add_trace(
+                go.Scatter(
+                    x=x[x.columns[0]],
+                    y=y[y_column],
+                    name=y_column,
+                ),
+                row=row,
+                col=1,
+            )
             row += 1
         apply_subplots_y_config(figure, config)
 
@@ -309,7 +355,7 @@ def create_subplots(x: pd.DataFrame, y: pd.DataFrame, config: ChartConfig) -> go
 
 
 def create_overlay(x: pd.DataFrame, y: pd.DataFrame, config: ChartConfig) -> go.Figure:
-    """Creates a chart with multiple datasets overlayed on one axis.  
+    """Creates a chart with multiple datasets overlayed on one axis.
 
     Args:
         x (DataFrame): Pandas DataFrame of data for the x axis
@@ -329,194 +375,175 @@ def create_overlay(x: pd.DataFrame, y: pd.DataFrame, config: ChartConfig) -> go.
     if len(x.columns) > 1 and len(y.columns) == 1:
         x_axis = 1
         for x_column in x.columns:
-            figure.add_trace(go.Scatter(
-                x=x[x_column],
-                y=y[y.columns[0]],
-                name=x_column,
-                xaxis=f"x{x_axis}"
-            ))
+            figure.add_trace(go.Scatter(x=x[x_column], y=y[y.columns[0]], name=x_column, xaxis=f"x{x_axis}"))
             x_axis += 1
-            
+
         apply_overlay_config(figure, config)
 
     elif len(x.columns) == 1 and len(y.columns) > 1:
         y_axis = 1
         for y_column in y.columns:
-            figure.add_trace(go.Scatter(
-                x=x[x.columns[0]],
-                y=y[y_column],
-                name=y_column,
-                yaxis=f"y{y_axis}"
-            ))
+            figure.add_trace(go.Scatter(x=x[x.columns[0]], y=y[y_column], name=y_column, yaxis=f"y{y_axis}"))
             y_axis += 1
-        
+
         apply_overlay_config(figure, config)
 
     return figure
 
 
 def apply_single_config(figure: go.Figure, config: ChartConfig):
-    """Updates various chart settings for single plots
+    """Updates various chart settings for single plots.
 
     Args:
         figure (go.Figure): The figure being updated
         config (ChartConfig): The user defined config being applied to the figure
     """
+
     figure.update_layout(
         xaxis=dict(
             title="" if len(config.x_units) < 1 else config.x_units[0],
-            domain=[max(0, 0.1*(len(config.y_units)-1)), 1],
-            range=None if len(config.bounds['x']) < 1 else config.bounds['x'][0]
+            domain=[max(0, 0.1 * (len(config.y_units) - 1)), 1],
+            range=None if len(config.bounds["x"]) < 1 else config.bounds["x"][0],
         ),
         yaxis=dict(
             title="" if len(config.y_units) < 1 else config.y_units[0],
-            domain=[max(0, 0.1*(len(config.x_units)-1)), 1],
-            range=None if len(config.bounds['y']) < 1 else config.bounds['y'][0]
-        )
+            domain=[max(0, 0.1 * (len(config.x_units) - 1)), 1],
+            range=None if len(config.bounds["y"]) < 1 else config.bounds["y"][0],
+        ),
     )
 
 
 def apply_subplots_x_config(figure: go.Figure, config: ChartConfig):
-    """Updates various chart settings for charts with multiple x axes.  
+    """Updates various chart settings for charts with multiple x axes.
+
     Config parameters may contain upto 4 arguments per axis, and must be in the same order as the data. Hence all of the magic number indexing below
 
     Args:
         figure (go.Figure): The figure being updated
         config (ChartConfig): The user defined config being applied to the figure
     """
-    y_range = None if len(config.bounds['y']) < 1 else config.bounds['y'][0]
+
+    y_range = None if len(config.bounds["y"]) < 1 else config.bounds["y"][0]
 
     figure.update_layout(
         xaxis=dict(
             title="" if len(config.x_units) < 1 else config.x_units[0],
-            range=None if len(config.bounds['x']) < 1 else config.bounds['x'][0]
+            range=None if len(config.bounds["x"]) < 1 else config.bounds["x"][0],
         ),
         xaxis2=dict(
             title="" if len(config.x_units) < 2 else config.x_units[1],
-            range=None if len(config.bounds['x']) < 2 else config.bounds['x'][1]
+            range=None if len(config.bounds["x"]) < 2 else config.bounds["x"][1],
         ),
         xaxis3=dict(
             title="" if len(config.x_units) < 3 else config.x_units[2],
-            range=None if len(config.bounds['x']) < 3 else config.bounds['x'][2]
+            range=None if len(config.bounds["x"]) < 3 else config.bounds["x"][2],
         ),
         xaxis4=dict(
             title="" if len(config.x_units) < 4 else config.x_units[3],
-            range=None if len(config.bounds['x']) < 4 else config.bounds['x'][3]
+            range=None if len(config.bounds["x"]) < 4 else config.bounds["x"][3],
         ),
-        yaxis=dict(
-            title="" if len(config.y_units) < 1 else config.y_units[0],
-            range=y_range
-        ),
-        yaxis2=dict(
-            range=y_range
-        ),
-        yaxis3=dict(
-            range=y_range
-        ),
-        yaxis4=dict(
-            range=y_range
-        )
+        yaxis=dict(title="" if len(config.y_units) < 1 else config.y_units[0], range=y_range),
+        yaxis2=dict(range=y_range),
+        yaxis3=dict(range=y_range),
+        yaxis4=dict(range=y_range),
     )
 
 
 def apply_subplots_y_config(figure: go.Figure, config: ChartConfig):
-    """Updates various chart settings for charts with multiple y axes.  
+    """Updates various chart settings for charts with multiple y axes.
+
     Config parameters may contain upto 4 arguments per axis, and must be in the same order as the data. Hence all of the magic number indexing below
 
     Args:
         figure (go.Figure): The figure being updated
         config (ChartConfig): The user defined config being applied to the figure
     """
-    x_range = None if len(config.bounds['x']) < 1 else config.bounds['x'][0]
-    
+
+    x_range = None if len(config.bounds["x"]) < 1 else config.bounds["x"][0]
+
     figure.update_layout(
-        xaxis=dict(
-            range=x_range
-        ),
-        xaxis2=dict(
-            range=x_range
-        ),
-        xaxis3=dict(
-            range=x_range
-        ),
-        xaxis4=dict(
-            title="" if len(config.x_units) < 1 else config.x_units[0],
-            range=x_range
-        ),
+        xaxis=dict(range=x_range),
+        xaxis2=dict(range=x_range),
+        xaxis3=dict(range=x_range),
+        xaxis4=dict(title="" if len(config.x_units) < 1 else config.x_units[0], range=x_range),
         yaxis=dict(
             title="" if len(config.y_units) < 1 else config.y_units[0],
-            range=None if len(config.bounds['y']) < 1 else config.bounds['y'][0]
+            range=None if len(config.bounds["y"]) < 1 else config.bounds["y"][0],
         ),
         yaxis2=dict(
             title="" if len(config.y_units) < 2 else config.y_units[1],
-            range=None if len(config.bounds['y']) < 2 else config.bounds['y'][1]
+            range=None if len(config.bounds["y"]) < 2 else config.bounds["y"][1],
         ),
         yaxis3=dict(
             title="" if len(config.y_units) < 3 else config.y_units[2],
-            range=None if len(config.bounds['y']) < 3 else config.bounds['y'][2]
+            range=None if len(config.bounds["y"]) < 3 else config.bounds["y"][2],
         ),
         yaxis4=dict(
             title="" if len(config.y_units) < 4 else config.y_units[3],
-            range=None if len(config.bounds['y']) < 3 else config.bounds['y'][3]
-        )
+            range=None if len(config.bounds["y"]) < 3 else config.bounds["y"][3],
+        ),
     )
 
 
 def apply_overlay_config(figure: go.Figure, config: ChartConfig):
-    """Updates various chart settings for charts with multiple y axes. Config parameters may contain upto 4 arguments per axis, and must be in the same order as the data. Hence all of the magic number indexing below
+    """Updates various chart settings for charts with multiple y axes.
+
+    Config parameters may contain upto 4 arguments per axis, and must be in the same order as the data.
+    Hence all of the magic number indexing below
 
     Args:
         figure (go.Figure): The figure being updated
         config (ChartConfig): The user defined config being applied to the figure
     """
+
     figure.update_layout(
         xaxis=dict(
             title="" if len(config.x_units) < 1 else config.x_units[0],
-            domain=[max(0, 0.1*(len(config.y_units)-1)), 1],
-            range=None if len(config.bounds['x']) < 1 else config.bounds['x'][0]
+            domain=[max(0, 0.1 * (len(config.y_units) - 1)), 1],
+            range=None if len(config.bounds["x"]) < 1 else config.bounds["x"][0],
         ),
         xaxis2=dict(
             title="" if len(config.x_units) < 2 else config.x_units[1],
             overlaying="x",
             position=0.1,
-            range=None if len(config.bounds['x']) < 2 else config.bounds['x'][1]
+            range=None if len(config.bounds["x"]) < 2 else config.bounds["x"][1],
         ),
         xaxis3=dict(
             title="" if len(config.x_units) < 3 else config.x_units[2],
             overlaying="x",
             position=0.2,
-            range=None if len(config.bounds['x']) < 3 else config.bounds['x'][2]
+            range=None if len(config.bounds["x"]) < 3 else config.bounds["x"][2],
         ),
         xaxis4=dict(
             title="" if len(config.x_units) < 4 else config.x_units[3],
             overlaying="x",
             position=0.3,
-            range=None if len(config.bounds['x']) < 4 else config.bounds['x'][3]
+            range=None if len(config.bounds["x"]) < 4 else config.bounds["x"][3],
         ),
         yaxis=dict(
             title="" if len(config.y_units) < 1 else config.y_units[0],
-            domain=[0.1*(len(config.x_units)), 1],
+            domain=[0.1 * (len(config.x_units)), 1],
             position=0,
-            range=None if len(config.bounds['y']) < 1 else config.bounds['y'][0]
+            range=None if len(config.bounds["y"]) < 1 else config.bounds["y"][0],
         ),
         yaxis2=dict(
             title="" if len(config.y_units) < 2 else config.y_units[1],
             overlaying="y",
             position=0.1,
-            range=None if len(config.bounds['y']) < 2 else config.bounds['y'][1]
+            range=None if len(config.bounds["y"]) < 2 else config.bounds["y"][1],
         ),
         yaxis3=dict(
             title="" if len(config.y_units) < 3 else config.y_units[2],
             overlaying="y",
             position=0.2,
-            range=None if len(config.bounds['y']) < 3 else config.bounds['y'][2]
+            range=None if len(config.bounds["y"]) < 3 else config.bounds["y"][2],
         ),
         yaxis4=dict(
             title="" if len(config.y_units) < 4 else config.y_units[3],
             overlaying="y",
             position=0.3,
-            range=None if len(config.bounds['y']) < 3 else config.bounds['y'][3]
-        )
+            range=None if len(config.bounds["y"]) < 3 else config.bounds["y"][3],
+        ),
     )
 
 
@@ -527,9 +554,9 @@ def plot_ts_chart(
     x_vec: np.ndarray,
     y_vec: np.ndarray,
     z_mat: np.ndarray,
-    config: ChartConfig
+    config: ChartConfig,
 ) -> go.Figure:
-    """Calls various conversion functions (such as ct_sa_pd_from_t_s_p) and creates a TS plot
+    """Calls various conversion functions (such as ct_sa_pd_from_t_s_p) and creates a TS plot.
 
     Args:
         data (ChartData): Data object with x, y, z, data selected according to the config
@@ -549,7 +576,7 @@ def plot_ts_chart(
     trace1 = go.Scatter(
         x=x,
         y=y,
-        mode='markers',
+        mode="markers",
         marker=dict(
             color=z,
             showscale=True,
@@ -557,21 +584,20 @@ def plot_ts_chart(
             colorbar=dict(
                 # sigma_theta kg m-3
                 title=config.z_titles[0],
-                titleside='top')
-        )
+                titleside="top",
+            ),
+        ),
     )
 
     # Contours in gray
-    colorscale = [[0, 'gray'], [1, 'gray']]
+    colorscale = [[0, "gray"], [1, "gray"]]
     trace2 = go.Contour(
         x=x_vec,
         y=y_vec,
         z=z_mat,
         showscale=False,
         colorscale=colorscale,
-        contours=dict(
-            coloring='lines',
-            showlabels=True)
+        contours=dict(coloring="lines", showlabels=True),
     )
 
     # Overlay the plots
@@ -590,75 +616,3 @@ def plot_ts_chart(
     )
 
     return fig
-
-
-def api_xy_chart_html(
-    source: str, title: str, x_names: str, y_names: str, z_names: str, chart_type: str
-) -> str:
-    """Wrapper for plot_xy_chart to be called from React Native
-
-    Args:
-        source (str): Name of the file, or JSON string
-        title (str): Title of the chart
-        x_names (str): Name(s) of x-axis data sets
-        y_names (str): Name(s) of y-axis data sets
-        z_names (str): Name(s) of z-axis data sets
-        chart_type (str): An empty string, "overlay", or "subplots" to specify the
-            type of plot when there are multiple data sets
-
-    Returns:
-        str: An html string of a plotly figure
-    """
-
-    # This was originally for Orca integration and doesn't work as-is but might
-    # be worth refactoring. Leaving in to discuss during code review
-    raise DeprecationWarning
-    config = ChartConfig(
-        title=title,
-        x_names=x_names,
-        y_names=y_names,
-        z_names=z_names,
-        chart_type=chart_type
-    )
-    data = ChartData(source, config)
-
-    figure = plot_xy_chart(data, config)
-    return figure.to_html(full_html=False, include_plotlyjs=PLOTLY_PATH)
-
-
-def api_ts_chart_html(
-    source: str, title: str, x_names: str, y_names: str, z_names: str,
-    chart_type: str, min_salinity=0, lat=0, lon=0
-) -> str:
-    """Wrapper for plot_ts_chart to be called from React Native
-
-    Args:
-        source (str): Name of the file, or JSON string
-        title (str): Title of the chart
-        x_names (str): Name(s) of x-axis data sets
-        y_names (str): Name(s) of y-axis data sets
-        z_names (str): Name(s) of z-axis data sets
-        chart_type (str): An empty string, "overlay", or "subplots" to specify the
-            type of plot when there are multiple data sets
-        min_salinity (int, optional): Minimum salinity to display. Defaults to 0.
-        lat (int, optional): Used to determine absolute salinity (SA). Defaults to 0.
-        lon (int, optional): Used to determine absolute salinity (SA). Defaults to 0.
-
-    Returns:
-        str: An html string of a plotly figure
-    """
-
-    # This was originally for Orca integration and doesn't work as-is but might
-    # be worth refactoring. Leaving in to discuss during code review
-    raise DeprecationWarning
-    config = ChartConfig(
-        title=title,
-        x_names=x_names,
-        y_names=y_names,
-        z_names=z_names,
-        chart_type=chart_type
-    )
-    data = ChartData(source, config)
-
-    figure = plot_ts_chart(data, config, min_salinity, lat, lon)
-    return figure.to_html(full_html=False, include_plotlyjs=PLOTLY_PATH)
