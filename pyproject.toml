@@ -1,12 +1,14 @@
 [project]
 name = "seabirdscientific"
-version = "1.0.6"
+version = "1.0.7"
 description = "Sea-Bird Scientific Community Toolkit"
 readme = "README.md"
 authors = [
+    {name = "Sea-Bird Scientific"},
     {name = "Ryan Anderson", email = "randerson@seabird.com"},
     {name = "Lukas Christensen", email = "lchristensen@seabird.com"},
     {name = "Dane Lucas", email = "dlucas@seabird.com"},
+    {name = "Eric Rehm", email = "erehm@seabird.com"},
     {name = "Bruce Rhodes", email = "brhodes@seabird.com"},
     {name = "Jesse Templin", email = "jtemplin@seabird.com"},
 ]
