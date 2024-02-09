@@ -1,9 +1,10 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-"""Some cal data for individual serial number units.
+"""A collection of calibration data from SBS instruments.
 
-TODO: move outside of python code?"""
+These are calibration coefficients from specific SBS intstruments that are primarily used for test purposes.
+"""
 
 # Native imports
 from dataclasses import dataclass
@@ -14,9 +15,11 @@ from dataclasses import dataclass
 
 # Internal imports
 
+# TODO: Move these outside of the src folder?
+
 
 @dataclass
-class SN6130:  # cal coefficients for E8001
+class SN6130:  # cal coefficients for example 19pV2 data
     # temperature
     A0 = 1.28015621e-003
     A1 = 2.58367774e-004

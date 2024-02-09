@@ -1,30 +1,21 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-"""TODO: NEW interpret_sbs_variable docstring"""
+"""SBE variable name conversion to matlab friendly strings.
 
-"""
 DESCRIPTION:
-Converts the strings that define SBE variables to strings that matlab can
-use as functions. Gives units for each variable and defines whether
-it is a number or a text string.
+Converts the strings that define SBE variables to strings that exclude special characters. 
+
+Gives units for each variable and defines whether it is a number or a text string.
 
 All variables imported from SBEDataProcessing_7.26.4.pdf. There may be
 additional variables added in future versions of Sea-Bird Data processing
-modules that are not included here. Please email kmartini@seabird.com if
-you find one to keep the code current.
+modules that are not included here.
 
-INPUT:
-  sbs_var         =   text string with variable name
+Functions:
 
-OUTPUT:
-  kvar_name       =   converted, matlab code readable variable name
-  kvar_format     =   defines whether variable is a float or a string
-  kvar_units      =   variable units. Empty string if undefined.
+    interpret_sbs_variable(sbs_var)
 
-
-KiM MARTiNi 07.2017
-Sea-Bird Scientific
 """
 
 # Native imports
@@ -38,16 +29,20 @@ import re
 
 
 def interpret_sbs_variable(sbs_var):
-    """Converts the strings that define SBE variables to strings that matlab can
-    use as functions. Gives units for each variable and defines whether
-    it is a number or a text string.
+    """Converts the strings that define SBE variables to strings that exclude special characters.
+
+    Gives units for each variable and defines whether it is a number or a text string.
 
     Args:
         sbs_var (string): Name of the dataset
 
     Returns:
-        list[str]: The name with special characters removed, data format, and the units.
+        list[str]: The name with special characters removed, the data format, and the units.
+            kvar_name       =   converted, matlab code readable variable name
+            kvar_format     =   defines whether variable is a float or a string
+            kvar_units      =   variable units. Empty string if undefined.
     """
+
     # TEMPERATURE
     # primary sensor
     kvar_format = r"%f"
@@ -1299,7 +1294,7 @@ def interpret_sbs_variable(sbs_var):
         # find and replace all the characters that are not alphabetic,
         # numbers or underscores with underscores
         kvar_name = re.sub(r"\W", "_", kvar_name)
-        print(f"Assigning {sbs_var} as {kvar_name}")
+        # print(f"Assigning {sbs_var} as {kvar_name}")
         kvar_units = ""
 
     #     elif sbs_var in  ''
