@@ -661,12 +661,12 @@ def convert_sbe43_oxygen_array(
         # Hysteresis starts at 1 because 0 can't be corrected
         for i in range(1, len(correct_ox_voltages)):
             # All Equation info from APPLICATION NOTE NO. 64-3
-            D = 1 + H1 * (exp(pressure[i] / H2) - 1)
-            C = exp(-1 * sample_interval / H3)
+            d = 1 + H1 * (exp(pressure[i] / H2) - 1)
+            c = exp(-1 * sample_interval / H3)
             ox_volts = correct_ox_voltages[i] + offset
 
             prev_ox_volts_new = correct_ox_voltages[i - 1] + offset
-            ox_volts_new = ((ox_volts + prev_ox_volts_new * C * D) - (prev_ox_volts_new * C)) / D
+            ox_volts_new = ((ox_volts + prev_ox_volts_new * c * d) - (prev_ox_volts_new * c)) / d
             ox_volts_final = ox_volts_new - offset
             correct_ox_voltages[i] = ox_volts_final
 

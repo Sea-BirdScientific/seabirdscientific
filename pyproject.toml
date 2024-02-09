@@ -4,12 +4,14 @@ version = "1.0.5"
 description = "SeaBird Scientific Community Toolkit"
 readme = "README.md"
 authors = [
+    {name = "Ryan Anderson", email = "randerson@seabird.com"},
     {name = "Lukas Christensen", email = "lchristensen@seabird.com"},
+    {name = "Dane Lucas", email = "dlucas@seabird.com"},
+    {name = "Bruce Rhodes", email = "brhodes@seabird.com"},
     {name = "Jesse Templin", email = "jtemplin@seabird.com"},
 ]
 requires-python = ">=3.9"
 classifiers = [
-  "Private :: Do Not Upload",
   "Programming Language :: Python :: 3 :: Only",
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
@@ -29,7 +31,9 @@ dev = [
   "notebook",
   "pytest",
   "black",
-  "nbformat"
+  "nbformat",
+  "twine",
+  "build"
 ]
 
 [build-system]
