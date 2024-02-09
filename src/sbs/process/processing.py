@@ -32,11 +32,13 @@ Functions:
 
 # Native imports
 from enum import Enum
+import math
 
 # Third-party imports
+import gsw
 import numpy as np
 import pandas as pd
-from scipy import signal
+from scipy import signal, stats
 
 # Sea-Bird imports
 
@@ -581,24 +583,6 @@ def bin_average(
         print(dataset.to_string())
     if not include_scan_count:
         dataset.drop("nbin", axis=1, inplace=True)
-
-
-# TODO: move to a unit test?
-# data = {'pressure': [0, 0.5, 1, 1.2, 1.3, 1.5, 1.9, 2.5, 2.9, 3.5, 4, 5, 6, 7, 8, 9, 11, 13],
-#         'depth': [1, 1.5, 2, 22, 9, 16, 3, 4, 7, 8, 9, 8, 7, 1, 21, 19, 18, 6],
-#         'temperature': [0, 0.5, 1, 1.2, 1.3, 1.5, 1.9, 2.5, 2.9, 3.5, 4, 5, 6, 7, 8, 9, 11, 13],
-#         'flag': [0, 0, 0, 9999, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9999, 0, 0, 0],}
-
-# df = pd.DataFrame(data)
-
-# print('binning 2 \n' + df.to_string())
-# bin_average(df.copy(), 'depth', 2, True,0,10, False, True)
-
-# print('binning 3 \n' + df.to_string())
-# bin_average(df.copy(), 'depth', 3, True,0,10, False, True)
-
-# print('binning 5 \n' + df.to_string())
-# bin_average(df.copy(), 'depth', 5, True,0,10, True, True)
 
 
 def wild_edit(
