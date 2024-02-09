@@ -4,7 +4,7 @@ version = "1.0.7"
 description = "Sea-Bird Scientific Community Toolkit"
 readme = "README.md"
 authors = [
-    {name = "Sea-Bird Scientific"},
+    {name = "Sea-Bird Scientific", email = "techsupport@seabird.com"},
     {name = "Ryan Anderson", email = "randerson@seabird.com"},
     {name = "Lukas Christensen", email = "lchristensen@seabird.com"},
     {name = "Dane Lucas", email = "dlucas@seabird.com"},
