@@ -41,21 +41,22 @@ DATASETS = [
         "c0S/m",
         True,
     ),
-    (
-        cc.SN03706385,
-        id.cnv_to_instrument_data("./tests/resources/test-data/SBE37SM.cnv"),
-        id.read_hex_file(
-            "./tests/resources/test-data/SBE37SM.hex",
-            id.InstrumentType.SBE37SM,
-            [
-                id.Sensors.Temperature,
-                id.Sensors.Conductivity,
-                id.Sensors.Pressure,
-            ],
-        ),
-        "cond0S/m",
-        False,
-    ),
+    # removing until we get a smaller version of this source (NSI-3079)
+    # (
+    #     cc.SN03706385,
+    #     id.cnv_to_instrument_data("./tests/resources/test-data/SBE37SM.cnv"),
+    #     id.read_hex_file(
+    #         "./tests/resources/test-data/SBE37SM.hex",
+    #         id.InstrumentType.SBE37SM,
+    #         [
+    #             id.Sensors.Temperature,
+    #             id.Sensors.Conductivity,
+    #             id.Sensors.Pressure,
+    #         ],
+    #     ),
+    #     "cond0S/m",
+    #     False,
+    # ),
     (
         cc.SN03716125,
         id.cnv_to_instrument_data("./tests/resources/test-data/SBE37SM-RS232_03716125_2017_11_16.cnv"
