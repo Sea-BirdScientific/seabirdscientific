@@ -1,7 +1,8 @@
-"""TODO: test_conversion docstring"""
+"""Data conversion unit tests.
+
+"""
 
 # Native imports
-import importlib.resources
 
 # Third-party imports
 import gsw
@@ -16,8 +17,6 @@ import sbs.process.cal_coefficients as cc
 import sbs.process.conversion as dc
 import sbs.process.instrument_data as id
 
-test_resources = importlib.resources.files("resources")
-
 DATASETS = [
     # cal
     # cnv
@@ -26,9 +25,8 @@ DATASETS = [
     # use_MV_R
     (
         cc.SN6130,
-        id.cnv_to_instrument_data(test_resources / "orca-test-data/SBE19plusV2/E8001/E8001.cnv"),
-        id.read_hex_file(
-            test_resources / "orca-test-data/SBE19plusV2/E8001/E8001.hex",
+        id.cnv_to_instrument_data("./tests/resources/test-data/19plus_V2_CTD-processing_example.cnv"),
+        id.read_hex_file("./documentation/example_data/19plus_V2_CTD-processing_example.hex",
             id.InstrumentType.SBE19Plus,
             [
                 id.Sensors.Temperature,
@@ -45,9 +43,9 @@ DATASETS = [
     ),
     (
         cc.SN03706385,
-        id.cnv_to_instrument_data(test_resources / "orca-test-data/SBE37SM/SBE37SM-6385/SBE37SM-6385.cnv"),
+        id.cnv_to_instrument_data("./tests/resources/test-data/SBE37SM.cnv"),
         id.read_hex_file(
-            test_resources / "orca-test-data/SBE37SM/SBE37SM-6385/SBE37SM-6385.hex",
+            "./tests/resources/test-data/SBE37SM.hex",
             id.InstrumentType.SBE37SM,
             [
                 id.Sensors.Temperature,
@@ -60,13 +58,9 @@ DATASETS = [
     ),
     (
         cc.SN03716125,
-        id.cnv_to_instrument_data(
-            test_resources
-            / "orca-test-data/SBE37SM/SBE37SM-RS232_03716125_2017_11_16/SBE37SM-RS232_03716125_2017_11_16.cnv"
+        id.cnv_to_instrument_data("./tests/resources/test-data/SBE37SM-RS232_03716125_2017_11_16.cnv"
         ),
-        id.read_hex_file(
-            test_resources
-            / "orca-test-data/SBE37SM/SBE37SM-RS232_03716125_2017_11_16/SBE37SM-RS232_03716125_2017_11_16.hex",
+        id.read_hex_file("./tests/resources/test-data/SBE37SM-RS232_03716125_2017_11_16.hex",
             id.InstrumentType.SBE37SM,
             [
                 id.Sensors.Temperature,
@@ -192,10 +186,10 @@ class TestConvertPressure:
 
 
 class TestConductivity19plus:
-    cnv_path = test_resources / "orca-test-data/SBE19plusV2/E8001/E8001.cnv"
+    cnv_path = "./documentation/example_data/19plus_V2_CTD-processing_example.hex"
     expected_data = id.cnv_to_instrument_data(cnv_path)
 
-    hex_path = test_resources / "orca-test-data/SBE19plusV2/E8001/E8001.hex"
+    hex_path = "./documentation/example_data/19plus_V2_CTD-processing_example.hex"
     raw = id.read_hex_file(
         hex_path,
         id.InstrumentType.SBE19Plus,
@@ -280,15 +274,11 @@ class TestConductivity19plus:
 
 
 class TestConductivity37SM:
-    cnv_path = (
-        test_resources
-        / "orca-test-data/SBE37SM/SBE37SM-RS232_03716125_2017_11_16/SBE37SM-RS232_03716125_2017_11_16.cnv"
+    cnv_path = ("./tests/resources/test-data/SBE37SM-RS232_03716125_2017_11_16.cnv"
     )
     expected_data = id.cnv_to_instrument_data(cnv_path)
 
-    hex_path = (
-        test_resources
-        / "orca-test-data/SBE37SM/SBE37SM-RS232_03716125_2017_11_16/SBE37SM-RS232_03716125_2017_11_16.hex"
+    hex_path = ("./tests/resources/test-data/SBE37SM-RS232_03716125_2017_11_16.hex"
     )
     raw = id.read_hex_file(
         hex_path,
@@ -367,9 +357,7 @@ class TestConductivity37SM:
 
 
 class TestDeriveDensity:
-    data_path = (
-        test_resources
-        / "orca-test-data/SBE37SM/SBE37SM-RS232_03711722_2015_11_18/SBE37SM-RS232_03711722_2015_11_18_subset_derived.asc"
+    data_path = ("./tests/resources/test-data/SBE37SM-derived.asc"
     )
     data = pd.read_csv(data_path)
 
@@ -440,7 +428,7 @@ class TestDeriveDensity:
 
 
 class TestDepthFromPressure:
-    data_path = test_resources / "orca-test-data/SBE37SM/SBE37SM-6385/SBE37SM-6385.asc"
+    data_path = "./tests/resources/test-data/SBE37SM.asc"
     data = pd.read_csv(data_path).loc[6:10]
 
     @pytest.mark.parametrize(
@@ -471,12 +459,15 @@ class TestSalinityFromTCP:
 
     @pytest.mark.parametrize("cal, cnv, hex, cond_label, use_MV_R", DATASETS)
     def test_salinity_from_tcp_raw(self, cal, cnv, hex, cond_label, use_MV_R):
-        """Converts data from raw hex values. The unused data loaded from cnv are
-        not needed for the test, but are useful for comparing during a debug session.
+        """Converts data from raw hex values. 
+        
+        The unused data loaded from cnv are not needed for the test, 
+        but are useful for comparing during a debug session.
 
         Args:
             parameterized from the DATASET const at the top of the file
         """
+        
         salinity_expected = cnv.measurements["sal00"].values[800:810]
         temperature = cnv.measurements["tv290C"].values[800:810]
         temperature_raw = hex.temperature.values[800:810]
@@ -631,6 +622,7 @@ class TestConvertOxygen:
             assert np.allclose([expected[index]], [result], rtol=0, atol=1e-3)
 
     def test_convert_sbe43_oxygen_from_hex_with_Hysteresis(self):
+        # TODO: This test is failing. Fix as part of NSI-3061
         # From SBE19plus_01906398_2019_07_15_0033.hex
         # TODO: hysteresis correction only has a real impact on deep data, will need some to better validate this
         raw_oxygen = [2.5575, 2.5586, 2.5606, 2.5627, 2.5638, 2.5637, 2.5635, 2.5629, 2.5621, 2.5618]
@@ -905,7 +897,7 @@ class TestConvertTurbidity:
 
 # class TestContourFromTSP:
 #     # Note: this class doesn't actually test anything and is only for debug
-#     data_path = test_resources / 'orca-test-data/SBE37SM/SBE37SM-RS232_03711722_2015_11_18/SBE37SM-RS232_03711722_2015_11_18_subset_derived.asc'
+#     data_path = './tests/resources/test-data/SBE37SM-RS232_03711722_2015_11_18_subset_derived.asc'
 #     data = pd.read_csv(data_path)
 
 #     def test_contour_from_t_s_p_pass(self):

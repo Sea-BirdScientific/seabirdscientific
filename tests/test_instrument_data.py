@@ -1,8 +1,9 @@
-"""TODO: test_instrument_data docstring"""
+"""instrument data conversion unit tests.
+
+"""
 
 # Native imports
 from datetime import datetime
-import importlib.resources
 
 # Third-party imports
 
@@ -10,8 +11,6 @@ import importlib.resources
 
 # Internal imports
 import sbs.process.instrument_data as id
-
-test_resources = importlib.resources.files("resources")
 
 
 class TestCnvToInstrumentData:
@@ -37,7 +36,7 @@ class TestCnvToInstrumentData:
         assert True  # fails before assert if data fails to instantiate
 
     def test_cnv_to_instrument_data_pass(self):
-        file_path = test_resources / "orca-test-data/SBE37SM/SBE37SM-6385/SBE37SM-6385.cnv"
+        file_path = "./tests/resources/test-data/SBE37SM.cnv"
         data = id.cnv_to_instrument_data(file_path)
 
         expected_labels = [
@@ -64,7 +63,7 @@ class TestCnvToInstrumentData:
 
 
 class TestReadHex:
-    filepath = test_resources / "orca-test-data/SBE19plusV2/E8001/E8001.hex"
+    filepath = "./documentation/example_data/19plus_V2_CTD-processing_example.hex"
     raw = id.read_hex_file(
         filepath,
         id.InstrumentType.SBE19Plus,
