@@ -1,7 +1,7 @@
 [project]
 name = "seabirdscientific"
 version = "1.0.6"
-description = "SeaBird Scientific Community Toolkit"
+description = "Sea-Bird Scientific Community Toolkit"
 readme = "README.md"
 authors = [
     {name = "Ryan Anderson", email = "randerson@seabird.com"},
