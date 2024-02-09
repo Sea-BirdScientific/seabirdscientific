@@ -32,11 +32,13 @@ Functions:
 
 # Native imports
 from enum import Enum
+import math
 
 # Third-party imports
+import gsw
 import numpy as np
 import pandas as pd
-from scipy import signal
+from scipy import signal, stats
 
 # Sea-Bird imports
 
