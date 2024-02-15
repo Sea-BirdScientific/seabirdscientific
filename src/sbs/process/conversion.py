@@ -480,6 +480,7 @@ def depth_from_pressure(pressure_in: np.ndarray, latitude: float, depth_units="m
 def convert_sbe63_oxygen_array(
     raw_oxygen_phase: np.ndarray,
     raw_thermistor_temp: np.ndarray,
+    temperature: np.ndarray,
     pressure: np.ndarray,
     salinity: np.ndarray,
     a0: float,
@@ -495,6 +496,8 @@ def convert_sbe63_oxygen_array(
     ta2: float,
     ta3: float,
     e: float,
+    slope: float,
+    offset: float,
 ):
     """Returns the data after converting it to ml/l.
 
@@ -527,7 +530,14 @@ def convert_sbe63_oxygen_array(
         convert_sbe63_oxygen_val, excluded=["a0", "a1", "a2", "a3", "b0", "b1", "c0", "c1", "c2", "e"]
     )
     oxygen = convert_vectorized(
-        raw_oxygen_phase, thermistor_temperature, pressure, salinity, a0, a1, a2, b0, b1, c0, c1, c2, e
+        raw_oxygen_phase,
+        thermistor_temperature,
+        temperature,
+        pressure,
+        salinity,
+        a0, a1, a2, b0, b1, c0, c1, c2, e,
+        slope,
+        offset,
     )
 
     return oxygen
@@ -535,6 +545,7 @@ def convert_sbe63_oxygen_array(
 
 def convert_sbe63_oxygen_val(
     raw_oxygen_phase: float,
+    thermistor: float,
     temperature: float,
     pressure: float,
     salinity: float,
@@ -547,6 +558,8 @@ def convert_sbe63_oxygen_val(
     c1: float,
     c2: float,
     e: float,
+    slope: float,
+    offset: float,
 ):
     """Returns the data after converting it to ml/l.
 
@@ -577,7 +590,9 @@ def convert_sbe63_oxygen_val(
     # O2 (ml/L) = [((a0 + a1T + a2(V^2)) / (b0 + b1V) – 1) / Ksv] [SCorr] [PCorr]
 
     # Ksv = c0 + c1T + c2 (T^2)
-    ksv = c0 + c1 * temperature + c2 * temperature**2
+    ksv = c0 + c1 * thermistor + c2 * thermistor**2
+
+    ox_val = ((a0 + a1 * thermistor + a2 * oxygen_volts**2) / (b0 + b1 * oxygen_volts) - 1.0) / ksv
 
     # SCorr = exp [S * (SolB0 + SolB1 * Ts + SolB2 * Ts^2 + SolB3 * Ts^3) + SolC0 * S^2]
     # The following correction coefficients are all constants
@@ -598,7 +613,7 @@ def convert_sbe63_oxygen_val(
     p_corr_exp = (e * pressure) / K
     p_corr = e**p_corr_exp
 
-    ox_val = (((a0 + a1 * temperature + a2 * oxygen_volts**2) / (b0 + b1 * oxygen_volts) - 1.0) / ksv) * s_corr * p_corr
+    ox_val *= s_corr * p_corr * slope + offset
 
     return ox_val
 
