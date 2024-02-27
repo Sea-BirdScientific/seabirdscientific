@@ -39,6 +39,10 @@ dev = [
   "build",
 ]
 
+[project.urls]
+Homepage = "https://www.seabird.com/software"
+Repository = "https://github.com/Sea-BirdScientific/seabirdscientific"
+
 [build-system]
 build-backend = "setuptools.build_meta"
 requires = [
