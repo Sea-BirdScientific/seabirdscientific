@@ -1,6 +1,6 @@
 [project]
 name = "seabirdscientific"
-version = "1.0.7"
+version = "1.0.8"
 description = "Sea-Bird Scientific Community Toolkit"
 readme = "README.md"
 authors = [
@@ -9,11 +9,12 @@ authors = [
     {name = "Lukas Christensen", email = "lchristensen@seabird.com"},
     {name = "Dane Lucas", email = "dlucas@seabird.com"},
     {name = "Eric Rehm", email = "erehm@seabird.com"},
-    {name = "Bruce Rhodes", email = "brhodes@seabird.com"},
+    {name = "Bruce Rhoades", email = "brhoades@seabird.com"},
     {name = "Jesse Templin", email = "jtemplin@seabird.com"},
 ]
 requires-python = ">=3.9"
 classifiers = [
+  "License :: OSI Approved :: MIT License",
   "Programming Language :: Python :: 3 :: Only",
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
@@ -37,6 +38,10 @@ dev = [
   "twine",
   "build",
 ]
+
+[project.urls]
+Homepage = "https://www.seabird.com/software"
+Repository = "https://github.com/Sea-BirdScientific/seabirdscientific"
 
 [build-system]
 build-backend = "setuptools.build_meta"
