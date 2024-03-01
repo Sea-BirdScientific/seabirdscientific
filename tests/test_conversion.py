@@ -521,6 +521,7 @@ class TestSalinityFromTCP:
 
 class TestConvertOxygen:
     def test_convert_sbe63_oxygen(self):
+        # without thermistor temperature, this test won't catch the bug fixed in nsi-2656
         raw_oxygen = [31.06, 31.66, 32.59, 33.92, 34.82, 35.44]
         pressure = [0, 0, 0, 0, 0, 0]
         temperature = [30, 26, 20, 12, 6, 2]
@@ -530,6 +531,7 @@ class TestConvertOxygen:
         for index in range(len(expected)):
             result = dc.convert_sbe63_oxygen_val(
                 raw_oxygen[index],
+                temperature[index],
                 temperature[index],
                 pressure[index],
                 salinity[index],
@@ -542,6 +544,8 @@ class TestConvertOxygen:
                 cal.c1,
                 cal.c2,
                 cal.e,
+                1,
+                0,
             )
             assert np.allclose([expected[index]], [result], rtol=0, atol=1e-2)
 
