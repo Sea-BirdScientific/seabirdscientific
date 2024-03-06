@@ -895,7 +895,27 @@ class TestConvertTurbidity:
             result = dc.convert_ECO_turbidity_val(rawAnalog[index], cal.ScaleFactorTurbidity, cal.DarkVoltage)
             assert np.allclose([expected[index]], [result], rtol=0, atol=1e-2)
 
-
+class TestConvertpH:
+    def test_convert_sbe18_pH(self):
+        rawVolts = [
+            2.9507, 2.9518, 2.9522, 2.9517, 2.9521, 2.9519, 2.9517, 2.9526, 2.9525, 2.9537, 2.953, 2.9527
+        ]
+        temperatureC = [
+            26.6927, 26.6994, 26.6624, 26.6122, 26.5808, 26.5621, 26.5503, 26.5505, 26.569, 26.5954, 26.6182, 26.6359
+        ]
+        expected = [
+            8.587, 8.591, 8.593, 8.591, 8.593, 8.592, 8.592, 8.595, 8.594, 8.599, 8.596, 8.595,
+        ]
+        cal = cc.SN180726
+        for index in range(len(expected)):
+            result = dc.convert_sbe18_pH_val(
+                rawVolts[index],
+                temperatureC[index],
+                cal.offset,
+                cal.slope
+            )
+            assert np.allclose([expected[index]], [result], rtol=0, atol=1e-3)
+            
 # class TestContourFromTSP:
 #     # Note: this class doesn't actually test anything and is only for debug
 #     data_path = './tests/resources/test-data/SBE37SM-RS232_03711722_2015_11_18_subset_derived.asc'
