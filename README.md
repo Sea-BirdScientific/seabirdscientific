@@ -50,7 +50,7 @@ import sbs.process.processing as proc
 You must have [Python](https://www.python.org/downloads/) version 3.9 or higher installed in order to use the toolkit.
 
 ## CTD Jupyter Notebook
-The ctd-processing.ipynb notebook in the documentation folder provides examples of the methods that can be applied to SBS CTD data within both the toolkit and the SBS Fathom application. There are a number of online references available with information on Jupyter notebook setup for different platforms and environments. For those who are not interested in an interactive notebook, there are static versions available in [HTML](https://htmlpreview.github.io/?https://github.com/Sea-BirdScientific/seabirdscientific/blob/main/documentation/ctd-notebook.html) and [PDF](./documentation/ctd-notebook.pdf).
+The ctd-processing.ipynb notebook in the documentation folder provides examples of the methods that can be applied to SBS CTD data within both the toolkit and the SBS Fathom application. There are a number of online references available with information on Jupyter notebook setup for different platforms and environments. For those who are not interested in an interactive notebook, there is a static version available in [PDF](./documentation/ctd-notebook.pdf) format.
 
 ## Contributions to the Toolkit
 If you have code or data that you would like to contribute to the SBS community toolkit, please contact [SBS customer support](https://www.seabird.com/support)
