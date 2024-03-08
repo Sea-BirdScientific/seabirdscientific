@@ -171,3 +171,9 @@ class SN431686:
     h1 = -3.3e-2
     h2 = 5e3
     h3 = 1.45e3
+
+@dataclass
+class SN180726:
+    # SBE18 pH
+    slope = 4.6067
+    offset = 2.5157

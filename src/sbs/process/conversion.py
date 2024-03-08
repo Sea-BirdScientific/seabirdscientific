@@ -901,3 +901,23 @@ def convert_ECO_turbidity_val(
     turbidity = ScaleFactor * (rawTurbidity - DarkVoltage)
 
     return turbidity
+
+def convert_sbe18_pH_val(
+    rawpH: float,
+    temperatureC: float,
+    offset: float,
+    slope: float,
+):
+    """ Converts a raw voltage value for pH
+        All equation information comes from application note 18-1
+    Args:
+        rawpH (float): raw output voltage from pH sensor (0-5V)
+        temperatureC (float): temperature value to use for temperature compensation in degrees C
+        offset (float): calibration offset
+        slope (float): calibration slope
+    Returns:
+        float: converted pH
+    """
+    pH = 7 + (rawpH - offset)/(1.98416e-4 *
+                               (temperatureC + KELVIN_OFFSET) * slope)
+    return pH
