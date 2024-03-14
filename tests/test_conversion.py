@@ -915,7 +915,40 @@ class TestConvertpH:
                 cal.slope
             )
             assert np.allclose([expected[index]], [result], rtol=0, atol=1e-3)
-            
+ 
+
+class TestPARlogarithmic:
+    def test_convert_PAR_logarithmic(self):
+        rawVolts = [
+            1.176241702, 1.175249866, 1.174944686, 1.176394293, 0.089951934,
+            0.090562294, 0.090638590, 0.091172655, 0.090485999, 0.090943770,
+            0.090409704, 0.091096360, 0.093537804
+        ]
+        expected = [
+            0.81605,
+            0.81394,
+            0.81330,
+            0.81637,
+            0.04817,
+            0.04824,
+            0.04825,
+            0.04832,
+            0.04823,
+            0.04829,
+            0.04822,
+            0.04831,
+            0.04862,
+        ]
+        cal = cc.SN0411
+        for index in range(len(expected)):
+            result = dc.convert_PAR_logarithmic_val(
+                rawVolts[index],
+                cal.Im,
+                cal.a0,
+                cal.a1,
+                cal.multipler
+            )
+            assert np.allclose([expected[index]], [result], rtol=0, atol=1e-3)           
 # class TestContourFromTSP:
 #     # Note: this class doesn't actually test anything and is only for debug
 #     data_path = './tests/resources/test-data/SBE37SM-RS232_03711722_2015_11_18_subset_derived.asc'

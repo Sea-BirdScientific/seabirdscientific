@@ -177,3 +177,11 @@ class SN180726:
     # SBE18 pH
     slope = 4.6067
     offset = 2.5157
+
+@dataclass
+class SN0411:
+    # PAR coefficients
+    Im = 1.3589
+    a0 = 1.372
+    a1 = 0.8839
+    multipler = 1
