@@ -921,3 +921,23 @@ def convert_sbe18_pH_val(
     pH = 7 + (rawpH - offset)/(1.98416e-4 *
                                (temperatureC + KELVIN_OFFSET) * slope)
     return pH
+
+def convert_PAR_logarithmic_val(
+    rawPAR: float,
+        Im:  float,
+        a0:  float,
+        a1:  float,
+        multipler:  float):
+    """ Converts a raw voltage value for PAR to µmol photons/m2*s
+        All equation information comes from application note 96
+    Args:
+        rawpH (float): raw output voltage from PAR sensor 
+        Im (float): immersion coefficient
+        a0 (float): calibration slope
+        a1 (float): calibration offset
+    Returns:
+        float: converted PAR in µmol photons/m2*s
+    """
+    PAR = multipler * Im * 10**((rawPAR - a0) / a1)
+
+    return PAR
