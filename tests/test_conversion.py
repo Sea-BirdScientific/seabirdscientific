@@ -895,6 +895,45 @@ class TestConvertTurbidity:
             result = dc.convert_ECO_turbidity_val(rawAnalog[index], cal.ScaleFactorTurbidity, cal.DarkVoltage)
             assert np.allclose([expected[index]], [result], rtol=0, atol=1e-2)
 
+class TestConvertBeta:
+    def test_convert_ECO_beta(self):
+        rawAnalog = [
+            0.0787,
+            0.079,
+            0.0831,
+            0.0829,
+            0.0835,
+            0.0833,
+            0.0825,
+            0.082,
+            0.082,
+            0.0822,
+            0.0812,
+            0.0806,
+            0.0813,
+            0.0816,
+        ]
+        expected = [
+            0.0983,
+            0.1002,
+            0.1204,
+            0.1197,
+            0.1223,
+            0.1216,
+            0.1174,
+            0.1151,
+            0.1151,
+            0.1158,
+            0.1109,
+            0.1082,
+            0.1117,
+            0.1132,
+        ]
+        cal = cc.SN6130
+        for index in range(len(expected)):
+            result = dc.convert_ECO_beta_val(rawAnalog[index], cal.ScaleFactorTurbidity, cal.DarkVoltage)
+            assert np.allclose([expected[index]], [result], rtol=0, atol=1e-2)
+
 class TestConvertpH:
     def test_convert_sbe18_pH(self):
         rawVolts = [

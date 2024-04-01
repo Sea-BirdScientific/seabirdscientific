@@ -30,6 +30,7 @@ Functions:
     convert_oxygen_to_umol_per_kg (np.ndarray, np.ndarray)
     convert_ECO_chlorophylla_val (float, float, float)
     convert_ECO_turbidity_val (float, float, float)
+    convert_ECO_beta_val (float, float, float)
 
 """
 
@@ -901,6 +902,25 @@ def convert_ECO_turbidity_val(
     turbidity = ScaleFactor * (rawTurbidity - DarkVoltage)
 
     return turbidity
+
+def convert_ECO_beta_val(
+    rawBeta: float,
+    ScaleFactor: float,
+    DarkVoltage: float,
+):
+    """Converts a raw value for backscatter channel on a ECO-FLNTU to β (1/m/sr) 
+
+    Args:
+        rawBeta(float): raw counts for digital, raw volts for analog
+        ScaleFactor (float): β/count for digital, β/V for analog
+        Vblank (float): dark counts for digital, V for analog
+
+    Returns:
+        float: converted beta in β (1/m/sr)
+    """
+    beta = ScaleFactor * (rawBeta - DarkVoltage)
+
+    return beta
 
 def convert_sbe18_pH_val(
     rawpH: float,
