@@ -75,6 +75,12 @@ class HexDataTypes(Enum):
     SBE63phase = "SBE63 oxygen phase"
     SBE63temperature = "SBE63 oxygen temperature"
     dateTime = "date time"
+    
+    #NMEA Devices
+    nmeaTime = "NMEA Date Time"
+    nmeaLatitude = "NMEA Latitude"
+    nmeaLongitude = "NMEA Longitude"
+    statusAndSign = "status and sign"
 
 
 # export type HexDataTypeStrings = keyof typeof HexDataTypes;
@@ -96,6 +102,12 @@ HEX_LENGTH = {
     "SeaFETVext": 6,
     "SeaOWLChannel": 4,  # There are three of these for each SeaOWL
     "time": 8,
+    
+    # nmea devices
+    "nmeaLatitude": 6,
+    "nmeaLongitude": 6,
+    "nmeaTime": 8,
+    "statusAndSign": 2
 }
 
 
@@ -116,6 +128,12 @@ class Sensors(Enum):
     SBE63 = "SBE63"
     SBE38 = "SBE38"
     SeaFET = "SeaFET"
+    
+    # nmea devices
+    nmeaLatitude = "nmeaLatitude"
+    nmeaLongitude = "nmeaLongitude"
+    statusAndSign = "StatusAndSign"
+    nmeaTime = "nmeaTime"
 
 
 @dataclass
@@ -405,12 +423,30 @@ def read_SBE19plus_format_0(hex: str, enabled_sensors: List[Sensors], moored_mod
                     int(hex[n : n + HEX_LENGTH["SBE63temperature"]], 16) / 1000000 - 1
                 )
                 n += HEX_LENGTH["SBE63temperature"]
+                
+            # Extract NMEA Sensors
+            if sensor == Sensors.nmeaLatitude:
+                lat = read_NMEA_Coordinates(hex[n : n + HEX_LENGTH["nmeaLatitude"]])
+                results[HexDataTypes.nmeaLatitude.value] = lat
+                n += HEX_LENGTH["nmeaLatitude"]
+            if sensor == Sensors.nmeaLongitude:
+                lon = read_NMEA_Coordinates(hex[n : n + HEX_LENGTH["nmeaLongitude"]])
+                results[HexDataTypes.nmeaLongitude.value] = lon
+                n += HEX_LENGTH["nmeaLongitude"]
+            if sensor == Sensors.statusAndSign:
+                signs = read_Status_Sign(hex[n : n + HEX_LENGTH["statusAndSign"]])
+                results[HexDataTypes.nmeaLatitude.value] *= signs[0]
+                results[HexDataTypes.nmeaLongitude.value] *= signs[1]
+                n += HEX_LENGTH["statusAndSign"]
+            if sensor == Sensors.nmeaTime:
+                seconds_since_2000 = read_NMEA_Time(hex[n : n + HEX_LENGTH["nmeaTime"]])
+                timestamp = seconds_since_2000 + SECONDS_BETWEEN_EPOCH_AND_2000
+                results[HexDataTypes.nmeaTime.value] = timestamp
+                n += HEX_LENGTH["nmeaTime"]
 
     if moored_mode:
         seconds_since_2000 = int(hex[n : n + HEX_LENGTH["time"]], 16)
-        results[HexDataTypes.dateTime.value] = datetime.fromtimestamp(
-            seconds_since_2000 + SECONDS_BETWEEN_EPOCH_AND_2000
-        )
+        results[HexDataTypes.dateTime.value] = seconds_since_2000 + SECONDS_BETWEEN_EPOCH_AND_2000
         n += HEX_LENGTH["time"]
 
     # Validate hex length. Ensure length matches what is expected based on enabeld sensors and moored mode.
@@ -457,4 +493,44 @@ def read_SBE37SM_format_0(hex: str, enabled_sensors: List[Sensors]) -> dict:
     results[HexDataTypes.dateTime.value] = datetime.fromtimestamp(seconds_since_2000 + SECONDS_BETWEEN_EPOCH_AND_2000)
     n += HEX_LENGTH["time"]
 
+    print (results)
     return results
+
+
+def read_NMEA_Coordinates(hex: str):
+    if len(hex) != 6:
+        raise RuntimeWarning(f"Unknown Coordinate Format. Received Hex of length {len(hex)}. Should have received Hex of length {HEX_LENGTH['nmeaLongitude']}")
+    Byte0 = int(hex[0 : 2], 16)
+    Byte1 = int(hex[2 : 4], 16)
+    Byte2 = int(hex[4 : 6], 16)
+    coordinate = (Byte0 * 65536 + Byte1 * 256 + Byte2)/50000
+    return coordinate
+
+def read_Status_Sign(hex: str):
+    if len(hex) != 2:
+        raise RuntimeWarning("Unknown Status Format")
+    integer = int(hex, 16)
+    binary = format(integer, '0>8b')
+    signs = []
+    if binary[0] == '0':
+        signs.append(1)
+    elif binary[0] == '1':
+        signs.append(-1)
+        
+    if binary[1] == '0':
+        signs.append(1)
+    elif binary[1] == '1':
+        signs.append(-1)
+    if len(signs) != 2:
+        raise RuntimeWarning("An error occured while processing Coordinate Signs")
+    return signs
+
+def read_NMEA_Time(hex: str):
+    if len(hex) != 8:
+        raise RuntimeWarning("Unknown Time Format")
+    Byte0 = hex[0 : 2]
+    Byte1 = hex[2 : 4]
+    Byte2 = hex[4 : 6]
+    Byte3 = hex[6 : 8]
+    reformatted = Byte3 + Byte2 + Byte1 + Byte0 
+    return int(reformatted, 16)
