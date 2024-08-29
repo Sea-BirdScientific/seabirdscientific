@@ -441,12 +441,14 @@ def read_SBE19plus_format_0(hex: str, enabled_sensors: List[Sensors], moored_mod
             if sensor == Sensors.nmeaTime:
                 seconds_since_2000 = read_NMEA_Time(hex[n : n + HEX_LENGTH["nmeaTime"]])
                 timestamp = seconds_since_2000 + SECONDS_BETWEEN_EPOCH_AND_2000
-                results[HexDataTypes.nmeaTime.value] = timestamp
+                results[HexDataTypes.nmeaTime.value] = datetime.fromtimestamp(timestamp)
                 n += HEX_LENGTH["nmeaTime"]
 
     if moored_mode:
         seconds_since_2000 = int(hex[n : n + HEX_LENGTH["time"]], 16)
-        results[HexDataTypes.dateTime.value] = seconds_since_2000 + SECONDS_BETWEEN_EPOCH_AND_2000
+        results[HexDataTypes.dateTime.value] = datetime.fromtimestamp(
+            seconds_since_2000 + SECONDS_BETWEEN_EPOCH_AND_2000
+        )
         n += HEX_LENGTH["time"]
 
     # Validate hex length. Ensure length matches what is expected based on enabeld sensors and moored mode.
