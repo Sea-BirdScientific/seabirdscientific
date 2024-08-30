@@ -89,19 +89,19 @@ class TestReadHex:
         assert self.raw["temperature compensation"].iloc[-1] == 20361 / 13107
 
 class TestReadNMEAHex:
-	filepath = "./tests/resources/test-data/19plus_V2_CTD_nmea_data.hex"
-	raw = id.read_hex_file(
+    filepath = "./tests/resources/test-data/19plus_V2_CTD_nmea_data.hex"
+    raw = id.read_hex_file(
         filepath,
-        id.InstrumentType.SBE19plus,
+        id.InstrumentType.SBE19Plus,
         [
-            id.Sensors.temperature,
+            id.Sensors.Temperature,
             id.Sensors.Conductivity,
             id.Sensors.Pressure,
             id.Sensors.ExtVolt0,
             id.Sensors.ExtVolt1,
             id.Sensors.nmeaLatitude,
             id.Sensors.nmeaLongitude,
-            id.Sensors.statusAndSign
+            id.Sensors.statusAndSign,
             id.Sensors.nmeaTime
         ],
     )
