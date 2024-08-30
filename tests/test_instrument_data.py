@@ -87,3 +87,35 @@ class TestReadHex:
         assert self.raw["pressure"].iloc[-1] == 533538
         assert self.raw["temperature compensation"].iloc[0] == 20625 / 13107
         assert self.raw["temperature compensation"].iloc[-1] == 20361 / 13107
+
+class TestReadNMEAHex:
+	filepath = "./tests/resources/test-data/19plus_V2_CTD_nmea_data.hex"
+	raw = id.read_hex_file(
+        filepath,
+        id.InstrumentType.SBE19plus,
+        [
+            id.Sensors.temperature,
+            id.Sensors.Conductivity,
+            id.Sensors.Pressure,
+            id.Sensors.ExtVolt0,
+            id.Sensors.ExtVolt1,
+            id.Sensors.nmeaLatitude,
+            id.Sensors.nmeaLongitude,
+            id.Sensors.statusAndSign
+            id.Sensors.nmeaTime
+        ],
+    )
+    
+    def test_read_nmea_hex(self):
+        assert self.raw["temperature"].iloc[0] == 582057
+        assert self.raw["temperature"].iloc[-1] == 580552
+        assert self.raw["conductivity"].iloc[0] == 1294621
+        assert self.raw["conductivity"].iloc[-1] == 1290982
+        assert self.raw["pressure"].iloc[0] == 526421
+        assert self.raw["pressure"].iloc[-1] == 526383
+        assert self.raw["temperature compensation"].iloc[0] == 20683
+        assert self.raw["temperature compensation"].iloc[-1] == 21214
+        assert self.raw["NMEA Latitude"].iloc[0] == 48.62280000
+        assert self.raw["NMEA Latitude"].iloc[-1] == 48.62298000
+        assert self.raw["NMEA Longitude"].iloc[0] == -123.50002000
+        assert self.raw["NMEA Longitude"].iloc[-1] == -123.49994000
