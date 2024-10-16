@@ -89,7 +89,7 @@ def contour_from_t_s_p(
 
     # Create conservative_temperature and absolute_salinity vectors of appropriate dimensions
     temperature_vector = np.linspace(1, y_range - 1, y_cells) + temperature_min
-    salinity_vector = np.linspace(1, x_range - 1, x_cells) * 0.1 + salt_min, x_cells)
+    salinity_vector = np.linspace(1, x_range - 1, x_cells) * 0.1 + salt_min
 
     # Loop to fill in density
     potential_density_matrix = np.zeros((y_cells, x_cells))
