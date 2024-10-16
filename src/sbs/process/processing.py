@@ -702,25 +702,25 @@ def flag_data(
     """
 
     data_copy = pd.Series(data.copy())
-    flagged_data = data.copy()
+    flagged_data = pd.Series(data.copy())
 
     for n, value in enumerate(data_copy):
         if exclude_bad_flags and flags[n] == flag_value:
-            data_copy[n] = np.nan
+            data_copy.iloc[n] = np.nan
 
     mean = data_copy.mean()
     std = data_copy.std()
 
     for n, value in enumerate(data_copy):
         if abs(value - mean) >= std * std_pass_1:
-            data_copy[n] = np.nan
+            data_copy.iloc[n] = np.nan
 
     mean = data_copy.mean()
     std = data_copy.std()
 
     for n, value in enumerate(flagged_data):
         if abs(value - mean) > std * std_pass_2 and abs(value - mean) > distance_to_mean:
-            flagged_data[n] = flag_value
+            flagged_data.iloc[n] = flag_value
 
     return flagged_data
 
