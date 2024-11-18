@@ -1,4 +1,4 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-"""Dunder init for sbs module"""
+"""Dunder init for seabirdscientific module"""
