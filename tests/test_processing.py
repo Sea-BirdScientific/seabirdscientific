@@ -13,10 +13,10 @@ import pytest
 # Sea-Bird imports
 
 # Internal imports
-from sbs.process import instrument_data as id
-from sbs.process import processing as dp
-from sbs.process import conversion as dc
-from sbs.process.utils import close_enough
+import seabirdscientific.instrument_data as id
+import seabirdscientific.processing as dp
+import seabirdscientific.conversion as dc
+from seabirdscientific.utils import close_enough
 
 logger = getLogger(__name__)
 

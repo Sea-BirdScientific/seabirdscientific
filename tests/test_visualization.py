@@ -14,7 +14,7 @@ import plotly.graph_objects as go
 # Sea-Bird imports
 
 # Internal imports
-from sbs.visualize import visualization as viz
+import seabirdscientific.visualization as viz
 
 test_resources = importlib.resources.files("resources")
 

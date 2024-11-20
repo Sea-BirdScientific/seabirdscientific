@@ -13,9 +13,9 @@ import pytest
 # Sea-Bird imports
 
 # Internal imports
-import sbs.process.cal_coefficients as cc
-import sbs.process.conversion as dc
-import sbs.process.instrument_data as id
+import seabirdscientific.cal_coefficients as cc
+import seabirdscientific.conversion as dc
+import seabirdscientific.instrument_data as id
 
 DATASETS = [
     # cal
