@@ -69,9 +69,9 @@ OXYGEN_MLPERL_TO_UMOLPERKG = 44660
 def convert_temperature_array(
     temperature_counts: np.ndarray,
     coefs: TemperatureCoefficients,
-    ITS90: bool,
+    its90: bool,
     celsius: bool,
-    use_MV_R: bool,
+    use_mv_r: bool,
 ):
     """Returns the data after converting it to degrees C, ITS-90.
 
@@ -82,16 +82,16 @@ def convert_temperature_array(
         coefs (TemperatureCoefficients) calibration coefficients for the temperature sensor
         ITS90 (bool): whether to use ITS90 or to use IPTS-68 conventions
         celsius (bool): whether to use celsius or to convert to fahrenheit
-        use_MV_R (bool): true to perform extra conversion steps required by some instruments
+        use_mv_r (bool): true to perform extra conversion steps required by some instruments
 
     Returns:
         ndarray: temperature values converted to ITS-90 degrees C, in the same order as input
     """
 
     ipts68_converison = 1.00024  # taken from https://blog.seabird.com/ufaqs/what-is-the-difference-in-temperature-expressions-between-ipts-68-and-its-90/
-    convert_vectorized = np.vectorize(convert_temperature_val_its90_c, excluded=["coefs", "use_MV_R"])
-    result = convert_vectorized(temperature_counts, coefs, use_MV_R)
-    if not ITS90:
+    convert_vectorized = np.vectorize(convert_temperature_val_its90_c, excluded=["coefs", "use_mv_r"])
+    result = convert_vectorized(temperature_counts, coefs, use_mv_r)
+    if not its90:
         result = result * ipts68_converison
     if not celsius:
         result = result * 9 / 5 + 32  # Convert C to F
@@ -101,7 +101,7 @@ def convert_temperature_array(
 def convert_temperature_val_its90_c(
     temperature_counts_in: int,
     coefs: TemperatureCoefficients,
-    use_MV_R: bool,
+    use_mv_r: bool,
 ):
     """Returns the value after converting it to degrees C, ITS-90.
 
@@ -110,13 +110,13 @@ def convert_temperature_val_its90_c(
     Args:
         temperature_counts_in (int): temperature value to convert in A/D counts
         coefs (TemperatureCoefficients) calibration coefficients for the temperature sensor
-        use_MV_R (bool): true to perform extra conversion steps required by some instruments
+        use_mv_r (bool): true to perform extra conversion steps required by some instruments
 
     Returns:
         int: temperature val converted to ITS-90 degrees C
     """
 
-    if use_MV_R:
+    if use_mv_r:
         MV = (temperature_counts_in - 524288) / 1.6e007
         R = (MV * 2.900e009 + 1.024e008) / (2.048e004 - MV * 2.0e005)
         temperature_counts = R
@@ -253,9 +253,9 @@ def convert_conductivity_val(
 
 
 def potential_density_from_t_s_p(
-    temperature_C: np.ndarray,
-    salinity_PSU: np.ndarray,
-    pressure_dbar: np.ndarray,
+    temperature: np.ndarray,
+    salinity: np.ndarray,
+    pressure: np.ndarray,
     lon=0.0,
     lat=0.0,
     reference_pressure=0.0,
@@ -265,9 +265,9 @@ def potential_density_from_t_s_p(
     See: TEOS_10.cpp line 953
 
     Args:
-        temperature_C (np.ndarray): Measure temperature in degrees C
-        salinity_PSU (np.ndarray): Measured salinity in practical salinity units
-        pressure_dbar (np.ndarray): Measured pressure in decibars
+        temperature (np.ndarray): Measure temperature in degrees C
+        salinity (np.ndarray): Measured salinity in practical salinity units
+        pressure (np.ndarray): Measured pressure in decibars
         lon (float): Longitude
         lat (float): Latitude
         reference_pressure (float, optional): Reference pressure in decibars. Defaults to 0.0.
@@ -276,16 +276,16 @@ def potential_density_from_t_s_p(
         np.ndarray: Potential density in kg/m^3
     """
 
-    absolute_salinity = gsw.SA_from_SP(salinity_PSU, pressure_dbar, lon, lat)
-    conservative_temperature = gsw.CT_from_t(absolute_salinity, temperature_C, pressure_dbar)
+    absolute_salinity = gsw.SA_from_SP(salinity, pressure, lon, lat)
+    conservative_temperature = gsw.CT_from_t(absolute_salinity, temperature, pressure)
     potential_density = gsw.rho(absolute_salinity, conservative_temperature, reference_pressure) - 1000
     return potential_density
 
 
 def potential_density_from_t_c_p(
-    temperature_C: np.ndarray,
-    conductivity_mScm: np.ndarray,
-    pressure_dbar: np.ndarray,
+    temperature: np.ndarray,
+    conductivity: np.ndarray,
+    pressure: np.ndarray,
     lon=0.0,
     lat=0.0,
     reference_pressure=0.0,
@@ -295,9 +295,9 @@ def potential_density_from_t_c_p(
     See: TEOS_10.cpp line 953
 
     Args:
-        temperature_C (np.ndarray): Measure temperature in degrees C
-        conductivity_mScm (np.ndarray): Measured conductivity in mSiemens/cm
-        pressure_dbar (np.ndarray): Measured pressure in decibars
+        temperature (np.ndarray): Measure temperature in degrees C
+        conductivity (np.ndarray): Measured conductivity in mSiemens/cm
+        pressure (np.ndarray): Measured pressure in decibars
         lon (float): Longitude
         lat (float): Latitude
         reference_pressure (float, optional): Reference pressure in decibars. Defaults to 0.0.
@@ -306,14 +306,14 @@ def potential_density_from_t_c_p(
         np.ndarray: Potential density in kg/m^3
     """
 
-    salinity_PSU = gsw.SP_from_C(conductivity_mScm, temperature_C, pressure_dbar)
-    return potential_density_from_t_s_p(temperature_C, salinity_PSU, pressure_dbar, lon, lat, reference_pressure)
+    salinity = gsw.SP_from_C(conductivity, temperature, pressure)
+    return potential_density_from_t_s_p(temperature, salinity, pressure, lon, lat, reference_pressure)
 
 
 def density_from_t_s_p(
-    temperature_C: np.ndarray,
-    salinity_PSU: np.ndarray,
-    pressure_dbar: np.ndarray,
+    temperature: np.ndarray,
+    salinity: np.ndarray,
+    pressure: np.ndarray,
     lon=0.0,
     lat=0.0,
 ):
@@ -322,9 +322,9 @@ def density_from_t_s_p(
     See: TEOS_10.cpp line 953
 
     Args:
-        temperature_C (np.ndarray): Measure temperature in degrees C
-        salinity_PSU (np.ndarray): Measured salinity in practical salinity units
-        pressure_dbar (np.ndarray): Measured pressure in decibars
+        temperature (np.ndarray): Measure temperature in degrees C
+        salinity (np.ndarray): Measured salinity in practical salinity units
+        pressure (np.ndarray): Measured pressure in decibars
         lon (float): Longitude
         lat (float): Latitude
 
@@ -332,16 +332,16 @@ def density_from_t_s_p(
         np.ndarray: Potential density in kg/m^3
     """
 
-    absolute_salinity = gsw.SA_from_SP(salinity_PSU, pressure_dbar, lon, lat)
-    conservative_temperature = gsw.CT_from_t(absolute_salinity, temperature_C, pressure_dbar)
-    density = gsw.rho(absolute_salinity, conservative_temperature, pressure_dbar)
+    absolute_salinity = gsw.SA_from_SP(salinity, pressure, lon, lat)
+    conservative_temperature = gsw.CT_from_t(absolute_salinity, temperature, pressure)
+    density = gsw.rho(absolute_salinity, conservative_temperature, pressure)
     return density
 
 
 def density_from_t_c_p(
-    temperature_C: np.ndarray,
-    conductivity_mScm: np.ndarray,
-    pressure_dbar: np.ndarray,
+    temperature: np.ndarray,
+    conductivity: np.ndarray,
+    pressure: np.ndarray,
     lon=0.0,
     lat=0.0,
 ):
@@ -350,9 +350,9 @@ def density_from_t_c_p(
     See: TEOS_10.cpp line 953
 
     Args:
-        temperature_C (np.ndarray): Measure temperature in degrees C
-        conductivity_mScm (np.ndarray): Measured conductivity in mSiemens/cm
-        pressure_dbar (np.ndarray): Measured pressure in decibars
+        temperature (np.ndarray): Measure temperature in degrees C
+        conductivity (np.ndarray): Measured conductivity in mSiemens/cm
+        pressure (np.ndarray): Measured pressure in decibars
         lon (float): Longitude
         lat (float): Latitude
 
@@ -360,8 +360,8 @@ def density_from_t_c_p(
         np.ndarray: Potential density in kg/m^3
     """
 
-    salinity_PSU = gsw.SP_from_C(conductivity_mScm, temperature_C, pressure_dbar)
-    return density_from_t_s_p(temperature_C, salinity_PSU, pressure_dbar, lon, lat)
+    salinity = gsw.SP_from_C(conductivity, temperature, pressure)
+    return density_from_t_s_p(temperature, salinity, pressure, lon, lat)
 
 
 def depth_from_pressure(pressure_in: np.ndarray, latitude: float, depth_units="m", pressure_units="dbar"):
@@ -712,19 +712,19 @@ def convert_eco_turbidity_val(
 
 def convert_sbe18_ph_val(
     raw_ph: float,
-    temperature_c: float,
+    temperature: float,
     coefs: PH18Coefficients,
 ):
     """ Converts a raw voltage value for pH
         All equation information comes from application note 18-1
     Args:
         raw_ph (float): raw output voltage from pH sensor (0-5V)
-        temperature_c (float): temperature value to use for temperature compensation in degrees C
+        temperature (float): temperature value to use for temperature compensation in degrees C
         coefs (PH18Coefficients): slope and offset for the pH sensor
     Returns:
         float: converted pH
     """
-    pH = 7 + (raw_ph - coefs.offset)/(1.98416e-4 * (temperature_c + KELVIN_OFFSET) * coefs.slope)
+    pH = 7 + (raw_ph - coefs.offset)/(1.98416e-4 * (temperature + KELVIN_OFFSET) * coefs.slope)
     return pH
 
 def convert_par_logarithmic_val(

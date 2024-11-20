@@ -286,25 +286,25 @@ class TestDeriveDensity:
         ],
     )
     def test_derive_potential_density_from_t_s_p_pass(self, reference_pressure, expected_column):
-        temperature_C = self.data["t090C"].values
-        salinity_PSU = self.data["sal00"].values
-        pressure_dbar = self.data["prM"].values
+        temperature = self.data["t090C"].values
+        salinity = self.data["sal00"].values
+        pressure = self.data["prM"].values
         expected = self.data[expected_column].values
         result = dc.potential_density_from_t_s_p(
-            temperature_C,
-            salinity_PSU,
-            pressure_dbar,
+            temperature,
+            salinity,
+            pressure,
             reference_pressure=reference_pressure,
         )
         # TODO: improve passing condition for all instances of allclose
         assert np.allclose(result, expected, atol=0.1)
 
     def test_derive_density_from_t_s_p_pass(self):
-        temperature_C = self.data["t090C"].values
-        salinity_PSU = self.data["sal00"].values
-        pressure_dbar = self.data["prM"].values
+        temperature = self.data["t090C"].values
+        salinity = self.data["sal00"].values
+        pressure = self.data["prM"].values
         expected = self.data["gsw_densityA0"].values
-        result = dc.density_from_t_s_p(temperature_C, salinity_PSU, pressure_dbar)
+        result = dc.density_from_t_s_p(temperature, salinity, pressure)
 
         assert np.allclose(result, expected, atol=0.1)
 
@@ -319,24 +319,24 @@ class TestDeriveDensity:
         ],
     )
     def test_derive_potential_density_from_t_c_p_pass(self, reference_pressure, expected_column):
-        temperature_C = self.data["t090C"].values
-        conductivity_mScm = self.data["c0S/m"].values * 10.0
-        pressure_dbar = self.data["prM"].values
+        temperature = self.data["t090C"].values
+        conductivity = self.data["c0S/m"].values * 10.0
+        pressure = self.data["prM"].values
         expected = self.data[expected_column].values
         result = dc.potential_density_from_t_c_p(
-            temperature_C,
-            conductivity_mScm,
-            pressure_dbar,
+            temperature,
+            conductivity,
+            pressure,
             reference_pressure=reference_pressure,
         )
         assert np.allclose(result, expected, atol=0.1)
 
     def test_derive_density_from_t_c_p_pass(self):
-        temperature_C = self.data["t090C"].values
-        conductivity_mScm = self.data["c0S/m"].values * 10.0
-        pressure_dbar = self.data["prM"].values
+        temperature = self.data["t090C"].values
+        conductivity = self.data["c0S/m"].values * 10.0
+        pressure = self.data["prM"].values
         expected = self.data["gsw_densityA0"].values
-        result = dc.density_from_t_c_p(temperature_C, conductivity_mScm, pressure_dbar)
+        result = dc.density_from_t_c_p(temperature, conductivity, pressure)
 
         assert np.allclose(result, expected, atol=0.1)
 
@@ -612,10 +612,10 @@ class TestPARlogarithmic:
 #     data = pd.read_csv(data_path)
 
 #     def test_contour_from_t_s_p_pass(self):
-#         temperature_C = self.data['t090C'].values
-#         salinity_PSU = self.data['sal00'].values
-#         pressure_dbar = self.data['prM'].values
+#         temperature = self.data['t090C'].values
+#         salinity = self.data['sal00'].values
+#         pressure = self.data['prM'].values
 #         contour_data = c.contour_from_t_s_p(
-#             temperature_C, salinity_PSU, pressure_dbar
+#             temperature, salinity, pressure
 #         )
 #         assert(True)
