@@ -87,7 +87,9 @@ def convert_temperature_array(
     """
 
     ipts68_converison = 1.00024  # taken from https://blog.seabird.com/ufaqs/what-is-the-difference-in-temperature-expressions-between-ipts-68-and-its-90/
-    convert_vectorized = np.vectorize(convert_temperature_val_its90_c, excluded=["coefs", "use_mv_r"])
+    convert_vectorized = np.vectorize(
+        convert_temperature_val_its90_c, excluded=["coefs", "use_mv_r"]
+    )
     result = convert_vectorized(temperature_counts, coefs, use_mv_r)
     if not its90:
         result = result * ipts68_converison
@@ -122,7 +124,9 @@ def convert_temperature_val_its90_c(
         temperature_counts = temperature_counts_in
 
     temperature = (
-        1 / (coefs.a0
+        1
+        / (
+            coefs.a0
             + coefs.a1 * np.log(temperature_counts)
             + coefs.a2 * np.log(temperature_counts) ** 2
             + coefs.a3 * np.log(temperature_counts) ** 3
@@ -135,7 +139,7 @@ def convert_pressure_array(
     pressure_counts: np.ndarray,
     compensation_voltages: np.ndarray,
     is_dbar: bool,
-    coefs: PressureCoefficients
+    coefs: PressureCoefficients,
 ):
     """Calls convert_pressure_val_strain on an array of raw pressure data.
 
@@ -155,10 +159,7 @@ def convert_pressure_array(
     pressure = np.empty(shape=(pressure_counts.size))
     for i in range(0, pressure_counts.size):
         pressure[i] = convert_pressure_val_strain(
-            pressure_counts[i],
-            compensation_voltages[i],
-            is_dbar,
-            coefs
+            pressure_counts[i], compensation_voltages[i], is_dbar, coefs
         )
     return pressure
 
@@ -184,7 +185,11 @@ def convert_pressure_val_strain(
     """
     sea_level_pressure = 14.7
 
-    t = coefs.ptempa0 + coefs.ptempa1 * compensation_voltage + coefs.ptempa2 * compensation_voltage**2
+    t = (
+        coefs.ptempa0
+        + coefs.ptempa1 * compensation_voltage
+        + coefs.ptempa2 * compensation_voltage**2
+    )
     x = pressure_count - coefs.ptca0 - coefs.ptca1 * t - coefs.ptca2 * t**2
     n = x * coefs.ptcb0 / (coefs.ptcb0 + coefs.ptcb1 * t + coefs.ptcb2 * t**2)
     pressure = coefs.pa0 + coefs.pa1 * n + coefs.pa2 * n**2 - sea_level_pressure
@@ -199,7 +204,7 @@ def convert_conductivity_array(
     conductivity_counts: np.ndarray,
     temperature: np.ndarray,
     pressure: np.ndarray,
-    coefs: ConductivityCoefficients
+    coefs: ConductivityCoefficients,
 ):
     """Returns the data after converting it to Siemens/meter (S/m).
 
@@ -276,7 +281,9 @@ def potential_density_from_t_s_p(
 
     absolute_salinity = gsw.SA_from_SP(salinity, pressure, lon, lat)
     conservative_temperature = gsw.CT_from_t(absolute_salinity, temperature, pressure)
-    potential_density = gsw.rho(absolute_salinity, conservative_temperature, reference_pressure) - 1000
+    potential_density = (
+        gsw.rho(absolute_salinity, conservative_temperature, reference_pressure) - 1000
+    )
     return potential_density
 
 
@@ -305,7 +312,9 @@ def potential_density_from_t_c_p(
     """
 
     salinity = gsw.SP_from_C(conductivity, temperature, pressure)
-    return potential_density_from_t_s_p(temperature, salinity, pressure, lon, lat, reference_pressure)
+    return potential_density_from_t_s_p(
+        temperature, salinity, pressure, lon, lat, reference_pressure
+    )
 
 
 def density_from_t_s_p(
@@ -362,7 +371,9 @@ def density_from_t_c_p(
     return density_from_t_s_p(temperature, salinity, pressure, lon, lat)
 
 
-def depth_from_pressure(pressure_in: np.ndarray, latitude: float, depth_units="m", pressure_units="dbar"):
+def depth_from_pressure(
+    pressure_in: np.ndarray, latitude: float, depth_units="m", pressure_units="dbar"
+):
     """Derive depth from pressure and latitude.
 
     Args:
@@ -392,7 +403,7 @@ def convert_sbe63_oxygen_array(
     pressure: np.ndarray,
     salinity: np.ndarray,
     coefs: Oxygen63Coefficients,
-    thermistor_coefs: Thermistor63Coefficients
+    thermistor_coefs: Thermistor63Coefficients,
 ):
     """Returns the data after converting it to ml/l.
 
@@ -410,10 +421,10 @@ def convert_sbe63_oxygen_array(
     """
     thermistor_temperature = convert_sbe63_thermistor_array(raw_thermistor_temp, thermistor_coefs)
     # oxygen = np.empty(shape = (raw_oxygen_phase.size))
-    convert_vectorized = np.vectorize(
-        convert_sbe63_oxygen_val, excluded=["coefs"]
+    convert_vectorized = np.vectorize(convert_sbe63_oxygen_val, excluded=["coefs"])
+    oxygen = convert_vectorized(
+        raw_oxygen_phase, thermistor_temperature, pressure, salinity, coefs
     )
-    oxygen = convert_vectorized(raw_oxygen_phase, thermistor_temperature, pressure, salinity, coefs)
 
     return oxygen
 
@@ -454,7 +465,9 @@ def convert_sbe63_oxygen_val(
 
     # Ts = ln [(298.15 – T) / (273.15 + T)]
     ts = log((298.15 - temperature) / (KELVIN_OFFSET + temperature))
-    s_corr_exp = salinity * (SOL_B0 + SOL_B1 * ts + SOL_B2 * ts**2 + SOL_B3 * ts**3) + SOL_C0 * salinity**2
+    s_corr_exp = (
+        salinity * (SOL_B0 + SOL_B1 * ts + SOL_B2 * ts**2 + SOL_B3 * ts**3) + SOL_C0 * salinity**2
+    )
     s_corr = e**s_corr_exp
 
     # Pcorr = exp (E * P / K)
@@ -463,10 +476,18 @@ def convert_sbe63_oxygen_val(
     p_corr_exp = (e * pressure) / K
     p_corr = e**p_corr_exp
 
-    ox_val = ((
-        (coefs.a0 + coefs.a1 * temperature + coefs.a2 * oxygen_volts**2) /
-        (coefs.b0 + coefs.b1 * oxygen_volts) - 1.0
-    ) / ksv) * s_corr * p_corr
+    ox_val = (
+        (
+            (
+                (coefs.a0 + coefs.a1 * temperature + coefs.a2 * oxygen_volts**2)
+                / (coefs.b0 + coefs.b1 * oxygen_volts)
+                - 1.0
+            )
+            / ksv
+        )
+        * s_corr
+        * p_corr
+    )
 
     return ox_val
 
@@ -503,7 +524,10 @@ def convert_sbe63_thermistor_value(
         np.ndarray: converted thermistor temperature values in ITS-90 deg C
     """
     logVal = log((100000 * instrument_output) / (3.3 - instrument_output))
-    temperature = 1 / (coefs.ta0 + coefs.ta1 * logVal + coefs.ta2 * logVal**2 + coefs.ta3 * logVal**3) - KELVIN_OFFSET
+    temperature = (
+        1 / (coefs.ta0 + coefs.ta1 * logVal + coefs.ta2 * logVal**2 + coefs.ta3 * logVal**3)
+        - KELVIN_OFFSET
+    )
     return temperature
 
 
@@ -545,7 +569,9 @@ def convert_sbe43_oxygen_array(
         for i in range(scans_per_side, len(voltage) - scans_per_side):
             ox_subset = voltage[i - scans_per_side : i + scans_per_side + 1]
 
-            time_subset = np.arange(0, len(ox_subset) * sample_interval, sample_interval, dtype=float)
+            time_subset = np.arange(
+                0, len(ox_subset) * sample_interval, sample_interval, dtype=float
+            )
 
             result = stats.linregress(time_subset, ox_subset)
 
@@ -628,7 +654,12 @@ def convert_sbe43_oxygen_val(
 
     soc_term = coefs.soc * (voltage + coefs.v_offset + tau)
     temp_term = 1.0 + coefs.a * temperature + coefs.b * temperature**2 + coefs.c * temperature**3
-    oxVal = soc_term * solubility * temp_term * exp((coefs.e * pressure) / (temperature + KELVIN_OFFSET))
+    oxVal = (
+        soc_term
+        * solubility
+        * temp_term
+        * exp((coefs.e * pressure) / (temperature + KELVIN_OFFSET))
+    )
     return oxVal
 
 
@@ -708,12 +739,13 @@ def convert_eco_turbidity_val(
 
     return turbidity
 
+
 def convert_sbe18_ph_val(
     raw_ph: float,
     temperature: float,
     coefs: PH18Coefficients,
 ):
-    """ Converts a raw voltage value for pH
+    """Converts a raw voltage value for pH
         All equation information comes from application note 18-1
     Args:
         raw_ph (float): raw output voltage from pH sensor (0-5V)
@@ -722,21 +754,22 @@ def convert_sbe18_ph_val(
     Returns:
         float: converted pH
     """
-    pH = 7 + (raw_ph - coefs.offset)/(1.98416e-4 * (temperature + KELVIN_OFFSET) * coefs.slope)
+    pH = 7 + (raw_ph - coefs.offset) / (1.98416e-4 * (temperature + KELVIN_OFFSET) * coefs.slope)
     return pH
+
 
 def convert_par_logarithmic_val(
     raw_par: float,
     coefs: PARCoefficients,
 ):
-    """ Converts a raw voltage value for PAR to µmol photons/m2*s
+    """Converts a raw voltage value for PAR to µmol photons/m2*s
         All equation information comes from application note 96
     Args:
-        rawpH (float): raw output voltage from PAR sensor 
+        rawpH (float): raw output voltage from PAR sensor
         coefs (PARCoefficients): calibration coefficients for the PAR sensor
     Returns:
         float: converted PAR in µmol photons/m2*s
     """
-    PAR = coefs.multiplier * coefs.im * 10**((raw_par - coefs.a0) / coefs.a1)
+    PAR = coefs.multiplier * coefs.im * 10 ** ((raw_par - coefs.a0) / coefs.a1)
 
     return PAR

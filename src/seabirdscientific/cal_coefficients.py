@@ -17,13 +17,14 @@ from dataclasses import dataclass
 
 
 class TemperatureCoefficients:
-    """ 
+    """
     Args:
         a0 (float): a0 calibration coefficient for the temperature sensor
         a1 (float): a1 calibration coefficient for the temperature sensor
         a2 (float): a2 calibration coefficient for the temperature sensor
         a3 (float): a3 calibration coefficient for the temperature sensor
     """
+
     def __init__(self, a0, a1, a2, a3):
         self.a0 = a0
         self.a1 = a1
@@ -47,7 +48,10 @@ class PressureCoefficients:
         ptempa1 (float): ptempa1 calibration coefficient for the pressure sensor
         ptempa2 (float): ptempa2 calibration coefficient for the pressure sensor
     """
-    def __init__(self, pa0, pa1, pa2, ptca0, ptca1, ptca2, ptcb0, ptcb1, ptcb2, ptempa0, ptempa1, ptempa2):
+
+    def __init__(
+        self, pa0, pa1, pa2, ptca0, ptca1, ptca2, ptcb0, ptcb1, ptcb2, ptempa0, ptempa1, ptempa2
+    ):
         self.pa0 = pa0
         self.pa1 = pa1
         self.pa2 = pa2
@@ -63,7 +67,7 @@ class PressureCoefficients:
 
 
 class ConductivityCoefficients:
-    """ 
+    """
     Args:
         g (float): g calibration coefficient for the conductivity sensor
         h (float): h calibration coefficient for the conductivity sensor
@@ -74,6 +78,7 @@ class ConductivityCoefficients:
         wbotc (float): Wien bridge oscillator temperature coefficient
             see the 37 Manual: https://www.seabird.com/asset-get.download.jsa?id=54627862348
     """
+
     def __init__(self, g, h, i, j, cpcor, ctcor, wbotc):
         self.g = g
         self.h = h
@@ -90,6 +95,7 @@ class TurbidityCoefficients:
         scalar (float): NTU/count for digital, NTU/V for analog
         v_blank (float): dark counts for digital, V for analog
     """
+
     def __init__(self, scalar, dark_voltage):
         self.scalar = scalar
         self.dark_voltage = dark_voltage
@@ -101,6 +107,7 @@ class ChlorophyllACoefficients:
         scalar (float): μg/l/count for digital, μg/l/V for analog
         v_blank (float): dark counts for digital, V for analog
     """
+
     def __init__(self, scalar, v_blank):
         self.scalar = scalar
         self.v_blank = v_blank
@@ -127,6 +134,7 @@ class Thermistor63Coefficients:
         ta2 (float): calibration coefficient for the thermistor in the SBE63 sensor
         ta3 (float): calibration coefficient for the thermistor in the SBE63 sensor
     """
+
     def __init__(self, ta0, ta1, ta2, ta3):
         self.ta0 = ta0
         self.ta1 = ta1
@@ -143,7 +151,7 @@ class Oxygen43Coefficients:
         self.b = b
         self.c = c
         self.e = e
-        self.d0 = d0 # TODO: the sensor lists a d0 coefficient, but it doesn't seem to be used?
+        self.d0 = d0  # TODO: the sensor lists a d0 coefficient, but it doesn't seem to be used?
         self.d1 = d1
         self.d2 = d2
         self.h1 = h1
@@ -157,6 +165,7 @@ class PH18Coefficients:
         offset (float): calibration offset
         slope (float): calibration slope
     """
+
     def __init__(self, slope, offset):
         self.slope = slope
         self.offset = offset
@@ -170,6 +179,7 @@ class PARCoefficients:
         a1 (float): calibration offset
         multiplier (float): 1.0 for units of μEinsteins/m2 sec
     """
+
     def __init__(self, im, a0, a1, multiplier):
         self.im = im
         self.a0 = a0
