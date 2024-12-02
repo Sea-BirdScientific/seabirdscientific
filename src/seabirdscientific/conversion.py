@@ -33,6 +33,7 @@ Functions:
 
 # Native imports
 from math import sqrt, e, log, exp, floor
+from typing import Literal
 
 # Third-party imports
 import gsw
@@ -62,123 +63,68 @@ OXYGEN_PHASE_TO_VOLTS = 39.457071
 KELVIN_OFFSET = 273.15
 OXYGEN_MLPERL_TO_MGPERL = 1.42903
 OXYGEN_MLPERL_TO_UMOLPERKG = 44660
+ITS90_TO_IPTS68 = 1.00024  # taken from https://blog.seabird.com/ufaqs/what-is-the-difference-in-temperature-expressions-between-ipts-68-and-its-90/
 
 
-def convert_temperature_array(
-    temperature_counts: np.ndarray,
+def convert_temperature(
+    temperature_counts_in: np.ndarray,
     coefs: TemperatureCoefficients,
-    its90: bool,
-    celsius: bool,
-    use_mv_r: bool,
-):
-    """Returns the data after converting it to degrees C, ITS-90.
-
-    Data is expected to be raw data from an instrument in A/D counts
-
-    Args:
-        temperature_counts (np.ndarray): temperature data to convert in A/D counts
-        coefs (TemperatureCoefficients) calibration coefficients for the temperature sensor
-        ITS90 (bool): whether to use ITS90 or to use IPTS-68 conventions
-        celsius (bool): whether to use celsius or to convert to fahrenheit
-        use_mv_r (bool): true to perform extra conversion steps required by some instruments
-
-    Returns:
-        ndarray: temperature values converted to ITS-90 degrees C, in the same order as input
-    """
-
-    ipts68_converison = 1.00024  # taken from https://blog.seabird.com/ufaqs/what-is-the-difference-in-temperature-expressions-between-ipts-68-and-its-90/
-    convert_vectorized = np.vectorize(
-        convert_temperature_val_its90_c, excluded=["coefs", "use_mv_r"]
-    )
-    result = convert_vectorized(temperature_counts, coefs, use_mv_r)
-    if not its90:
-        result = result * ipts68_converison
-    if not celsius:
-        result = result * 9 / 5 + 32  # Convert C to F
-    return result
-
-
-def convert_temperature_val_its90_c(
-    temperature_counts_in: int,
-    coefs: TemperatureCoefficients,
-    use_mv_r: bool,
+    standard: Literal["ITS90", "IPTS68"] = 'ITS90',
+    units: Literal["C", "F"] ='C',
+    use_mv_r: bool = False,
 ):
     """Returns the value after converting it to degrees C, ITS-90.
 
     Data is expected to be raw data from an instrument in A/D counts
 
     Args:
-        temperature_counts_in (int): temperature value to convert in A/D counts
+        temperature_counts_in (np.ndarray): temperature value to convert in A/D counts
         coefs (TemperatureCoefficients) calibration coefficients for the temperature sensor
-        use_mv_r (bool): true to perform extra conversion steps required by some instruments
+        standard (str): whether to use ITS90 or to use IPTS-68 calibration standard
+        units (str): whether to use celsius or to convert to fahrenheit
+        use_mv_r (bool): true to perform extra conversion steps required
+        by some instruments (check the cal sheet to see if this is required)
 
     Returns:
         int: temperature val converted to ITS-90 degrees C
     """
 
     if use_mv_r:
-        MV = (temperature_counts_in - 524288) / 1.6e007
-        R = (MV * 2.900e009 + 1.024e008) / (2.048e004 - MV * 2.0e005)
-        temperature_counts = R
+        mv = (temperature_counts_in - 524288) / 1.6e007
+        r = (mv * 2.900e009 + 1.024e008) / (2.048e004 - mv * 2.0e005)
+        temperature_counts = r
     else:
         temperature_counts = temperature_counts_in
 
+    log_t = np.log(temperature_counts)
     temperature = (
-        1
-        / (
-            coefs.a0
-            + coefs.a1 * np.log(temperature_counts)
-            + coefs.a2 * np.log(temperature_counts) ** 2
-            + coefs.a3 * np.log(temperature_counts) ** 3
-        )
-    ) - 273.15
+        1 / (coefs.a0 + coefs.a1 * log_t + coefs.a2 * log_t**2 + coefs.a3 * log_t**3)
+    ) - KELVIN_OFFSET
+
+    if standard == "IPTS68":
+        temperature *= ITS90_TO_IPTS68
+    if units == "F":
+        temperature = temperature * 9 / 5 + 32  # Convert C to F
+
     return temperature
 
 
-def convert_pressure_array(
-    pressure_counts: np.ndarray,
-    compensation_voltages: np.ndarray,
-    is_dbar: bool,
+def convert_pressure(
+    pressure_count: np.ndarray,
+    compensation_voltage: np.ndarray,
     coefs: PressureCoefficients,
+    units: Literal['dbar', 'psia'] = 'psia',
 ):
-    """Calls convert_pressure_val_strain on an array of raw pressure data.
-
-    Data is expected to be raw data from an instrument in A/D counts
-
-    Args:
-        pressure_counts (np.ndarray): pressure data to convert in A/D counts
-        compensation_voltages (np.ndarray): pressure temperature compensation voltages
-            in counts or volts depending on the instrument
-        is_dbar (bool): whether or not to use psia as the returned unit type. If false, uses dbar
-        coefs (PressureCoefficients): calibration coefficients for the pressure sensor
-
-    Returns:
-        ndarray: pressure values
-    """
-
-    pressure = np.empty(shape=(pressure_counts.size))
-    for i in range(0, pressure_counts.size):
-        pressure[i] = convert_pressure_val_strain(
-            pressure_counts[i], compensation_voltages[i], is_dbar, coefs
-        )
-    return pressure
-
-
-def convert_pressure_val_strain(
-    pressure_count: float,
-    compensation_voltage: float,
-    is_dbar: bool,
-    coefs: PressureCoefficients,
-):
-    """Returns the value after converting it to PSIA (pounds per square inch, abolute).
+    """Returns the value after converting it to psia (pounds per square inch, abolute).
 
     pressure_count and compensation_voltage are expected to be raw data from an instrument in A/D counts
 
     Args:
-        pressure_count (int): pressure value to convert, in A/D counts
-        compensation_voltage (float): pressure temperature compensation voltage,
+        pressure_count (np.ndarray): pressure value to convert, in A/D counts
+        compensation_voltage (np.ndarray): pressure temperature compensation voltage,
             in counts or volts depending on the instrument
         coefs (PressureCoefficients): calibration coefficients for the pressure sensor
+        units (str): whether or not to use psia or dbar as the returned unit type
 
     Returns:
         int: pressure val in PSIA
@@ -194,47 +140,16 @@ def convert_pressure_val_strain(
     n = x * coefs.ptcb0 / (coefs.ptcb0 + coefs.ptcb1 * t + coefs.ptcb2 * t**2)
     pressure = coefs.pa0 + coefs.pa1 * n + coefs.pa2 * n**2 - sea_level_pressure
 
-    if is_dbar:
+    if units == 'dbar':
         pressure *= PSI_TO_DBAR
 
     return pressure
 
 
-def convert_conductivity_array(
-    conductivity_counts: np.ndarray,
+def convert_conductivity(
+    conductivity_count: np.ndarray,
     temperature: np.ndarray,
     pressure: np.ndarray,
-    coefs: ConductivityCoefficients,
-):
-    """Returns the data after converting it to Siemens/meter (S/m).
-
-    cond_data is expected to be in raw counts, temp_data in C, and press_data in dbar
-
-    Args:
-        conductivity_counts (np.ndarray): conductivity data to convert in A/D counts
-        temperature (np.ndarray): temperature data to use as a reference in degrees C
-        pressure (np.ndarray): pressure data to use as a reference in dbar
-        coefs (float): coefs calibration coefficient for the conductivity sensor
-
-    Returns:
-        ndarray: conductivity values converted to S/m, in the same order as input
-    """
-    conductivity = np.empty(shape=(conductivity_counts.size))
-    for index in range(0, conductivity_counts.size):
-        conductivity[index] = convert_conductivity_val(
-            conductivity_counts[index],
-            temperature[index],
-            pressure[index],
-            coefs,
-        )
-
-    return conductivity
-
-
-def convert_conductivity_val(
-    conductivity_count: float,
-    temperature: float,
-    pressure: float,
     coefs: ConductivityCoefficients,
 ):
     """Returns the value after converting it to S/m.
@@ -249,7 +164,7 @@ def convert_conductivity_val(
     Returns:
         Decimal: conductivity val converted to S/m
     """
-    f = conductivity_count * sqrt(1 + coefs.wbotc * temperature) / 1000
+    f = conductivity_count * np.sqrt(1 + coefs.wbotc * temperature) / 1000
     numerator = coefs.g + coefs.h * f**2 + coefs.i * f**3 + coefs.j * f**4
     denominator = 1 + coefs.ctcor * temperature + coefs.cpcor * pressure
     return numerator / denominator
@@ -372,7 +287,10 @@ def density_from_t_c_p(
 
 
 def depth_from_pressure(
-    pressure_in: np.ndarray, latitude: float, depth_units="m", pressure_units="dbar"
+    pressure_in: np.ndarray,
+    latitude: float,
+    depth_units: Literal['m', 'ft']="m",
+    pressure_units: Literal['dbar', 'psi']="dbar"
 ):
     """Derive depth from pressure and latitude.
 
@@ -397,7 +315,7 @@ def depth_from_pressure(
     return depth
 
 
-def convert_sbe63_oxygen_array(
+def convert_sbe63_oxygen_raw(
     raw_oxygen_phase: np.ndarray,
     raw_thermistor_temp: np.ndarray,
     pressure: np.ndarray,
@@ -419,17 +337,15 @@ def convert_sbe63_oxygen_array(
     Returns:
         ndarray: converted Oxygen values, in ml/l, in the same order as input
     """
-    thermistor_temperature = convert_sbe63_thermistor_array(raw_thermistor_temp, thermistor_coefs)
-    # oxygen = np.empty(shape = (raw_oxygen_phase.size))
-    convert_vectorized = np.vectorize(convert_sbe63_oxygen_val, excluded=["coefs"])
-    oxygen = convert_vectorized(
+    thermistor_temperature = convert_sbe63_thermistor(raw_thermistor_temp, thermistor_coefs)
+    oxygen = convert_sbe63_oxygen(
         raw_oxygen_phase, thermistor_temperature, pressure, salinity, coefs
     )
 
     return oxygen
 
 
-def convert_sbe63_oxygen_val(
+def convert_sbe63_oxygen(
     raw_oxygen_phase: float,
     temperature: float,
     pressure: float,
@@ -492,7 +408,25 @@ def convert_sbe63_oxygen_val(
     return ox_val
 
 
-def convert_sbe63_thermistor_array(
+# def convert_sbe63_thermistor_array(
+#     instrument_output: np.ndarray,
+#     coefs: Thermistor63Coefficients,
+# ):
+#     """Converts a SBE63 thermistor raw output array to temperature in ITS-90 deg C.
+
+#     Args:
+#         instrument_output (np.ndarray) raw values from the thermistor
+#         coefs (Thermisto63Coefficients): calibration coefficients for the thermistor in the SBE63 sensor
+
+#     Returns:
+#         np.ndarray: converted thermistor temperature values in ITS-90 deg C
+#     """
+#     convert_vectorized = np.vectorize(convert_sbe63_thermistor_value, excluded=["coefs"])
+#     temperature = convert_vectorized(instrument_output, coefs.ta0, coefs.ta1, coefs.ta2, coefs.ta3)
+#     return temperature
+
+
+def convert_sbe63_thermistor(
     instrument_output: np.ndarray,
     coefs: Thermistor63Coefficients,
 ):
@@ -505,25 +439,7 @@ def convert_sbe63_thermistor_array(
     Returns:
         np.ndarray: converted thermistor temperature values in ITS-90 deg C
     """
-    convert_vectorized = np.vectorize(convert_sbe63_thermistor_value, excluded=["coefs"])
-    temperature = convert_vectorized(instrument_output, coefs.ta0, coefs.ta1, coefs.ta2, coefs.ta3)
-    return temperature
-
-
-def convert_sbe63_thermistor_value(
-    instrument_output: float,
-    coefs: Thermistor63Coefficients,
-):
-    """Converts a SBE63 thermistor raw output array to temperature in ITS-90 deg C.
-
-    Args:
-        instrument_output (np.ndarray) raw values from the thermistor
-        coefs (Thermisto63Coefficients): calibration coefficients for the thermistor in the SBE63 sensor
-
-    Returns:
-        np.ndarray: converted thermistor temperature values in ITS-90 deg C
-    """
-    logVal = log((100000 * instrument_output) / (3.3 - instrument_output))
+    logVal = np.log((100000 * instrument_output) / (3.3 - instrument_output))
     temperature = (
         1 / (coefs.ta0 + coefs.ta1 * logVal + coefs.ta2 * logVal**2 + coefs.ta3 * logVal**3)
         - KELVIN_OFFSET
