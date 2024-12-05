@@ -1,6 +1,6 @@
 [project]
 name = "seabirdscientific"
-version = "1.0.8"
+version = "1.0.9"
 description = "Sea-Bird Scientific Community Toolkit"
 readme = "README.md"
 authors = [
