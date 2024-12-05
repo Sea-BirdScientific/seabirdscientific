@@ -1,8 +1,7 @@
 # This is the code owners' file
 # https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
-* @SBS-BRhoades
-* @SBS-dlucas
-* @SBS-ERHEM
-* @SBS-jtemplin
-* @SBS-lchristensen
-* @SBS-randerson
+* @Sea-BirdScientific/electrical-engineering
+* @Sea-BirdScientific/hypernav
+* @Sea-BirdScientific/production-engineering
+* @Sea-BirdScientific/science-team
+* @Sea-BirdScientific/software
