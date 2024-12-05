@@ -104,7 +104,9 @@ def low_pass_filter(x: np.ndarray, time_constant: float, sample_interval: float)
     return y
 
 
-def align_ctd(x: np.ndarray, offset: float, sample_interval: float, flag_value=-9.99e-29) -> np.ndarray:
+def align_ctd(
+    x: np.ndarray, offset: float, sample_interval: float, flag_value=-9.99e-29
+) -> np.ndarray:
     """Takes an ndarray object of data for a single variable and applies a time offset to the series.
 
     Performs interpolation when offset is not a factor of sampleinterval
@@ -265,8 +267,12 @@ def loop_edit_depth(
     )
 
     if min_velocity_type == MinVelocityType.FIXED:
-        downcast_mask = min_velocity_mask(depth, sample_interval, min_velocity, min_depth_n, max_depth_n + 1, False)
-        upcast_mask = min_velocity_mask(depth, sample_interval, min_velocity, max_depth_n, len(depth), True)
+        downcast_mask = min_velocity_mask(
+            depth, sample_interval, min_velocity, min_depth_n, max_depth_n + 1, False
+        )
+        upcast_mask = min_velocity_mask(
+            depth, sample_interval, min_velocity, max_depth_n, len(depth), True
+        )
 
     elif min_velocity_type == MinVelocityType.PERCENT:
         diff_length = int(window_size / sample_interval)
@@ -328,16 +334,22 @@ def find_depth_peaks(
     # first index where min_soak_depth < depth < max_soak_depth
     if remove_surface_soak:
         min_soak_depth_n = min(
-            n for n, d in enumerate(depth) if flag[n] != flag_value and min_soak_depth < d and d < max_soak_depth
+            n
+            for n, d in enumerate(depth)
+            if flag[n] != flag_value and min_soak_depth < d and d < max_soak_depth
         )
     else:
         min_soak_depth_n = 0
 
-    max_soak_depth_n = min(n for n, d in enumerate(depth) if flag[n] != flag_value and d > max_soak_depth)
+    max_soak_depth_n = min(
+        n for n, d in enumerate(depth) if flag[n] != flag_value and d > max_soak_depth
+    )
 
     # beginning of possible downcast domain
     min_depth_n = min(
-        (d, n) for n, d in enumerate(depth) if flag[n] != flag_value and min_soak_depth_n <= n and n < max_soak_depth_n
+        (d, n)
+        for n, d in enumerate(depth)
+        if flag[n] != flag_value and min_soak_depth_n <= n and n < max_soak_depth_n
     )[1]
 
     # beginning of possible upcast domain
@@ -541,8 +553,12 @@ def bin_average(
                 first_row = row
                 first_row_index = index
             else:
-                prev_presure = prev_row[bin_variable]  # use bin_variable since this could be pressure or depth
-                curr_pressure = row[bin_variable]  # use bin_variable since this could be pressure or depth
+                prev_presure = prev_row[
+                    bin_variable
+                ]  # use bin_variable since this could be pressure or depth
+                curr_pressure = row[
+                    bin_variable
+                ]  # use bin_variable since this could be pressure or depth
                 center_pressure = index * bin_size
 
                 for col_name, col_data in dataset.items():
@@ -553,7 +569,9 @@ def bin_average(
 
                     # formula from the seasoft data processing manual, page 89, version 7.26.8-3
                     interpolated_val = (
-                        (curr_val - prev_val) * (center_pressure - prev_presure) / (curr_pressure - prev_presure)
+                        (curr_val - prev_val)
+                        * (center_pressure - prev_presure)
+                        / (curr_pressure - prev_presure)
                     ) + prev_val
                     # print('interpolated to ' + str(interpolated_val) + ' for ' + str(col_name) + ', ' + str(index))
                     new_dataset.loc[index, col_name] = interpolated_val
@@ -564,7 +582,9 @@ def bin_average(
 
         # back to the first row now
         prev_presure = second_row[bin_variable]  # reference second row's value
-        curr_pressure = first_row[bin_variable]  # use bin_variable since this could be pressure or depth
+        curr_pressure = first_row[
+            bin_variable
+        ]  # use bin_variable since this could be pressure or depth
         center_pressure = first_row_index * bin_size
 
         for col_name, col_data in dataset.items():
@@ -575,7 +595,9 @@ def bin_average(
 
             # formula from the seasoft manual, page 89
             interpolated_val = (
-                (curr_val - prev_val) * (center_pressure - prev_presure) / (curr_pressure - prev_presure)
+                (curr_val - prev_val)
+                * (center_pressure - prev_presure)
+                / (curr_pressure - prev_presure)
             ) + prev_val
             new_dataset.loc[first_row_index, col_name] = interpolated_val
 
@@ -845,7 +867,9 @@ def calc_N2_buoyancy_modern(
     salinity_bar = [np.mean(salinity_abs_subset)]
 
     # Compute average specific volume, temp expansion ceoff, and saline contraction coeff over window
-    (v_bar, alpha_bar, beta_bar) = gsw.specvol_alpha_beta(salinity_bar, temperature_bar, pressure_bar)
+    (v_bar, alpha_bar, beta_bar) = gsw.specvol_alpha_beta(
+        salinity_bar, temperature_bar, pressure_bar
+    )
 
     # Estimate vertical gradient of conservative temp
     dCTdp_result = stats.linregress(pressure_dbar_subset, temp_conservative_subset)
@@ -863,7 +887,10 @@ def calc_N2_buoyancy_modern(
 
 
 def calc_N2_buoyancy_retro(
-    temp_ITS_subset: np.ndarray, salinity_prac_subset: np.ndarray, pressure_dbar_subset: np.ndarray, gravity: float
+    temp_ITS_subset: np.ndarray,
+    salinity_prac_subset: np.ndarray,
+    pressure_dbar_subset: np.ndarray,
+    gravity: float,
 ):
     """Calculates an N^2 value (buoyancy frequency) for the given window of temperature, salinity, and pressure, at the given latitude.
 
@@ -961,7 +988,9 @@ def buoyancy(
     # start loop at scans_per_side
     for i in range(scans_per_side, len(temperature_conservative) - scans_per_side):
         min_index = i - scans_per_side
-        max_index = i + scans_per_side + 1  # add + 1 because slicing does not include the max_index
+        max_index = (
+            i + scans_per_side + 1
+        )  # add + 1 because slicing does not include the max_index
 
         pressure_subset = pressure_dbar[min_index:max_index]
         temperature_cons_subset = temperature_conservative[min_index:max_index]
@@ -973,10 +1002,14 @@ def buoyancy(
 
         if use_modern_formula:
             salinity_subset = salinity_abs[min_index:max_index]
-            N2 = calc_N2_buoyancy_modern(temperature_cons_subset, salinity_subset, pressure_subset, gravity)
+            N2 = calc_N2_buoyancy_modern(
+                temperature_cons_subset, salinity_subset, pressure_subset, gravity
+            )
         else:
             salinity_subset = salinity_prac[min_index:max_index]
-            N2 = calc_N2_buoyancy_retro(temperature_ITS_subset, salinity_subset, pressure_subset, gravity)
+            N2 = calc_N2_buoyancy_retro(
+                temperature_ITS_subset, salinity_subset, pressure_subset, gravity
+            )
 
         N2_arr[i] = N2
         if N2 >= 0:
@@ -1164,7 +1197,11 @@ def ATG(
     atg = (
         (
             ((-2.1687e-16 * t + 1.8676e-14) * t - 4.6206e-13) * p
-            + ((2.7759e-12 * t - 1.1351e-10) * ds + ((-5.4481e-14 * t + 8.733e-12) * t - 6.7795e-10) * t + 1.8741e-8)
+            + (
+                (2.7759e-12 * t - 1.1351e-10) * ds
+                + ((-5.4481e-14 * t + 8.733e-12) * t - 6.7795e-10) * t
+                + 1.8741e-8
+            )
         )
         * p
         + (-4.2393e-8 * t + 1.8932e-6) * ds
