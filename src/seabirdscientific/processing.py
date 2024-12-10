@@ -153,7 +153,7 @@ def cell_thermal_mass(
     a = 2 * amplitude / (sample_interval / time_constant + 2)
     b = 1 - (2 * a / amplitude)
     ctm = np.zeros(len(temperature_C))  # cell thermal mass
-    corrected_conductivity = np.array(conductivity_Sm)
+    corrected_conductivity = conductivity_Sm.copy()
 
     for n in range(1, len(ctm)):
         dc_dT = 0.1 * (1.0 + 0.006 * (temperature_C[n] - 20.0))

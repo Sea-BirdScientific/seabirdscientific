@@ -17,6 +17,10 @@ import seabirdscientific.instrument_data as id
 import seabirdscientific.processing as dp
 import seabirdscientific.conversion as dc
 from seabirdscientific.utils import close_enough
+import seabirdscientific.instrument_data as id
+import seabirdscientific.processing as dp
+import seabirdscientific.conversion as dc
+from seabirdscientific.utils import close_enough
 
 logger = getLogger(__name__)
 
