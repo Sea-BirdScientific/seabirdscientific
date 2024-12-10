@@ -17,6 +17,10 @@ import seabirdscientific.instrument_data as id
 import seabirdscientific.processing as dp
 import seabirdscientific.conversion as dc
 from seabirdscientific.utils import close_enough
+import seabirdscientific.instrument_data as id
+import seabirdscientific.processing as dp
+import seabirdscientific.conversion as dc
+from seabirdscientific.utils import close_enough
 
 logger = getLogger(__name__)
 
@@ -384,20 +388,22 @@ class TestLoopEdit:
 # class TestBinAverage:
 
 
-# class TestWildEdit:
-# def test_wild_edit_pass(self):
-#     expected_dataset = id.cnv_to_instrument_data(
-#         r"C:\seabirdscientific\documentation\example_data\19plus_V2_CTD-processing_example_wild_edit.cnv"
-#     )
-#     expected_output = expected_dataset.measurements["prdM"].values
+class TestWildEdit:
+    def test_wild_edit_pass(self):
+        expected_dataset = id.cnv_to_instrument_data(
+            "tests/resources/test-data/19plus_V2_CTD-processing_example_wild_edit.cnv"
+        )
+        expected_conductivity = expected_dataset.measurements["c0S/m"].values
 
-#     dataset = id.cnv_to_instrument_data(r"C:\seabirdscientific\documentation\example_data\19plus_V2_CTD-processing_example.cnv")
-#     pressure = dataset.measurements["prdM"].values
-#     flags = dataset.measurements["flag"].values
+        dataset = id.cnv_to_instrument_data(
+            "tests/resources/test-data/19plus_V2_CTD-processing_example.cnv"
+        )
+        conductivity = dataset.measurements["c0S/m"].values
+        flags = dataset.measurements["flag"].values
 
-#     wild_edit_output = dp.wild_edit(pressure, flags, 1, 3, 100, 0, False)
+        wild_edit_output = dp.wild_edit(conductivity, flags, 2, 20, 100, 0, False)
 
-#     assert np.all(wild_edit_output == expected_output)
+        assert np.all(wild_edit_output == expected_conductivity)
 
 
 # class TestWindowFilter:
