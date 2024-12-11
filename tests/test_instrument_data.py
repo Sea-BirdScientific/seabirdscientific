@@ -10,7 +10,7 @@ from datetime import datetime
 # Sea-Bird imports
 
 # Internal imports
-import sbs.process.instrument_data as id
+import seabirdscientific.instrument_data as id
 
 
 class TestCnvToInstrumentData:
