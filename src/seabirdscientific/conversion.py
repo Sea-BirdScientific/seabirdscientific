@@ -11,6 +11,12 @@ Functions:
     convert_pressure_val_strain ( float, float, bool, PressureCoefficients)
     convert_conductivity_array (np.ndarray, np.ndarray, np.ndarray, ConductivityCoefficients)
     convert_conductivity_val (float, float, float, ConductivityCoefficients)
+    convert_temperature_array (np.ndarray, TemperatureCoefficients, bool, bool, bool)
+    convert_temperature_val_its90_c ( int, TemperatureCoefficients, bool)
+    convert_pressure_array ( np.ndarray, np.ndarray, bool, PressureCoefficients)
+    convert_pressure_val_strain ( float, float, bool, PressureCoefficients)
+    convert_conductivity_array (np.ndarray, np.ndarray, np.ndarray, ConductivityCoefficients)
+    convert_conductivity_val (float, float, float, ConductivityCoefficients)
     potential_density_from_t_s_p (np.ndarray, np.ndarray, np.ndarray, float, float, float)
     potential_density_from_t_c_p (np.ndarray, np.ndarray, np.ndarray, float, float, float)
     density_from_t_s_p (np.ndarray, np.ndarray, np.ndarray, float, float)
@@ -22,8 +28,18 @@ Functions:
     convert_sbe63_thermistor_value (float, Thermistor63Coefficients)
     convert_sbe43_oxygen_array (np.ndarray, np.ndarray, np.ndarray, np.ndarray, Oxygen43Coefficients, bool, bool, float, float)
     convert_sbe43_oxygen_val (float, float, float, float, Oxygen43Coefficients, float)
+    convert_sbe63_oxygen_array (np.ndarray, np.ndarray, np.ndarray, np.ndarray, Oxygen63Coefficients, Thermistor63Coefficients)
+    convert_sbe63_oxygen_val (float, float, float, float, Oxygen63Coefficients)
+    convert_sbe63_thermistor_array (np.ndarray, Thermistor63Coefficients)
+    convert_sbe63_thermistor_value (float, Thermistor63Coefficients)
+    convert_sbe43_oxygen_array (np.ndarray, np.ndarray, np.ndarray, np.ndarray, Oxygen43Coefficients, bool, bool, float, float)
+    convert_sbe43_oxygen_val (float, float, float, float, Oxygen43Coefficients, float)
     convert_oxygen_to_mg_per_l (np.ndarray)
     convert_oxygen_to_umol_per_kg (np.ndarray, np.ndarray)
+    convert_eco_chlorophylla_val (float, ChlorophyllACoefficients)
+    convert_eco_turbidity_val (float, TurbidityCoefficients)
+    convert_sbe18_ph_val(float, float, PH18Coefficients)
+    convert_par_logarithmic_val(float, PARCoefficients)
     convert_eco_chlorophylla_val (float, ChlorophyllACoefficients)
     convert_eco_turbidity_val (float, TurbidityCoefficients)
     convert_sbe18_ph_val(float, float, PH18Coefficients)
@@ -43,6 +59,18 @@ from scipy import stats
 # Sea-Bird imports
 
 # Internal imports
+from .cal_coefficients import (
+    ChlorophyllACoefficients,
+    ConductivityCoefficients,
+    Oxygen43Coefficients,
+    Oxygen63Coefficients,
+    PARCoefficients,
+    PH18Coefficients,
+    PressureCoefficients,
+    TemperatureCoefficients,
+    Thermistor63Coefficients,
+    TurbidityCoefficients,
+)
 from .cal_coefficients import (
     ChlorophyllACoefficients,
     ConductivityCoefficients,
@@ -161,6 +189,7 @@ def convert_conductivity(
         conductivity_count (np.ndarray): conductivity value to convert, in A/D counts
         temperature (np.ndarray): temperature value to use are reference, in degrees C
         pressure (np.ndarray): pressure value to use are reference, in dbar
+        coefs (float): coefs calibration coefficient for the conductivity sensor
         coefs (float): coefs calibration coefficient for the conductivity sensor
     Returns:
         Decimal: conductivity val converted to S/m
@@ -524,6 +553,7 @@ def _convert_sbe43_oxygen(
     solubility = np.exp(a_term + b_term + c_term)
 
     # Tau correction
+    tau = coefs.tau_20 * exp(coefs.d1 * pressure + coefs.d2 * (temperature - 20)) * dvdt_value
     tau = coefs.tau_20 * np.exp(coefs.d1 * pressure + coefs.d2 * (temperature - 20)) * dvdt_value
 
     soc_term = coefs.soc * (voltage + coefs.v_offset + tau)
@@ -583,6 +613,8 @@ def convert_eco_chlorophylla(
     All equation information comes from ECO-FLNTU calibration sheets
 
     Args:
+        raw_chlorophyll_a (float): raw counts for digital, raw volts for analog
+        coefs (ChlorophyllACoefficients): calibration coefficients for clorophyll-a
         raw_chlorophyll_a (float): raw counts for digital, raw volts for analog
         coefs (ChlorophyllACoefficients): calibration coefficients for clorophyll-a
 
@@ -649,3 +681,4 @@ def convert_par_logarithmic(
     PAR = coefs.multiplier * coefs.im * 10 ** ((raw_par - coefs.a0) / coefs.a1)
 
     return PAR
+

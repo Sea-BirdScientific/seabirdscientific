@@ -200,6 +200,7 @@ class TestConductivity19plus:
             self.temperature,
             self.pressure,
             ec.conductivity_coefs_sn6130,
+            ec.conductivity_coefs_sn6130,
         )
         assert np.allclose(expected, result, rtol=0, atol=1e-6)
 
@@ -269,6 +270,9 @@ class TestDeriveDensity:
             temperature,
             salinity,
             pressure,
+            temperature,
+            salinity,
+            pressure,
             reference_pressure=reference_pressure,
         )
         # TODO: improve passing condition for all instances of allclose
@@ -312,6 +316,7 @@ class TestDeriveDensity:
         pressure = self.data["prM"].values
         expected = self.data["gsw_densityA0"].values
         result = dc.density_from_t_c_p(temperature, conductivity, pressure)
+        result = dc.density_from_t_c_p(temperature, conductivity, pressure)
 
         assert np.allclose(result, expected, atol=0.1)
 
@@ -348,9 +353,9 @@ class TestDepthFromPressure:
 
 #     @pytest.mark.parametrize("cal, cnv, hex, cond_label, use_MV_R", DATASETS)
 #     def test_salinity_from_tcp_raw(self, cal, cnv, hex, cond_label, use_MV_R):
-#         """Converts data from raw hex values.
-
-#         The unused data loaded from cnv are not needed for the test,
+#         """Converts data from raw hex values. 
+        
+#         The unused data loaded from cnv are not needed for the test, 
 #         but are useful for comparing during a debug session.
 
 #         Args:
@@ -364,47 +369,47 @@ class TestDepthFromPressure:
 #             temperature_raw, cal.A0, cal.A1, cal.A2, cal.A3, True, True, use_MV_R
 #         )
 
-#         pressure = cnv.measurements["prdM"].values[800:810]
-#         pressure_raw = hex.pressure.values[800:810]
-#         other_raw = hex.iloc[:, 3].values[800:810]  # either salinity or pressure temperature compensation
-#         pressure_conv = dc.convert_pressure_array(
-#             pressure_raw,
-#             other_raw,
-#             True,
-#             cal.PA0,
-#             cal.PA1,
-#             cal.PA2,
-#             cal.PTEMPA0,
-#             cal.PTEMPA1,
-#             cal.PTEMPA2,
-#             cal.PTCA0,
-#             cal.PTCA1,
-#             cal.PTCA2,
-#             cal.PTCB0,
-#             cal.PTCB1,
-#             cal.PTCB2,
-#         )
+        # pressure = cnv.measurements["prdM"].values[800:810]
+        # pressure_raw = hex.pressure.values[800:810]
+        # other_raw = hex.iloc[:, 3].values[800:810]  # either salinity or pressure temperature compensation
+        # pressure_conv = dc.convert_pressure_array(
+        #     pressure_raw,
+        #     other_raw,
+        #     True,
+        #     cal.PA0,
+        #     cal.PA1,
+        #     cal.PA2,
+        #     cal.PTEMPA0,
+        #     cal.PTEMPA1,
+        #     cal.PTEMPA2,
+        #     cal.PTCA0,
+        #     cal.PTCA1,
+        #     cal.PTCA2,
+        #     cal.PTCB0,
+        #     cal.PTCB1,
+        #     cal.PTCB2,
+        # )
 
-#         conductivity = cnv.measurements[cond_label].values[800:810] * 10
-#         conductivity_raw = hex.conductivity.values[800:810]
-#         conductivity_conv = (
-#             dc.convert_conductivity_array(
-#                 conductivity_raw,
-#                 temperature_conv,
-#                 pressure_conv,
-#                 cal.G,
-#                 cal.H,
-#                 cal.I,
-#                 cal.J,
-#                 cal.CPCOR,
-#                 cal.CTCOR,
-#                 cal.WBOTC,
-#             )
-#             * 10
-#         )
-#         # can't un-round cnv data, so instead validate that converted hex data rounds to same value
-#         salinity_result = np.round(gsw.SP_from_C(conductivity_conv, temperature_conv, pressure_conv), 4)
-#         assert np.allclose(salinity_expected, salinity_result, rtol=0, atol=1e-4)
+        # conductivity = cnv.measurements[cond_label].values[800:810] * 10
+        # conductivity_raw = hex.conductivity.values[800:810]
+        # conductivity_conv = (
+        #     dc.convert_conductivity_array(
+        #         conductivity_raw,
+        #         temperature_conv,
+        #         pressure_conv,
+        #         cal.G,
+        #         cal.H,
+        #         cal.I,
+        #         cal.J,
+        #         cal.CPCOR,
+        #         cal.CTCOR,
+        #         cal.WBOTC,
+        #     )
+        #     * 10
+        # )
+        # # can't un-round cnv data, so instead validate that converted hex data rounds to same value
+        # salinity_result = np.round(gsw.SP_from_C(conductivity_conv, temperature_conv, pressure_conv), 4)
+        # assert np.allclose(salinity_expected, salinity_result, rtol=0, atol=1e-4)
 
 
 class TestConvertOxygen:
@@ -742,6 +747,7 @@ class TestConvertpH:
                 rawVolts[index], temperatureC[index], ec.ph_coefs_sn0762
             )
             assert np.allclose([expected[index]], [result], rtol=0, atol=1e-3)
+
 
 
 class TestPARlogarithmic:
