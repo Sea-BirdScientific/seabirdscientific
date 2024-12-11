@@ -744,6 +744,7 @@ class TestConvertpH:
             assert np.allclose([expected[index]], [result], rtol=0, atol=1e-3)
 
 
+
 class TestPARlogarithmic:
     def test_convert_par_logarithmic(self):
         rawVolts = np.array([
