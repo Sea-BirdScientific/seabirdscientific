@@ -89,9 +89,9 @@ def density(s0: np.ndarray, t: np.ndarray, p0: np.ndarray) -> np.ndarray:
     G1 = 1.6483e-2
     G2 = -5.3009e-4
 
-    i0 = 2.2838e-3
-    i1 = -1.0981e-5
-    i2 = -1.6078e-6
+    I0 = 2.2838e-3
+    I1 = -1.0981e-5
+    I2 = -1.6078e-6
 
     J0 = 1.91075e-4
 
@@ -145,7 +145,7 @@ def density(s0: np.ndarray, t: np.ndarray, p0: np.ndarray) -> np.ndarray:
         kw
         + (FQ0 + FQ1 * t + FQ2 * t2 + FQ3 * t3) * s
         + (G0 + G1 * t + G2 * t2) * s32
-        + (aw + (i0 + i1 * t + i2 * t2) * s + (J0 * s32)) * p
+        + (aw + (I0 + I1 * t + I2 * t2) * s + (J0 * s32)) * p
         + (bw + (M0 + M1 * t + M2 * t2) * s) * p * p
     )
 
