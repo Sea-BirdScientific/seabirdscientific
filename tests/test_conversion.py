@@ -200,7 +200,6 @@ class TestConductivity19plus:
             self.temperature,
             self.pressure,
             ec.conductivity_coefs_sn6130,
-            ec.conductivity_coefs_sn6130,
         )
         assert np.allclose(expected, result, rtol=0, atol=1e-6)
 
@@ -267,9 +266,6 @@ class TestDeriveDensity:
         pressure = self.data["prM"].values
         expected = self.data[expected_column].values
         result = dc.potential_density_from_t_s_p(
-            temperature,
-            salinity,
-            pressure,
             temperature,
             salinity,
             pressure,

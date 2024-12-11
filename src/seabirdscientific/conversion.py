@@ -5,41 +5,19 @@
 
 Functions:
 
-    convert_temperature_array (np.ndarray, TemperatureCoefficients, bool, bool, bool)
-    convert_temperature_val_its90_c ( int, TemperatureCoefficients, bool)
-    convert_pressure_array ( np.ndarray, np.ndarray, bool, PressureCoefficients)
-    convert_pressure_val_strain ( float, float, bool, PressureCoefficients)
-    convert_conductivity_array (np.ndarray, np.ndarray, np.ndarray, ConductivityCoefficients)
-    convert_conductivity_val (float, float, float, ConductivityCoefficients)
-    convert_temperature_array (np.ndarray, TemperatureCoefficients, bool, bool, bool)
-    convert_temperature_val_its90_c ( int, TemperatureCoefficients, bool)
-    convert_pressure_array ( np.ndarray, np.ndarray, bool, PressureCoefficients)
-    convert_pressure_val_strain ( float, float, bool, PressureCoefficients)
-    convert_conductivity_array (np.ndarray, np.ndarray, np.ndarray, ConductivityCoefficients)
-    convert_conductivity_val (float, float, float, ConductivityCoefficients)
+    convert_temperature (np.ndarray, TemperatureCoefficients, str, str, bool)
+    convert_pressure ( np.ndarray, np.ndarray, PressureCoefficients, str)
+    convert_conductivity (np.ndarray, np.ndarray, np.ndarray, ConductivityCoefficients)
     potential_density_from_t_s_p (np.ndarray, np.ndarray, np.ndarray, float, float, float)
     potential_density_from_t_c_p (np.ndarray, np.ndarray, np.ndarray, float, float, float)
     density_from_t_s_p (np.ndarray, np.ndarray, np.ndarray, float, float)
     density_from_t_c_p (np.ndarray, np.ndarray, np.ndarray, float, float)
     depth_from_pressure (np.ndarray, float, depth_units="m", pressure_units="dbar")
-    convert_sbe63_oxygen_array (np.ndarray, np.ndarray, np.ndarray, np.ndarray, Oxygen63Coefficients, Thermistor63Coefficients)
-    convert_sbe63_oxygen_val (float, float, float, float, Oxygen63Coefficients)
-    convert_sbe63_thermistor_array (np.ndarray, Thermistor63Coefficients)
-    convert_sbe63_thermistor_value (float, Thermistor63Coefficients)
-    convert_sbe43_oxygen_array (np.ndarray, np.ndarray, np.ndarray, np.ndarray, Oxygen43Coefficients, bool, bool, float, float)
-    convert_sbe43_oxygen_val (float, float, float, float, Oxygen43Coefficients, float)
-    convert_sbe63_oxygen_array (np.ndarray, np.ndarray, np.ndarray, np.ndarray, Oxygen63Coefficients, Thermistor63Coefficients)
-    convert_sbe63_oxygen_val (float, float, float, float, Oxygen63Coefficients)
-    convert_sbe63_thermistor_array (np.ndarray, Thermistor63Coefficients)
-    convert_sbe63_thermistor_value (float, Thermistor63Coefficients)
-    convert_sbe43_oxygen_array (np.ndarray, np.ndarray, np.ndarray, np.ndarray, Oxygen43Coefficients, bool, bool, float, float)
-    convert_sbe43_oxygen_val (float, float, float, float, Oxygen43Coefficients, float)
+    convert_sbe63_oxygen (np.ndarray, np.ndarray, np.ndarray, np.ndarray, Oxygen63Coefficients, Thermistor63Coefficients, str)
+    convert_sbe63_thermistor (np.ndarray, Thermistor63Coefficients)
+    convert_sbe43_oxygen (np.ndarray, np.ndarray, np.ndarray, np.ndarray, Oxygen43Coefficients, bool, bool, float, float)
     convert_oxygen_to_mg_per_l (np.ndarray)
     convert_oxygen_to_umol_per_kg (np.ndarray, np.ndarray)
-    convert_eco_chlorophylla_val (float, ChlorophyllACoefficients)
-    convert_eco_turbidity_val (float, TurbidityCoefficients)
-    convert_sbe18_ph_val(float, float, PH18Coefficients)
-    convert_par_logarithmic_val(float, PARCoefficients)
     convert_eco_chlorophylla_val (float, ChlorophyllACoefficients)
     convert_eco_turbidity_val (float, TurbidityCoefficients)
     convert_sbe18_ph_val(float, float, PH18Coefficients)
@@ -59,18 +37,6 @@ from scipy import stats
 # Sea-Bird imports
 
 # Internal imports
-from .cal_coefficients import (
-    ChlorophyllACoefficients,
-    ConductivityCoefficients,
-    Oxygen43Coefficients,
-    Oxygen63Coefficients,
-    PARCoefficients,
-    PH18Coefficients,
-    PressureCoefficients,
-    TemperatureCoefficients,
-    Thermistor63Coefficients,
-    TurbidityCoefficients,
-)
 from .cal_coefficients import (
     ChlorophyllACoefficients,
     ConductivityCoefficients,
@@ -487,8 +453,8 @@ def convert_sbe43_oxygen(
         # Hysteresis starts at 1 because 0 can't be corrected
         for i in range(1, len(correct_ox_voltages)):
             # All Equation info from APPLICATION NOTE NO. 64-3
-            d = 1 + coefs.h1 * (exp(pressure[i] / coefs.h2) - 1)
-            c = exp(-1 * sample_interval / coefs.h3)
+            d = 1 + coefs.h1 * (np.exp(pressure[i] / coefs.h2) - 1)
+            c = np.exp(-1 * sample_interval / coefs.h3)
             ox_volts = correct_ox_voltages[i] + coefs.v_offset
 
             prev_ox_volts_new = correct_ox_voltages[i - 1] + coefs.v_offset
@@ -553,7 +519,6 @@ def _convert_sbe43_oxygen(
     solubility = np.exp(a_term + b_term + c_term)
 
     # Tau correction
-    tau = coefs.tau_20 * exp(coefs.d1 * pressure + coefs.d2 * (temperature - 20)) * dvdt_value
     tau = coefs.tau_20 * np.exp(coefs.d1 * pressure + coefs.d2 * (temperature - 20)) * dvdt_value
 
     soc_term = coefs.soc * (voltage + coefs.v_offset + tau)
