@@ -156,7 +156,6 @@ def convert_conductivity(
         temperature (np.ndarray): temperature value to use are reference, in degrees C
         pressure (np.ndarray): pressure value to use are reference, in dbar
         coefs (float): coefs calibration coefficient for the conductivity sensor
-        coefs (float): coefs calibration coefficient for the conductivity sensor
     Returns:
         Decimal: conductivity val converted to S/m
     """
@@ -580,8 +579,6 @@ def convert_eco_chlorophylla(
     Args:
         raw_chlorophyll_a (float): raw counts for digital, raw volts for analog
         coefs (ChlorophyllACoefficients): calibration coefficients for clorophyll-a
-        raw_chlorophyll_a (float): raw counts for digital, raw volts for analog
-        coefs (ChlorophyllACoefficients): calibration coefficients for clorophyll-a
 
     Returns:
         float: converted chlorophyll-a in μg/l
@@ -646,4 +643,3 @@ def convert_par_logarithmic(
     PAR = coefs.multiplier * coefs.im * 10 ** ((raw_par - coefs.a0) / coefs.a1)
 
     return PAR
-
