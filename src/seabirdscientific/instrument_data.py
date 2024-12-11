@@ -186,7 +186,9 @@ def cnv_to_instrument_data(filepath: Path) -> InstrumentData:
                     )
 
                 elif line.startswith("# interval = "):
-                    interval = float(line[line.find(": ") + 2 : line.find("\n")])  # TODO: fix for minutes, hours, etc
+                    interval = float(
+                        line[line.find(": ") + 2 : line.find("\n")]
+                    )  # TODO: fix for minutes, hours, etc
                     data.interval_s = interval
 
                 elif line.startswith("# start_time = "):
@@ -256,7 +258,9 @@ def read_hex_file(
     for line in file:
         if is_data and not (line == "" or line.startswith("\n") or line.startswith("\r")):
             if data_count == 0:
-                data = preallocate_dataframe(instrument_type, line, enabled_sensors, moored_mode, data_length)
+                data = preallocate_dataframe(
+                    instrument_type, line, enabled_sensors, moored_mode, data_length
+                )
             hex_data = read_hex(instrument_type, line, enabled_sensors, moored_mode)
             data.iloc[data_count] = pd.DataFrame(hex_data, index=[data_count])
             data_count += 1
@@ -330,17 +334,23 @@ def read_SBE19plus_format_0(hex: str, enabled_sensors: List[Sensors], moored_mod
     for sensor in Sensors:
         if sensor in enabled_sensors:
             if sensor == Sensors.Temperature:
-                results[HexDataTypes.temperature.value] = int(hex[n : HEX_LENGTH["temperature"]], 16)
+                results[HexDataTypes.temperature.value] = int(
+                    hex[n : HEX_LENGTH["temperature"]], 16
+                )
                 n += HEX_LENGTH["temperature"]
 
             if sensor == Sensors.Conductivity:
-                results[HexDataTypes.conductivity.value] = int(hex[n : n + HEX_LENGTH["conductivity"]], 16) / 256
+                results[HexDataTypes.conductivity.value] = (
+                    int(hex[n : n + HEX_LENGTH["conductivity"]], 16) / 256
+                )
                 n += HEX_LENGTH["conductivity"]
 
             if sensor == Sensors.Pressure:  # TODO: add conversion for quartz pressure sensors
                 results[HexDataTypes.pressure.value] = int(hex[n : n + HEX_LENGTH["pressure"]], 16)
                 n += HEX_LENGTH["pressure"]
-                result = int(hex[n : n + HEX_LENGTH["temperatureCompensation"]], 16) / COUNTS_TO_VOLTS
+                result = (
+                    int(hex[n : n + HEX_LENGTH["temperatureCompensation"]], 16) / COUNTS_TO_VOLTS
+                )
                 results[HexDataTypes.temperatureCompensation.value] = result
                 n += HEX_LENGTH["temperatureCompensation"]
 
@@ -363,17 +373,25 @@ def read_SBE19plus_format_0(hex: str, enabled_sensors: List[Sensors], moored_mod
                 n += HEX_LENGTH["SBE38temperature"]
 
             if sensor == Sensors.WETLABS:
-                results[HexDataTypes.wetlabs0.value] = int(hex[n : n + HEX_LENGTH["wetlabsSingleSensor"]], 16)
+                results[HexDataTypes.wetlabs0.value] = int(
+                    hex[n : n + HEX_LENGTH["wetlabsSingleSensor"]], 16
+                )
                 n += HEX_LENGTH["wetlabsSingleSensor"]
 
-                results[HexDataTypes.wetlabs1.value] = int(hex[n : n + HEX_LENGTH["wetlabsSingleSensor"]], 16)
+                results[HexDataTypes.wetlabs1.value] = int(
+                    hex[n : n + HEX_LENGTH["wetlabsSingleSensor"]], 16
+                )
                 n += HEX_LENGTH["wetlabsSingleSensor"]
 
-                results[HexDataTypes.wetlabs2.value] = int(hex[n : n + HEX_LENGTH["wetlabsSingleSensor"]], 16)
+                results[HexDataTypes.wetlabs2.value] = int(
+                    hex[n : n + HEX_LENGTH["wetlabsSingleSensor"]], 16
+                )
                 n += HEX_LENGTH["wetlabsSingleSensor"]
 
             if sensor == Sensors.GTD:
-                results[HexDataTypes.GTDpressure.value] = int(hex[n : n + HEX_LENGTH["GTDpressure"]], 16) / 10000
+                results[HexDataTypes.GTDpressure.value] = (
+                    int(hex[n : n + HEX_LENGTH["GTDpressure"]], 16) / 10000
+                )
                 n += HEX_LENGTH["GTDpressure"]
                 results[HexDataTypes.GTDtemperature.value] = (
                     int(hex[n : n + HEX_LENGTH["GTDtemperature"]], 16) / 10000 - 10
@@ -381,13 +399,17 @@ def read_SBE19plus_format_0(hex: str, enabled_sensors: List[Sensors], moored_mod
                 n += HEX_LENGTH["GTDtemperature"]
 
             if sensor == Sensors.DualGTD:
-                results[HexDataTypes.GTDpressure.value] = int(hex[n : n + HEX_LENGTH["GTDpressure"]], 16) / 10000
+                results[HexDataTypes.GTDpressure.value] = (
+                    int(hex[n : n + HEX_LENGTH["GTDpressure"]], 16) / 10000
+                )
                 n += HEX_LENGTH["GTDpressure"]
                 results[HexDataTypes.GTDtemperature.value] = (
                     int(hex[n : n + HEX_LENGTH["GTDtemperature"]], 16) / 10000 - 10
                 )
                 n += HEX_LENGTH["GTDtemperature"]
-                results[HexDataTypes.GTDpressure2.value] = int(hex[n : n + HEX_LENGTH["GTDpressure"]], 16) / 10000
+                results[HexDataTypes.GTDpressure2.value] = (
+                    int(hex[n : n + HEX_LENGTH["GTDpressure"]], 16) / 10000
+                )
                 n += HEX_LENGTH["GTDpressure"]
                 results[HexDataTypes.GTDtemperature2.value] = (
                     int(hex[n : n + HEX_LENGTH["GTDtemperature"]], 16) / 10000 - 10
@@ -395,11 +417,15 @@ def read_SBE19plus_format_0(hex: str, enabled_sensors: List[Sensors], moored_mod
                 n += HEX_LENGTH["GTDtemperature"]
 
             if sensor == Sensors.OPTODE:
-                results[HexDataTypes.optodeOxygen.value] = int(hex[n : n + HEX_LENGTH["optodeOxygen"]], 16) / 10000 - 10
+                results[HexDataTypes.optodeOxygen.value] = (
+                    int(hex[n : n + HEX_LENGTH["optodeOxygen"]], 16) / 10000 - 10
+                )
                 n += HEX_LENGTH["optodeOxygen"]
 
             if sensor == Sensors.SBE63:
-                results[HexDataTypes.SBE63phase.value] = int(hex[n : n + HEX_LENGTH["SBE63phase"]], 16) / 100000 - 10
+                results[HexDataTypes.SBE63phase.value] = (
+                    int(hex[n : n + HEX_LENGTH["SBE63phase"]], 16) / 100000 - 10
+                )
                 n += HEX_LENGTH["SBE63phase"]
                 results[HexDataTypes.SBE63temperature.value] = (
                     int(hex[n : n + HEX_LENGTH["SBE63temperature"]], 16) / 1000000 - 1
@@ -415,7 +441,9 @@ def read_SBE19plus_format_0(hex: str, enabled_sensors: List[Sensors], moored_mod
 
     # Validate hex length. Ensure length matches what is expected based on enabeld sensors and moored mode.
     if n != len(hex.split("\n")[0]):
-        raise RuntimeWarning("Hex string length does not match expectation based on enabled sensors and moored mode")
+        raise RuntimeWarning(
+            "Hex string length does not match expectation based on enabled sensors and moored mode"
+        )
 
     return results
 
@@ -435,11 +463,15 @@ def read_SBE37SM_format_0(hex: str, enabled_sensors: List[Sensors]) -> dict:
     results[HexDataTypes.temperature.value] = int(hex[n : HEX_LENGTH["temperature"]], 16)
     n += HEX_LENGTH["temperature"]
 
-    results[HexDataTypes.conductivity.value] = int(hex[n : n + HEX_LENGTH["conductivity"]], 16) / 256
+    results[HexDataTypes.conductivity.value] = (
+        int(hex[n : n + HEX_LENGTH["conductivity"]], 16) / 256
+    )
     n += HEX_LENGTH["conductivity"]
 
     if Sensors.SBE63 in enabled_sensors:
-        results[HexDataTypes.SBE63phase.value] = int(hex[n : n + HEX_LENGTH["SBE63phase"]], 16) / 100000 - 10
+        results[HexDataTypes.SBE63phase.value] = (
+            int(hex[n : n + HEX_LENGTH["SBE63phase"]], 16) / 100000 - 10
+        )
         n += HEX_LENGTH["SBE63phase"]
         results[HexDataTypes.SBE63temperature.value] = (
             int(hex[n : n + HEX_LENGTH["SBE63temperature"]], 16) / 1000000 - 1
@@ -454,7 +486,9 @@ def read_SBE37SM_format_0(hex: str, enabled_sensors: List[Sensors]) -> dict:
         n += HEX_LENGTH["temperatureCompensation"]
 
     seconds_since_2000 = int(hex[n : n + HEX_LENGTH["time"]], 16)
-    results[HexDataTypes.dateTime.value] = datetime.fromtimestamp(seconds_since_2000 + SECONDS_BETWEEN_EPOCH_AND_2000)
+    results[HexDataTypes.dateTime.value] = datetime.fromtimestamp(
+        seconds_since_2000 + SECONDS_BETWEEN_EPOCH_AND_2000
+    )
     n += HEX_LENGTH["time"]
 
     return results

@@ -73,7 +73,9 @@ def contour_from_t_s_p(
     # Compute TEOS-10 quantities: SA, CT, potential_density
     absolute_salinity = gsw.SA_from_SP(salinity_PSU, pressure_dbar, lon, lat)
     conservative_temperature = gsw.CT_from_t(absolute_salinity, temperature_C, pressure_dbar)
-    potential_density = gsw.rho(absolute_salinity, conservative_temperature, 0)  # TODO: parameterize reference density
+    potential_density = gsw.rho(
+        absolute_salinity, conservative_temperature, 0
+    )  # TODO: parameterize reference density
 
     # Figure out T-S grid boundaries (mins and maxes)
     salt_min = absolute_salinity.min() - (0.01 * absolute_salinity.min())

@@ -375,7 +375,9 @@ def create_overlay(x: pd.DataFrame, y: pd.DataFrame, config: ChartConfig) -> go.
     if len(x.columns) > 1 and len(y.columns) == 1:
         x_axis = 1
         for x_column in x.columns:
-            figure.add_trace(go.Scatter(x=x[x_column], y=y[y.columns[0]], name=x_column, xaxis=f"x{x_axis}"))
+            figure.add_trace(
+                go.Scatter(x=x[x_column], y=y[y.columns[0]], name=x_column, xaxis=f"x{x_axis}")
+            )
             x_axis += 1
 
         apply_overlay_config(figure, config)
@@ -383,7 +385,9 @@ def create_overlay(x: pd.DataFrame, y: pd.DataFrame, config: ChartConfig) -> go.
     elif len(x.columns) == 1 and len(y.columns) > 1:
         y_axis = 1
         for y_column in y.columns:
-            figure.add_trace(go.Scatter(x=x[x.columns[0]], y=y[y_column], name=y_column, yaxis=f"y{y_axis}"))
+            figure.add_trace(
+                go.Scatter(x=x[x.columns[0]], y=y[y_column], name=y_column, yaxis=f"y{y_axis}")
+            )
             y_axis += 1
 
         apply_overlay_config(figure, config)
@@ -569,7 +573,9 @@ def plot_ts_chart(
     """
 
     if len(config.x_names) > 1 or len(config.y_names) > 1 or len(config.z_names) > 1:
-        logger.warning("plot_ts_chart expects one data set for each x, y, and z parameter. Extra data sets are ignored")
+        logger.warning(
+            "plot_ts_chart expects one data set for each x, y, and z parameter. Extra data sets are ignored"
+        )
 
     # Create 2 plots using plotly (not plotly express)
     # T-S diagram with x-y values colored by z

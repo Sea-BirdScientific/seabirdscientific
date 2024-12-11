@@ -35,6 +35,7 @@ dev = [
   "pytest",
   "black",
   "nbformat",
+  "pre-commit",
   "twine",
   "build",
 ]
@@ -50,4 +51,4 @@ requires = [
 ]
 
 [tool.black]
-line-length=120
+line-length=99

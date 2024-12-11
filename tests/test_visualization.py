@@ -52,7 +52,9 @@ class TestSelectSubset:
 
 class TestPlotXYChart:
     data_path = test_resources / "example_pass.asc"
-    config = viz.ChartConfig(title=data_path.name, x_names=["Col1"], y_names=[], z_names=[], chart_type="")
+    config = viz.ChartConfig(
+        title=data_path.name, x_names=["Col1"], y_names=[], z_names=[], chart_type=""
+    )
     data = viz.ChartData(data_path, config)
 
     def test_plot_xy_chart_pass(self):
