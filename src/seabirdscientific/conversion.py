@@ -59,7 +59,7 @@ KELVIN_OFFSET_25C = 298.15
 OXYGEN_MLPERL_TO_MGPERL = 1.42903
 OXYGEN_MLPERL_TO_UMOLPERKG = 44660
 ITS90_TO_IPTS68 = 1.00024  # taken from https://blog.seabird.com/ufaqs/what-is-the-difference-in-temperature-expressions-between-ipts-68-and-its-90/
-
+UMNO3_TO_MGNL = 0.014007
 
 def convert_temperature(
     temperature_counts_in: np.ndarray,
@@ -643,3 +643,30 @@ def convert_par_logarithmic(
     PAR = coefs.multiplier * coefs.im * 10 ** ((raw_par - coefs.a0) / coefs.a1)
 
     return PAR
+
+
+def convert_nitrate(
+        volts: np.ndarray,
+        dac_min: float,
+        dac_max: float,
+        units: Literal['uMNO3', 'mgNL']='uMNO3'
+):
+    """Convert SUNA raw voltages to uMNO3 or mgNL
+
+    :param volts: raw output voltage from a SUNA
+    :param dac_min: NO3 value that corresponds to V_MIN
+    :param dac_max: NO3 value that corresponds to V_MAX
+    :param units: conversion output units, defaults to 'uMNO3'
+    :return: converted nitrate
+    """
+    V_MIN = 0.095
+    V_MAX = 4.095
+    a1 = (dac_min - dac_max) / (V_MIN - V_MAX)
+    a0 = dac_max - V_MAX * a1
+    
+    nitrate = a1 * volts + a0
+
+    if units == 'mgNL':
+        nitrate *= UMNO3_TO_MGNL
+
+    return nitrate
