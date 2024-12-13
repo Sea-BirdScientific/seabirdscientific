@@ -790,3 +790,19 @@ class TestBuoyancy:
         assert output_dataframe["E10^-8"].to_numpy() == pytest.approx(
             self.expected_E_pow_8_win30, rel=rel_tol
         )
+
+
+class TestNitrate:
+    dac_min = -5
+    dac_max = 100
+    voltages = np.array([0.095, 1, 2, 3, 4.095])
+
+    def test_convert_nitrate_umno3(self):
+        expected_umno3 = np.array([-5, 18.75625, 45.00625, 71.25625, 100])
+        nitrate = dc.convert_nitrate(self.voltages, dac_min=self.dac_min, dac_max=self.dac_max)
+        assert np.allclose(expected_umno3, nitrate, atol=0.000001)
+
+    def test_convert_nitrate_mgnl(self):
+        expected_mgnl = np.array([-0.070035, 0.26271879375, 0.63040254375, 0.99808629375, 1.4007])
+        nitrate = dc.convert_nitrate(self.voltages, dac_min=self.dac_min, dac_max=self.dac_max, units='mgNL')
+        assert np.allclose(expected_mgnl, nitrate, atol=0.000001)
