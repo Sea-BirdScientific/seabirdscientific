@@ -835,7 +835,7 @@ def convert_external_seafet_ph(
         C2 = 0.0000034286 
 
         # 0.00000343*(t)*(t) + 0.00067524*(t) + 0.49172143
-        adh = C0 + (C1 * temperature) + (C2 * temperature**2)
+        adh = C0 + C1 * temperature + C2 * temperature**2
 
         return adh
 
@@ -922,7 +922,7 @@ def convert_external_seafet_ph(
     ph_volts = convert_ph_voltage_counts(ph_counts)
 
     # Eo(T) or temperature offset
-    eot = coefs.int_k2 * temperature
+    eot = coefs.ext_k2 * temperature
 
     # Eo(P) or pressure offset
     eop = (
