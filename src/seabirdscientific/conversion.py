@@ -38,7 +38,6 @@ from scipy import stats
 
 # Internal imports
 from .cal_coefficients import (
-    ChlorophyllACoefficients,
     ConductivityCoefficients,
     Oxygen43Coefficients,
     Oxygen63Coefficients,
@@ -47,7 +46,7 @@ from .cal_coefficients import (
     PressureCoefficients,
     TemperatureCoefficients,
     Thermistor63Coefficients,
-    TurbidityCoefficients,
+    ECOCoefficients,
 )
 
 
@@ -92,9 +91,7 @@ def convert_temperature(
         temperature_counts = temperature_counts_in
 
     log_t = np.log(temperature_counts)
-    temperature = (
-        1 / (coefs.a0 + coefs.a1 * log_t + coefs.a2 * log_t**2 + coefs.a3 * log_t**3)
-    ) - KELVIN_OFFSET_0C
+    temperature = (1 / (coefs.a0 + coefs.a1 * log_t + coefs.a2 * log_t**2 + coefs.a3 * log_t**3)) - KELVIN_OFFSET_0C
 
     if standard == "IPTS68":
         temperature *= ITS90_TO_IPTS68
@@ -126,11 +123,7 @@ def convert_pressure(
     """
     sea_level_pressure = 14.7
 
-    t = (
-        coefs.ptempa0
-        + coefs.ptempa1 * compensation_voltage
-        + coefs.ptempa2 * compensation_voltage**2
-    )
+    t = coefs.ptempa0 + coefs.ptempa1 * compensation_voltage + coefs.ptempa2 * compensation_voltage**2
     x = pressure_count - coefs.ptca0 - coefs.ptca1 * t - coefs.ptca2 * t**2
     n = x * coefs.ptcb0 / (coefs.ptcb0 + coefs.ptcb1 * t + coefs.ptcb2 * t**2)
     pressure = coefs.pa0 + coefs.pa1 * n + coefs.pa2 * n**2 - sea_level_pressure
@@ -191,9 +184,7 @@ def potential_density_from_t_s_p(
 
     absolute_salinity = gsw.SA_from_SP(salinity, pressure, lon, lat)
     conservative_temperature = gsw.CT_from_t(absolute_salinity, temperature, pressure)
-    potential_density = (
-        gsw.rho(absolute_salinity, conservative_temperature, reference_pressure) - 1000
-    )
+    potential_density = gsw.rho(absolute_salinity, conservative_temperature, reference_pressure) - 1000
     return potential_density
 
 
@@ -222,9 +213,7 @@ def potential_density_from_t_c_p(
     """
 
     salinity = gsw.SP_from_C(conductivity, temperature, pressure)
-    return potential_density_from_t_s_p(
-        temperature, salinity, pressure, lon, lat, reference_pressure
-    )
+    return potential_density_from_t_s_p(temperature, salinity, pressure, lon, lat, reference_pressure)
 
 
 def density_from_t_s_p(
@@ -353,9 +342,7 @@ def convert_sbe63_oxygen(
 
     # Ts = ln [(298.15 – T) / (273.15 + T)]
     ts = np.log((KELVIN_OFFSET_25C - temperature) / (KELVIN_OFFSET_0C + temperature))
-    s_corr_exp = (
-        salinity * (SOL_B0 + SOL_B1 * ts + SOL_B2 * ts**2 + SOL_B3 * ts**3) + SOL_C0 * salinity**2
-    )
+    s_corr_exp = salinity * (SOL_B0 + SOL_B1 * ts + SOL_B2 * ts**2 + SOL_B3 * ts**3) + SOL_C0 * salinity**2
     s_corr = e**s_corr_exp
 
     # Pcorr = exp (E * P / K)
@@ -364,18 +351,7 @@ def convert_sbe63_oxygen(
     p_corr_exp = (e * pressure) / K
     p_corr = e**p_corr_exp
 
-    ox_val = (
-        (
-            (
-                (coefs.a0 + coefs.a1 * temperature + coefs.a2 * oxygen_volts**2)
-                / (coefs.b0 + coefs.b1 * oxygen_volts)
-                - 1.0
-            )
-            / ksv
-        )
-        * s_corr
-        * p_corr
-    )
+    ox_val = (((coefs.a0 + coefs.a1 * temperature + coefs.a2 * oxygen_volts**2) / (coefs.b0 + coefs.b1 * oxygen_volts) - 1.0) / ksv) * s_corr * p_corr
 
     return ox_val
 
@@ -394,10 +370,7 @@ def convert_sbe63_thermistor(
         np.ndarray: converted thermistor temperature values in ITS-90 deg C
     """
     logVal = np.log((100000 * instrument_output) / (3.3 - instrument_output))
-    temperature = (
-        1 / (coefs.ta0 + coefs.ta1 * logVal + coefs.ta2 * logVal**2 + coefs.ta3 * logVal**3)
-        - KELVIN_OFFSET_0C
-    )
+    temperature = 1 / (coefs.ta0 + coefs.ta1 * logVal + coefs.ta2 * logVal**2 + coefs.ta3 * logVal**3) - KELVIN_OFFSET_0C
     return temperature
 
 
@@ -439,9 +412,7 @@ def convert_sbe43_oxygen(
         for i in range(scans_per_side, len(voltage) - scans_per_side):
             ox_subset = voltage[i - scans_per_side : i + scans_per_side + 1]
 
-            time_subset = np.arange(
-                0, len(ox_subset) * sample_interval, sample_interval, dtype=float
-            )
+            time_subset = np.arange(0, len(ox_subset) * sample_interval, sample_interval, dtype=float)
 
             result = stats.linregress(time_subset, ox_subset)
 
@@ -522,12 +493,7 @@ def _convert_sbe43_oxygen(
 
     soc_term = coefs.soc * (voltage + coefs.v_offset + tau)
     temp_term = 1.0 + coefs.a * temperature + coefs.b * temperature**2 + coefs.c * temperature**3
-    oxygen = (
-        soc_term
-        * solubility
-        * temp_term
-        * np.exp((coefs.e * pressure) / (temperature + KELVIN_OFFSET_0C))
-    )
+    oxygen = soc_term * solubility * temp_term * np.exp((coefs.e * pressure) / (temperature + KELVIN_OFFSET_0C))
     return oxygen
 
 
@@ -568,44 +534,22 @@ def convert_oxygen_to_umol_per_kg(ox_values: np.ndarray, potential_density: np.n
     return convertedVals
 
 
-def convert_eco_chlorophylla(
-    raw_chlorophyll_a: float,
-    coefs: ChlorophyllACoefficients,
+def convert_eco(
+    raw: float,
+    coefs: ECOCoefficients,
 ):
-    """Converts a raw value for chlorophyll-a channel on a ECO-FLNTU or ECO-FL.
-
-    All equation information comes from ECO-FLNTU calibration sheets
+    """Converts a raw value for any ECO measurand.
 
     Args:
-        raw_chlorophyll_a (float): raw counts for digital, raw volts for analog
-        coefs (ChlorophyllACoefficients): calibration coefficients for clorophyll-a
+        raw (float): raw counts for digital, raw volts for analog
+        coefs (ChlorophyllACoefficients): calibration coefficients
 
     Returns:
-        float: converted chlorophyll-a in μg/l
+        float: converted ECO measurement in calibration units
     """
-    chlorophylla = coefs.scalar * (raw_chlorophyll_a - coefs.v_blank)
+    converted = coefs.slope * (raw - coefs.offset)
 
-    return chlorophylla
-
-
-def convert_eco_turbidity(
-    raw_turbidity: float,
-    coefs: TurbidityCoefficients,
-):
-    """Converts a raw value for turbidity channel on a ECO-FLNTU.
-
-    All equation information comes from ECO-FLNTU calibration sheets
-
-    Args:
-        rawTurbidity(float): raw counts for digital, raw volts for analog
-        coefs (TurbidityCoefficients): calbration coefficients for turbidity
-
-    Returns:
-        float: converted turbidity in nephelometric turbidity units (NTU)
-    """
-    turbidity = coefs.scalar * (raw_turbidity - coefs.dark_voltage)
-
-    return turbidity
+    return converted
 
 
 def convert_sbe18_ph(
@@ -622,9 +566,7 @@ def convert_sbe18_ph(
     Returns:
         float: converted pH
     """
-    pH = 7 + (raw_ph - coefs.offset) / (
-        1.98416e-4 * (temperature + KELVIN_OFFSET_0C) * coefs.slope
-    )
+    pH = 7 + (raw_ph - coefs.offset) / (1.98416e-4 * (temperature + KELVIN_OFFSET_0C) * coefs.slope)
     return pH
 
 

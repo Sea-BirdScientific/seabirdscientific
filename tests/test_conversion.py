@@ -87,8 +87,8 @@ class TestConvertTemperature:
         result = dc.convert_temperature(
             self.test_temp_vals,
             ec.temperature_coefs_sn6130,
-            'ITS90',
-            'C',
+            "ITS90",
+            "C",
             True,
         )
         assert np.allclose(expected, result, rtol=0, atol=1e-4)
@@ -98,8 +98,8 @@ class TestConvertTemperature:
         result = dc.convert_temperature(
             self.test_temp_vals,
             ec.temperature_coefs_sn6130,
-            'ITS90',
-            'F',
+            "ITS90",
+            "F",
             True,
         )
         assert np.allclose(expected, result, rtol=0, atol=1e-4)
@@ -109,8 +109,8 @@ class TestConvertTemperature:
         result = dc.convert_temperature(
             self.test_temp_vals,
             ec.temperature_coefs_sn6130,
-            'IPTS68',
-            'C',
+            "IPTS68",
+            "C",
             True,
         )
         assert np.allclose(expected, result, rtol=0, atol=1e-4)
@@ -120,8 +120,8 @@ class TestConvertTemperature:
         result = dc.convert_temperature(
             self.test_temp_vals,
             ec.temperature_coefs_sn6130,
-            'IPTS68',
-            'F',
+            "IPTS68",
+            "F",
             True,
         )
         assert np.allclose(expected, result, rtol=0, atol=1e-4)
@@ -140,7 +140,7 @@ class TestConvertPressure:
             self.test_pressure_vals,
             self.test_compensation_vals,
             ec.pressure_coefs_sn6130,
-            'psia',
+            "psia",
         )
         assert np.allclose(expected, result, rtol=0, atol=1e-3)
 
@@ -150,7 +150,7 @@ class TestConvertPressure:
             self.test_pressure_vals,
             self.test_compensation_vals,
             ec.pressure_coefs_sn6130,
-            'dbar',
+            "dbar",
         )
         assert np.allclose(expected, result, rtol=0, atol=1e-3)
 
@@ -180,8 +180,8 @@ class TestConductivity19plus:
     temperature = dc.convert_temperature(
         raw["temperature"][0:6].values,
         ec.temperature_coefs_sn6130,
-        'IPTS68',
-        'C',
+        "IPTS68",
+        "C",
         True,
     )
 
@@ -190,7 +190,7 @@ class TestConductivity19plus:
         raw["pressure"][0:6].values,
         raw["temperature compensation"][0:6].values,
         ec.pressure_coefs_sn6130,
-        'psia',
+        "psia",
     )
 
     def test_convert_conductivity(self):
@@ -222,8 +222,8 @@ class TestConductivity37SM:
     temperature = dc.convert_temperature(
         raw["temperature"][0:6],
         ec.temperature_coefs_sn6130,
-        'IPTS68',
-        'C',
+        "IPTS68",
+        "C",
         True,
     )
 
@@ -232,7 +232,7 @@ class TestConductivity37SM:
         raw["pressure"][0:6],
         raw["temperature compensation"][0:6],
         ec.pressure_coefs_sn16125,
-        'psia',
+        "psia",
     )
 
     def test_convert_conductivity(self):
@@ -445,31 +445,35 @@ class TestConvertOxygen:
 
     def test_convert_sbe43_oxygen_from_hex(self):
         # From SBE19plus_01906398_2019_07_15_0033.hex
-        raw_oxygen = np.array([
-            2.5575,
-            2.5586,
-            2.5606,
-            2.5627,
-            2.5638,
-            2.5637,
-            2.5635,
-            2.5629,
-            2.5621,
-            2.5618,
-        ])
+        raw_oxygen = np.array(
+            [
+                2.5575,
+                2.5586,
+                2.5606,
+                2.5627,
+                2.5638,
+                2.5637,
+                2.5635,
+                2.5629,
+                2.5621,
+                2.5618,
+            ]
+        )
         pressure = np.array([-0.012, -0.012, -0.012, -0.012, -0.012, -0.012, -0.012, -0.011, 0.107, 0.351])
-        temperature = np.array([
-            25.3427,
-            25.3408,
-            25.3387,
-            25.3363,
-            25.3341,
-            25.3326,
-            25.3316,
-            25.3302,
-            25.3377,
-            25.5433,
-        ])
+        temperature = np.array(
+            [
+                25.3427,
+                25.3408,
+                25.3387,
+                25.3363,
+                25.3341,
+                25.3326,
+                25.3316,
+                25.3302,
+                25.3377,
+                25.5433,
+            ]
+        )
         salinity = np.array([0.4373, 0.5592, 0.5865, 0.5095, 0.4621, 0.4119, 0.3936, 0.3463, 4.9297, 6.5098])
         expected = np.array([4.4728, 4.4722, 4.4762, 4.4828, 4.4867, 4.4879, 4.488, 4.488, 4.3707, 4.3148])
         for index in range(len(expected)):
@@ -487,31 +491,35 @@ class TestConvertOxygen:
         # TODO: This test is failing. Fix as part of NSI-3061
         # From SBE19plus_01906398_2019_07_15_0033.hex
         # TODO: hysteresis correction only has a real impact on deep data, will need some to better validate this
-        raw_oxygen = np.array([
-            2.5575,
-            2.5586,
-            2.5606,
-            2.5627,
-            2.5638,
-            2.5637,
-            2.5635,
-            2.5629,
-            2.5621,
-            2.5618,
-        ])
+        raw_oxygen = np.array(
+            [
+                2.5575,
+                2.5586,
+                2.5606,
+                2.5627,
+                2.5638,
+                2.5637,
+                2.5635,
+                2.5629,
+                2.5621,
+                2.5618,
+            ]
+        )
         pressure = np.array([-0.012, -0.012, -0.012, -0.012, -0.012, -0.012, -0.012, -0.011, 0.107, 0.351])
-        temperature = np.array([
-            25.3427,
-            25.3408,
-            25.3387,
-            25.3363,
-            25.3341,
-            25.3326,
-            25.3316,
-            25.3302,
-            25.3377,
-            25.5433,
-        ])
+        temperature = np.array(
+            [
+                25.3427,
+                25.3408,
+                25.3387,
+                25.3363,
+                25.3341,
+                25.3326,
+                25.3316,
+                25.3302,
+                25.3377,
+                25.5433,
+            ]
+        )
         salinity = np.array([0.4373, 0.5592, 0.5865, 0.5095, 0.4621, 0.4119, 0.3936, 0.3463, 4.9297, 6.5098])
         expected = np.array([4.4728, 4.4722, 4.4762, 4.4828, 4.4867, 4.4879, 4.488, 4.488, 4.3707, 4.3148])
         result = dc.convert_sbe43_oxygen(
@@ -530,12 +538,8 @@ class TestConvertOxygen:
 
     def test_convert_sbe43_oxygen_from_hex_with_tau_correction(self):
         # From SBE19plus_01906398_2019_07_15_0033.hex
-        raw_oxygen = np.asarray(
-            [2.5575, 2.5586, 2.5606, 2.5627, 2.5638, 2.5637, 2.5635, 2.5629, 2.5621, 2.5618]
-        )
-        pressure = np.asarray(
-            [-0.012, -0.012, -0.012, -0.012, -0.012, -0.012, -0.012, -0.011, 0.107, 0.351]
-        )
+        raw_oxygen = np.asarray([2.5575, 2.5586, 2.5606, 2.5627, 2.5638, 2.5637, 2.5635, 2.5629, 2.5621, 2.5618])
+        pressure = np.asarray([-0.012, -0.012, -0.012, -0.012, -0.012, -0.012, -0.012, -0.011, 0.107, 0.351])
         temperature = np.asarray(
             [
                 25.3427,
@@ -550,9 +554,7 @@ class TestConvertOxygen:
                 25.5433,
             ]
         )
-        salinity = np.asarray(
-            [0.4373, 0.5592, 0.5865, 0.5095, 0.4621, 0.4119, 0.3936, 0.3463, 4.9297, 6.5098]
-        )
+        salinity = np.asarray([0.4373, 0.5592, 0.5865, 0.5095, 0.4621, 0.4119, 0.3936, 0.3463, 4.9297, 6.5098])
         expected = [4.4729, 4.4723, 4.4884, 4.4927, 4.4916, 4.4879, 4.4849, 4.4841, 4.3707, 4.3148]
 
         result = dc.convert_sbe43_oxygen(
@@ -570,18 +572,14 @@ class TestConvertOxygen:
         assert np.allclose(result, expected, rtol=0, atol=1e-4)
 
     def test_convert_to_mg_per_l(self):
-        oxMlPerL = np.array(
-            [4.4728, 4.4722, 4.4762, 4.4828, 4.4867, 4.4879, 4.488, 4.488, 4.3707, 4.3148]
-        )
+        oxMlPerL = np.array([4.4728, 4.4722, 4.4762, 4.4828, 4.4867, 4.4879, 4.488, 4.488, 4.3707, 4.3148])
         expected = [6.3921, 6.3913, 6.3969, 6.4064, 6.4119, 6.4137, 6.4138, 6.4138, 6.2461, 6.1663]
         result = dc.convert_oxygen_to_mg_per_l(oxMlPerL)
         for index in range(len(expected)):
             assert np.allclose([expected[index]], [result[index]], rtol=0, atol=1e-3)
 
     def test_convert_to_umol_per_kg(self):
-        oxMlPerL = np.array(
-            [4.4728, 4.4722, 4.4762, 4.4828, 4.4867, 4.4879, 4.488, 4.488, 4.3707, 4.3148]
-        )
+        oxMlPerL = np.array([4.4728, 4.4722, 4.4762, 4.4828, 4.4867, 4.4879, 4.488, 4.488, 4.3707, 4.3148])
         expected = [
             200.3,
             200.254,
@@ -614,169 +612,139 @@ class TestConvertOxygen:
 
 
 class TestConvertChlorophylla:
-    def test_convert_eco_chlorophylla(self):
-        rawAnalog = np.array([
-            0.0949,
-            0.0948,
-            0.0960,
-            0.0961,
-            0.0962,
-            0.0959,
-            0.1013,
-            0.1012,
-            0.1015,
-            0.1012,
-            0.1003,
-            0.0999,
-            0.0999,
-            0.0996,
-        ])
-        expected = np.array([
-            0.2691,
-            0.2683,
-            0.2798,
-            0.2813,
-            0.2821,
-            0.279,
-            0.3332,
-            0.3317,
-            0.3355,
-            0.3317,
-            0.3233,
-            0.3187,
-            0.3195,
-            0.3157,
-        ])
+    def test_convert_eco(self):
+        rawAnalog = np.array(
+            [
+                0.0949,
+                0.0948,
+                0.0960,
+                0.0961,
+                0.0962,
+                0.0959,
+                0.1013,
+                0.1012,
+                0.1015,
+                0.1012,
+                0.1003,
+                0.0999,
+                0.0999,
+                0.0996,
+            ]
+        )
+        expected = np.array(
+            [
+                0.2691,
+                0.2683,
+                0.2798,
+                0.2813,
+                0.2821,
+                0.279,
+                0.3332,
+                0.3317,
+                0.3355,
+                0.3317,
+                0.3233,
+                0.3187,
+                0.3195,
+                0.3157,
+            ]
+        )
         for index in range(len(expected)):
-            result = dc.convert_eco_chlorophylla(
-                rawAnalog[index], ec.chlorophyll_a_coefs_sn6130
-            )
-            assert np.allclose([expected[index]], [result], rtol=0, atol=1e-2)
-
-
-class TestConvertTurbidity:
-    def test_convert_eco_turbidity(self):
-        rawAnalog = np.array([
-            0.0787,
-            0.079,
-            0.0831,
-            0.0829,
-            0.0835,
-            0.0833,
-            0.0825,
-            0.082,
-            0.082,
-            0.0822,
-            0.0812,
-            0.0806,
-            0.0813,
-            0.0816,
-        ])
-        expected = np.array([
-            0.0983,
-            0.1002,
-            0.1204,
-            0.1197,
-            0.1223,
-            0.1216,
-            0.1174,
-            0.1151,
-            0.1151,
-            0.1158,
-            0.1109,
-            0.1082,
-            0.1117,
-            0.1132,
-        ])
-        for index in range(len(expected)):
-            result = dc.convert_eco_turbidity(rawAnalog[index], ec.turbidity_coefs_sn6130)
+            result = dc.convert_eco(rawAnalog[index], ec.chlorophyll_a_coefs_sn6130)
             assert np.allclose([expected[index]], [result], rtol=0, atol=1e-2)
 
 
 class TestConvertpH:
     def test_convert_sbe18_ph(self):
-        rawVolts = np.array([
-            2.9507,
-            2.9518,
-            2.9522,
-            2.9517,
-            2.9521,
-            2.9519,
-            2.9517,
-            2.9526,
-            2.9525,
-            2.9537,
-            2.953,
-            2.9527,
-        ])
-        temperatureC = np.array([
-            26.6927,
-            26.6994,
-            26.6624,
-            26.6122,
-            26.5808,
-            26.5621,
-            26.5503,
-            26.5505,
-            26.569,
-            26.5954,
-            26.6182,
-            26.6359,
-        ])
-        expected = np.array([
-            8.587,
-            8.591,
-            8.593,
-            8.591,
-            8.593,
-            8.592,
-            8.592,
-            8.595,
-            8.594,
-            8.599,
-            8.596,
-            8.595,
-        ])
+        rawVolts = np.array(
+            [
+                2.9507,
+                2.9518,
+                2.9522,
+                2.9517,
+                2.9521,
+                2.9519,
+                2.9517,
+                2.9526,
+                2.9525,
+                2.9537,
+                2.953,
+                2.9527,
+            ]
+        )
+        temperatureC = np.array(
+            [
+                26.6927,
+                26.6994,
+                26.6624,
+                26.6122,
+                26.5808,
+                26.5621,
+                26.5503,
+                26.5505,
+                26.569,
+                26.5954,
+                26.6182,
+                26.6359,
+            ]
+        )
+        expected = np.array(
+            [
+                8.587,
+                8.591,
+                8.593,
+                8.591,
+                8.593,
+                8.592,
+                8.592,
+                8.595,
+                8.594,
+                8.599,
+                8.596,
+                8.595,
+            ]
+        )
         for index in range(len(expected)):
-            result = dc.convert_sbe18_ph(
-                rawVolts[index], temperatureC[index], ec.ph_coefs_sn0762
-            )
+            result = dc.convert_sbe18_ph(rawVolts[index], temperatureC[index], ec.ph_coefs_sn0762)
             assert np.allclose([expected[index]], [result], rtol=0, atol=1e-3)
-
 
 
 class TestPARlogarithmic:
     def test_convert_par_logarithmic(self):
-        rawVolts = np.array([
-            1.176241702,
-            1.175249866,
-            1.174944686,
-            1.176394293,
-            0.089951934,
-            0.090562294,
-            0.090638590,
-            0.091172655,
-            0.090485999,
-            0.090943770,
-            0.090409704,
-            0.091096360,
-            0.093537804,
-        ])
-        expected = np.array([
-            0.81605,
-            0.81394,
-            0.81330,
-            0.81637,
-            0.04817,
-            0.04824,
-            0.04825,
-            0.04832,
-            0.04823,
-            0.04829,
-            0.04822,
-            0.04831,
-            0.04862,
-        ])
+        rawVolts = np.array(
+            [
+                1.176241702,
+                1.175249866,
+                1.174944686,
+                1.176394293,
+                0.089951934,
+                0.090562294,
+                0.090638590,
+                0.091172655,
+                0.090485999,
+                0.090943770,
+                0.090409704,
+                0.091096360,
+                0.093537804,
+            ]
+        )
+        expected = np.array(
+            [
+                0.81605,
+                0.81394,
+                0.81330,
+                0.81637,
+                0.04817,
+                0.04824,
+                0.04825,
+                0.04832,
+                0.04823,
+                0.04829,
+                0.04822,
+                0.04831,
+                0.04862,
+            ]
+        )
         for index in range(len(expected)):
             result = dc.convert_par_logarithmic(
                 rawVolts[index],
