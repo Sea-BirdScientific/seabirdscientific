@@ -49,9 +49,7 @@ class PressureCoefficients:
         ptempa2 (float): ptempa2 calibration coefficient for the pressure sensor
     """
 
-    def __init__(
-        self, pa0, pa1, pa2, ptca0, ptca1, ptca2, ptcb0, ptcb1, ptcb2, ptempa0, ptempa1, ptempa2
-    ):
+    def __init__(self, pa0, pa1, pa2, ptca0, ptca1, ptca2, ptcb0, ptcb1, ptcb2, ptempa0, ptempa1, ptempa2):
         self.pa0 = pa0
         self.pa1 = pa1
         self.pa2 = pa2
@@ -89,28 +87,16 @@ class ConductivityCoefficients:
         self.wbotc = wbotc
 
 
-class TurbidityCoefficients:
+class ECOCoefficients:
     """
     Args:
-        scalar (float): NTU/count for digital, NTU/V for analog
-        v_blank (float): dark counts for digital, V for analog
+        slope (float): units/count for digital, units/V for analog
+        offset (float): dark counts for digital, dark voltage for analog
     """
 
-    def __init__(self, scalar, dark_voltage):
-        self.scalar = scalar
-        self.dark_voltage = dark_voltage
-
-
-class ChlorophyllACoefficients:
-    """
-    Args:
-        scalar (float): μg/l/count for digital, μg/l/V for analog
-        v_blank (float): dark counts for digital, V for analog
-    """
-
-    def __init__(self, scalar, v_blank):
-        self.scalar = scalar
-        self.v_blank = v_blank
+    def __init__(self, slope, offset):
+        self.slope = slope
+        self.offset = offset
 
 
 class Oxygen63Coefficients:
