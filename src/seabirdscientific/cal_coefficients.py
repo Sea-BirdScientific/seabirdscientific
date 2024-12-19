@@ -187,12 +187,28 @@ class PARCoefficients:
         self.multiplier = multiplier
 
 
-class PHSeaFETCoefficients:
-    """_summary_
+class PHSeaFETInternalCoefficients:
     """
-    def __init__(self, int_k0, int_k2, ext_k0, ext_k2, f1, f2, f3, f4, f5, f6):
+    :param int_k0: Internal K0 calibration coefficient
+    :param int_k2: Internal K2 calibration coefficient
+    """
+    def __init__(self, int_k0, int_k2):
         self.int_k0 = int_k0
         self.int_k2 = int_k2
+
+
+class PHSeaFETExternalCoefficients:
+    """
+    :param ext_k0: External K0 calibration coefficient
+    :param ext_k2: External K2 calibration coefficient
+    :param f1: f(P) calibration coefficient
+    :param f2: f(P) calibration coefficient
+    :param f3: f(P) calibration coefficient
+    :param f4: f(P) calibration coefficient
+    :param f5: f(P) calibration coefficient
+    :param f6: f(P) calibration coefficient
+    """
+    def __init__(self, ext_k0, ext_k2, f1, f2, f3, f4, f5, f6):
         self.ext_k0 = ext_k0
         self.ext_k2 = ext_k2
         self.f1 = f1
