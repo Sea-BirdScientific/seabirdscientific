@@ -28,6 +28,7 @@ If applicable, add screenshots to help explain your problem.
  - Python version: [e.g. 3.10]
  - seabirdscientific version: [e.g. 2.0.0]
  - Instrument: [e.g. SBE19plusV2]
+ - Instrument Firmware: [e.g. 1.2.3]
 
 **Additional context**
 Add any other context about the problem here.
