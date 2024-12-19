@@ -5,7 +5,8 @@ from seabirdscientific.cal_coefficients import (
     Oxygen63Coefficients,
     PARCoefficients,
     PH18Coefficients,
-    PHSeaFETCoefficients,
+    PHSeaFETInternalCoefficients,
+    PHSeaFETExternalCoefficients,
     PressureCoefficients,
     TemperatureCoefficients,
     Thermistor63Coefficients,
@@ -200,9 +201,12 @@ par_coefs_sn0411 = PARCoefficients(
     multiplier=1,
 )
 
-ph_seafet_coeffs = PHSeaFETCoefficients(
+ph_seafet_internal_coeffs = PHSeaFETInternalCoefficients(
     int_k0=-1.354051,
     int_k2=-0.001272858,
+)
+
+ph_seafet_external_coeffs = PHSeaFETExternalCoefficients(
     ext_k0=-1.345407,
     ext_k2=-0.001106957,
     f1=0,

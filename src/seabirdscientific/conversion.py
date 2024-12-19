@@ -44,7 +44,8 @@ from .cal_coefficients import (
     Oxygen63Coefficients,
     PARCoefficients,
     PH18Coefficients,
-    PHSeaFETCoefficients,
+    PHSeaFETInternalCoefficients,
+    PHSeaFETExternalCoefficients,
     PressureCoefficients,
     TemperatureCoefficients,
     Thermistor63Coefficients,
@@ -703,7 +704,7 @@ def _calculate_nernst(temperature: np.ndarray):
 def convert_internal_seafet_ph(
     ph_counts: np.ndarray,
     temperature: np.ndarray,
-    coefs: PHSeaFETCoefficients,
+    coefs: PHSeaFETInternalCoefficients,
 ):
     """Calculates the internal pH on the total scale given the
     temperature and internal FET voltage
@@ -731,7 +732,7 @@ def convert_external_seafet_ph(
         temperature: np.ndarray,
         salinity: np.ndarray,
         pressure: np.ndarray,
-        coefs: PHSeaFETCoefficients,
+        coefs: PHSeaFETExternalCoefficients,
 ):
     """Calculates the external pH on the total scale given temperature,
     salinity, pressure and FET voltage counts
@@ -920,7 +921,6 @@ def convert_external_seafet_ph(
 
         return thermal_pressure
 
-
     # Intermediate terms
     # tempK;   # Sample Temperature (K)
     temperature_k = temperature + KELVIN_OFFSET_0C
@@ -938,7 +938,6 @@ def convert_external_seafet_ph(
     log_gamma_hcl = _calculate_log_gamma_hcl(adh=adh, ionic_strength=ionic_strength, temperature=temperature)
 
     thermal_pressure = _calculate_thermal_pressure(temperature=temperature, pressure=pressure)
-
 
     # // Dissociation constant of sulfuric acid in seawater
     # KSO4;      # Dissociation constant of sulfuric acid in seawater
@@ -960,7 +959,6 @@ def convert_external_seafet_ph(
         + coefs.f5 * pressure**5
         + coefs.f6 * pressure**6
     )
-
 
     # Calculate the External pH in Free Scale, firmware applies 2 factor here.
     # Convert pHfree(mol/kg H2O) to pHfree(mol/kg sln) per KSJ by using the

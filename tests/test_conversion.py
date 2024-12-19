@@ -815,18 +815,18 @@ class TestSeaFETPH:
     
     def test_convert_internal_seafet_ph(self):
         internal_ph = dc.convert_internal_seafet_ph(
-            self.internal_ph_counts,
-            self.ph_temperature,
-            ec.ph_seafet_coeffs,
+            ph_counts=self.internal_ph_counts,
+            temperature=self.ph_temperature,
+            coefs=ec.ph_seafet_internal_coeffs,
         )
         assert np.allclose(internal_ph, self.expected_internal_ph, atol=1e-6)
     
     def test_convert_external_seafet_ph(self):
         external_ph = dc.convert_external_seafet_ph(
-            self.external_ph_counts,
-            self.ph_temperature,
+            ph_counts=self.external_ph_counts,
+            temperature=self.ph_temperature,
             salinity=35,
             pressure=0,
-            coefs=ec.ph_seafet_coeffs,
+            coefs=ec.ph_seafet_external_coeffs,
         )
         assert np.allclose(external_ph, self.expected_external_ph, atol=1e-6)
