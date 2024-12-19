@@ -62,8 +62,8 @@ OXYGEN_MLPERL_TO_MGPERL = 1.42903
 OXYGEN_MLPERL_TO_UMOLPERKG = 44660
 ITS90_TO_IPTS68 = 1.00024  # taken from https://blog.seabird.com/ufaqs/what-is-the-difference-in-temperature-expressions-between-ipts-68-and-its-90/
 UMNO3_TO_MGNL = 0.014007
-R = 8.3144621;  # [J K^{-1} mol^{-1}] Gas constant, NIST Reference on Constants retrieved 10-05-2015
-F = 96485.365;  # [Coulombs mol^{-1}] Faraday constant, NIST Reference on Constants retrieved 10-05-2015
+R = 8.3144621  # [J K^{-1} mol^{-1}] Gas constant, NIST Reference on Constants retrieved 10-05-2015
+F = 96485.365  # [Coulombs mol^{-1}] Faraday constant, NIST Reference on Constants retrieved 10-05-2015
 
 
 def convert_temperature(
@@ -651,10 +651,7 @@ def convert_par_logarithmic(
 
 
 def convert_nitrate(
-        volts: np.ndarray,
-        dac_min: float,
-        dac_max: float,
-        units: Literal['uMNO3', 'mgNL']='uMNO3'
+    volts: np.ndarray, dac_min: float, dac_max: float, units: Literal["uMNO3", "mgNL"] = "uMNO3"
 ):
     """Convert SUNA raw voltages to uMNO3 or mgNL
 
@@ -668,17 +665,16 @@ def convert_nitrate(
     V_MAX = 4.095
     a1 = (dac_min - dac_max) / (V_MIN - V_MAX)
     a0 = dac_max - V_MAX * a1
-    
+
     nitrate = a1 * volts + a0
 
-    if units == 'mgNL':
+    if units == "mgNL":
         nitrate *= UMNO3_TO_MGNL
 
     return nitrate
 
-def convert_ph_voltage_counts(
-        ph_counts: np.ndarray
-):
+
+def convert_ph_voltage_counts(ph_counts: np.ndarray):
     """Convert pH voltage counts to a floating point value
 
     :param ph_counts: pH voltage counts
@@ -716,7 +712,7 @@ def convert_internal_seafet_ph(
     reference
     """
     ph_volts = convert_ph_voltage_counts(ph_counts)
-    
+
     # Eo(T) or temperature offset
     temperature_offset = coefs.int_k2 * temperature
 
@@ -728,11 +724,11 @@ def convert_internal_seafet_ph(
 
 
 def convert_external_seafet_ph(
-        ph_counts: np.ndarray,
-        temperature: np.ndarray,
-        salinity: np.ndarray,
-        pressure: np.ndarray,
-        coefs: PHSeaFETExternalCoefficients,
+    ph_counts: np.ndarray,
+    temperature: np.ndarray,
+    salinity: np.ndarray,
+    pressure: np.ndarray,
+    coefs: PHSeaFETExternalCoefficients,
 ):
     """Calculates the external pH on the total scale given temperature,
     salinity, pressure and FET voltage counts
@@ -743,11 +739,11 @@ def convert_external_seafet_ph(
     :param pressure: sample pressure in dbar
     """
 
-    TS_CR = 0.14;     # relative concentration of sulfate in SW
-    TS_MM = 96.062;   # [g/mol] molar mass of sulfate
-    CL_CR = 0.99889;  # relative concentration of chloride in SW
-    CL_MM = 35.453;   # [g/mol] molar mass of chloride
-    CL_TO_S = 1.80655;     # [ppt, 10^{-3}] Chlorinity to Salinity
+    TS_CR = 0.14  # relative concentration of sulfate in SW
+    TS_MM = 96.062  # [g/mol] molar mass of sulfate
+    CL_CR = 0.99889  # relative concentration of chloride in SW
+    CL_MM = 35.453  # [g/mol] molar mass of chloride
+    CL_TO_S = 1.80655  # [ppt, 10^{-3}] Chlorinity to Salinity
 
     def _molar_concentration(concentration: float, molar_mass: float, salinity: np.ndarray):
         """
@@ -760,7 +756,7 @@ def convert_external_seafet_ph(
         :return: molar concentration
         """
         return (concentration / molar_mass) * (salinity / CL_TO_S)
-    
+
     def _molar_conc_chloride(salinity: np.ndarray):
         """Calculates the molar concentration of chloride
 
@@ -768,7 +764,7 @@ def convert_external_seafet_ph(
         :return: molar concentration of chloride
         """
         return _molar_concentration(CL_CR, CL_MM, salinity) * 1000 / (1000 - 1.005 * salinity)
-    
+
     def _molar_conc_sulfate(salinity: np.ndarray):
         """Calculates the molar concentration of total sulfate
 
@@ -776,7 +772,7 @@ def convert_external_seafet_ph(
         :return: molar concentration of sulfate
         """
         return _molar_concentration(TS_CR, TS_MM, salinity)
-    
+
     def _calculate_ionic_strength(salinity: np.ndarray):
         """Compute Salinity Ionic strength
         Ionic Strength (mol/kg H2O) from Dickson "Guide to Best Practices
@@ -793,7 +789,12 @@ def convert_external_seafet_ph(
         ionic_strength = C0 * salinity / (C1 - C2 * salinity)
         return ionic_strength
 
-    def _calculate_ks(temperature: np.ndarray, ionic_strength: np.ndarray, salinity: np.ndarray, pressure: np.ndarray):
+    def _calculate_ks(
+        temperature: np.ndarray,
+        ionic_strength: np.ndarray,
+        salinity: np.ndarray,
+        pressure: np.ndarray,
+    ):
         """Dissociation constant of sulfuric acid in seawater
         Dickson, A. G., J. Chemical Thermodynamics, 22:113-127, 1990
         The goodness of fit is .021.
@@ -822,7 +823,9 @@ def convert_external_seafet_ph(
         C10 = 1776
 
         ln_ks = (
-            C0 / temperature + C1 + C2 * np.log(temperature)
+            C0 / temperature
+            + C1
+            + C2 * np.log(temperature)
             + (C3 / temperature + C4 + C5 * np.log(temperature)) * np.sqrt(ionic_strength)
             + (C6 / temperature + C7 + C8 * np.log(temperature)) * ionic_strength
             + (C9 / temperature) * np.sqrt(ionic_strength) * ionic_strength
@@ -830,7 +833,7 @@ def convert_external_seafet_ph(
         )
 
         # this is on the free pH scale in mol/kg-H2O
-        khso4 = np.exp(ln_ks) * (1 - 0.001005 * salinity); # convert to mol/kg-SW
+        khso4 = np.exp(ln_ks) * (1 - 0.001005 * salinity)  # convert to mol/kg-SW
 
         # UCI has two calculateKS functions. The first returns khso4 here,
         # but in practice the second is always used which adds the following
@@ -841,7 +844,11 @@ def convert_external_seafet_ph(
         kappa_hso4 = (-4.53 + 0.09 * temperature_C) / 1000
 
         #  per Yui Press changed from dbar to bar here by / 10
-        ln_khso4_fac = (-delta_vhso4 + 0.5 * kappa_hso4 * (pressure / 10)) * (pressure / 10) / (R * 10 * temperature)
+        ln_khso4_fac = (
+            (-delta_vhso4 + 0.5 * kappa_hso4 * (pressure / 10))
+            * (pressure / 10)
+            / (R * 10 * temperature)
+        )
 
         #  bisulfate association constant at T, S, P
         khso4_tps = khso4 * np.exp(ln_khso4_fac)
@@ -860,14 +867,16 @@ def convert_external_seafet_ph(
         C1 = 0.00067524
         # Modified from 0.00000343 to 0.0000034286,
         # email from Ken with newest version of MBARI code by Charles Branham 3/9/16
-        C2 = 0.0000034286 
+        C2 = 0.0000034286
 
         # 0.00000343*(t)*(t) + 0.00067524*(t) + 0.49172143
         adh = C0 + C1 * temperature + C2 * temperature**2
 
         return adh
 
-    def _calculate_log_gamma_hcl(adh: np.ndarray, ionic_strength: np.ndarray, temperature: np.ndarray):
+    def _calculate_log_gamma_hcl(
+        adh: np.ndarray, ionic_strength: np.ndarray, temperature: np.ndarray
+    ):
         """
         Khoo et al. (Anal. Chem., 49, 29-34, 1977).
         \log \gamma_{\pm} \left( HCl\right) = \dfrac{-A \cdot \sqrt{I}}{1+\rho\cdot\sqrt{I}} +
@@ -884,7 +893,7 @@ def convert_external_seafet_ph(
         # by the ThermPress term being added to E0. In email correspondence
         # with Dave Murphy, Ken Johnson finally stated that no pressure correction
         # should be applied to Gamma_HCl
-        
+
         rho = 1.394
         B0 = 0.08885
         B1 = 0.000111
@@ -905,7 +914,7 @@ def convert_external_seafet_ph(
         P: Pressure in 'bar'
         V_Cl: Chloride partial molal volume (in cm^3 mol^-1)
         K_Cl: Chloride partial molal compressibility (in cm^3 mol^-1 bar^-1) (can be neglected [4, pg. 876])
-        
+
         :param temperature: temperature in C
         :param pressure: pressure in dbar
         :return: thermal pressure
@@ -935,16 +944,22 @@ def convert_external_seafet_ph(
 
     adh = _calculate_adh(temperature=temperature)
 
-    log_gamma_hcl = _calculate_log_gamma_hcl(adh=adh, ionic_strength=ionic_strength, temperature=temperature)
+    log_gamma_hcl = _calculate_log_gamma_hcl(
+        adh=adh, ionic_strength=ionic_strength, temperature=temperature
+    )
 
     thermal_pressure = _calculate_thermal_pressure(temperature=temperature, pressure=pressure)
 
     # // Dissociation constant of sulfuric acid in seawater
     # KSO4;      # Dissociation constant of sulfuric acid in seawater
     # this.KSO4 = calculateKS(this.tempK, this.IonS, salinity, tempC, pressure);
-    kso4 = _calculate_ks(temperature=temperature_k, ionic_strength=ionic_strength, salinity=salinity, pressure=pressure)
-    
-    
+    kso4 = _calculate_ks(
+        temperature=temperature_k,
+        ionic_strength=ionic_strength,
+        salinity=salinity,
+        pressure=pressure,
+    )
+
     ph_volts = convert_ph_voltage_counts(ph_counts)
 
     # Eo(T) or temperature offset
@@ -965,7 +980,8 @@ def convert_external_seafet_ph(
     # ratio (1000 - 1.005 * Salinity)/1000
     free_scale_ph = (
         (ph_volts - eot - eop - thermal_pressure - coefs.ext_k0) / st
-        + np.log10(mcl) + (2 * log_gamma_hcl)
+        + np.log10(mcl)
+        + (2 * log_gamma_hcl)
         - np.log10((1000 - 1.005 * salinity) / 1000)
     )
 

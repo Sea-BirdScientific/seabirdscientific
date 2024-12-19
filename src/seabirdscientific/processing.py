@@ -887,7 +887,6 @@ def bouyancy_frequency(
     return n2
 
 
-
 def buoyancy(
     temperature_c: np.ndarray,
     salinity_prac: np.ndarray,
@@ -968,13 +967,12 @@ def buoyancy(
                 temperature_ITS_subset, salinity_subset, pressure_subset, gravity
             )
 
-        result.at[i, 'N2'] = n2
+        result.at[i, "N2"] = n2
         if n2 >= 0:
-            result.at[i, 'N'] = math.sqrt(n2) * 3600 / (2 * np.pi)
+            result.at[i, "N"] = math.sqrt(n2) * 3600 / (2 * np.pi)
         else:
-            result.at[i, 'N'] = np.nan
-        result.at[i, 'E'] = n2 / gravity
-        result.at[i, 'E10^-8'] = result.at[i, 'E']  * 1e8
+            result.at[i, "N"] = np.nan
+        result.at[i, "E"] = n2 / gravity
+        result.at[i, "E10^-8"] = result.at[i, "E"] * 1e8
 
     return result
-

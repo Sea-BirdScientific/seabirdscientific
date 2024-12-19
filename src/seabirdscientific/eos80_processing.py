@@ -35,7 +35,9 @@ def bouyancy_frequency(
     rho_bar = density(salinity_bar, temperature_bar, pressure_bar)[0]
 
     # Use SBE DP (EOS-80) formulas for potential temp and density
-    theta = potential_temperature(salinity_prac_subset, temp_ITS_subset, pressure_dbar_subset, pressure_bar)
+    theta = potential_temperature(
+        salinity_prac_subset, temp_ITS_subset, pressure_dbar_subset, pressure_bar
+    )
     v_vals = 1.0 / density(salinity_prac_subset, theta, [pressure_bar])
 
     # Estimate vertical gradient of specific volume
@@ -157,7 +159,9 @@ def density(s0: np.ndarray, t: np.ndarray, p0: np.ndarray) -> np.ndarray:
     return val
 
 
-def potential_temperature(s: np.ndarray, t0: np.ndarray, p0: np.ndarray, pr: np.ndarray) -> np.ndarray:
+def potential_temperature(
+    s: np.ndarray, t0: np.ndarray, p0: np.ndarray, pr: np.ndarray
+) -> np.ndarray:
     """EOS-80 potential temperature calculation.
 
     This was ported from CSharedCalc::PoTemp()

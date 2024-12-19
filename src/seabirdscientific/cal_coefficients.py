@@ -192,6 +192,7 @@ class PHSeaFETInternalCoefficients:
     :param int_k0: Internal K0 calibration coefficient
     :param int_k2: Internal K2 calibration coefficient
     """
+
     def __init__(self, int_k0, int_k2):
         self.int_k0 = int_k0
         self.int_k2 = int_k2
@@ -208,6 +209,7 @@ class PHSeaFETExternalCoefficients:
     :param f5: f(P) calibration coefficient
     :param f6: f(P) calibration coefficient
     """
+
     def __init__(self, ext_k0, ext_k2, f1, f2, f3, f4, f5, f6):
         self.ext_k0 = ext_k0
         self.ext_k2 = ext_k2
