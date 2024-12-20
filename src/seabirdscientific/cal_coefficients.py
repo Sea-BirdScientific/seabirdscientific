@@ -89,28 +89,16 @@ class ConductivityCoefficients:
         self.wbotc = wbotc
 
 
-class TurbidityCoefficients:
+class ECOCoefficients:
     """
     Args:
-        scalar (float): NTU/count for digital, NTU/V for analog
-        v_blank (float): dark counts for digital, V for analog
+        slope (float): units/count for digital, units/V for analog
+        offset (float): dark counts for digital, dark voltage for analog
     """
 
-    def __init__(self, scalar, dark_voltage):
-        self.scalar = scalar
-        self.dark_voltage = dark_voltage
-
-
-class ChlorophyllACoefficients:
-    """
-    Args:
-        scalar (float): μg/l/count for digital, μg/l/V for analog
-        v_blank (float): dark counts for digital, V for analog
-    """
-
-    def __init__(self, scalar, v_blank):
-        self.scalar = scalar
-        self.v_blank = v_blank
+    def __init__(self, slope, offset):
+        self.slope = slope
+        self.offset = offset
 
 
 class Oxygen63Coefficients:

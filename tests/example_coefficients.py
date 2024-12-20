@@ -1,5 +1,4 @@
 from seabirdscientific.cal_coefficients import (
-    ChlorophyllACoefficients,
     ConductivityCoefficients,
     Oxygen43Coefficients,
     Oxygen63Coefficients,
@@ -10,7 +9,7 @@ from seabirdscientific.cal_coefficients import (
     PressureCoefficients,
     TemperatureCoefficients,
     Thermistor63Coefficients,
-    TurbidityCoefficients,
+    ECOCoefficients,
 )
 
 
@@ -49,14 +48,9 @@ conductivity_coefs_sn6130 = ConductivityCoefficients(
     wbotc=0.00000000e000,
 )
 
-chlorophyll_a_coefs_sn6130 = ChlorophyllACoefficients(
-    scalar=10,
-    v_blank=0.0680,
-)
-
-turbidity_coefs_sn6130 = TurbidityCoefficients(
-    scalar=5,
-    dark_voltage=0.059000,
+chlorophyll_a_coefs_sn6130 = ECOCoefficients(
+    slope=10,
+    offset=0.0680,
 )
 
 

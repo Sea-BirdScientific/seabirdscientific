@@ -38,7 +38,6 @@ from scipy import stats
 
 # Internal imports
 from .cal_coefficients import (
-    ChlorophyllACoefficients,
     ConductivityCoefficients,
     Oxygen43Coefficients,
     Oxygen63Coefficients,
@@ -49,7 +48,7 @@ from .cal_coefficients import (
     PressureCoefficients,
     TemperatureCoefficients,
     Thermistor63Coefficients,
-    TurbidityCoefficients,
+    ECOCoefficients,
 )
 
 
@@ -573,44 +572,22 @@ def convert_oxygen_to_umol_per_kg(ox_values: np.ndarray, potential_density: np.n
     return convertedVals
 
 
-def convert_eco_chlorophylla(
-    raw_chlorophyll_a: float,
-    coefs: ChlorophyllACoefficients,
+def convert_eco(
+    raw: float,
+    coefs: ECOCoefficients,
 ):
-    """Converts a raw value for chlorophyll-a channel on a ECO-FLNTU or ECO-FL.
-
-    All equation information comes from ECO-FLNTU calibration sheets
+    """Converts a raw value for any ECO measurand.
 
     Args:
-        raw_chlorophyll_a (float): raw counts for digital, raw volts for analog
-        coefs (ChlorophyllACoefficients): calibration coefficients for clorophyll-a
+        raw (float): raw counts for digital, raw volts for analog
+        coefs (ChlorophyllACoefficients): calibration coefficients
 
     Returns:
-        float: converted chlorophyll-a in μg/l
+        float: converted ECO measurement in calibration units
     """
-    chlorophylla = coefs.scalar * (raw_chlorophyll_a - coefs.v_blank)
+    converted = coefs.slope * (raw - coefs.offset)
 
-    return chlorophylla
-
-
-def convert_eco_turbidity(
-    raw_turbidity: float,
-    coefs: TurbidityCoefficients,
-):
-    """Converts a raw value for turbidity channel on a ECO-FLNTU.
-
-    All equation information comes from ECO-FLNTU calibration sheets
-
-    Args:
-        rawTurbidity(float): raw counts for digital, raw volts for analog
-        coefs (TurbidityCoefficients): calbration coefficients for turbidity
-
-    Returns:
-        float: converted turbidity in nephelometric turbidity units (NTU)
-    """
-    turbidity = coefs.scalar * (raw_turbidity - coefs.dark_voltage)
-
-    return turbidity
+    return converted
 
 
 def convert_sbe18_ph(
