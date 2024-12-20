@@ -49,7 +49,9 @@ class PressureCoefficients:
         ptempa2 (float): ptempa2 calibration coefficient for the pressure sensor
     """
 
-    def __init__(self, pa0, pa1, pa2, ptca0, ptca1, ptca2, ptcb0, ptcb1, ptcb2, ptempa0, ptempa1, ptempa2):
+    def __init__(
+        self, pa0, pa1, pa2, ptca0, ptca1, ptca2, ptcb0, ptcb1, ptcb2, ptempa0, ptempa1, ptempa2
+    ):
         self.pa0 = pa0
         self.pa1 = pa1
         self.pa2 = pa2
