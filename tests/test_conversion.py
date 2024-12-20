@@ -798,3 +798,35 @@ class TestPARlogarithmic:
 #             temperature, salinity, pressure
 #         )
 #         assert(True)
+
+
+class TestSeaFETPH:
+    internal_ph_counts = np.array([5105334, 5105384, 5105350, 5105505, 5105347])
+    external_ph_counts = np.array([5139133, 5139214, 5139120, 5139294, 5139183])
+    expected_internal_ph_volts = np.array([-0.978492, -0.978477, -0.978487, -0.978441, -0.978488])
+    expected_external_ph_volts = np.array([-0.968419, -0.968395, -0.968423, -0.968371, -0.968404])
+    expected_internal_ph = np.array([6.8897, 6.89, 6.8898, 6.8906, 6.8898])
+    expected_external_ph = np.array([6.2466, 6.247, 6.2466, 6.2474, 6.2469])
+    ph_temperature = np.array([22.751, 22.7514, 22.752, 22.752, 22.752])
+
+    def test_convert_ph_voltage_counts(self):
+        internal_ph_volts = dc.convert_ph_voltage_counts(self.internal_ph_counts)
+        assert np.allclose(internal_ph_volts, self.expected_internal_ph_volts, atol=1e-6)
+    
+    def test_convert_internal_seafet_ph(self):
+        internal_ph = dc.convert_internal_seafet_ph(
+            ph_counts=self.internal_ph_counts,
+            temperature=self.ph_temperature,
+            coefs=ec.ph_seafet_internal_coeffs,
+        )
+        assert np.allclose(internal_ph, self.expected_internal_ph, atol=1e-6)
+    
+    def test_convert_external_seafet_ph(self):
+        external_ph = dc.convert_external_seafet_ph(
+            ph_counts=self.external_ph_counts,
+            temperature=self.ph_temperature,
+            salinity=35,
+            pressure=0,
+            coefs=ec.ph_seafet_external_coeffs,
+        )
+        assert np.allclose(external_ph, self.expected_external_ph, atol=1e-6)
