@@ -459,7 +459,9 @@ class TestConvertOxygen:
                 2.5618,
             ]
         )
-        pressure = np.array([-0.012, -0.012, -0.012, -0.012, -0.012, -0.012, -0.012, -0.011, 0.107, 0.351])
+        pressure = np.array(
+            [-0.012, -0.012, -0.012, -0.012, -0.012, -0.012, -0.012, -0.011, 0.107, 0.351]
+        )
         temperature = np.array(
             [
                 25.3427,
@@ -474,8 +476,12 @@ class TestConvertOxygen:
                 25.5433,
             ]
         )
-        salinity = np.array([0.4373, 0.5592, 0.5865, 0.5095, 0.4621, 0.4119, 0.3936, 0.3463, 4.9297, 6.5098])
-        expected = np.array([4.4728, 4.4722, 4.4762, 4.4828, 4.4867, 4.4879, 4.488, 4.488, 4.3707, 4.3148])
+        salinity = np.array(
+            [0.4373, 0.5592, 0.5865, 0.5095, 0.4621, 0.4119, 0.3936, 0.3463, 4.9297, 6.5098]
+        )
+        expected = np.array(
+            [4.4728, 4.4722, 4.4762, 4.4828, 4.4867, 4.4879, 4.488, 4.488, 4.3707, 4.3148]
+        )
         for index in range(len(expected)):
             result = dc._convert_sbe43_oxygen(
                 raw_oxygen[index],
@@ -505,7 +511,9 @@ class TestConvertOxygen:
                 2.5618,
             ]
         )
-        pressure = np.array([-0.012, -0.012, -0.012, -0.012, -0.012, -0.012, -0.012, -0.011, 0.107, 0.351])
+        pressure = np.array(
+            [-0.012, -0.012, -0.012, -0.012, -0.012, -0.012, -0.012, -0.011, 0.107, 0.351]
+        )
         temperature = np.array(
             [
                 25.3427,
@@ -520,8 +528,12 @@ class TestConvertOxygen:
                 25.5433,
             ]
         )
-        salinity = np.array([0.4373, 0.5592, 0.5865, 0.5095, 0.4621, 0.4119, 0.3936, 0.3463, 4.9297, 6.5098])
-        expected = np.array([4.4728, 4.4722, 4.4762, 4.4828, 4.4867, 4.4879, 4.488, 4.488, 4.3707, 4.3148])
+        salinity = np.array(
+            [0.4373, 0.5592, 0.5865, 0.5095, 0.4621, 0.4119, 0.3936, 0.3463, 4.9297, 6.5098]
+        )
+        expected = np.array(
+            [4.4728, 4.4722, 4.4762, 4.4828, 4.4867, 4.4879, 4.488, 4.488, 4.3707, 4.3148]
+        )
         result = dc.convert_sbe43_oxygen(
             raw_oxygen,
             temperature,
@@ -538,8 +550,12 @@ class TestConvertOxygen:
 
     def test_convert_sbe43_oxygen_from_hex_with_tau_correction(self):
         # From SBE19plus_01906398_2019_07_15_0033.hex
-        raw_oxygen = np.asarray([2.5575, 2.5586, 2.5606, 2.5627, 2.5638, 2.5637, 2.5635, 2.5629, 2.5621, 2.5618])
-        pressure = np.asarray([-0.012, -0.012, -0.012, -0.012, -0.012, -0.012, -0.012, -0.011, 0.107, 0.351])
+        raw_oxygen = np.asarray(
+            [2.5575, 2.5586, 2.5606, 2.5627, 2.5638, 2.5637, 2.5635, 2.5629, 2.5621, 2.5618]
+        )
+        pressure = np.asarray(
+            [-0.012, -0.012, -0.012, -0.012, -0.012, -0.012, -0.012, -0.011, 0.107, 0.351]
+        )
         temperature = np.asarray(
             [
                 25.3427,
@@ -554,7 +570,9 @@ class TestConvertOxygen:
                 25.5433,
             ]
         )
-        salinity = np.asarray([0.4373, 0.5592, 0.5865, 0.5095, 0.4621, 0.4119, 0.3936, 0.3463, 4.9297, 6.5098])
+        salinity = np.asarray(
+            [0.4373, 0.5592, 0.5865, 0.5095, 0.4621, 0.4119, 0.3936, 0.3463, 4.9297, 6.5098]
+        )
         expected = [4.4729, 4.4723, 4.4884, 4.4927, 4.4916, 4.4879, 4.4849, 4.4841, 4.3707, 4.3148]
 
         result = dc.convert_sbe43_oxygen(
@@ -572,14 +590,18 @@ class TestConvertOxygen:
         assert np.allclose(result, expected, rtol=0, atol=1e-4)
 
     def test_convert_to_mg_per_l(self):
-        oxMlPerL = np.array([4.4728, 4.4722, 4.4762, 4.4828, 4.4867, 4.4879, 4.488, 4.488, 4.3707, 4.3148])
+        oxMlPerL = np.array(
+            [4.4728, 4.4722, 4.4762, 4.4828, 4.4867, 4.4879, 4.488, 4.488, 4.3707, 4.3148]
+        )
         expected = [6.3921, 6.3913, 6.3969, 6.4064, 6.4119, 6.4137, 6.4138, 6.4138, 6.2461, 6.1663]
         result = dc.convert_oxygen_to_mg_per_l(oxMlPerL)
         for index in range(len(expected)):
             assert np.allclose([expected[index]], [result[index]], rtol=0, atol=1e-3)
 
     def test_convert_to_umol_per_kg(self):
-        oxMlPerL = np.array([4.4728, 4.4722, 4.4762, 4.4828, 4.4867, 4.4879, 4.488, 4.488, 4.3707, 4.3148])
+        oxMlPerL = np.array(
+            [4.4728, 4.4722, 4.4762, 4.4828, 4.4867, 4.4879, 4.488, 4.488, 4.3707, 4.3148]
+        )
         expected = [
             200.3,
             200.254,
@@ -780,7 +802,7 @@ class TestSeaFETPH:
     def test_convert_ph_voltage_counts(self):
         internal_ph_volts = dc.convert_ph_voltage_counts(self.internal_ph_counts)
         assert np.allclose(internal_ph_volts, self.expected_internal_ph_volts, atol=1e-6)
-    
+
     def test_convert_internal_seafet_ph(self):
         internal_ph = dc.convert_internal_seafet_ph(
             ph_counts=self.internal_ph_counts,
@@ -788,7 +810,7 @@ class TestSeaFETPH:
             coefs=ec.ph_seafet_internal_coeffs,
         )
         assert np.allclose(internal_ph, self.expected_internal_ph, atol=1e-6)
-    
+
     def test_convert_external_seafet_ph(self):
         external_ph = dc.convert_external_seafet_ph(
             ph_counts=self.external_ph_counts,
