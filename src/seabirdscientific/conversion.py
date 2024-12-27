@@ -968,6 +968,11 @@ def convert_external_seafet_ph(
 
 
 def convert_internal_seafet_temperature(temperature_counts: np.ndarray):
+    """Converts the raw internal temperature counts to degrees Celcius 
+
+    :param temperature_counts: raw internal temperature counts
+    :return: internal temperature in Celcius
+    """
     SLOPE = 175.72
     OFFSET = -46.85
     INT_16BIT = 2**16
@@ -977,6 +982,12 @@ def convert_internal_seafet_temperature(temperature_counts: np.ndarray):
 
 
 def convert_seafet_relative_humidity(humidity_counts: np.ndarray, temperature: np.ndarray):
+    """Convert relative humidity counts to percent
+
+    :param humidity_counts: raw relative humidity counts
+    :param temperature: converted internal temperature in Celcius
+    :return: temperature compensated relative humidity in percent
+    """
     SLOPE = 125
     OFFSET = -6
     INT_16BIT = 2**16
