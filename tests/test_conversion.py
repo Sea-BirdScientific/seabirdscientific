@@ -820,3 +820,23 @@ class TestSeaFETPH:
             coefs=ec.ph_seafet_external_coeffs,
         )
         assert np.allclose(external_ph, self.expected_external_ph, atol=1e-6)
+
+
+class TestInternalSeaFETTemperature:
+    def test_convert_internal_seafet_temperature(self):
+        temperature_counts = np.array([25616, 25600])
+        expected_temperature = np.array([21.8335, 21.7906])
+        temperature = dc.convert_internal_seafet_temperature(temperature_counts=temperature_counts)
+        assert np.allclose(expected_temperature, temperature, atol=1e-6)
+
+
+class TestSeaFETRelativeHumidity:
+    def test_convert_seafet_relative_humidity(self):
+        humidity_counts = np.array([24096, 24160])
+        temperature_counts = np.array([25616, 25600])
+        expected_humidity = np.array([39.4845, 39.6001])
+
+        temperature = dc.convert_internal_seafet_temperature(temperature_counts=temperature_counts)
+        humidity = dc.convert_seafet_relative_humidity(humidity_counts=humidity_counts, temperature=temperature)
+
+        assert np.allclose(expected_humidity, humidity, atol=1e-6)

@@ -965,3 +965,35 @@ def convert_external_seafet_ph(
     total_ph = free_scale_ph - np.log10(1 + tso4 / kso4)
 
     return total_ph
+
+
+def convert_internal_seafet_temperature(temperature_counts: np.ndarray):
+    SLOPE = 175.72
+    OFFSET = -46.85
+    INT_16BIT = 2**16
+    temperature = temperature_counts / INT_16BIT * SLOPE + OFFSET
+
+    return temperature
+
+
+def convert_seafet_relative_humidity(humidity_counts: np.ndarray, temperature: np.ndarray):
+    SLOPE = 125
+    OFFSET = -6
+    INT_16BIT = 2**16
+    MAX_HUMIDITY = 119
+    TEMPERATURE_COEFFICIENT = -0.15
+    TEMPERATURE_25C = 25
+
+    # Uncompensated relative humidity
+    relative_humidity = SLOPE * humidity_counts / INT_16BIT + OFFSET
+
+    for n, humidity in enumerate(relative_humidity):
+        # Theoretically, uncompensated relative humidity can be up to 119%
+        if 0 <= humidity < MAX_HUMIDITY:
+            relative_humidity[n] = humidity + TEMPERATURE_COEFFICIENT * (
+                TEMPERATURE_25C - temperature[n]
+            )
+
+    np.clip(relative_humidity, a_min=0, a_max=100)
+
+    return relative_humidity
