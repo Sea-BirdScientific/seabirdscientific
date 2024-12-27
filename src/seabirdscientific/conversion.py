@@ -4,7 +4,6 @@
 """A collection of raw data conversion functions.
 
 Functions:
-
     convert_temperature (np.ndarray, TemperatureCoefficients, str, str, bool)
     convert_pressure ( np.ndarray, np.ndarray, PressureCoefficients, str)
     convert_conductivity (np.ndarray, np.ndarray, np.ndarray, ConductivityCoefficients)
@@ -22,11 +21,14 @@ Functions:
     convert_eco_turbidity_val (float, TurbidityCoefficients)
     convert_sbe18_ph_val(float, float, PH18Coefficients)
     convert_par_logarithmic_val(float, PARCoefficients)
-
+    convert_nitrate(np.ndarray, float, float, str)
+    convert_ph_voltage_counts(np.ndarray)
+    convert_internal_seafet_ph(np.ndarray, temperature: np.ndarray, PHSeaFETInternalCoefficients)
+    convert_external_seafet_ph(np.ndarray, np.ndarray, np.ndarray, np.ndarray, PHSeaFETExternalCoefficients)
 """
 
 # Native imports
-from math import sqrt, e, log, exp, floor
+from math import e, floor
 from typing import Literal
 
 # Third-party imports
@@ -76,16 +78,16 @@ def convert_temperature(
 
     Data is expected to be raw data from an instrument in A/D counts
 
-    Args:
-        temperature_counts_in (np.ndarray): temperature value to convert in A/D counts
-        coefs (TemperatureCoefficients) calibration coefficients for the temperature sensor
-        standard (str): whether to use ITS90 or to use IPTS-68 calibration standard
-        units (str): whether to use celsius or to convert to fahrenheit
-        use_mv_r (bool): true to perform extra conversion steps required
-        by some instruments (check the cal sheet to see if this is required)
+    :param temperature_counts_in: temperature value to convert in A/D
+        counts
+    :param coefs: calibration coefficients for the temperature sensor
+    :param standard: whether to use ITS90 or to use IPTS-68 calibration
+        standard
+    :param units: whether to use celsius or to convert to fahrenheit
+    :param use_mv_r: true to perform extra conversion steps required by
+        some instruments (check the cal sheet to see if this is required)
 
-    Returns:
-        int: temperature val converted to ITS-90 degrees C
+    :return: temperature val converted to ITS-90 degrees C
     """
 
     if use_mv_r:
