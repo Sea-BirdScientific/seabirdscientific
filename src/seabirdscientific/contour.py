@@ -1,18 +1,16 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-"""Contains a class and functions to support calculation of temperature and salinity (TS) contours.
-
-Classes:
-
-    ContourData
-
-Functions:
-
-    contour_from_t_s_p (np.ndarray, np.ndarray, np.ndarray, float, float, float) -> ContourData
-    contour_from_t_c_p (np.ndarray, np.ndarray, np.ndarray, float, float, float) -> ContourData
-
+"""Contains a class and functions to support calculation of temperature
+and salinity (TS) contours.
 """
+
+# Classes:
+#   ContourData
+# Functions:
+#   contour_from_t_s_p (np.ndarray, np.ndarray, np.ndarray, float, float, float) -> ContourData
+#   contour_from_t_c_p (np.ndarray, np.ndarray, np.ndarray, float, float, float) -> ContourData
+
 
 # Native imports
 from dataclasses import dataclass
@@ -53,15 +51,14 @@ def contour_from_t_s_p(
     absolute salinity (SA), and potential density (PD). CT is derived from ITS-90 temperature
     and practical salinity measurements. PD is derived from SA and CT.
 
-    Args:
-        temperature_C (ndarray): Measured temperature in degrees C
-        salinity_PSU (ndarray): Measured salinity in practical salinity units
-        pressure_dbar (ndarray): Measured pressure in decibars
-        min_salinity (optional, float): Minimum salinity to include in contour data
-        lat, lon (optional, float) : Used to determine absolute salinity (SA)
+    :param temperature_C: Measured temperature in degrees C
+    :param salinity_PSU: Measured salinity in practical salinity units
+    :param pressure_dbar: Measured pressure in decibars
+    :param min_salinity: Minimum salinity to include in contour data. Defaults to 0
+    :param lat: Used to determine absolute salinity (SA). Defaults to 0
+    :param lon: Used to determine absolute salinity (SA). Defaults to 0
 
-    Returns:
-        ContourData: dataclass with xyz data for creating a TS plot
+    :return: dataclass with xyz data for creating a TS plot
     """
 
     # Filter out data points where salinity < min_salinity
@@ -125,15 +122,15 @@ def contour_from_t_c_p(
     """Converts conductivity (C) to salinity (S) then calls derive_ct_sa_pd_from_t_s_p to
     derive conservative temperature (CT), absolute salinity (SA), and potential density (PD).
 
-    Args:
-        temperature_C (ndarray): Measured temperature in degrees C
-        Conductivity_mScm (ndarray): Measured conductivity in mSiemens/cm
-        pressure_dbar (ndarray): Measured pressure in decibar
-        min_salinity (optional, float): Minimum salinity to include in contour data
-        lat, lon (optional, float) : Used to determine absolute salinity (SA)
+    :param temperature_C: Measured temperature in degrees C
+    :param Conductivity_mScm: Measured conductivity in mSiemens/cm
+    :param pressure_dbar: Measured pressure in decibar
+    :param min_salinity: Minimum salinity to include in contour data.
+        Defaults to 0
+    :param lat: Used to determine absolute salinity (SA). Defaults to 0
+    :param lon: Used to determine absolute salinity (SA). Defaults to 0
 
-    Returns:
-        ContourData: dataclass with xyz data for creating a TS plot
+    :return: dataclass with xyz data for creating a TS plot
     """
     salinity_PSU = gsw.SP_from_C(conductivity_mScm, temperature_C, pressure_dbar)
     return contour_from_t_s_p(temperature_C, salinity_PSU, pressure_dbar, min_salinity, lat, lon)

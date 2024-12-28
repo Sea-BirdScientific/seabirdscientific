@@ -1,31 +1,31 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-"""A collection of raw data conversion functions.
+"""A collection of raw data conversion functions."""
 
-Functions:
-    convert_temperature (np.ndarray, TemperatureCoefficients, str, str, bool)
-    convert_pressure ( np.ndarray, np.ndarray, PressureCoefficients, str)
-    convert_conductivity (np.ndarray, np.ndarray, np.ndarray, ConductivityCoefficients)
-    potential_density_from_t_s_p (np.ndarray, np.ndarray, np.ndarray, float, float, float)
-    potential_density_from_t_c_p (np.ndarray, np.ndarray, np.ndarray, float, float, float)
-    density_from_t_s_p (np.ndarray, np.ndarray, np.ndarray, float, float)
-    density_from_t_c_p (np.ndarray, np.ndarray, np.ndarray, float, float)
-    depth_from_pressure (np.ndarray, float, depth_units="m", pressure_units="dbar")
-    convert_sbe63_oxygen (np.ndarray, np.ndarray, np.ndarray, np.ndarray, Oxygen63Coefficients, Thermistor63Coefficients, str)
-    convert_sbe63_thermistor (np.ndarray, Thermistor63Coefficients)
-    convert_sbe43_oxygen (np.ndarray, np.ndarray, np.ndarray, np.ndarray, Oxygen43Coefficients, bool, bool, float, float)
-    convert_oxygen_to_mg_per_l (np.ndarray)
-    convert_oxygen_to_umol_per_kg (np.ndarray, np.ndarray)
-    convert_eco_chlorophylla_val (float, ChlorophyllACoefficients)
-    convert_eco_turbidity_val (float, TurbidityCoefficients)
-    convert_sbe18_ph_val(float, float, PH18Coefficients)
-    convert_par_logarithmic_val(float, PARCoefficients)
-    convert_nitrate(np.ndarray, float, float, str)
-    convert_ph_voltage_counts(np.ndarray)
-    convert_internal_seafet_ph(np.ndarray, temperature: np.ndarray, PHSeaFETInternalCoefficients)
-    convert_external_seafet_ph(np.ndarray, np.ndarray, np.ndarray, np.ndarray, PHSeaFETExternalCoefficients)
-"""
+# Functions:
+#     convert_temperature (np.ndarray, TemperatureCoefficients, str, str, bool)
+#     convert_pressure ( np.ndarray, np.ndarray, PressureCoefficients, str)
+#     convert_conductivity (np.ndarray, np.ndarray, np.ndarray, ConductivityCoefficients)
+#     potential_density_from_t_s_p (np.ndarray, np.ndarray, np.ndarray, float, float, float)
+#     potential_density_from_t_c_p (np.ndarray, np.ndarray, np.ndarray, float, float, float)
+#     density_from_t_s_p (np.ndarray, np.ndarray, np.ndarray, float, float)
+#     density_from_t_c_p (np.ndarray, np.ndarray, np.ndarray, float, float)
+#     depth_from_pressure (np.ndarray, float, depth_units="m", pressure_units="dbar")
+#     convert_sbe63_oxygen (np.ndarray, np.ndarray, np.ndarray, np.ndarray, Oxygen63Coefficients, Thermistor63Coefficients, str)
+#     convert_sbe63_thermistor (np.ndarray, Thermistor63Coefficients)
+#     convert_sbe43_oxygen (np.ndarray, np.ndarray, np.ndarray, np.ndarray, Oxygen43Coefficients, bool, bool, float, float)
+#     convert_oxygen_to_mg_per_l (np.ndarray)
+#     convert_oxygen_to_umol_per_kg (np.ndarray, np.ndarray)
+#     convert_eco_chlorophylla_val (float, ChlorophyllACoefficients)
+#     convert_eco_turbidity_val (float, TurbidityCoefficients)
+#     convert_sbe18_ph_val(float, float, PH18Coefficients)
+#     convert_par_logarithmic_val(float, PARCoefficients)
+#     convert_nitrate(np.ndarray, float, float, str)
+#     convert_ph_voltage_counts(np.ndarray)
+#     convert_internal_seafet_ph(np.ndarray, temperature: np.ndarray, PHSeaFETInternalCoefficients)
+#     convert_external_seafet_ph(np.ndarray, np.ndarray, np.ndarray, np.ndarray, PHSeaFETExternalCoefficients)
+
 
 # Native imports
 from math import e, floor
@@ -116,19 +116,19 @@ def convert_pressure(
     coefs: PressureCoefficients,
     units: Literal["dbar", "psia"] = "psia",
 ):
-    """Returns the value after converting it to psia (pounds per square inch, abolute).
+    """Converts pressure counts to PSIA (pounds per square inch, abolute).
 
-    pressure_count and compensation_voltage are expected to be raw data from an instrument in A/D counts
+    pressure_count and compensation_voltage are expected to be raw data
+    from an instrument in A/D counts
 
-    Args:
-        pressure_count (np.ndarray): pressure value to convert, in A/D counts
-        compensation_voltage (np.ndarray): pressure temperature compensation voltage,
-            in counts or volts depending on the instrument
-        coefs (PressureCoefficients): calibration coefficients for the pressure sensor
-        units (str): whether or not to use psia or dbar as the returned unit type
+    :param pressure_count: pressure value to convert, in A/D counts
+    :param compensation_voltage: pressure temperature compensation
+        voltage, in counts or volts depending on the instrument
+    :param coefs: calibration coefficients for the pressure sensor
+    :param units: whether or not to use psia or dbar as the returned
+        unit type
 
-    Returns:
-        int: pressure val in PSIA
+    :return: pressure val in PSIA
     """
     sea_level_pressure = 14.7
 
@@ -153,17 +153,17 @@ def convert_conductivity(
     pressure: np.ndarray,
     coefs: ConductivityCoefficients,
 ):
-    """Returns the value after converting it to S/m.
+    """Converts raw conductivity counts to S/m.
 
     Data is expected to be raw data from instrument in A/D counts
 
-    Args:
-        conductivity_count (np.ndarray): conductivity value to convert, in A/D counts
-        temperature (np.ndarray): temperature value to use are reference, in degrees C
-        pressure (np.ndarray): pressure value to use are reference, in dbar
-        coefs (float): coefs calibration coefficient for the conductivity sensor
-    Returns:
-        Decimal: conductivity val converted to S/m
+    :param conductivity_count: conductivity value to convert, in A/D
+        counts
+    :param temperature: reference temperature, in degrees C
+    :param pressure: reference pressure, in dbar
+    :param coefs: calibration coefficient for the conductivity sensor
+    
+    :return: conductivity val converted to S/m
     """
     f = conductivity_count * np.sqrt(1 + coefs.wbotc * temperature) / 1000
     numerator = coefs.g + coefs.h * f**2 + coefs.i * f**3 + coefs.j * f**4
@@ -179,20 +179,18 @@ def potential_density_from_t_s_p(
     lat=0.0,
     reference_pressure=0.0,
 ):
-    """Derive potential density from measured temperature, salinity, and pressure.
+    """Derive potential density from measured temperature, salinity, and
+    pressure.
 
-    See: TEOS_10.cpp line 953
+    :param temperature: Measure temperature, in degrees C
+    :param salinity: Measured salinity, in practical salinity units
+    :param pressure: Measured pressure, in decibars
+    :param lon: Longitude
+    :param lat: Latitude
+    :param reference_pressure: Reference pressure in decibars. Defaults
+        to 0.0.
 
-    Args:
-        temperature (np.ndarray): Measure temperature in degrees C
-        salinity (np.ndarray): Measured salinity in practical salinity units
-        pressure (np.ndarray): Measured pressure in decibars
-        lon (float): Longitude
-        lat (float): Latitude
-        reference_pressure (float, optional): Reference pressure in decibars. Defaults to 0.0.
-
-    Returns:
-        np.ndarray: Potential density in kg/m^3
+    :return: Potential density in kg/m^3
     """
 
     absolute_salinity = gsw.SA_from_SP(salinity, pressure, lon, lat)
@@ -211,20 +209,18 @@ def potential_density_from_t_c_p(
     lat=0.0,
     reference_pressure=0.0,
 ):
-    """Derive potential density from measured temperature, salinity, and pressure.
+    """Derive potential density from measured temperature, salinity, and
+    pressure.
 
-    See: TEOS_10.cpp line 953
+    :param temperature: Measure temperature, in degrees C
+    :param conductivity: Measured conductivity, in mSiemens/cm
+    :param pressure: Measured pressure, in decibars
+    :param lon: Longitude
+    :param lat: Latitude
+    :param reference_pressure: Reference pressure in decibars. Defaults
+        to 0.0.
 
-    Args:
-        temperature (np.ndarray): Measure temperature in degrees C
-        conductivity (np.ndarray): Measured conductivity in mSiemens/cm
-        pressure (np.ndarray): Measured pressure in decibars
-        lon (float): Longitude
-        lat (float): Latitude
-        reference_pressure (float, optional): Reference pressure in decibars. Defaults to 0.0.
-
-    Returns:
-        np.ndarray: Potential density in kg/m^3
+    :return: Potential density in kg/m^3
     """
 
     salinity = gsw.SP_from_C(conductivity, temperature, pressure)
@@ -240,19 +236,16 @@ def density_from_t_s_p(
     lon=0.0,
     lat=0.0,
 ):
-    """Derive potential density from measured temperature, salinity, and pressure.
+    """Derive potential density from measured temperature, salinity, and
+    pressure.
 
-    See: TEOS_10.cpp line 953
+    :param temperature: Measure temperature, in degrees C
+    :param salinity: Measured salinity, in practical salinity units
+    :param pressure: Measured pressure, in decibars
+    :param lon: Longitude
+    :param lat: Latitude
 
-    Args:
-        temperature (np.ndarray): Measure temperature in degrees C
-        salinity (np.ndarray): Measured salinity in practical salinity units
-        pressure (np.ndarray): Measured pressure in decibars
-        lon (float): Longitude
-        lat (float): Latitude
-
-    Returns:
-        np.ndarray: Potential density in kg/m^3
+    :return: Potential density in kg/m^3
     """
 
     absolute_salinity = gsw.SA_from_SP(salinity, pressure, lon, lat)
@@ -268,19 +261,16 @@ def density_from_t_c_p(
     lon=0.0,
     lat=0.0,
 ):
-    """Derive potential density from measured temperature, salinity, and pressure.
+    """Derive potential density from measured temperature, salinity, and
+    pressure.
 
-    See: TEOS_10.cpp line 953
+    :param temperature: Measure temperature, in degrees C
+    :param conductivity: Measured conductivity, in mSiemens/cm
+    :param pressure: Measured pressure, in decibars
+    :param lon: Longitude
+    :param lat: Latitude
 
-    Args:
-        temperature (np.ndarray): Measure temperature in degrees C
-        conductivity (np.ndarray): Measured conductivity in mSiemens/cm
-        pressure (np.ndarray): Measured pressure in decibars
-        lon (float): Longitude
-        lat (float): Latitude
-
-    Returns:
-        np.ndarray: Potential density in kg/m^3
+    :return: Potential density in kg/m^3
     """
 
     salinity = gsw.SP_from_C(conductivity, temperature, pressure)
@@ -295,14 +285,14 @@ def depth_from_pressure(
 ):
     """Derive depth from pressure and latitude.
 
-    Args:
-        pressure (np.ndarray): Numpy array of floats representing pressure in dbar or psi
-        latitude (float): Latitude (-90.0 to 90.0)
-        depth_units (str, optional): 'm' for meters, 'ft' for feet. Defaults to 'm'.
-        pressure_units (str, optional): 'dbar' for decibars, 'psi' for PSI. Defaults to 'dbar'.
+    :param pressure: Numpy array of floats representing pressure, in
+        dbar or psi
+    :param latitude: Latitude (-90.0 to 90.0)
+    :param depth_units: 'm' for meters, 'ft' for feet. Defaults to 'm'.
+    :param pressure_units: 'dbar' for decibars, 'psi' for PSI. Defaults
+        to 'dbar'.
 
-    Returns:
-        np.ndarray: A numpy array representing depth in meters or feet
+    :return: A numpy array representing depth in meters or feet
     """
     pressure = pressure_in.copy()
     if pressure_units == "psi":
@@ -327,16 +317,20 @@ def convert_sbe63_oxygen(
 ):
     """Returns the data after converting it to ml/l.
 
-        raw_oxygen_phase is expected to be in raw phase, raw_thermistor_temp in counts, pressure in dbar, and salinity in practical salinity (PSU)
+    raw_oxygen_phase is expected to be in raw phase, raw_thermistor_temp
+    in counts, pressure in dbar, and salinity in practical salinity (PSU)
 
-        Args:
-            raw_oxygen_phase (np.ndarray): SBE63 phase value, in microseconds
-    #         raw_thermistor_temp (np.ndarray): SBE63 thermistor data to use are reference, in counts
-            pressure (np.ndarray): Converted pressure value from the attached CTD, in dbar
-            salinity (np.ndarray): Converted salinity value from the attached CTD, in practical salinity PSU
-            coefs (Oxygen63Coefficients): calibration coefficients for the SBE63 sensor
-        Returns:
-            np.ndarray: converted Oxygen value, in ml/l
+    :param raw_oxygen_phase: SBE63 phase value, in microseconds
+    :param thermistor_temp: SBE63 thermistor data to use are reference,
+        in counts
+    :param pressure: Converted pressure value from the attached CTD, in
+        dbar
+    :param salinity: Converted salinity value from the attached CTD, in
+        practical salinity PSU
+    :param coefs (Oxygen63Coefficients): calibration coefficients for
+        the SBE63 sensor
+
+    :return: converted Oxygen value, in ml/l
     """
     if thermistor_units == "volts":
         temperature = convert_sbe63_thermistor(thermistor, thermistor_coefs)
@@ -390,14 +384,14 @@ def convert_sbe63_thermistor(
     instrument_output: np.ndarray,
     coefs: Thermistor63Coefficients,
 ):
-    """Converts a SBE63 thermistor raw output array to temperature in ITS-90 deg C.
+    """Converts a SBE63 thermistor raw output array to temperature in
+    ITS-90 deg C.
 
-    Args:
-        instrument_output (np.ndarray) raw values from the thermistor
-        coefs (Thermisto63Coefficients): calibration coefficients for the thermistor in the SBE63 sensor
+    :param instrument_output: raw values from the thermistor
+    :param coefs: calibration coefficients for the thermistor in the
+        SBE63 sensor
 
-    Returns:
-        np.ndarray: converted thermistor temperature values in ITS-90 deg C
+    :return: converted thermistor temperature values in ITS-90 deg C
     """
     logVal = np.log((100000 * instrument_output) / (3.3 - instrument_output))
     temperature = (
@@ -420,22 +414,26 @@ def convert_sbe43_oxygen(
 ):
     """Returns the data after converting it to ml/l.
 
-    voltage is expected to be in volts, temperature in deg c, pressure in dbar, and salinity in practical salinity (PSU)
-    All equation information comes from the June 2013 revision of the SBE43 manual
+    voltage is expected to be in volts, temperature in deg c, pressure
+    in dbar, and salinity in practical salinity (PSU). All equation
+    information comes from the June 2013 revision of the SBE43 manual
 
-    Args:
-        voltage (float): SBE43 voltage
-        temperature (float): temperature value converted to deg C
-        pressure (float): Converted pressure value from the attached CTD, in dbar
-        salinity (float): Converted salinity value from the attached CTD, in practical salinity PSU
-        coefs (Oxygen43Coefficients): calibration coefficients for the SBE43 sensor
-        apply_tau_correction (bool): whether or not to run tau correction
-        apply_hysteresis_correction (bool): whether or not to run hysteresis correction
-        window_size (float): size of the window to use for tau correction, if applicable. In seconds.
-        sample_interval (float): sample rate of the data to be used for tau correction, if applicable. In seconds.
+    :param voltage: SBE43 voltage
+    :param temperature: temperature value converted to deg C
+    :param pressure: Converted pressure value from the attached CTD, in
+        dbar
+    :param salinity: Converted salinity value from the attached CTD, in
+        practical salinity PSU
+    :param coefs: calibration coefficients for the SBE43 sensor
+    :param apply_tau_correction: whether or not to run tau correction
+    :param apply_hysteresis_correction: whether or not to run hysteresis
+        correction
+    :param window_size: size of the window to use for tau correction, if
+        applicable, in seconds
+    :param sample_interval: sample rate of the data to be used for tau
+        correction, if applicable. In seconds.
 
-    Returns:
-        np.ndarray: converted Oxygen values, in ml/l
+    :return: converted Oxygen values, in ml/l
     """
     # start with all 0 for the dvdt
     dvdt_values = np.zeros(len(voltage))
@@ -488,20 +486,23 @@ def _convert_sbe43_oxygen(
 ):
     """Returns the data after converting it to ml/l.
 
-    voltage is expected to be in volts, temperature in deg c, pressure in dbar, and salinity in practical salinity (PSU)
-    All equation information comes from the June 2013 revision of the SBE43 manual.
-    Expects that hysteresis correction is already performed on the incoming voltage, if desired.
+    voltage is expected to be in volts, temperature in deg c, pressure
+    in dbar, and salinity in practical salinity (PSU). All equation
+    information comes from the June 2013 revision of the SBE43 manual.
+    Expects that hysteresis correction is already performed on the
+    incoming voltage, if desired.
 
-    Args:
-        voltage (float): SBE43 voltage
-        temperature (float): temperature value converted to deg C
-        pressure (float): Converted pressure value from the attached CTD, in dbar
-        salinity (float): Converted salinity value from the attached CTD, in practical salinity PSU
-        coefs (Oxygen43Coefficients): calibration coefficients for the SBE43 sensor
-        dvdt_value (float): derivative value of voltage with respect to time at this point. Expected to be 0 if not using Tau correction
+    :param voltage: SBE43 voltage
+    :param temperature: temperature value converted to deg C
+    :param pressure: Converted pressure value from the attached CTD, in
+        dbar
+    :param salinity: Converted salinity value from the attached CTD, in
+        practical salinity PSU
+    :param coefs: calibration coefficients for the SBE43 sensor
+    :param dvdt_value: derivative value of voltage with respect to time
+        at this point. Expected to be 0 if not using Tau correction
 
-    Returns:
-        float: converted Oxygen value, in ml/l
+    :return: converted Oxygen value, in ml/l
     """
 
     # Oxygen Solubility equation constants, From SBE43 Manual Appendix A
@@ -540,13 +541,9 @@ def _convert_sbe43_oxygen(
 def convert_oxygen_to_mg_per_l(ox_values: np.ndarray):
     """Converts given oxygen values to milligrams/Liter.
 
-    Expects oxygen values to be in Ml/L
+    :param ox_values: oxygen values, already converted to ml/L
 
-    Args:
-        ox_values (np.ndarray): oxygen values, already converted to ml/L
-
-    Returns:
-        np.ndarray: oxygen values converted to milligrams/Liter
+    :return: oxygen values converted to milligrams/Liter
     """
     # From the SBE43 and SBE63 manual
     return ox_values * OXYGEN_MLPERL_TO_MGPERL
@@ -555,19 +552,20 @@ def convert_oxygen_to_mg_per_l(ox_values: np.ndarray):
 def convert_oxygen_to_umol_per_kg(ox_values: np.ndarray, potential_density: np.ndarray):
     """Converts given oxygen values to milligrams/Liter.
 
-    Expects oxygen values to be in Ml/L
-    Note: Sigma-Theta is expected to be calculated via gsw_sigma0, meaning is it technically potential density anomaly.
-    Calculating using gsw_rho(SA, CT, p_ref = 0) results in actual potential density, but this function already does the converison,
-    So values will need to have 1000 subtracted from them before being passed into this function.
-    The function is done this way to stay matching to the manual for the SBE63 and SBE43, but the results of either method are identical.
+    Note: Sigma-Theta is expected to be calculated via gsw_sigma0,
+    meaning is it technically potential density anomaly. Calculating
+    using gsw_rho(SA, CT, p_ref = 0) results in actual potential
+    density, but this function already does the converison, so values
+    will need to have 1000 subtracted from them before being passed into
+    this function. The function is done this way to stay matching to the
+    manual for the SBE63 and SBE43, but the results of either method are
+    identical.
 
-    Args:
-        ox_values (np.ndarray): oxygen values, already converted to ml/L
-        potential_density (np.ndarray): potential density (sigma-theta) values.
-                                        Expected to be the same length as ox_values
+    :param ox_values: oxygen values, already converted to ml/L
+    :param potential_density: potential density (sigma-theta) values.
+        Expected to be the same length as ox_values
 
-    Returns:
-        np.ndarray: oxygen values converted to milligrams/Liter
+    :return: oxygen values converted to milligrams/Liter
     """
     # From the SBE43 and SBE63 manual
     convertedVals = np.divide(ox_values * OXYGEN_MLPERL_TO_UMOLPERKG, (potential_density + 1000))
@@ -580,12 +578,10 @@ def convert_eco(
 ):
     """Converts a raw value for any ECO measurand.
 
-    Args:
-        raw (float): raw counts for digital, raw volts for analog
-        coefs (ChlorophyllACoefficients): calibration coefficients
+    :param raw: raw counts for digital, raw volts for analog
+    :param coefs (ChlorophyllACoefficients): calibration coefficients
 
-    Returns:
-        float: converted ECO measurement in calibration units
+    :return: converted ECO measurement in calibration units
     """
     converted = coefs.slope * (raw - coefs.offset)
 
@@ -597,14 +593,16 @@ def convert_sbe18_ph(
     temperature: float,
     coefs: PH18Coefficients,
 ):
-    """Converts a raw voltage value for pH
-        All equation information comes from application note 18-1
-    Args:
-        raw_ph (float): raw output voltage from pH sensor (0-5V)
-        temperature (float): temperature value to use for temperature compensation in degrees C
-        coefs (PH18Coefficients): slope and offset for the pH sensor
-    Returns:
-        float: converted pH
+    """Converts a raw voltage value for pH.
+
+    All equation information comes from application note 18-1
+    
+    :param raw_ph: raw output voltage from pH sensor (0-5V)
+    :param temperature: temperature value to use for temperature
+        compensation in degrees C
+    :param coefs: slope and offset for the pH sensor
+    
+    :return: converted pH
     """
     pH = 7 + (raw_ph - coefs.offset) / (
         1.98416e-4 * (temperature + KELVIN_OFFSET_0C) * coefs.slope
@@ -616,13 +614,14 @@ def convert_par_logarithmic(
     raw_par: float,
     coefs: PARCoefficients,
 ):
-    """Converts a raw voltage value for PAR to µmol photons/m2*s
-        All equation information comes from application note 96
-    Args:
-        rawpH (float): raw output voltage from PAR sensor
-        coefs (PARCoefficients): calibration coefficients for the PAR sensor
-    Returns:
-        float: converted PAR in µmol photons/m2*s
+    """Converts a raw voltage value for PAR to µmol photons/m2*s.
+
+    All equation information comes from application note 96
+    
+    :param raw_par: raw output voltage from PAR sensor
+    :param coefs: calibration coefficients for the PAR sensor
+    
+    :return: converted PAR in µmol photons/m2*s
     """
     PAR = coefs.multiplier * coefs.im * 10 ** ((raw_par - coefs.a0) / coefs.a1)
 
@@ -688,7 +687,7 @@ def convert_internal_seafet_ph(
     :param temperature: sample temperature
     :param coefs: SeaFET calibration coefficients
     :return: calculated pH on the total scale for the SeaFET internal
-    reference
+        reference
     """
     ph_volts = convert_ph_voltage_counts(ph_counts)
 
@@ -726,8 +725,8 @@ def convert_external_seafet_ph(
 
     def _molar_concentration(concentration: float, molar_mass: float, salinity: np.ndarray):
         """
-        An estimate of constituent concentration in seawater is made from
-        salinity on the basis of contancy of composition.
+        An estimate of constituent concentration in seawater is made
+        from salinity on the basis of contancy of composition.
 
         :param concentration: Relative concentration of constituent
         :param molar_mass: Molar mass of constituent
@@ -754,8 +753,8 @@ def convert_external_seafet_ph(
 
     def _calculate_ionic_strength(salinity: np.ndarray):
         """Compute Salinity Ionic strength
-        Ionic Strength (mol/kg H2O) from Dickson "Guide to Best Practices
-        for Ocean CO2 Measurements", 2007, Chapter 5, page 11
+        Ionic Strength (mol/kg H2O) from Dickson "Guide to Best
+        Practices for Ocean CO2 Measurements", 2007, Chapter 5, page 11
 
         :param salinity: Salinity in PSU
         :return: Salinity ionic strength
@@ -835,7 +834,8 @@ def convert_external_seafet_ph(
         return khso4_tps
 
     def _calculate_adh(temperature):
-        """Calculates the Debeye-Huckel constant (temperature [Celcius] dependence only)
+        """Calculates the Debeye-Huckel constant (temperature [Celcius]
+        dependence only)
 
         :param temperature: temperature in C
         :return: Debeye-Huckel constant
@@ -858,7 +858,8 @@ def convert_external_seafet_ph(
     ):
         """
         Khoo et al. (Anal. Chem., 49, 29-34, 1977).
-        \log \gamma_{\pm} \left( HCl\right) = \dfrac{-A \cdot \sqrt{I}}{1+\rho\cdot\sqrt{I}} +
+        \log \gamma_{\pm} \left( HCl\right) =
+        \dfrac{-A \cdot \sqrt{I}}{1+\rho\cdot\sqrt{I}} +
         \left( B_{0} + B_{1}\cdot T \right) I
         As implemented in the calibration .xls
 
@@ -892,7 +893,8 @@ def convert_external_seafet_ph(
         Where,
         P: Pressure in 'bar'
         V_Cl: Chloride partial molal volume (in cm^3 mol^-1)
-        K_Cl: Chloride partial molal compressibility (in cm^3 mol^-1 bar^-1) (can be neglected [4, pg. 876])
+        K_Cl: Chloride partial molal compressibility
+        (in cm^3 mol^-1 bar^-1) (can be neglected [4, pg. 876])
 
         :param temperature: temperature in C
         :param pressure: pressure in dbar
