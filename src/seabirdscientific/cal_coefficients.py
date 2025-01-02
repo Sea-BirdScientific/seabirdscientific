@@ -1,10 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-"""A collection of calibration data from SBS instruments.
-
-These are calibration coefficients from specific SBS intstruments that are primarily used for test purposes.
-"""
+"""Calibration coefficient objects for data conversion"""
 
 # Native imports
 from dataclasses import dataclass
@@ -18,11 +15,10 @@ from dataclasses import dataclass
 
 class TemperatureCoefficients:
     """
-    Args:
-        a0 (float): a0 calibration coefficient for the temperature sensor
-        a1 (float): a1 calibration coefficient for the temperature sensor
-        a2 (float): a2 calibration coefficient for the temperature sensor
-        a3 (float): a3 calibration coefficient for the temperature sensor
+    :param a0: calibration coefficient for the temperature sensor
+    :param a1: calibration coefficient for the temperature sensor
+    :param a2: calibration coefficient for the temperature sensor
+    :param a3: calibration coefficient for the temperature sensor
     """
 
     def __init__(self, a0, a1, a2, a3):
@@ -34,19 +30,18 @@ class TemperatureCoefficients:
 
 class PressureCoefficients:
     """
-    Args:
-        pa0 (float): pa0 calibration coefficient for the pressure sensor
-        pa1 (float): pa1 calibration coefficient for the pressure sensor
-        pa2 (float): pa2 calibration coefficient for the pressure sensor
-        ptca0 (float): ptca0 calibration coefficient for the pressure sensor
-        ptca1 (float): ptca1 calibration coefficient for the pressure sensor
-        ptca2 (float): ptca2 calibration coefficient for the pressure sensor
-        ptcb0 (float): ptcb0 calibration coefficient for the pressure sensor
-        ptcb1 (float): ptcb1 calibration coefficient for the pressure sensor
-        ptcb2 (float): ptcb2 calibration coefficient for the pressure sensor
-        ptempa0 (float): ptempa0 calibration coefficient for the pressure sensor
-        ptempa1 (float): ptempa1 calibration coefficient for the pressure sensor
-        ptempa2 (float): ptempa2 calibration coefficient for the pressure sensor
+    :param pa0: calibration coefficient for the pressure sensor
+    :param pa1: calibration coefficient for the pressure sensor
+    :param pa2: calibration coefficient for the pressure sensor
+    :param ptca0: calibration coefficient for the pressure sensor
+    :param ptca1: calibration coefficient for the pressure sensor
+    :param ptca2: calibration coefficient for the pressure sensor
+    :param ptcb0: calibration coefficient for the pressure sensor
+    :param ptcb1: calibration coefficient for the pressure sensor
+    :param ptcb2: calibration coefficient for the pressure sensor
+    :param ptempa0: calibration coefficient for the pressure sensor
+    :param ptempa1: calibration coefficient for the pressure sensor
+    :param ptempa2: calibration coefficient for the pressure sensor
     """
 
     def __init__(
@@ -68,17 +63,15 @@ class PressureCoefficients:
 
 class ConductivityCoefficients:
     """
-    Args:
-        g (float): g calibration coefficient for the conductivity sensor
-        h (float): h calibration coefficient for the conductivity sensor
-        i (float): i calibration coefficient for the conductivity sensor
-        j (float): j calibration coefficient for the conductivity sensor
-        cpcor (float): cpcor calibration coefficient for the conductivity sensor
-        ctcor (float): ctcor calibration coefficient for the conductivity sensor
-        wbotc (float): Wien bridge oscillator temperature coefficient
-            see the 37 Manual: https://www.seabird.com/asset-get.download.jsa?id=54627862348
+    :param g: calibration coefficient for the conductivity sensor
+    :param h: calibration coefficient for the conductivity sensor
+    :param i: calibration coefficient for the conductivity sensor
+    :param j: calibration coefficient for the conductivity sensor
+    :param cpcor: calibration coefficient for the conductivity sensor
+    :param ctcor: calibration coefficient for the conductivity sensor
+    :param wbotc: bridge oscillator temperature coefficient see the
+        37 Manual: https://www.seabird.com/asset-get.download.jsa?id=54627862348
     """
-
     def __init__(self, g, h, i, j, cpcor, ctcor, wbotc):
         self.g = g
         self.h = h
@@ -91,17 +84,26 @@ class ConductivityCoefficients:
 
 class ECOCoefficients:
     """
-    Args:
-        slope (float): units/count for digital, units/V for analog
-        offset (float): dark counts for digital, dark voltage for analog
+    :param slope: units/count for digital, units/V for analog
+    :param offset: dark counts for digital, dark voltage for analog
     """
-
     def __init__(self, slope, offset):
         self.slope = slope
         self.offset = offset
 
 
 class Oxygen63Coefficients:
+    """
+    :param a0: calibration coefficient
+    :param a1: calibration coefficient
+    :param a2: calibration coefficient
+    :param b0: calibration coefficient
+    :param b1: calibration coefficient
+    :param c0: calibration coefficient
+    :param c1: calibration coefficient
+    :param c2: calibration coefficient
+    :param e: calibration coefficient
+    """
     def __init__(self, a0, a1, a2, b0, b1, c0, c1, c2, e):
         self.a0 = a0
         self.a1 = a1
@@ -116,13 +118,11 @@ class Oxygen63Coefficients:
 
 class Thermistor63Coefficients:
     """
-    Args:
-        ta0 (float): calibration coefficient for the thermistor in the SBE63 sensor
-        ta1 (float): calibration coefficient for the thermistor in the SBE63 sensor
-        ta2 (float): calibration coefficient for the thermistor in the SBE63 sensor
-        ta3 (float): calibration coefficient for the thermistor in the SBE63 sensor
+    :param ta0: calibration coefficient for the thermistor in the SBE63 sensor
+    :param ta1: calibration coefficient for the thermistor in the SBE63 sensor
+    :param ta2: calibration coefficient for the thermistor in the SBE63 sensor
+    :param ta3: calibration coefficient for the thermistor in the SBE63 sensor
     """
-
     def __init__(self, ta0, ta1, ta2, ta3):
         self.ta0 = ta0
         self.ta1 = ta1
@@ -131,6 +131,22 @@ class Thermistor63Coefficients:
 
 
 class Oxygen43Coefficients:
+    """
+    :param soc: linear scaling calibration coefficient
+    :param v_offset: voltage at zero oxygen signal
+    :param tau_20: sensor time constant tau(T,P) at 20 C, 1 atmosphere, 0 PSU;
+        slope term in calculation of tau(T,P)
+    :param a: calibration coefficient
+    :param b: calibration coefficient
+    :param c: calibration coefficient
+    :param e: calibration coefficient
+    :param d0: calibration terms used in calculation of tau(T,P)
+    :param d1: calibration terms used in calculation of tau(T,P)
+    :param d2: calibration terms used in calculation of tau(T,P)
+    :param h1: calibration terms used for hysteresis correction
+    :param h2: calibration terms used for hysteresis correction
+    :param h3: calibration terms used for hysteresis correction
+    """
     def __init__(self, soc, v_offset, tau_20, a, b, c, e, d0, d1, d2, h1, h2, h3):
         self.soc = soc
         self.v_offset = v_offset
@@ -149,9 +165,8 @@ class Oxygen43Coefficients:
 
 class PH18Coefficients:
     """
-    Args:
-        offset (float): calibration offset
-        slope (float): calibration slope
+    :param offset: calibration offset
+    :param slope: calibration slope
     """
 
     def __init__(self, slope, offset):
@@ -161,13 +176,11 @@ class PH18Coefficients:
 
 class PARCoefficients:
     """
-    Args:
-        im (float): immersion coefficient
-        a0 (float): calibration slope
-        a1 (float): calibration offset
-        multiplier (float): 1.0 for units of μEinsteins/m2 sec
+    :param im: immersion coefficient
+    :param a0: calibration slope
+    :param a1: calibration offset
+    :param multiplier: 1.0 for units of μEinsteins/m2 sec
     """
-
     def __init__(self, im, a0, a1, multiplier):
         self.im = im
         self.a0 = a0

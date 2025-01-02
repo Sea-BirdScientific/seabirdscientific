@@ -2,32 +2,28 @@
 # -*- coding: utf-8 -*-
 
 """A collection of classes and functions to support visualization of data
-
-Classes:
-
-    ChartConfig
-    ChartData
-
-Functions:
-
-    parse_instrument_data (Union[str, Path, pd.DataFrame]) -> pd.DataFrame
-    select_subset (list[str], pd.DataFrame) -> pd.DataFrame
-    plot_xy_chart (ChartData, ChartConfig) -> go.Figure:
-    create_single_plot (pd.DataFrame, pd.DataFrame, ChartConfig) -> go.Figure
-    create_subplots (pd.DataFrame, pd.DataFrame, ChartConfig) -> go.Figure:
-    create_overlay (pd.DataFrame, pd.DataFrame, ChartConfig) -> go.Figure
-    apply_single_config (go.Figure, ChartConfig)
-    apply_subplots_x_config (go.Figure, ChartConfig)
-    apply_subplots_y_config (go.Figure, ChartConfig)
-    apply_overlay_config (go.Figure, ChartConfig)
-    plot_ts_chart (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, ChartConfig) -> go.Figure
-
 """
+# Classes:
+#     ChartConfig
+#     ChartData
+
+# Functions:
+#     parse_instrument_data (Union[str, Path, pd.DataFrame]) -> pd.DataFrame
+#     select_subset (list[str], pd.DataFrame) -> pd.DataFrame
+#     plot_xy_chart (ChartData, ChartConfig) -> go.Figure:
+#     create_single_plot (pd.DataFrame, pd.DataFrame, ChartConfig) -> go.Figure
+#     create_subplots (pd.DataFrame, pd.DataFrame, ChartConfig) -> go.Figure:
+#     create_overlay (pd.DataFrame, pd.DataFrame, ChartConfig) -> go.Figure
+#     apply_single_config (go.Figure, ChartConfig)
+#     apply_subplots_x_config (go.Figure, ChartConfig)
+#     apply_subplots_y_config (go.Figure, ChartConfig)
+#     apply_overlay_config (go.Figure, ChartConfig)
+#     plot_ts_chart (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, ChartConfig) -> go.Figure
 
 # Native imports
 import json
 from logging import getLogger
-from typing import Union
+from typing import Dict, List, Literal, Union
 from pathlib import Path
 
 # Third-party imports
@@ -45,54 +41,54 @@ from .interpret_sbs_variable import interpret_sbs_variable
 
 logger = getLogger(__name__)
 
-PLOTLY_PATH = "/node_modules/plotly.js-dist/plotly.js"
-
 
 class ChartConfig:
     """Dataclass to contain chart information and plotly settings"""
 
-    # TODO: replace chart_type with enum
     def __init__(
         self,
-        title,
-        x_names,
-        y_names,
-        z_names,
-        chart_type,
-        bounds={},
-        x_titles=[""],
-        y_titles=[""],
-        z_titles=[""],
+        title: str,
+        x_names: List[str],
+        y_names: List[str],
+        z_names: List[str],
+        chart_type: Literal['overlay', 'subplots'],
+        bounds: Dict[Literal['x', 'y', 'z'], Dict[int, List[int]]]={},
+        x_titles: List[str]=[""],
+        y_titles: List[str]=[""],
+        z_titles: List[str]=[""],
         plot_loop_edit_flags=False,
         lift_pen_over_bad_data=False,
         flag_value=-9.99e-29,
     ):
-        """Initializes a chart config object to store the names, units, and data format.
+        """Initializes a chart config object to store the names, units,
+        and data format.
 
         Config parameters must be in the same order as the data.
 
-        Args:
-            title (str): Title of the chart
-            x_names (list[str]): X axis names
-            y_names (list[str]): Y axis names
-            z_names (list[str]): Z axis names
-            chart_type (str): Optional string to select type of chart "overlay" for multiple datasets sharing one axis,
-                or "subplots" for multiple datasets on separate subplots.
-            bounds (dict): Chart axis bounds, structure as:
-                bounds = {
-                    'x': {0: [n, m], 1: [n, m], 2: [n, m], 3: [n, m]}
-                    'y': {0: [n, m], 1: [n, m], 2: [n, m], 3: [n, m]}
-                    'z': {0: [n, m], 1: [n, m], 2: [n, m], 3: [n, m]}
-                    }
-            x/y/z_titles (list[str]): List of titles corresponding to each dataset.
-                Defaults to units in line charts and empty string in ts plots.
-            plot_loop_edit_flags (bool): If true, data are plotted regardless of
-                loop edit flag values, otherwise data are not plotted where loop
-                edit flags are equal to the flag_value (-9.99e-29 by default)
-            lift_pen_over_bad_data (bool): If true, flagged data are not drawn and
-                instead leave gaps in plotted lines. Otherwise, lines are drawn
-                between points surrounding flagged data (see SeaSoft manual, page 122)
-            flag_value (float): A user configurable value that identifies flagged data
+        :param title: Title of the chart
+        :param x_names: X axis names
+        :param y_names: Y axis names
+        :param z_names: Z axis names
+        :param chart_type: string to select type of chart "overlay" for
+            multiple datasets sharing one axis, or "subplots" for
+            multiple datasets on separate subplots.
+        :param bounds: Chart axis bounds, for example:
+            {'x': {0: [2, 10], 1: [1, 100]}
+        :param x_titles: List of titles corresponding to x axis dataset.
+            Defaults to units in line charts and empty string in ts plot
+        :param y_titles: List of titles corresponding to y axis dataset.
+            Defaults to units in line charts and empty string in ts plot
+        :param z_titles: List of titles corresponding to z axis dataset.
+            Defaults to units in line charts and empty string in ts plot
+        :param plot_loop_edit_flags: If true, data are plotted
+            regardless of loop edit flag values, otherwise data are not
+            plotted where loop edit flags are equal to the flag_value
+        :param lift_pen_over_bad_data: If true, flagged data are not
+            drawn and instead leave gaps in plotted lines. Otherwise,
+            lines are drawn between points surrounding flagged data (see
+            SeaSoft manual, page 122)
+        :param flag_value: A user configurable value that identifies
+            flagged data. Defaults to -9.99e-29
         """
 
         self.title = title
@@ -124,13 +120,12 @@ class ChartData:
 
     # TODO: move helper functions into ChartData
 
-    def __init__(self, data_source, config):
+    def __init__(self, data_source: str | pd.DataFrame, config: ChartConfig):
         """Initializes an object to store chart data.
 
-        Args:
-            data_source (str | pd.DataFrame): A file path (.csv, .asc, .json),
-            JSON string, or pandas DataFrame
-            config (ChartConfig): A ChartConfig object to configure plotly
+        :param data_source: A file path (.csv, .asc, .json), a JSON
+            string, or pandas DataFrame
+        :param config: A ChartConfig object to configure plotly
         """
 
         data = parse_instrument_data(data_source)
@@ -144,21 +139,17 @@ class ChartData:
             self.z = select_subset(config.z_names, data)
 
 
-def parse_instrument_data(source: Union[str, Path, pd.DataFrame]) -> pd.DataFrame:
+def parse_instrument_data(source: str | Path | pd.DataFrame) -> pd.DataFrame:
     """Top level function for converting instrument data to numpy array.
 
-    Currently supports pandas dataframes, json strings, and a string path to
-    the following file types: .csv, .asc (comma separated), and .json.
+    Currently supports pandas dataframes, json strings, or a Path to the
+    following file types: .csv, .asc (comma separated only), .json.
 
-    Args:
-        source (str | | pathlib.Path | pd.DataFrame): A JSON string, file path (.csv, .asc, .json),
-        or pandas DataFrame
+    :param source: A JSON string, file path (.csv, .asc, .json), or
+        pandas DataFrame
 
-    Returns:
-        pd.DataFrame: Numpy ndarray containing field names and data
+    :return: pandas dataframe containing field names and data
 
-    Example:
-        array = parse_instrument_data("./example.csv")
     """
 
     try:
@@ -192,26 +183,28 @@ def parse_instrument_data(source: Union[str, Path, pd.DataFrame]) -> pd.DataFram
 
 
 def select_subset(axis_names: list[str], data: pd.DataFrame) -> pd.DataFrame:
-    """Takes a list of axis names and returns a data set for each name in the list.
+    """Takes a list of axis names and returns a data set for each name
+    in the list.
 
-    If axis_names is empty the function will return a DataFrame
-    of integers representing the sample count of the data.
-    This could be used in a single series chart for example.
+    If axis_names is empty the function will return a DataFrame of
+    integers representing the sample count of the data. This could be
+    used in a single series chart for example.
 
-    Otherwise, the function will return a DataFrame for each name in the list.
-    This would be for a single xy chart or an overlay/subplot chart.
+    Otherwise, the function will return a DataFrame for each name in the
+    list. This would be for a single xy chart or an overlay/subplot
+    chart.
 
-    Args:
-        axis_names (list of strings): List of axis names corresponding to the data
-        data (DataFrame): The numpy DataFrame returned from read_data()
+    Example:  
 
-    Returns:
-        tuple(string, DataFrame): A tuple with the axis name and data
+    data = read_data("./example.csv")  
 
-    Example:
-        data = read_data("./example.csv")
+    subset = select_subset(["T090C", "C0Sm"], data)
 
-        subset = select_subset(["T090C", "C0Sm"], data)
+    :param axis_names: List of axis names corresponding to the data
+    :param data: The numpy DataFrame returned from read_data()
+
+    :return: A tuple with the axis name and data
+
     """
 
     if len(axis_names) == 0:
@@ -221,14 +214,15 @@ def select_subset(axis_names: list[str], data: pd.DataFrame) -> pd.DataFrame:
 
 
 def plot_xy_chart(data: ChartData, config: ChartConfig) -> go.Figure:
-    """Takes instrument data and a config and plots an XY chart with one or more data sets.
+    """Takes instrument data and a config and plots an XY chart with one
+    or more data sets.
 
-    Args:
-        data (ChartData): Data object with x, y, z, data selected according to the config
-        config (ChartConfig): Config object with various plotly settings
+    :param data: Data object with x, y, z, data selected
+        according to the config
+    :param config: Config object with various plotly
+        settings
 
-    Returns:
-        Figure: A plotly.graph_objects.Figure
+    :return: A plotly.graph_objects.Figure
     """
 
     figure = go.Figure()
@@ -250,7 +244,8 @@ def plot_xy_chart(data: ChartData, config: ChartConfig) -> go.Figure:
             figure = create_subplots(data.x, data.y, config)
 
     else:
-        # getting here should not be possible unless data and config are altered outside their init functions
+        # getting here should not be possible unless data and config are
+        # altered outside their init functions
         raise Exception
 
     if not config.lift_pen_over_bad_data:
@@ -262,15 +257,15 @@ def plot_xy_chart(data: ChartData, config: ChartConfig) -> go.Figure:
 def create_single_plot(x: pd.DataFrame, y: pd.DataFrame, config: ChartConfig) -> go.Figure:
     """Creates a single XY plot, with one or more data sets.
 
-    If there are multiple datasets for the x or y axis, an overlay plot will be generated
+    If there are multiple datasets for the x or y axis, an overlay plot
+    will be generated
 
-    Args:
-        x (ndarray): Numpy array of data for the x axis
-        y (ndarray): Numpy array of data for the y axis
-        config (ChartConfig): Dataclass with settings for the plotly chart
+    :param x: Numpy array of data for the x axis
+    :param y: Numpy array of data for the y axis
+    :param config: Dataclass with settings for the plotly chart
 
-    Returns:
-        go.Figure: A plotly.graph_objects.Figure displaying the provided x y data
+    :return: A plotly.graph_objects.Figure displaying the provided x y
+        data
     """
 
     if any(name in x.columns for name in y.columns):
@@ -292,13 +287,11 @@ def create_single_plot(x: pd.DataFrame, y: pd.DataFrame, config: ChartConfig) ->
 def create_subplots(x: pd.DataFrame, y: pd.DataFrame, config: ChartConfig) -> go.Figure:
     """Creates a chart with multiple subplots.
 
-    Args:
-        x (DataFrame): Pandas DataFrame of data for the x axis
-        y (DataFrame): Pandas DataFrame of data for the y axis
-        config (ChartConfig): Dataclass with settings for the plotly chart
+    :param x: Pandas DataFrame of data for the x axis
+    :param y: Pandas DataFrame of data for the y axis
+    :param config: Dataclass with settings for the plotly chart
 
-    Returns:
-        go.Figure: A plotly.graph_objects.Figure with multiple subplots
+    :return: A plotly.graph_objects.Figure with multiple subplots
     """
 
     if any(name in x.columns for name in y.columns):
@@ -357,13 +350,11 @@ def create_subplots(x: pd.DataFrame, y: pd.DataFrame, config: ChartConfig) -> go
 def create_overlay(x: pd.DataFrame, y: pd.DataFrame, config: ChartConfig) -> go.Figure:
     """Creates a chart with multiple datasets overlayed on one axis.
 
-    Args:
-        x (DataFrame): Pandas DataFrame of data for the x axis
-        y (DataFrame): Pandas DataFrame of data for the y axis
-        config (ChartConfig): Dataclass with settings for the plotly chart
+    :param x: Pandas DataFrame of data for the x axis
+    :param y: Pandas DataFrame of data for the y axis
+    :param config: Dataclass with settings for the plotly chart
 
-    Returns:
-        Figure: A plotly.graph_objects.Figure
+    :return: A plotly.graph_objects.Figure
     """
 
     if any(name in x.columns for name in y.columns):
@@ -398,9 +389,8 @@ def create_overlay(x: pd.DataFrame, y: pd.DataFrame, config: ChartConfig) -> go.
 def apply_single_config(figure: go.Figure, config: ChartConfig):
     """Updates various chart settings for single plots.
 
-    Args:
-        figure (go.Figure): The figure being updated
-        config (ChartConfig): The user defined config being applied to the figure
+    :param figure: The figure being updated
+    :param config: The user defined config being applied to the figure
     """
 
     figure.update_layout(
@@ -420,11 +410,12 @@ def apply_single_config(figure: go.Figure, config: ChartConfig):
 def apply_subplots_x_config(figure: go.Figure, config: ChartConfig):
     """Updates various chart settings for charts with multiple x axes.
 
-    Config parameters may contain upto 4 arguments per axis, and must be in the same order as the data. Hence all of the magic number indexing below
+    Config parameters may contain upto 4 arguments per axis, and must be
+    in the same order as the data. Hence all of the magic number
+    indexing below
 
-    Args:
-        figure (go.Figure): The figure being updated
-        config (ChartConfig): The user defined config being applied to the figure
+    :param figure: The figure being updated
+    :param config: The user defined config being applied to the figure
     """
 
     y_range = None if len(config.bounds["y"]) < 1 else config.bounds["y"][0]
@@ -456,11 +447,12 @@ def apply_subplots_x_config(figure: go.Figure, config: ChartConfig):
 def apply_subplots_y_config(figure: go.Figure, config: ChartConfig):
     """Updates various chart settings for charts with multiple y axes.
 
-    Config parameters may contain upto 4 arguments per axis, and must be in the same order as the data. Hence all of the magic number indexing below
+    Config parameters may contain upto 4 arguments per axis, and must be
+    in the same order as the data. Hence all of the magic number
+    indexing below
 
-    Args:
-        figure (go.Figure): The figure being updated
-        config (ChartConfig): The user defined config being applied to the figure
+    :param figure: The figure being updated
+    :param config: The user defined config being applied to the figure
     """
 
     x_range = None if len(config.bounds["x"]) < 1 else config.bounds["x"][0]
@@ -492,12 +484,12 @@ def apply_subplots_y_config(figure: go.Figure, config: ChartConfig):
 def apply_overlay_config(figure: go.Figure, config: ChartConfig):
     """Updates various chart settings for charts with multiple y axes.
 
-    Config parameters may contain upto 4 arguments per axis, and must be in the same order as the data.
+    Config parameters may contain upto 4 arguments per axis, and must be
+    in the same order as the data.
     Hence all of the magic number indexing below
 
-    Args:
-        figure (go.Figure): The figure being updated
-        config (ChartConfig): The user defined config being applied to the figure
+    :param figure: The figure being updated
+    :param config: The user defined config being applied to the figure
     """
 
     figure.update_layout(
@@ -560,16 +552,19 @@ def plot_ts_chart(
     z_mat: np.ndarray,
     config: ChartConfig,
 ) -> go.Figure:
-    """Calls various conversion functions (such as ct_sa_pd_from_t_s_p) and creates a TS plot.
+    """Overlays a scatter plot onto a contour plot to create a TS plot.
+    Takes as args the xyz properties on a Contour object. In a future
+    version these will be replaced with a single contour object
 
-    Args:
-        data (ChartData): Data object with x, y, z, data selected according to the config
-        config (ChartConfig): Config object with key/values required by conversion function
-        min_salinity (optional, float): Minimum salinity to display
-        lat, lon (optional, float) : Used to determine absolute salinity (SA)
-
-    Returns:
-        TSPlotValues: dataclass with various data for creating a TS plot
+    :param x: absolute salinity
+    :param y: conservative temperature
+    :param z: potential density
+    :param x_vec: absolute salinity vector
+    :param y_vec: conservative temperature vector
+    :param z_mat: potential density matrix
+    :param config: Config object with key/values required by conversion
+        function
+    :return: A plotly.graph_objects.Figure
     """
 
     if len(config.x_names) > 1 or len(config.y_names) > 1 or len(config.z_names) > 1:
