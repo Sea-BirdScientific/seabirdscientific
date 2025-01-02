@@ -624,15 +624,15 @@ def convert_nitrate(
     """Convert SUNA raw voltages to uMNO3 or mgNL
 
     :param volts: raw output voltage from a SUNA
-    :param dac_min: NO3 value that corresponds to V_MIN
-    :param dac_max: NO3 value that corresponds to V_MAX
+    :param dac_min: NO3 value that corresponds to v_min
+    :param dac_max: NO3 value that corresponds to v_max
     :param units: conversion output units, defaults to 'uMNO3'
     :return: converted nitrate
     """
-    V_MIN = 0.095
-    V_MAX = 4.095
-    a1 = (dac_min - dac_max) / (V_MIN - V_MAX)
-    a0 = dac_max - V_MAX * a1
+    v_min = 0.095
+    v_max = 4.095
+    a1 = (dac_min - dac_max) / (v_min - v_max)
+    a0 = dac_max - v_max * a1
 
     nitrate = a1 * volts + a0
 
@@ -648,10 +648,10 @@ def convert_ph_voltage_counts(ph_counts: np.ndarray):
     :param ph_counts: pH voltage counts
     :return: pH voltage
     """
-    ADC_VREF = 2.5
-    GAIN = 1
-    ADC_23BIT = 8388608
-    ph_volts = ADC_VREF / GAIN * (ph_counts / ADC_23BIT - 1)
+    adc_vref = 2.5
+    gain = 1
+    adc_23bit = 8388608
+    ph_volts = adc_vref / gain * (ph_counts / adc_23bit - 1)
     return ph_volts
 
 
@@ -707,11 +707,11 @@ def convert_external_seafet_ph(
     :param pressure: sample pressure in dbar
     """
 
-    TS_CR = 0.14  # relative concentration of sulfate in SW
-    TS_MM = 96.062  # [g/mol] molar mass of sulfate
-    CL_CR = 0.99889  # relative concentration of chloride in SW
-    CL_MM = 35.453  # [g/mol] molar mass of chloride
-    CL_TO_S = 1.80655  # [ppt, 10^{-3}] Chlorinity to Salinity
+    ts_cr = 0.14  # relative concentration of sulfate in SW
+    ts_mm = 96.062  # [g/mol] molar mass of sulfate
+    cl_cr = 0.99889  # relative concentration of chloride in SW
+    cl_mm = 35.453  # [g/mol] molar mass of chloride
+    cl_to_s = 1.80655  # [ppt, 10^{-3}] Chlorinity to Salinity
 
     def _molar_concentration(concentration: float, molar_mass: float, salinity: np.ndarray):
         """
@@ -723,7 +723,7 @@ def convert_external_seafet_ph(
         :param salinity: Salinity in PSU
         :return: molar concentration
         """
-        return (concentration / molar_mass) * (salinity / CL_TO_S)
+        return (concentration / molar_mass) * (salinity / cl_to_s)
 
     def _molar_conc_chloride(salinity: np.ndarray):
         """Calculates the molar concentration of chloride
@@ -731,7 +731,7 @@ def convert_external_seafet_ph(
         :param salinity: Salinity in PSU
         :return: molar concentration of chloride
         """
-        return _molar_concentration(CL_CR, CL_MM, salinity) * 1000 / (1000 - 1.005 * salinity)
+        return _molar_concentration(cl_cr, cl_mm, salinity) * 1000 / (1000 - 1.005 * salinity)
 
     def _molar_conc_sulfate(salinity: np.ndarray):
         """Calculates the molar concentration of total sulfate
@@ -739,7 +739,7 @@ def convert_external_seafet_ph(
         :param salinity: Salinity in PSU
         :return: molar concentration of sulfate
         """
-        return _molar_concentration(TS_CR, TS_MM, salinity)
+        return _molar_concentration(ts_cr, ts_mm, salinity)
 
     def _calculate_ionic_strength(salinity: np.ndarray):
         """Compute Salinity Ionic strength
@@ -750,11 +750,11 @@ def convert_external_seafet_ph(
         :return: Salinity ionic strength
         """
         c0 = 19.924
-        C1 = 1000
-        C2 = 1.005
+        c1 = 1000
+        c2 = 1.005
 
         # 19.924*(S) / (1000 - 1.005*(S))
-        ionic_strength = c0 * salinity / (C1 - C2 * salinity)
+        ionic_strength = c0 * salinity / (c1 - c2 * salinity)
         return ionic_strength
 
     def _calculate_ks(
@@ -779,25 +779,25 @@ def convert_external_seafet_ph(
 
         # *********** this should be re-tested
         c0 = -4276.1
-        C1 = 141.328
-        C2 = -23.093
-        C3 = -13856
-        C4 = 324.57
-        C5 = -47.986
-        C6 = 35474
-        C7 = -771.54
-        C8 = 114.723
-        C9 = -2698
-        C10 = 1776
+        c1 = 141.328
+        c2 = -23.093
+        c3 = -13856
+        c4 = 324.57
+        c5 = -47.986
+        c6 = 35474
+        c7 = -771.54
+        c8 = 114.723
+        c9 = -2698
+        c10 = 1776
 
         ln_ks = (
             c0 / temperature
-            + C1
-            + C2 * np.log(temperature)
-            + (C3 / temperature + C4 + C5 * np.log(temperature)) * np.sqrt(ionic_strength)
-            + (C6 / temperature + C7 + C8 * np.log(temperature)) * ionic_strength
-            + (C9 / temperature) * np.sqrt(ionic_strength) * ionic_strength
-            + (C10 / temperature) * np.pow(ionic_strength, 2)
+            + c1
+            + c2 * np.log(temperature)
+            + (c3 / temperature + c4 + c5 * np.log(temperature)) * np.sqrt(ionic_strength)
+            + (c6 / temperature + c7 + c8 * np.log(temperature)) * ionic_strength
+            + (c9 / temperature) * np.sqrt(ionic_strength) * ionic_strength
+            + (c10 / temperature) * np.pow(ionic_strength, 2)
         )
 
         # this is on the free pH scale in mol/kg-H2O
@@ -806,10 +806,10 @@ def convert_external_seafet_ph(
         # UCI has two calculateKS functions. The first returns khso4 here,
         # but in practice the second is always used which adds the following
 
-        temperature_C = temperature - KELVIN_OFFSET_0C
+        temperature_c = temperature - KELVIN_OFFSET_0C
         # Partial molal volume and compressibility change for HSO4
-        delta_vhso4 = -18.03 + 0.0466 * temperature_C + 0.000316 * temperature_C**2
-        kappa_hso4 = (-4.53 + 0.09 * temperature_C) / 1000
+        delta_vhso4 = -18.03 + 0.0466 * temperature_c + 0.000316 * temperature_c**2
+        kappa_hso4 = (-4.53 + 0.09 * temperature_c) / 1000
 
         #  per Yui Press changed from dbar to bar here by / 10
         ln_khso4_fac = (
@@ -833,13 +833,13 @@ def convert_external_seafet_ph(
         # This fit was made by Ken Johnson from data presented by:
         # Khoo et al. (Anal. Chem., 49, 29-34, 1977).
         c0 = 0.49172143
-        C1 = 0.00067524
+        c1 = 0.00067524
         # Modified from 0.00000343 to 0.0000034286,
         # email from Ken with newest version of MBARI code by Charles Branham 3/9/16
-        C2 = 0.0000034286
+        c2 = 0.0000034286
 
         # 0.00000343*(t)*(t) + 0.00067524*(t) + 0.49172143
-        adh = c0 + C1 * temperature + C2 * temperature**2
+        adh = c0 + c1 * temperature + c2 * temperature**2
 
         return adh
 
