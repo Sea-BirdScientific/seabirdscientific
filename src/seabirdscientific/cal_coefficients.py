@@ -7,7 +7,6 @@ These are calibration coefficients from specific SBS intstruments that are prima
 """
 
 # Native imports
-from dataclasses import dataclass
 
 # Third-party imports
 

@@ -135,5 +135,5 @@ def contour_from_t_c_p(
     Returns:
         ContourData: dataclass with xyz data for creating a TS plot
     """
-    salinity_PSU = gsw.SP_from_C(conductivity_mScm, temperature_C, pressure_dbar)
-    return contour_from_t_s_p(temperature_C, salinity_PSU, pressure_dbar, min_salinity, lat, lon)
+    salinity = gsw.SP_from_C(conductivity_mScm, temperature_C, pressure_dbar)
+    return contour_from_t_s_p(temperature_C, salinity, pressure_dbar, min_salinity, lat, lon)
