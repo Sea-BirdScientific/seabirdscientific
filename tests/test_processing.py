@@ -387,6 +387,22 @@ class TestLoopEdit:
 
 # class TestBinAverage:
 
+# data = {'pressure': [0, 0.5, 1, 1.2, 1.3, 1.5, 1.9, 2.5, 2.9, 3.5, 4, 5, 6, 7, 8, 9, 11, 13],
+#         'depth': [1, 1.5, 2, 22, 9, 16, 3, 4, 7, 8, 9, 8, 7, 1, 21, 19, 18, 6],
+#         'temperature': [0, 0.5, 1, 1.2, 1.3, 1.5, 1.9, 2.5, 2.9, 3.5, 4, 5, 6, 7, 8, 9, 11, 13],
+#         'flag': [0, 0, 0, 9999, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9999, 0, 0, 0],}
+
+# df = pd.DataFrame(data)
+
+# print('binning 2 \n' + df.to_string())
+# bin_average(df.copy(), 'depth', 2, True,0,10, False, True)
+
+# print('binning 3 \n' + df.to_string())
+# bin_average(df.copy(), 'depth', 3, True,0,10, False, True)
+
+# print('binning 5 \n' + df.to_string())
+# bin_average(df.copy(), 'depth', 5, True,0,10, True, True)
+
 
 class TestWildEdit:
     def test_wild_edit_pass(self):
