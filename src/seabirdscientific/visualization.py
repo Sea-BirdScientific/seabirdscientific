@@ -19,7 +19,10 @@ data
 #     apply_subplots_x_config (go.Figure, ChartConfig)
 #     apply_subplots_y_config (go.Figure, ChartConfig)
 #     apply_overlay_config (go.Figure, ChartConfig)
-#     plot_ts_chart (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, ChartConfig) -> go.Figure
+#     plot_ts_chart (
+#         np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray,
+#         np.ndarray, ChartConfig
+#     ) -> go.Figure
 
 # Native imports
 import json
@@ -573,7 +576,7 @@ def plot_ts_chart(
 
     if len(config.x_names) > 1 or len(config.y_names) > 1 or len(config.z_names) > 1:
         logger.warning(
-            "plot_ts_chart expects one data set for each x, y, and z parameter. Extra data sets are ignored"
+            "plot_ts_chart expects one data set for each axis. Extra data sets are ignored"
         )
 
     # Create 2 plots using plotly (not plotly express)

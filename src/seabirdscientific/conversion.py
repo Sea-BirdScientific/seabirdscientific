@@ -12,9 +12,15 @@
 #     density_from_t_s_p (np.ndarray, np.ndarray, np.ndarray, float, float)
 #     density_from_t_c_p (np.ndarray, np.ndarray, np.ndarray, float, float)
 #     depth_from_pressure (np.ndarray, float, depth_units="m", pressure_units="dbar")
-#     convert_sbe63_oxygen (np.ndarray, np.ndarray, np.ndarray, np.ndarray, Oxygen63Coefficients, Thermistor63Coefficients, str)
+#     convert_sbe63_oxygen (
+#         np.ndarray, np.ndarray, np.ndarray, np.ndarray,
+#         Oxygen63Coefficients, Thermistor63Coefficients, str
+#     )
 #     convert_sbe63_thermistor (np.ndarray, Thermistor63Coefficients)
-#     convert_sbe43_oxygen (np.ndarray, np.ndarray, np.ndarray, np.ndarray, Oxygen43Coefficients, bool, bool, float, float)
+#     convert_sbe43_oxygen (
+#         np.ndarray, np.ndarray, np.ndarray, np.ndarray,
+#         Oxygen43Coefficients, bool, bool, float, float
+#     )
 #     convert_oxygen_to_mg_per_l (np.ndarray)
 #     convert_oxygen_to_umol_per_kg (np.ndarray, np.ndarray)
 #     convert_eco_chlorophylla_val (float, ChlorophyllACoefficients)
@@ -24,7 +30,10 @@
 #     convert_nitrate(np.ndarray, float, float, str)
 #     convert_ph_voltage_counts(np.ndarray)
 #     convert_internal_seafet_ph(np.ndarray, temperature: np.ndarray, PHSeaFETInternalCoefficients)
-#     convert_external_seafet_ph(np.ndarray, np.ndarray, np.ndarray, np.ndarray, PHSeaFETExternalCoefficients)
+#     convert_external_seafet_ph(
+#         np.ndarray, np.ndarray, np.ndarray, np.ndarray,
+#         PHSeaFETExternalCoefficients
+#     )
 
 
 # Native imports
@@ -61,10 +70,13 @@ KELVIN_OFFSET_0C = 273.15
 KELVIN_OFFSET_25C = 298.15
 OXYGEN_MLPERL_TO_MGPERL = 1.42903
 OXYGEN_MLPERL_TO_UMOLPERKG = 44660
-ITS90_TO_IPTS68 = 1.00024  # taken from https://blog.seabird.com/ufaqs/what-is-the-difference-in-temperature-expressions-between-ipts-68-and-its-90/
+# taken from https://blog.seabird.com/ufaqs/what-is-the-difference-in-temperature-expressions-between-ipts-68-and-its-90/
+ITS90_TO_IPTS68 = 1.00024
 UMNO3_TO_MGNL = 0.014007
-R = 8.3144621  # [J K^{-1} mol^{-1}] Gas constant, NIST Reference on Constants retrieved 10-05-2015
-F = 96485.365  # [Coulombs mol^{-1}] Faraday constant, NIST Reference on Constants retrieved 10-05-2015
+# [J K^{-1} mol^{-1}] Gas constant, NIST Reference on Constants retrieved 10-05-2015
+R = 8.3144621
+# [Coulombs mol^{-1}] Faraday constant, NIST Reference on Constants retrieved 10-05-2015
+F = 96485.365
 
 
 def convert_temperature(

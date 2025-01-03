@@ -13,8 +13,14 @@ data.
 #     low_pass_filter (np.ndarray, float, float) -> np.ndarray
 #     align_ctd (np.ndarray, float, float, float) -> np.ndarray
 #     cell_thermal_mass (np.ndarray, np.ndarray, float, float, float) -> np.ndarray
-#     loop_edit_pressure (np.ndarray, float, np.ndarray, float, MinVelocityType, float, float, float, bool, float, float, bool, bool,float) -> np.ndarray
-#     loop_edit_depth (np.ndarray, np.ndarray, float, MinVelocityType, float, float, float, bool, float, float, bool, bool,float) -> np.ndarray
+#     loop_edit_pressure (
+#         np.ndarray, float, np.ndarray, float, MinVelocityType, float,
+#         float, float, bool, float, float, bool, bool,float
+#     ) -> np.ndarray
+#     loop_edit_depth (
+#         np.ndarray, np.ndarray, float, MinVelocityType, float, float,
+#         float, bool, float, float, bool, bool,float
+#     ) -> np.ndarray
 #     find_depth_peaks (np.ndarray, np.ndarray, bool, float, float, float) -> tuple[int, int]
 #     min_velocity_mask (np.ndarray, float, float, int, int, bool) -> np.ndarray
 #     mean_speed_percent_mask (np.ndarray, float, float, float, int, int, bool, int) -> np.ndarray
@@ -22,7 +28,9 @@ data.
 #     bin_average (pd.DataFrame, str, float, bool, int, int, bool, bool)
 #     wild_edit (np.ndarray, np.ndarray, float, float, int, float, bool,float) -> np.ndarray
 #     flag_data (np.ndarray, np.ndarray, float, float, float, bool,float) -> np.ndarray
-#     window_filter (np.ndarray, np.ndarray, WindowFilterType, int, float, int, float, bool, float) -> np.ndarray
+#     window_filter (
+#         np.ndarray, np.ndarray, WindowFilterType, int, float, int, float, bool, float
+#     ) -> np.ndarray
 #     bouyancy_frequency (np.ndarray, np.ndarray, np.ndarray, float)
 #     buoyancy (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, float, bool, float)
 
