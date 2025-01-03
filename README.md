@@ -24,10 +24,10 @@ For additional information see the [Python.org Installing Packages](https://pack
 
 ## Example package use within python code
 ```python
-import sbs
-from sbs.process import contour
-import sbs.process.conversion as conv
-import sbs.process.processing as proc
+import seabirdscientific
+from seabirdscientific import contour
+import seabirdscientific.conversion as conv
+import seabirdscientific.processing as proc
 ```
 
 ## Required Software
