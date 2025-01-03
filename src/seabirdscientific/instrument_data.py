@@ -41,6 +41,7 @@ SECONDS_BETWEEN_EPOCH_AND_2000 = 946684800
 
 
 class InstrumentType(Enum):
+    """The type of instrument that generated the hex file being read"""
     SBE37SM = "37-SM"
     SBE37SMP = "37-SMP"
     SBE37SMPODO = "37-SMP-ODO"
@@ -51,6 +52,7 @@ class InstrumentType(Enum):
 
 
 class HexDataTypes(Enum):
+    """Possible data types in hex files"""
     temperature = "temperature"
     conductivity = "conductivity"
     pressure = "pressure"
@@ -98,6 +100,7 @@ HEX_LENGTH = {
 
 
 class Sensors(Enum):
+    """Available sensors to read hex data from"""
     Temperature = "Temperature"
     Conductivity = "Conductivity"
     Pressure = "Pressure"
@@ -128,10 +131,8 @@ class MeasurementSeries:
 
 @dataclass
 class InstrumentData:
-    """Container for instrument data parsed from a CNV file. Note:
-    measurements is a Dict where the values are MeasurementSeries
-    """
-    measurements: Dict
+    """Container for instrument data parsed from a CNV file."""
+    measurements: Dict[str, MeasurementSeries]
     interval_s: float
     latitude: float
     start_time: date
@@ -160,7 +161,7 @@ def cnv_to_instrument_data(filepath: Path) -> InstrumentData:
 
     logger.info("Unpacking instrument data from file: %s", filepath)
 
-    with open(filepath, "r") as cnv:
+    with open(filepath, "r", encoding='utf-8') as cnv:
         for line in cnv:
             if line.startswith("*") or line.startswith("#"):
                 if line.startswith("# nvalues = "):
@@ -250,7 +251,7 @@ def read_hex_file(
     is_data = False
 
     # iterating over file twice in order to preallocate arrays
-    file = open(filepath, "r")
+    file = open(filepath, "r", encoding='utf-8')
     for line in file:
         if is_data and not (line == "" or line.startswith("\n") or line.startswith("\r")):
             data_count += 1
@@ -259,6 +260,7 @@ def read_hex_file(
 
     data_length = data_count
     file.seek(0)
+    data = pd.DataFrame()
     data_count = 0
     is_data = False
 
@@ -459,7 +461,8 @@ def read_SBE19plus_format_0(hex: str, enabled_sensors: List[Sensors], moored_mod
         )
         n += HEX_LENGTH["time"]
 
-    # Validate hex length. Ensure length matches what is expected based on enabeld sensors and moored mode.
+    # Validate hex length. Ensure length matches what is expected based
+    # on enabeld sensors and moored mode.
     if n != len(hex.split("\n")[0]):
         raise RuntimeWarning(
             "Hex string length does not match expectation based on enabled sensors and moored mode"

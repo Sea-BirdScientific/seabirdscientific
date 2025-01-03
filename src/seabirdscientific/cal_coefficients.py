@@ -4,7 +4,6 @@
 """Calibration coefficient objects for data conversion"""
 
 # Native imports
-from dataclasses import dataclass
 
 # Third-party imports
 

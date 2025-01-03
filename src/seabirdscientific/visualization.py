@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-"""A collection of classes and functions to support visualization of data
+"""A collection of classes and functions to support visualization of
+data
 """
 # Classes:
 #     ChartConfig
@@ -18,12 +19,15 @@
 #     apply_subplots_x_config (go.Figure, ChartConfig)
 #     apply_subplots_y_config (go.Figure, ChartConfig)
 #     apply_overlay_config (go.Figure, ChartConfig)
-#     plot_ts_chart (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, ChartConfig) -> go.Figure
+#     plot_ts_chart (
+#         np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray,
+#         np.ndarray, ChartConfig
+#     ) -> go.Figure
 
 # Native imports
 import json
 from logging import getLogger
-from typing import Dict, List, Literal, Union
+from typing import Dict, List, Literal
 from pathlib import Path
 
 # Third-party imports
@@ -52,10 +56,10 @@ class ChartConfig:
         y_names: List[str],
         z_names: List[str],
         chart_type: Literal['overlay', 'subplots'],
-        bounds: Dict[Literal['x', 'y', 'z'], Dict[int, List[int]]]={},
-        x_titles: List[str]=[""],
-        y_titles: List[str]=[""],
-        z_titles: List[str]=[""],
+        bounds: Dict[Literal['x', 'y', 'z'], Dict[int, List[int]]]=None,
+        x_titles: List[str]=None,
+        y_titles: List[str]=None,
+        z_titles: List[str]=None,
         plot_loop_edit_flags=False,
         lift_pen_over_bad_data=False,
         flag_value=-9.99e-29,
@@ -101,11 +105,11 @@ class ChartConfig:
         self.x_units = [info["units"] for info in x_info]
         self.y_units = [info["units"] for info in y_info]
         self.z_units = [info["units"] for info in z_info]
-        self.bounds = bounds
         self.chart_type = chart_type
-        self.x_titles = x_titles
-        self.y_titles = y_titles
-        self.z_titles = z_titles
+        self.bounds = bounds if bounds is not None else {}
+        self.x_titles = x_titles if x_titles is not None else [""]
+        self.y_titles = y_titles if y_titles is not None else [""]
+        self.z_titles = z_titles if z_titles is not None else [""]
         self.plot_loop_edit_flags = plot_loop_edit_flags
         self.lift_pen_over_bad_data = lift_pen_over_bad_data
         self.flag_value = flag_value
@@ -158,7 +162,7 @@ def parse_instrument_data(source: str | Path | pd.DataFrame) -> pd.DataFrame:
 
         elif isinstance(source, Path):
             suffix = source.suffix.lower()
-            if suffix == ".csv" or suffix == ".asc":
+            if suffix in (".csv", ".asc"):
                 data = pd.read_csv(source)
             elif suffix == ".json":
                 with open(source, encoding="utf-8") as js_data:
@@ -168,17 +172,20 @@ def parse_instrument_data(source: str | Path | pd.DataFrame) -> pd.DataFrame:
             data = pd.DataFrame.from_dict(json.loads(source), orient="columns")
 
         else:
-            raise Exception
+            raise TypeError
 
-        if "data" not in locals() or not isinstance(data, pd.DataFrame):
-            raise Exception
+        if "data" not in locals():
+            raise NameError
+
+        if not isinstance(data, pd.DataFrame):
+            raise TypeError
 
         columns = [interpret_sbs_variable(column)["name"] for column in data.columns]
         for old_column, new_column in zip(data.columns, columns):
             data.rename(columns={old_column: new_column}, inplace=True)
         return data
 
-    except Exception as e:
+    except (NameError, TypeError) as e:
         logger.error(e)
 
 
@@ -246,7 +253,7 @@ def plot_xy_chart(data: ChartData, config: ChartConfig) -> go.Figure:
     else:
         # getting here should not be possible unless data and config are
         # altered outside their init functions
-        raise Exception
+        raise ValueError
 
     if not config.lift_pen_over_bad_data:
         figure.update_traces(connectgaps=True)
@@ -569,7 +576,7 @@ def plot_ts_chart(
 
     if len(config.x_names) > 1 or len(config.y_names) > 1 or len(config.z_names) > 1:
         logger.warning(
-            "plot_ts_chart expects one data set for each x, y, and z parameter. Extra data sets are ignored"
+            "plot_ts_chart expects one data set for each axis. Extra data sets are ignored"
         )
 
     # Create 2 plots using plotly (not plotly express)
