@@ -25,7 +25,7 @@ If applicable, add screenshots to help explain your problem.
 
 **Information**
 - Contact Name:
-- Account Name:
+- Organization/Account Name:
 - Contact Email:
 - SBS Model: [e.g. SBE19plusV2]
 - Serial Number:
