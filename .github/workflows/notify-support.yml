@@ -15,7 +15,7 @@ jobs:
         with:
           python-version: '3.11'
       - run: >
-          python .github/notify-support.py
+          python .github/notify_support.py
           --host ${{secrets.MAIL_HOST}}
           --port ${{secrets.MAIL_PORT}}
           --username ${{secrets.MAIL_USERNAME}}

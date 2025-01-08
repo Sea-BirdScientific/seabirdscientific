@@ -1,5 +1,9 @@
+"""Send an email with credentials passed in as command line args 
+"""
+
 import argparse
-import smtplib, ssl
+import smtplib
+import ssl
 from email.message import EmailMessage
 
 
@@ -32,5 +36,4 @@ if __name__ == '__main__':
     parser.add_argument('--recipient')
     parser.add_argument('--subject')
     parser.add_argument('--body')
-    args = parser.parse_args()
-    send_alert(args)
+    send_alert(args=parser.parse_args())
