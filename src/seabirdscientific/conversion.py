@@ -72,6 +72,7 @@ OXYGEN_MLPERL_TO_MGPERL = 1.42903
 OXYGEN_MLPERL_TO_UMOLPERKG = 44660
 # taken from https://blog.seabird.com/ufaqs/what-is-the-difference-in-temperature-expressions-between-ipts-68-and-its-90/
 ITS90_TO_IPTS68 = 1.00024
+# micro moles of nitrate to milligrams of nitrogen per liter
 UMNO3_TO_MGNL = 0.014007
 # [J K^{-1} mol^{-1}] Gas constant, NIST Reference on Constants retrieved 10-05-2015
 R = 8.3144621
@@ -346,8 +347,10 @@ def convert_sbe63_oxygen(
     """
     if thermistor_units == "volts":
         temperature = convert_sbe63_thermistor(thermistor, thermistor_coefs)
-    else:  # if thermistor_units == "C":
+    elif thermistor_units == "C":
         temperature = thermistor
+    else:
+        raise ValueError
 
     oxygen_volts = raw_oxygen_phase / OXYGEN_PHASE_TO_VOLTS  # from the manual
 
@@ -542,12 +545,14 @@ def _convert_sbe43_oxygen(
 
 def convert_oxygen_to_mg_per_l(ox_values: np.ndarray):
     """Converts given oxygen values to milligrams/Liter.
+    
+    From Application Note 64.
 
     :param ox_values: oxygen values, already converted to ml/L
 
     :return: oxygen values converted to milligrams/Liter
     """
-    # From the SBE43 and SBE63 manual
+    
     return ox_values * OXYGEN_MLPERL_TO_MGPERL
 
 
@@ -559,9 +564,8 @@ def convert_oxygen_to_umol_per_kg(ox_values: np.ndarray, potential_density: np.n
     using gsw_rho(SA, CT, p_ref = 0) results in actual potential
     density, but this function already does the converison, so values
     will need to have 1000 subtracted from them before being passed into
-    this function. The function is done this way to stay matching to the
-    manual for the SBE63 and SBE43, but the results of either method are
-    identical.
+    this function. The function is done this way to stay matching to 
+    Application Note 64, but the results of either method are identical.
 
     :param ox_values: oxygen values, already converted to ml/L
     :param potential_density: potential density (sigma-theta) values.
@@ -569,7 +573,7 @@ def convert_oxygen_to_umol_per_kg(ox_values: np.ndarray, potential_density: np.n
 
     :return: oxygen values converted to milligrams/Liter
     """
-    # From the SBE43 and SBE63 manual
+
     oxygen_umolkg = (ox_values * OXYGEN_MLPERL_TO_UMOLPERKG) / (potential_density + 1000)
     return oxygen_umolkg
 
@@ -979,10 +983,10 @@ def convert_internal_seafet_temperature(temperature_counts: np.ndarray):
     :param temperature_counts: raw internal temperature counts
     :return: internal temperature in Celcius
     """
-    SLOPE = 175.72
-    OFFSET = -46.85
-    INT_16BIT = 2**16
-    temperature = temperature_counts / INT_16BIT * SLOPE + OFFSET
+    slope = 175.72
+    offset = -46.85
+    int_16bit = 2**16
+    temperature = temperature_counts / int_16bit * slope + offset
 
     return temperature
 
@@ -994,21 +998,21 @@ def convert_seafet_relative_humidity(humidity_counts: np.ndarray, temperature: n
     :param temperature: converted internal temperature in Celcius
     :return: temperature compensated relative humidity in percent
     """
-    SLOPE = 125
-    OFFSET = -6
-    INT_16BIT = 2**16
-    MAX_HUMIDITY = 119
-    TEMPERATURE_COEFFICIENT = -0.15
-    TEMPERATURE_25C = 25
+    slope = 125
+    offset = -6
+    int_16bit = 2**16
+    max_humidity = 119
+    temperature_coefficient = -0.15
+    temperature_25c = 25
 
     # Uncompensated relative humidity
-    relative_humidity = SLOPE * humidity_counts / INT_16BIT + OFFSET
+    relative_humidity = slope * humidity_counts / int_16bit + offset
 
     for n, humidity in enumerate(relative_humidity):
         # Theoretically, uncompensated relative humidity can be up to 119%
-        if 0 <= humidity < MAX_HUMIDITY:
-            relative_humidity[n] = humidity + TEMPERATURE_COEFFICIENT * (
-                TEMPERATURE_25C - temperature[n]
+        if 0 <= humidity < max_humidity:
+            relative_humidity[n] = humidity + temperature_coefficient * (
+                temperature_25c - temperature[n]
             )
 
     np.clip(relative_humidity, a_min=0, a_max=100)

@@ -299,7 +299,7 @@ def loop_edit_depth(
             depth, sample_interval, min_velocity, max_depth_n, len(depth), True
         )
 
-    else:  # if min_velocity_type == MinVelocityType.PERCENT:
+    elif min_velocity_type == MinVelocityType.PERCENT:
         diff_length = int(window_size / sample_interval)
         downcast_mask = mean_speed_percent_mask(
             depth,
@@ -321,6 +321,8 @@ def loop_edit_depth(
             True,
             diff_length,
         )
+    else:
+        raise ValueError
 
     flag[~downcast_mask & ~upcast_mask] = flag_value
 
@@ -364,7 +366,7 @@ def find_depth_peaks(
         min_soak_depth_n = min(
             n
             for n, d in enumerate(depth)
-            if flag[n] != flag_value and min_soak_depth < d and d < max_soak_depth
+            if flag[n] != flag_value and min_soak_depth < d < max_soak_depth
         )
     else:
         min_soak_depth_n = 0
@@ -377,7 +379,7 @@ def find_depth_peaks(
     min_depth_n = min(
         (d, n)
         for n, d in enumerate(depth)
-        if flag[n] != flag_value and min_soak_depth_n <= n and n < max_soak_depth_n
+        if flag[n] != flag_value and min_soak_depth_n <= n < max_soak_depth_n
     )[1]
 
     # beginning of possible upcast domain
@@ -608,7 +610,7 @@ def bin_average(
                         / (curr_pressure - prev_presure)
                     ) + prev_val
                     new_dataset.loc[index, col_name] = interpolated_val
-                    
+
             prev_row = row
             if index == 2:
                 # save this so we can reference it at the end for interpolating the first row

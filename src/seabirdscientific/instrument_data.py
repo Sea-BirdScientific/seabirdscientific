@@ -462,7 +462,7 @@ def read_SBE19plus_format_0(hex: str, enabled_sensors: List[Sensors], moored_mod
         n += HEX_LENGTH["time"]
 
     # Validate hex length. Ensure length matches what is expected based
-    # on enabeld sensors and moored mode.
+    # on enabled sensors and moored mode.
     if n != len(hex.split("\n")[0]):
         raise RuntimeWarning(
             "Hex string length does not match expectation based on enabled sensors and moored mode"
