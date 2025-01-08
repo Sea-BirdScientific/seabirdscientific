@@ -24,11 +24,17 @@ A clear and concise description of what you expected to happen.
 If applicable, add screenshots to help explain your problem.
 
 **Information**
- - OS: [e.g. windows, mac]
- - Python version: [e.g. 3.10]
- - seabirdscientific version: [e.g. 2.0.0]
- - Instrument: [e.g. SBE19plusV2]
- - Instrument Firmware: [e.g. 1.2.3]
+- Contact Name:
+- Organization/Account Name:
+- Contact Email:
+- SBS Model: [e.g. SBE19plusV2]
+- Serial Number:
+- Firmware Version: [e.g. 1.2.3]
+- Software: seabirdscientific community toolkit
+- Software Version: [e.g. 2.0.0]
+- Operating System: [e.g. windows, mac]
+- OS Version:
+- Python Version: [e.g. 3.10]
 
 **Additional context**
 Add any other context about the problem here.
