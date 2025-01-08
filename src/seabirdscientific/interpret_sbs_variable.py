@@ -1,23 +1,6 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-"""SBE variable name conversion to matlab friendly strings.
-
-DESCRIPTION:
-Converts the strings that define SBE variables to strings that exclude special characters. 
-
-Gives units for each variable and defines whether it is a number or a text string.
-
-All variables imported from SBEDataProcessing_7.26.4.pdf. There may be
-additional variables added in future versions of Sea-Bird Data processing
-modules that are not included here.
-
-Functions:
-
-    interpret_sbs_variable(sbs_var)
-
-"""
-
 # Native imports
 import re
 
@@ -29,18 +12,23 @@ import re
 
 
 def interpret_sbs_variable(sbs_var):
-    """Converts the strings that define SBE variables to strings that exclude special characters.
+    """SBE variable name conversion to matlab friendly strings.
+    
+    Converts the strings that define SBE variables to strings that
+    exclude special characters. Gives units for each variable and 
+    defines whether it is a number or a text string.
 
-    Gives units for each variable and defines whether it is a number or a text string.
+    All variables imported from SBEDataProcessing_7.26.4.pdf. There may
+    be additional variables added in future versions of Sea-Bird Data
+    processing modules that are not included here.
 
-    Args:
-        sbs_var (string): Name of the dataset
+    :param sbs_var: Name of the dataset
 
-    Returns:
-        list[str]: The name with special characters removed, the data format, and the units.
-            kvar_name       =   converted, matlab code readable variable name
-            kvar_format     =   defines whether variable is a float or a string
-            kvar_units      =   variable units. Empty string if undefined.
+    :return: The name with special characters removed, the data format,
+        and the units. kvar_name: converted, matlab code readable
+        variable name. kvar_format: defines whether variable is a float
+        or a string. kvar_units: variable units. Empty string if
+        undefined.
     """
 
     # TEMPERATURE

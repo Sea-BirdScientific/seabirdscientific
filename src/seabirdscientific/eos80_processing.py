@@ -1,3 +1,9 @@
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
+
+"""EOS80 functions to support legacy processing"""
+
+
 import numpy as np
 from scipy import stats
 
@@ -8,19 +14,22 @@ def bouyancy_frequency(
     pressure_dbar_subset: np.ndarray,
     gravity: float,
 ):
-    """Calculates an N^2 value (buoyancy frequency) for the given window of temperature, salinity, and pressure, at the given latitude.
+    """Calculates an N^2 value (buoyancy frequency) for the given window
+    of temperature, salinity, and pressure, at the given latitude.
 
-    Expects temperature as ITS-90 temperature, salinity as practical salinity, and pressure as dbar, all of the same length
-    Performs the calculation following the SBE Data Processing formula using E0S-80 calculations for potential temp and density
+    Expects temperature as ITS-90 temperature, salinity as practical
+    salinity, and pressure as dbar, all of the same length. Performs the
+    calculation following the SBE Data Processing formula using E0S-80
+    calculations for potential temp and density
 
-    Args:
-        temp_ITS_subset (np.ndarray): ITS-90 temperature values for the given window
-        salinity_prac_subset (np.ndarray): practical salinity values for the given window
-        pressure_dbar_subset (np.ndarray): pressure values for the given window
-        gravity (float): gravity value
+    :param temp_ITS_subset: ITS-90 temperature values for the given
+        window
+    :param salinity_prac_subset: practical salinity values for the given
+        window
+    :param pressure_dbar_subset: pressure values for the given window
+    :param gravity: gravity value
 
-    Returns:
-        float: A single N^2 [Brunt-Väisälä (buoyancy) frequency]
+    :return: A single N^2 [Brunt-Väisälä (buoyancy) frequency]
     """
 
     db_to_pa = 1e4
@@ -54,13 +63,11 @@ def density(s0: np.ndarray, t: np.ndarray, p0: np.ndarray) -> np.ndarray:
 
     This was ported from CSharedCalc::Density()
 
-    Args:
-        s0 (np.ndarray): salinity data
-        t (np.ndarray): temperature data
-        p0 (np.ndarray): pressure data
+    :param s0: salinity data
+    :param t: temperature data
+    :param p0: pressure data
 
-    Returns:
-        np.ndarray: resulting density data
+    :return: resulting density data
     """
 
     B0 = 8.24493e-1
@@ -166,14 +173,12 @@ def potential_temperature(
 
     This was ported from CSharedCalc::PoTemp()
 
-    Args:
-        s (np.ndarray): sainity data
-        t0 (np.ndarray): temperature data
-        p0 (np.ndarray): subset pressure data
-        pr (np.ndarray): pressure data
+    :param s: sainity data
+    :param t0: temperature data
+    :param p0: subset pressure data
+    :param pr: pressure data
 
-    Returns:
-        np.ndarray: calculated potential temperature data
+    :return: calculated potential temperature data
     """
 
     s, t0, p0, pr = np.broadcast_arrays(s, t0, p0, pr)
@@ -207,13 +212,11 @@ def adiabatic_temperature_gradient(
 
     This was ported from CSharedCalc::ATG()
 
-    Args:
-        s (np.ndarray): salinity data
-        t (np.ndarray): temperature data
-        p (np.ndarray): pressure data
+    :param s: salinity data
+    :param t: temperature data
+    :param p: pressure data
 
-    Returns:
-        np.ndarray: the resulting adiabatic lapse rate
+    :return: the resulting adiabatic lapse rate
     """
 
     s, t, p = np.broadcast_arrays(s, t, p)
