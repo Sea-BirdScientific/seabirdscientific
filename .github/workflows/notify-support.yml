@@ -1,0 +1,29 @@
+name: Notify Support
+
+on:
+  issues:
+    types:
+      - labeled
+
+jobs:
+  send-email:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.label.name == 'bug' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: >
+          python .github/notify-support.py
+          --host ${{secrets.MAIL_HOST}}
+          --port ${{secrets.MAIL_PORT}}
+          --username ${{secrets.MAIL_USERNAME}}
+          --password ${{secrets.MAIL_PASSWORD}}
+          --sender ${{secrets.MAIL_SENDER}}
+          --recipient ${{secrets.MAIL_RECIPIENT}}
+          --subject "$TITLE"
+          --body "$BODY"
+        env:
+          TITLE: ${{github.event.issue.title}}
+          BODY: ${{github.event.issue.body}}
