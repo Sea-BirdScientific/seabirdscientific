@@ -47,14 +47,16 @@ def contour_from_t_s_p(
     lat: float = 0,
     lon: float = 0,
 ) -> ContourData:
-    """Converts temperature (T), salinity (S), and pressure (P) to conservative temperature (CT),
-    absolute salinity (SA), and potential density (PD). CT is derived from ITS-90 temperature
-    and practical salinity measurements. PD is derived from SA and CT.
+    """Converts temperature (T), salinity (S), and pressure (P) to
+    conservative temperature (CT), absolute salinity (SA), and potential
+    density (PD). CT is derived from ITS-90 temperature and practical
+    salinity measurements. PD is derived from SA and CT.
 
     :param temperature_C: Measured temperature in degrees C
     :param salinity_PSU: Measured salinity in practical salinity units
     :param pressure_dbar: Measured pressure in decibars
-    :param min_salinity: Minimum salinity to include in contour data. Defaults to 0
+    :param min_salinity: Minimum salinity to include in contour data.
+        Defaults to 0
     :param lat: Used to determine absolute salinity (SA). Defaults to 0
     :param lon: Used to determine absolute salinity (SA). Defaults to 0
 
@@ -119,8 +121,9 @@ def contour_from_t_c_p(
     lat: float = 0,
     lon: float = 0,
 ) -> ContourData:
-    """Converts conductivity (C) to salinity (S) then calls derive_ct_sa_pd_from_t_s_p to
-    derive conservative temperature (CT), absolute salinity (SA), and potential density (PD).
+    """Converts conductivity (C) to salinity (S) then calls
+    derive_ct_sa_pd_from_t_s_p to derive conservative temperature (CT),
+    absolute salinity (SA), and potential density (PD).
 
     :param temperature_C: Measured temperature in degrees C
     :param Conductivity_mScm: Measured conductivity in mSiemens/cm
@@ -132,5 +135,5 @@ def contour_from_t_c_p(
 
     :return: dataclass with xyz data for creating a TS plot
     """
-    salinity_PSU = gsw.SP_from_C(conductivity_mScm, temperature_C, pressure_dbar)
-    return contour_from_t_s_p(temperature_C, salinity_PSU, pressure_dbar, min_salinity, lat, lon)
+    salinity = gsw.SP_from_C(conductivity_mScm, temperature_C, pressure_dbar)
+    return contour_from_t_s_p(temperature_C, salinity, pressure_dbar, min_salinity, lat, lon)

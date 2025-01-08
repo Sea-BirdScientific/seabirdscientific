@@ -1,6 +1,6 @@
 [project]
 name = "seabirdscientific"
-version = "2.4.0"
+version = "2.4.1"
 description = "Sea-Bird Scientific Community Toolkit"
 readme = "README.md"
 authors = [
@@ -31,13 +31,14 @@ dependencies = [
 ]
 [project.optional-dependencies]
 dev = [
-  "notebook",
-  "pytest",
   "black",
-  "nbformat",
-  "pre-commit",
-  "twine",
   "build",
+  "nbformat",
+  "notebook",
+  "pre-commit",
+  "pylint",
+  "pytest",
+  "twine",
 ]
 
 [project.urls]

@@ -13,8 +13,14 @@ data.
 #     low_pass_filter (np.ndarray, float, float) -> np.ndarray
 #     align_ctd (np.ndarray, float, float, float) -> np.ndarray
 #     cell_thermal_mass (np.ndarray, np.ndarray, float, float, float) -> np.ndarray
-#     loop_edit_pressure (np.ndarray, float, np.ndarray, float, MinVelocityType, float, float, float, bool, float, float, bool, bool,float) -> np.ndarray
-#     loop_edit_depth (np.ndarray, np.ndarray, float, MinVelocityType, float, float, float, bool, float, float, bool, bool,float) -> np.ndarray
+#     loop_edit_pressure (
+#         np.ndarray, float, np.ndarray, float, MinVelocityType, float,
+#         float, float, bool, float, float, bool, bool,float
+#     ) -> np.ndarray
+#     loop_edit_depth (
+#         np.ndarray, np.ndarray, float, MinVelocityType, float, float,
+#         float, bool, float, float, bool, bool,float
+#     ) -> np.ndarray
 #     find_depth_peaks (np.ndarray, np.ndarray, bool, float, float, float) -> tuple[int, int]
 #     min_velocity_mask (np.ndarray, float, float, int, int, bool) -> np.ndarray
 #     mean_speed_percent_mask (np.ndarray, float, float, float, int, int, bool, int) -> np.ndarray
@@ -22,7 +28,9 @@ data.
 #     bin_average (pd.DataFrame, str, float, bool, int, int, bool, bool)
 #     wild_edit (np.ndarray, np.ndarray, float, float, int, float, bool,float) -> np.ndarray
 #     flag_data (np.ndarray, np.ndarray, float, float, float, bool,float) -> np.ndarray
-#     window_filter (np.ndarray, np.ndarray, WindowFilterType, int, float, int, float, bool, float) -> np.ndarray
+#     window_filter (
+#         np.ndarray, np.ndarray, WindowFilterType, int, float, int, float, bool, float
+#     ) -> np.ndarray
 #     bouyancy_frequency (np.ndarray, np.ndarray, np.ndarray, float)
 #     buoyancy (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, float, bool, float)
 
@@ -44,11 +52,15 @@ from . import eos80_processing as eos80
 
 
 class MinVelocityType(Enum):
+    """The minimum velocity type used with loop edit"""
     FIXED = 0
     PERCENT = 1
 
 
 class WindowFilterType(Enum):
+    """The window filter type. See CDT Processing in the docs for
+    details.
+    """
     BOXCAR = "boxcar"
     COSINE = "cosine"
     TRIANGLE = "triangle"
@@ -147,9 +159,9 @@ def cell_thermal_mass(
     corrected_conductivity = conductivity_Sm.copy()
 
     for n in range(1, len(ctm)):
-        dc_dT = 0.1 * (1.0 + 0.006 * (temperature_C[n] - 20.0))
-        dT = temperature_C[n] - temperature_C[n - 1]
-        ctm[n] = -1.0 * b * ctm[n - 1] + a * dc_dT * dT
+        dc_dt = 0.1 * (1.0 + 0.006 * (temperature_C[n] - 20.0))
+        dt = temperature_C[n] - temperature_C[n - 1]
+        ctm[n] = -1.0 * b * ctm[n - 1] + a * dc_dt * dt
         corrected_conductivity[n] += ctm[n]
 
     return corrected_conductivity
@@ -309,6 +321,8 @@ def loop_edit_depth(
             True,
             diff_length,
         )
+    else:
+        raise ValueError
 
     flag[~downcast_mask & ~upcast_mask] = flag_value
 
@@ -352,7 +366,7 @@ def find_depth_peaks(
         min_soak_depth_n = min(
             n
             for n, d in enumerate(depth)
-            if flag[n] != flag_value and min_soak_depth < d and d < max_soak_depth
+            if flag[n] != flag_value and min_soak_depth < d < max_soak_depth
         )
     else:
         min_soak_depth_n = 0
@@ -365,21 +379,14 @@ def find_depth_peaks(
     min_depth_n = min(
         (d, n)
         for n, d in enumerate(depth)
-        if flag[n] != flag_value and min_soak_depth_n <= n and n < max_soak_depth_n
+        if flag[n] != flag_value and min_soak_depth_n <= n < max_soak_depth_n
     )[1]
 
     # beginning of possible upcast domain
-    max_depth_n = (
-        -1
-        if min_depth_n == len(depth) - 1
-        else [
-            # TODO Refactor. Converting to a dataframe here is expensive
-            # n for n,d in enumerate(depth) if d == max(pd.DataFrame(depth).dropna().values) and n > min_depth_n
-            n
-            for n, d in enumerate(depth)
-            if d == max(depth) and n > min_depth_n
-        ][0]
-    )
+    if min_depth_n == len(depth) - 1:
+        max_depth_n = -1
+    else:
+        max_depth_n = [n for n, d in enumerate(depth) if d == max(depth) and n > min_depth_n][0]
 
     return (min_depth_n, max_depth_n)
 
@@ -489,11 +496,11 @@ def flag_by_minima_maxima(
     local_min = 10000.0
 
     # flag values that don't exceed most recent valid local minima/maxima
-    for n in range(0, len(depth)):
-        if n >= max_depth_n and depth[n] < local_min and flag[n] != flag_value:
-            local_min = depth[n]
-        elif n >= min_depth_n and depth[n] > local_max and flag[n] != flag_value:
-            local_max = depth[n]
+    for n, d in enumerate(depth):
+        if n >= max_depth_n and d < local_min and flag[n] != flag_value:
+            local_min = d
+        elif n >= min_depth_n and d > local_max and flag[n] != flag_value:
+            local_max = d
         else:
             flag[n] = flag_value
 
@@ -602,8 +609,8 @@ def bin_average(
                         * (center_pressure - prev_presure)
                         / (curr_pressure - prev_presure)
                     ) + prev_val
-                    # print('interpolated to ' + str(interpolated_val) + ' for ' + str(col_name) + ', ' + str(index))
                     new_dataset.loc[index, col_name] = interpolated_val
+
             prev_row = row
             if index == 2:
                 # save this so we can reference it at the end for interpolating the first row
@@ -884,23 +891,24 @@ def bouyancy_frequency(
     temperature_bar = [np.mean(temp_conservative_subset)]
     salinity_bar = [np.mean(salinity_abs_subset)]
 
-    # Compute average specific volume, temp expansion ceoff, and saline contraction coeff over window
+    # Compute average specific volume, temp expansion ceoff,
+    # and saline contraction coeff over window
     (v_bar, alpha_bar, beta_bar) = gsw.specvol_alpha_beta(
         salinity_bar, temperature_bar, pressure_bar
     )
 
     # Estimate vertical gradient of conservative temp
-    dCTdp_result = stats.linregress(pressure_dbar_subset, temp_conservative_subset)
+    dct_dp = stats.linregress(pressure_dbar_subset, temp_conservative_subset)
     # TODO: error handling with r, p, std_error
 
     # Estimate vertical gradient of absolute salinity
-    dSAdp_result = stats.linregress(pressure_dbar_subset, salinity_abs_subset)
+    dsa_dp = stats.linregress(pressure_dbar_subset, salinity_abs_subset)
     # TODO: error handling with r, p, std_error
 
     # Compute N2 combining computed ceofficients and vertical gradients.
     # we index into v_bar, alpha_bar, and beta_bar as they are all arrays of len 1
     n2 = gravity**2 / (v_bar[0] * db_to_pa)
-    n2 *= beta_bar[0] * dSAdp_result.slope - alpha_bar[0] * dCTdp_result.slope
+    n2 *= beta_bar[0] * dsa_dp.slope - alpha_bar[0] * dct_dp.slope
     return n2
 
 
@@ -947,10 +955,13 @@ def buoyancy(
     )
     pressure_dbar = pressure_dbar.astype(np.double)
 
-    # Get the original bin size that we're working with, using the second and third bin so we don't have to worry about the surface bin
+    # Get the original bin size that we're working with, using the
+    # second and third bin so we don't have to worry about the surface
+    # bin
     original_bin_size = abs(pressure_dbar[2] - pressure_dbar[1])
 
-    # Calculates how many scans to have on either side of our median point, but need at least 1 (for a total of 3 scans)
+    # Calculates how many scans to have on either side of our median
+    # point, but need at least 1 (for a total of 3 scans)
     scans_per_side = max(math.floor(window_size / original_bin_size / 2), 1)
 
     salinity_abs = gsw.SA_from_SP(salinity_prac, pressure_dbar, longitude, latitude)
@@ -973,7 +984,7 @@ def buoyancy(
 
         pressure_subset = pressure_dbar[min_index:max_index]
         temperature_cons_subset = temperature_conservative[min_index:max_index]
-        temperature_ITS_subset = temperature_c[min_index:max_index]
+        temperature_its_subset = temperature_c[min_index:max_index]
         salinity_subset = salinity_abs[min_index:max_index]
 
         pressure_bar = [np.mean(pressure_subset)]
@@ -987,7 +998,7 @@ def buoyancy(
         else:
             salinity_subset = salinity_prac[min_index:max_index]
             n2 = eos80.bouyancy_frequency(
-                temperature_ITS_subset, salinity_subset, pressure_subset, gravity
+                temperature_its_subset, salinity_subset, pressure_subset, gravity
             )
 
         result.at[i, "N2"] = n2
