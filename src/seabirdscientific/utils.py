@@ -46,17 +46,17 @@ def close_enough(
     """
 
     results = np.full(len(test_values), False)
-    for n in range(len(test_values)):
+    for n, v in enumerate(test_values):
         results[n] = (
-            np.round(test_values[n], rounding_order) == expected_values[n]
+            np.round(v, rounding_order) == expected_values[n]
             or np.isclose(
-                test_values[n],
+                v,
                 expected_values[n] - 0.5 * 10**-rounding_order,
                 rtol=0,
                 atol=absolute_tolerance,
             )
             or np.isclose(
-                test_values[n],
+                v,
                 expected_values[n] + 0.5 * 10**-rounding_order,
                 rtol=0,
                 atol=absolute_tolerance,
@@ -71,10 +71,10 @@ def plot(**kwargs: np.ndarray):
     :param kwargs: the dictionary to plot
     """
 
-    fig, ax = plt.subplots(figsize=(20, 10))
-    for key in kwargs.keys():
-        x = range(len(kwargs[key]))
-        ax.plot(x, kwargs[key], label=key)
+    _, ax = plt.subplots(figsize=(20, 10))
+    for key, value in kwargs.items():
+        x = range(len(value))
+        ax.plot(x, value, label=key)
         ax.legend()
     plt.show()
 

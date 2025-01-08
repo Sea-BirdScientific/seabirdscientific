@@ -12,9 +12,15 @@
 #     density_from_t_s_p (np.ndarray, np.ndarray, np.ndarray, float, float)
 #     density_from_t_c_p (np.ndarray, np.ndarray, np.ndarray, float, float)
 #     depth_from_pressure (np.ndarray, float, depth_units="m", pressure_units="dbar")
-#     convert_sbe63_oxygen (np.ndarray, np.ndarray, np.ndarray, np.ndarray, Oxygen63Coefficients, Thermistor63Coefficients, str)
+#     convert_sbe63_oxygen (
+#         np.ndarray, np.ndarray, np.ndarray, np.ndarray,
+#         Oxygen63Coefficients, Thermistor63Coefficients, str
+#     )
 #     convert_sbe63_thermistor (np.ndarray, Thermistor63Coefficients)
-#     convert_sbe43_oxygen (np.ndarray, np.ndarray, np.ndarray, np.ndarray, Oxygen43Coefficients, bool, bool, float, float)
+#     convert_sbe43_oxygen (
+#         np.ndarray, np.ndarray, np.ndarray, np.ndarray,
+#         Oxygen43Coefficients, bool, bool, float, float
+#     )
 #     convert_oxygen_to_mg_per_l (np.ndarray)
 #     convert_oxygen_to_umol_per_kg (np.ndarray, np.ndarray)
 #     convert_eco_chlorophylla_val (float, ChlorophyllACoefficients)
@@ -24,7 +30,10 @@
 #     convert_nitrate(np.ndarray, float, float, str)
 #     convert_ph_voltage_counts(np.ndarray)
 #     convert_internal_seafet_ph(np.ndarray, temperature: np.ndarray, PHSeaFETInternalCoefficients)
-#     convert_external_seafet_ph(np.ndarray, np.ndarray, np.ndarray, np.ndarray, PHSeaFETExternalCoefficients)
+#     convert_external_seafet_ph(
+#         np.ndarray, np.ndarray, np.ndarray, np.ndarray,
+#         PHSeaFETExternalCoefficients
+#     )
 
 
 # Native imports
@@ -61,10 +70,14 @@ KELVIN_OFFSET_0C = 273.15
 KELVIN_OFFSET_25C = 298.15
 OXYGEN_MLPERL_TO_MGPERL = 1.42903
 OXYGEN_MLPERL_TO_UMOLPERKG = 44660
-ITS90_TO_IPTS68 = 1.00024  # taken from https://blog.seabird.com/ufaqs/what-is-the-difference-in-temperature-expressions-between-ipts-68-and-its-90/
+# taken from https://blog.seabird.com/ufaqs/what-is-the-difference-in-temperature-expressions-between-ipts-68-and-its-90/
+ITS90_TO_IPTS68 = 1.00024
+# micro moles of nitrate to milligrams of nitrogen per liter
 UMNO3_TO_MGNL = 0.014007
-R = 8.3144621  # [J K^{-1} mol^{-1}] Gas constant, NIST Reference on Constants retrieved 10-05-2015
-F = 96485.365  # [Coulombs mol^{-1}] Faraday constant, NIST Reference on Constants retrieved 10-05-2015
+# [J K^{-1} mol^{-1}] Gas constant, NIST Reference on Constants retrieved 10-05-2015
+R = 8.3144621
+# [Coulombs mol^{-1}] Faraday constant, NIST Reference on Constants retrieved 10-05-2015
+F = 96485.365
 
 
 def convert_temperature(
@@ -336,46 +349,37 @@ def convert_sbe63_oxygen(
         temperature = convert_sbe63_thermistor(thermistor, thermistor_coefs)
     elif thermistor_units == "C":
         temperature = thermistor
+    else:
+        raise ValueError
 
     oxygen_volts = raw_oxygen_phase / OXYGEN_PHASE_TO_VOLTS  # from the manual
-    # O2 (ml/L) = [((a0 + a1T + a2(V^2)) / (b0 + b1V) – 1) / Ksv] [SCorr] [PCorr]
 
-    # Ksv = c0 + c1T + c2 (T^2)
     ksv = coefs.c0 + coefs.c1 * temperature + coefs.c2 * temperature**2
 
-    # SCorr = exp [S * (SolB0 + SolB1 * Ts + SolB2 * Ts^2 + SolB3 * Ts^3) + SolC0 * S^2]
     # The following correction coefficients are all constants
-    SOL_B0 = -6.24523e-3
-    SOL_B1 = -7.37614e-3
-    SOL_B2 = -1.0341e-2
-    SOL_B3 = -8.17083e-3
-    SOL_C0 = -4.88682e-7
+    sol_b0 = -6.24523e-3
+    sol_b1 = -7.37614e-3
+    sol_b2 = -1.0341e-2
+    sol_b3 = -8.17083e-3
+    sol_c0 = -4.88682e-7
 
-    # Ts = ln [(298.15 – T) / (273.15 + T)]
     ts = np.log((KELVIN_OFFSET_25C - temperature) / (KELVIN_OFFSET_0C + temperature))
     s_corr_exp = (
-        salinity * (SOL_B0 + SOL_B1 * ts + SOL_B2 * ts**2 + SOL_B3 * ts**3) + SOL_C0 * salinity**2
+        salinity * (sol_b0 + sol_b1 * ts + sol_b2 * ts**2 + sol_b3 * ts**3) + sol_c0 * salinity**2
     )
     s_corr = e**s_corr_exp
 
-    # Pcorr = exp (E * P / K)
-    K = temperature + KELVIN_OFFSET_0C
     # temperature in Kelvin
-    p_corr_exp = (e * pressure) / K
+    temperature_k = temperature + KELVIN_OFFSET_0C
+    p_corr_exp = (e * pressure) / temperature_k
     p_corr = e**p_corr_exp
 
+    # fmt: off
     ox_val = (
-        (
-            (
-                (coefs.a0 + coefs.a1 * temperature + coefs.a2 * oxygen_volts**2)
-                / (coefs.b0 + coefs.b1 * oxygen_volts)
-                - 1.0
-            )
-            / ksv
-        )
-        * s_corr
-        * p_corr
+        (((coefs.a0 + coefs.a1 * temperature + coefs.a2 * oxygen_volts**2)
+        / (coefs.b0 + coefs.b1 * oxygen_volts) - 1.0) / ksv) * s_corr * p_corr
     )
+    # fmt: on
 
     return ox_val
 
@@ -393,9 +397,9 @@ def convert_sbe63_thermistor(
 
     :return: converted thermistor temperature values in ITS-90 deg C
     """
-    logVal = np.log((100000 * instrument_output) / (3.3 - instrument_output))
+    log_raw = np.log((100000 * instrument_output) / (3.3 - instrument_output))
     temperature = (
-        1 / (coefs.ta0 + coefs.ta1 * logVal + coefs.ta2 * logVal**2 + coefs.ta3 * logVal**3)
+        1 / (coefs.ta0 + coefs.ta1 * log_raw + coefs.ta2 * log_raw**2 + coefs.ta3 * log_raw**3)
         - KELVIN_OFFSET_0C
     )
     return temperature
@@ -438,7 +442,8 @@ def convert_sbe43_oxygen(
     # start with all 0 for the dvdt
     dvdt_values = np.zeros(len(voltage))
     if apply_tau_correction:
-        # Calculates how many scans to have on either side of our median point, accounting for going out of index bounds
+        # Calculates how many scans to have on either side of our median
+        # point, accounting for going out of index bounds
         scans_per_side = floor(window_size / 2 / sample_interval)
         for i in range(scans_per_side, len(voltage) - scans_per_side):
             ox_subset = voltage[i - scans_per_side : i + scans_per_side + 1]
@@ -506,22 +511,22 @@ def _convert_sbe43_oxygen(
     """
 
     # Oxygen Solubility equation constants, From SBE43 Manual Appendix A
-    A0 = 2.00907
-    A1 = 3.22014
-    A2 = 4.0501
-    A3 = 4.94457
-    A4 = -0.256847
-    A5 = 3.88767
-    B0 = -0.00624523
-    B1 = -0.00737614
-    B2 = -0.010341
-    B3 = -0.00817083
-    C0 = -0.000000488682
+    a0 = 2.00907
+    a1 = 3.22014
+    a2 = 4.0501
+    a3 = 4.94457
+    a4 = -0.256847
+    a5 = 3.88767
+    b0 = -0.00624523
+    b1 = -0.00737614
+    b2 = -0.010341
+    b3 = -0.00817083
+    c0 = -0.000000488682
 
     ts = np.log((KELVIN_OFFSET_25C - temperature) / (KELVIN_OFFSET_0C + temperature))
-    a_term = A0 + A1 * ts + A2 * ts**2 + A3 * ts**3 + A4 * ts**4 + A5 * ts**5
-    b_term = salinity * (B0 + B1 * ts + B2 * ts**2 + B3 * ts**3)
-    c_term = C0 * salinity**2
+    a_term = a0 + a1 * ts + a2 * ts**2 + a3 * ts**3 + a4 * ts**4 + a5 * ts**5
+    b_term = salinity * (b0 + b1 * ts + b2 * ts**2 + b3 * ts**3)
+    c_term = c0 * salinity**2
     solubility = np.exp(a_term + b_term + c_term)
 
     # Tau correction
@@ -540,26 +545,27 @@ def _convert_sbe43_oxygen(
 
 def convert_oxygen_to_mg_per_l(ox_values: np.ndarray):
     """Converts given oxygen values to milligrams/Liter.
+    
+    From Application Note 64.
 
     :param ox_values: oxygen values, already converted to ml/L
 
     :return: oxygen values converted to milligrams/Liter
     """
-    # From the SBE43 and SBE63 manual
+    
     return ox_values * OXYGEN_MLPERL_TO_MGPERL
 
 
 def convert_oxygen_to_umol_per_kg(ox_values: np.ndarray, potential_density: np.ndarray):
-    """Converts given oxygen values to milligrams/Liter.
+    """Converts given oxygen values to milligrams/kg.
 
     Note: Sigma-Theta is expected to be calculated via gsw_sigma0,
     meaning is it technically potential density anomaly. Calculating
     using gsw_rho(SA, CT, p_ref = 0) results in actual potential
     density, but this function already does the converison, so values
     will need to have 1000 subtracted from them before being passed into
-    this function. The function is done this way to stay matching to the
-    manual for the SBE63 and SBE43, but the results of either method are
-    identical.
+    this function. The function is done this way to stay matching to 
+    Application Note 64, but the results of either method are identical.
 
     :param ox_values: oxygen values, already converted to ml/L
     :param potential_density: potential density (sigma-theta) values.
@@ -567,9 +573,9 @@ def convert_oxygen_to_umol_per_kg(ox_values: np.ndarray, potential_density: np.n
 
     :return: oxygen values converted to milligrams/Liter
     """
-    # From the SBE43 and SBE63 manual
-    convertedVals = np.divide(ox_values * OXYGEN_MLPERL_TO_UMOLPERKG, (potential_density + 1000))
-    return convertedVals
+
+    oxygen_umolkg = (ox_values * OXYGEN_MLPERL_TO_UMOLPERKG) / (potential_density + 1000)
+    return oxygen_umolkg
 
 
 def convert_eco(
@@ -604,10 +610,10 @@ def convert_sbe18_ph(
     
     :return: converted pH
     """
-    pH = 7 + (raw_ph - coefs.offset) / (
+    ph = 7 + (raw_ph - coefs.offset) / (
         1.98416e-4 * (temperature + KELVIN_OFFSET_0C) * coefs.slope
     )
-    return pH
+    return ph
 
 
 def convert_par_logarithmic(
@@ -623,9 +629,9 @@ def convert_par_logarithmic(
     
     :return: converted PAR in µmol photons/m2*s
     """
-    PAR = coefs.multiplier * coefs.im * 10 ** ((raw_par - coefs.a0) / coefs.a1)
+    par = coefs.multiplier * coefs.im * 10 ** ((raw_par - coefs.a0) / coefs.a1)
 
-    return PAR
+    return par
 
 
 def convert_nitrate(
@@ -634,15 +640,15 @@ def convert_nitrate(
     """Convert SUNA raw voltages to uMNO3 or mgNL
 
     :param volts: raw output voltage from a SUNA
-    :param dac_min: NO3 value that corresponds to V_MIN
-    :param dac_max: NO3 value that corresponds to V_MAX
+    :param dac_min: NO3 value that corresponds to v_min
+    :param dac_max: NO3 value that corresponds to v_max
     :param units: conversion output units, defaults to 'uMNO3'
     :return: converted nitrate
     """
-    V_MIN = 0.095
-    V_MAX = 4.095
-    a1 = (dac_min - dac_max) / (V_MIN - V_MAX)
-    a0 = dac_max - V_MAX * a1
+    v_min = 0.095
+    v_max = 4.095
+    a1 = (dac_min - dac_max) / (v_min - v_max)
+    a0 = dac_max - v_max * a1
 
     nitrate = a1 * volts + a0
 
@@ -658,10 +664,10 @@ def convert_ph_voltage_counts(ph_counts: np.ndarray):
     :param ph_counts: pH voltage counts
     :return: pH voltage
     """
-    ADC_VREF = 2.5
-    GAIN = 1
-    ADC_23BIT = 8388608
-    ph_volts = ADC_VREF / GAIN * (ph_counts / ADC_23BIT - 1)
+    adc_vref = 2.5
+    gain = 1
+    adc_23bit = 8388608
+    ph_volts = adc_vref / gain * (ph_counts / adc_23bit - 1)
     return ph_volts
 
 
@@ -717,11 +723,11 @@ def convert_external_seafet_ph(
     :param pressure: sample pressure in dbar
     """
 
-    TS_CR = 0.14  # relative concentration of sulfate in SW
-    TS_MM = 96.062  # [g/mol] molar mass of sulfate
-    CL_CR = 0.99889  # relative concentration of chloride in SW
-    CL_MM = 35.453  # [g/mol] molar mass of chloride
-    CL_TO_S = 1.80655  # [ppt, 10^{-3}] Chlorinity to Salinity
+    ts_cr = 0.14  # relative concentration of sulfate in SW
+    ts_mm = 96.062  # [g/mol] molar mass of sulfate
+    cl_cr = 0.99889  # relative concentration of chloride in SW
+    cl_mm = 35.453  # [g/mol] molar mass of chloride
+    cl_to_s = 1.80655  # [ppt, 10^{-3}] Chlorinity to Salinity
 
     def _molar_concentration(concentration: float, molar_mass: float, salinity: np.ndarray):
         """
@@ -733,7 +739,7 @@ def convert_external_seafet_ph(
         :param salinity: Salinity in PSU
         :return: molar concentration
         """
-        return (concentration / molar_mass) * (salinity / CL_TO_S)
+        return (concentration / molar_mass) * (salinity / cl_to_s)
 
     def _molar_conc_chloride(salinity: np.ndarray):
         """Calculates the molar concentration of chloride
@@ -741,7 +747,7 @@ def convert_external_seafet_ph(
         :param salinity: Salinity in PSU
         :return: molar concentration of chloride
         """
-        return _molar_concentration(CL_CR, CL_MM, salinity) * 1000 / (1000 - 1.005 * salinity)
+        return _molar_concentration(cl_cr, cl_mm, salinity) * 1000 / (1000 - 1.005 * salinity)
 
     def _molar_conc_sulfate(salinity: np.ndarray):
         """Calculates the molar concentration of total sulfate
@@ -749,7 +755,7 @@ def convert_external_seafet_ph(
         :param salinity: Salinity in PSU
         :return: molar concentration of sulfate
         """
-        return _molar_concentration(TS_CR, TS_MM, salinity)
+        return _molar_concentration(ts_cr, ts_mm, salinity)
 
     def _calculate_ionic_strength(salinity: np.ndarray):
         """Compute Salinity Ionic strength
@@ -759,12 +765,12 @@ def convert_external_seafet_ph(
         :param salinity: Salinity in PSU
         :return: Salinity ionic strength
         """
-        C0 = 19.924
-        C1 = 1000
-        C2 = 1.005
+        c0 = 19.924
+        c1 = 1000
+        c2 = 1.005
 
         # 19.924*(S) / (1000 - 1.005*(S))
-        ionic_strength = C0 * salinity / (C1 - C2 * salinity)
+        ionic_strength = c0 * salinity / (c1 - c2 * salinity)
         return ionic_strength
 
     def _calculate_ks(
@@ -788,26 +794,26 @@ def convert_external_seafet_ph(
         """
 
         # *********** this should be re-tested
-        C0 = -4276.1
-        C1 = 141.328
-        C2 = -23.093
-        C3 = -13856
-        C4 = 324.57
-        C5 = -47.986
-        C6 = 35474
-        C7 = -771.54
-        C8 = 114.723
-        C9 = -2698
-        C10 = 1776
+        c0 = -4276.1
+        c1 = 141.328
+        c2 = -23.093
+        c3 = -13856
+        c4 = 324.57
+        c5 = -47.986
+        c6 = 35474
+        c7 = -771.54
+        c8 = 114.723
+        c9 = -2698
+        c10 = 1776
 
         ln_ks = (
-            C0 / temperature
-            + C1
-            + C2 * np.log(temperature)
-            + (C3 / temperature + C4 + C5 * np.log(temperature)) * np.sqrt(ionic_strength)
-            + (C6 / temperature + C7 + C8 * np.log(temperature)) * ionic_strength
-            + (C9 / temperature) * np.sqrt(ionic_strength) * ionic_strength
-            + (C10 / temperature) * np.pow(ionic_strength, 2)
+            c0 / temperature
+            + c1
+            + c2 * np.log(temperature)
+            + (c3 / temperature + c4 + c5 * np.log(temperature)) * np.sqrt(ionic_strength)
+            + (c6 / temperature + c7 + c8 * np.log(temperature)) * ionic_strength
+            + (c9 / temperature) * np.sqrt(ionic_strength) * ionic_strength
+            + (c10 / temperature) * np.pow(ionic_strength, 2)
         )
 
         # this is on the free pH scale in mol/kg-H2O
@@ -816,10 +822,10 @@ def convert_external_seafet_ph(
         # UCI has two calculateKS functions. The first returns khso4 here,
         # but in practice the second is always used which adds the following
 
-        temperature_C = temperature - KELVIN_OFFSET_0C
+        temperature_c = temperature - KELVIN_OFFSET_0C
         # Partial molal volume and compressibility change for HSO4
-        delta_vhso4 = -18.03 + 0.0466 * temperature_C + 0.000316 * temperature_C**2
-        kappa_hso4 = (-4.53 + 0.09 * temperature_C) / 1000
+        delta_vhso4 = -18.03 + 0.0466 * temperature_c + 0.000316 * temperature_c**2
+        kappa_hso4 = (-4.53 + 0.09 * temperature_c) / 1000
 
         #  per Yui Press changed from dbar to bar here by / 10
         ln_khso4_fac = (
@@ -842,14 +848,14 @@ def convert_external_seafet_ph(
         """
         # This fit was made by Ken Johnson from data presented by:
         # Khoo et al. (Anal. Chem., 49, 29-34, 1977).
-        C0 = 0.49172143
-        C1 = 0.00067524
+        c0 = 0.49172143
+        c1 = 0.00067524
         # Modified from 0.00000343 to 0.0000034286,
         # email from Ken with newest version of MBARI code by Charles Branham 3/9/16
-        C2 = 0.0000034286
+        c2 = 0.0000034286
 
         # 0.00000343*(t)*(t) + 0.00067524*(t) + 0.49172143
-        adh = C0 + C1 * temperature + C2 * temperature**2
+        adh = c0 + c1 * temperature + c2 * temperature**2
 
         return adh
 
@@ -875,14 +881,14 @@ def convert_external_seafet_ph(
         # should be applied to Gamma_HCl
 
         rho = 1.394
-        B0 = 0.08885
-        B1 = 0.000111
+        b0 = 0.08885
+        b1 = 0.000111
 
         # As per instructions of KJ, should consider the data in
         # Dickson (J. Chem. Thermodynamics, 22, 113-127, 1990)
         log_gamma_hcl = (
             -1 * adh * np.sqrt(ionic_strength) / (1 + rho * np.sqrt(ionic_strength))
-            + (B0 - B1 * temperature) * ionic_strength
+            + (b0 - b1 * temperature) * ionic_strength
         )
 
         return log_gamma_hcl
@@ -969,3 +975,46 @@ def convert_external_seafet_ph(
     total_ph = free_scale_ph - np.log10(1 + tso4 / kso4)
 
     return total_ph
+
+
+def convert_internal_seafet_temperature(temperature_counts: np.ndarray):
+    """Converts the raw internal temperature counts to degrees Celcius 
+
+    :param temperature_counts: raw internal temperature counts
+    :return: internal temperature in Celcius
+    """
+    slope = 175.72
+    offset = -46.85
+    int_16bit = 2**16
+    temperature = temperature_counts / int_16bit * slope + offset
+
+    return temperature
+
+
+def convert_seafet_relative_humidity(humidity_counts: np.ndarray, temperature: np.ndarray):
+    """Convert relative humidity counts to percent
+
+    :param humidity_counts: raw relative humidity counts
+    :param temperature: converted internal temperature in Celcius
+    :return: temperature compensated relative humidity in percent
+    """
+    slope = 125
+    offset = -6
+    int_16bit = 2**16
+    max_humidity = 119
+    temperature_coefficient = -0.15
+    temperature_25c = 25
+
+    # Uncompensated relative humidity
+    relative_humidity = slope * humidity_counts / int_16bit + offset
+
+    for n, humidity in enumerate(relative_humidity):
+        # Theoretically, uncompensated relative humidity can be up to 119%
+        if 0 <= humidity < max_humidity:
+            relative_humidity[n] = humidity + temperature_coefficient * (
+                temperature_25c - temperature[n]
+            )
+
+    np.clip(relative_humidity, a_min=0, a_max=100)
+
+    return relative_humidity
