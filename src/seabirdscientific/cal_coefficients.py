@@ -16,10 +16,10 @@ import warnings
 @dataclass
 class TemperatureCoefficients:
     """
-    :param a0: calibration coefficient
-    :param a1: calibration coefficient
-    :param a2: calibration coefficient
-    :param a3: calibration coefficient
+    :param a0: coefficient
+    :param a1: coefficient
+    :param a2: coefficient
+    :param a3: coefficient
     """
     a0: float
     a1: float
@@ -30,18 +30,18 @@ class TemperatureCoefficients:
 @dataclass
 class PressureCoefficients:
     """
-    :param pa0: calibration coefficient
-    :param pa1: calibration coefficient
-    :param pa2: calibration coefficient
-    :param ptca0: calibration coefficient
-    :param ptca1: calibration coefficient
-    :param ptca2: calibration coefficient
-    :param ptcb0: calibration coefficient
-    :param ptcb1: calibration coefficient
-    :param ptcb2: calibration coefficient
-    :param ptempa0: calibration coefficient
-    :param ptempa1: calibration coefficient
-    :param ptempa2: calibration coefficient
+    :param pa0: coefficient
+    :param pa1: coefficient
+    :param pa2: coefficient
+    :param ptca0: coefficient
+    :param ptca1: coefficient
+    :param ptca2: coefficient
+    :param ptcb0: coefficient
+    :param ptcb1: coefficient
+    :param ptcb2: coefficient
+    :param ptempa0: coefficient
+    :param ptempa1: coefficient
+    :param ptempa2: coefficient
     """
     pa0: float
     pa1: float
@@ -60,12 +60,12 @@ class PressureCoefficients:
 @dataclass
 class ConductivityCoefficients:
     """
-    :param g: calibration coefficient
-    :param h: calibration coefficient
-    :param i: calibration coefficient
-    :param j: calibration coefficient
+    :param g: coefficient
+    :param h: coefficient
+    :param i: coefficient
+    :param j: coefficient
     :param cpcor: compressibility coefficient
-    :param ctcor: calibration coefficient
+    :param ctcor: coefficient
     :param wbotc: bridge oscillator temperature coefficient see the
         37 Manual: https://www.seabird.com/asset-get.download.jsa?id=54627862348
     """
@@ -91,15 +91,15 @@ class ECOCoefficients:
 @dataclass
 class Oxygen63Coefficients:
     """
-    :param a0: calibration coefficient
-    :param a1: calibration coefficient
-    :param a2: calibration coefficient
-    :param b0: calibration coefficient
-    :param b1: calibration coefficient
-    :param c0: calibration coefficient
-    :param c1: calibration coefficient
-    :param c2: calibration coefficient
-    :param e: calibration coefficient
+    :param a0: coefficient
+    :param a1: coefficient
+    :param a2: coefficient
+    :param b0: coefficient
+    :param b1: coefficient
+    :param c0: coefficient
+    :param c1: coefficient
+    :param c2: coefficient
+    :param e: coefficient
     """
     a0: float
     a1: float
@@ -115,10 +115,10 @@ class Oxygen63Coefficients:
 @dataclass
 class Thermistor63Coefficients:
     """
-    :param ta0: calibration coefficient
-    :param ta1: calibration coefficient
-    :param ta2: calibration coefficient
-    :param ta3: calibration coefficient
+    :param ta0: coefficient
+    :param ta1: coefficient
+    :param ta2: coefficient
+    :param ta3: coefficient
     """
     ta0: float
     ta1: float
@@ -133,16 +133,16 @@ class Oxygen43Coefficients:
     :param v_offset: voltage at zero oxygen signal
     :param tau_20: sensor time constant tau(T,P) at 20 C, 1 atmosphere, 0 PSU;
         slope term in calculation of tau(T,P)
-    :param a: calibration coefficient
-    :param b: calibration coefficient
-    :param c: calibration coefficient
-    :param e: calibration coefficient
-    :param d0: calibration terms used to calculate tau(T,P)
-    :param d1: calibration terms used to calculate tau(T,P)
-    :param d2: calibration terms used to calculate tau(T,P)
-    :param h1: calibration terms used for hysteresis correction
-    :param h2: calibration terms used for hysteresis correction
-    :param h3: calibration terms used for hysteresis correction
+    :param a: coefficient
+    :param b: coefficient
+    :param c: coefficient
+    :param e: coefficient
+    :param d0: tau(T,P) coefficient
+    :param d1: tau(T,P) coefficient
+    :param d2: tau(T,P) coefficient
+    :param h1: hysteresis correction coefficient
+    :param h2: hysteresis correction coefficient
+    :param h3: hysteresis correction coefficient
     """
     soc: float
     v_offset: float
