@@ -698,10 +698,10 @@ def convert_internal_seafet_ph(
     ph_volts = convert_ph_voltage_counts(ph_counts)
 
     # Eo(T) or temperature offset
-    temperature_offset = coefs.int_k2 * temperature
+    temperature_offset = coefs.k2 * temperature
 
     # Eo the cell reference voltage at in-situ conditions
-    cell_ref_volts = coefs.int_k0 + temperature_offset
+    cell_ref_volts = coefs.k0 + temperature_offset
     nernst_term = _calculate_nernst(temperature + KELVIN_OFFSET_0C)
     ph = (ph_volts - cell_ref_volts) / nernst_term
     return ph
@@ -950,7 +950,7 @@ def convert_external_seafet_ph(
     ph_volts = convert_ph_voltage_counts(ph_counts)
 
     # Eo(T) or temperature offset
-    eot = coefs.ext_k2 * temperature
+    eot = coefs.k2 * temperature
 
     # Eo(P) or pressure offset
     eop = (
@@ -966,7 +966,7 @@ def convert_external_seafet_ph(
     # Convert pHfree(mol/kg H2O) to pHfree(mol/kg sln) per KSJ by using the
     # ratio (1000 - 1.005 * Salinity)/1000
     free_scale_ph = (
-        (ph_volts - eot - eop - thermal_pressure - coefs.ext_k0) / st
+        (ph_volts - eot - eop - thermal_pressure - coefs.k0) / st
         + np.log10(mcl)
         + (2 * log_gamma_hcl)
         - np.log10((1000 - 1.005 * salinity) / 1000)
