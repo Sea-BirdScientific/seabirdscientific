@@ -42,39 +42,41 @@ SECONDS_BETWEEN_EPOCH_AND_2000 = 946684800
 
 class InstrumentType(Enum):
     """The type of instrument that generated the hex file being read"""
+
     SBE37SM = "37-SM"
     SBE37SMP = "37-SMP"
     SBE37SMPODO = "37-SMP-ODO"
     SBE37IM = "37-IM"
     SBE37IMP = "37-IMP"
     SBE37IMPODO = "37-IMP-ODO"
-    SBE19Plus = "19plus"
+    SBE19Plus = "19plus" # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
 
 
 class HexDataTypes(Enum):
     """Possible data types in hex files"""
-    temperature = "temperature"
-    conductivity = "conductivity"
-    pressure = "pressure"
-    temperatureCompensation = "temperature compensation"
-    ExtVolt0 = "volt 0"
-    ExtVolt1 = "volt 1"
-    ExtVolt2 = "volt 2"
-    ExtVolt3 = "volt 3"
-    ExtVolt4 = "volt 4"
-    ExtVolt5 = "volt 5"
-    SBE38temperature = "SBE38 temperature"
-    wetlabs0 = "wetlabs - channel 0"
-    wetlabs1 = "wetlabs - channel 1"
-    wetlabs2 = "wetlabs - channel 2"
-    GTDpressure = "GTD pressure"
-    GTDtemperature = "GTD temperature"
-    GTDpressure2 = "GTD pressure - sensor 2"
-    GTDtemperature2 = "GTD temperature - sensor 2"
-    optodeOxygen = "optode oxygen"
-    SBE63phase = "SBE63 oxygen phase"
-    SBE63temperature = "SBE63 oxygen temperature"
-    dateTime = "date time"
+
+    temperature = "temperature" # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
+    conductivity = "conductivity" # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
+    pressure = "pressure" # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
+    temperatureCompensation = "temperature compensation" # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
+    ExtVolt0 = "volt 0" # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
+    ExtVolt1 = "volt 1" # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
+    ExtVolt2 = "volt 2" # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
+    ExtVolt3 = "volt 3" # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
+    ExtVolt4 = "volt 4" # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
+    ExtVolt5 = "volt 5" # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
+    SBE38temperature = "SBE38 temperature" # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
+    wetlabs0 = "wetlabs - channel 0" # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
+    wetlabs1 = "wetlabs - channel 1" # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
+    wetlabs2 = "wetlabs - channel 2" # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
+    GTDpressure = "GTD pressure" # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
+    GTDtemperature = "GTD temperature" # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
+    GTDpressure2 = "GTD pressure - sensor 2" # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
+    GTDtemperature2 = "GTD temperature - sensor 2" # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
+    optodeOxygen = "optode oxygen" # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
+    SBE63phase = "SBE63 oxygen phase" # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
+    SBE63temperature = "SBE63 oxygen temperature" # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
+    dateTime = "date time" # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
 
 
 # export type HexDataTypeStrings = keyof typeof HexDataTypes;
@@ -101,27 +103,29 @@ HEX_LENGTH = {
 
 class Sensors(Enum):
     """Available sensors to read hex data from"""
-    Temperature = "Temperature"
-    Conductivity = "Conductivity"
-    Pressure = "Pressure"
-    ExtVolt0 = "ExtVolt0"
-    ExtVolt1 = "ExtVolt1"
-    ExtVolt2 = "ExtVolt2"
-    ExtVolt3 = "ExtVolt3"
-    ExtVolt4 = "ExtVolt4"
-    ExtVolt5 = "ExtVolt5"
-    WETLABS = "WETLABS"
-    GTD = "GTD"
-    DualGTD = "DualGTD"
-    OPTODE = "OPTODE"
-    SBE63 = "SBE63"
-    SBE38 = "SBE38"
-    SeaFET = "SeaFET"
+
+    Temperature = "Temperature" # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
+    Conductivity = "Conductivity" # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
+    Pressure = "Pressure" # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
+    ExtVolt0 = "ExtVolt0" # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
+    ExtVolt1 = "ExtVolt1" # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
+    ExtVolt2 = "ExtVolt2" # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
+    ExtVolt3 = "ExtVolt3" # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
+    ExtVolt4 = "ExtVolt4" # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
+    ExtVolt5 = "ExtVolt5" # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
+    WETLABS = "WETLABS" # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
+    GTD = "GTD" # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
+    DualGTD = "DualGTD" # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
+    OPTODE = "OPTODE" # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
+    SBE63 = "SBE63" # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
+    SBE38 = "SBE38" # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
+    SeaFET = "SeaFET" # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
 
 
 @dataclass
 class MeasurementSeries:
     """Container for measurement data."""
+
     label: str
     description: str
     units: str
@@ -132,6 +136,7 @@ class MeasurementSeries:
 @dataclass
 class InstrumentData:
     """Container for instrument data parsed from a CNV file."""
+
     measurements: Dict[str, MeasurementSeries]
     interval_s: float
     latitude: float
@@ -161,7 +166,7 @@ def cnv_to_instrument_data(filepath: Path) -> InstrumentData:
 
     logger.info("Unpacking instrument data from file: %s", filepath)
 
-    with open(filepath, "r", encoding='utf-8') as cnv:
+    with open(filepath, "r", encoding="utf-8") as cnv:
         for line in cnv:
             if line.startswith("*") or line.startswith("#"):
                 if line.startswith("# nvalues = "):
@@ -201,7 +206,7 @@ def cnv_to_instrument_data(filepath: Path) -> InstrumentData:
                 elif line.startswith("** Latitude: "):
                     latitude_parts = line[line.find(": ") + 2 :].split()
                     data.latitude = float(latitude_parts[0]) + float(latitude_parts[1]) / 60.0
-                    # TODO: add higher priority latitude to individual measurement series where necessary
+                    # TODO: add higher priority latitude to individual measurement series where necessary # pylint: disable=line-too-long
 
             else:
                 values = fix_exponents(" -".join(line.split("-")).split())
@@ -251,7 +256,7 @@ def read_hex_file(
     is_data = False
 
     # iterating over file twice in order to preallocate arrays
-    file = open(filepath, "r", encoding='utf-8')
+    file = open(filepath, "r", encoding="utf-8")
     for line in file:
         if is_data and not (line == "" or line.startswith("\n") or line.startswith("\r")):
             data_count += 1
@@ -297,7 +302,7 @@ def preallocate_dataframe(
     :param moored_mode: whether the 19 plus was in moored or profiling
         mode
     :param data_length: the number of rows of data in the hex file
-    
+
     :return: a dataframe fill of zeros
     """
     sensors = {}
@@ -335,7 +340,7 @@ def read_hex(
         return read_SBE37SM_format_0(hex, enabled_sensors)
 
 
-def read_SBE19plus_format_0(hex: str, enabled_sensors: List[Sensors], moored_mode=False) -> dict:
+def read_SBE19plus_format_0(hex: str, enabled_sensors: List[Sensors], moored_mode=False) -> dict: # pylint: disable=invalid-name, line-too-long #TODO: change this to be snake_case for TKIT-75
     """Converts a 19plus V2 data hex string into engineering units.
 
     :param hex: one line from a hex data file
@@ -471,7 +476,7 @@ def read_SBE19plus_format_0(hex: str, enabled_sensors: List[Sensors], moored_mod
     return results
 
 
-def read_SBE37SM_format_0(hex: str, enabled_sensors: List[Sensors]) -> dict:
+def read_SBE37SM_format_0(hex: str, enabled_sensors: List[Sensors]) -> dict: # pylint: disable=invalid-name, line-too-long #TODO: change this to be snake_case for TKIT-75
     """Converts a 37 family data hex string into engineering units.
 
     :param hex: one line from a hex data file

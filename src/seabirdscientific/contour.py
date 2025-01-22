@@ -16,7 +16,7 @@ and salinity (TS) contours.
 from dataclasses import dataclass
 
 # Third-party imports
-import gsw
+import gsw # type: ignore
 import numpy as np
 
 # Sea-Bird imports
@@ -40,8 +40,8 @@ class ContourData:
 
 
 def contour_from_t_s_p(
-    temperature_C: np.ndarray,
-    salinity_PSU: np.ndarray,
+    temperature_C: np.ndarray, # pylint: disable=invalid-name #TODO: change this to be snake_case for TKIT-75
+    salinity_PSU: np.ndarray, # pylint: disable=invalid-name #TODO: change this to be snake_case for TKIT-75
     pressure_dbar: np.ndarray,
     min_salinity: float = 0,
     lat: float = 0,
@@ -114,8 +114,8 @@ def contour_from_t_s_p(
 
 
 def contour_from_t_c_p(
-    temperature_C: np.ndarray,
-    conductivity_mScm: np.ndarray,
+    temperature_C: np.ndarray, # pylint: disable=invalid-name #TODO: change this to be snake_case for TKIT-75
+    conductivity_mScm: np.ndarray, # pylint: disable=invalid-name #TODO: change this to be snake_case for TKIT-75
     pressure_dbar: np.ndarray,
     min_salinity: float = 0,
     lat: float = 0,
