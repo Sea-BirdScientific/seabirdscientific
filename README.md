@@ -39,12 +39,12 @@ The ctd-processing.ipynb notebook in the documentation folder provides examples 
 
 ## Contributions to the Toolkit
 
-If you have a question, please submit it using this [question form](https://github.com/Sea-BirdScientific/seabirdscientific/issues/new?template=question.md).
+If you have code that you would like to contribute to the SBS community toolkit please see the [Toolkit Contribution Guidelines](contributing.md).
 
-If you find a bug, please submit a [bug report](https://github.com/Sea-BirdScientific/seabirdscientific/issues/new?template=bug_report.md).
+If you have a question, please submit it using this [question form](https://github.com/Sea-BirdScientific/seabirdscientific/issues/new?template=question.md).
 
 If you would like to request a new feature, please submit a [feature request form](https://github.com/Sea-BirdScientific/seabirdscientific/issues/new?template=feature_request.md).
 
-If you have code that you would like to contribute to the SBS community toolkit please see the [Toolkit Contribution Guidelines](contributing.md).
+If you find a bug, please submit a [bug report](https://github.com/Sea-BirdScientific/seabirdscientific/issues/new?template=bug_report.md).
 
 If you have data to share for inclusion in the toolkit, or for anything else, please contact [SBS customer support](https://www.seabird.com/support)
