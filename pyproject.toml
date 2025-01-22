@@ -33,6 +33,7 @@ dependencies = [
 dev = [
   "black",
   "build",
+  "mypy",
   "nbformat",
   "notebook",
   "pre-commit",

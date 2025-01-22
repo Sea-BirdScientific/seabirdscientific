@@ -39,10 +39,10 @@ from enum import Enum
 import math
 
 # Third-party imports
-import gsw
+import gsw # type: ignore
 import numpy as np
 import pandas as pd
-from scipy import signal, stats
+from scipy import signal, stats # type: ignore
 
 # Sea-Bird imports
 
@@ -53,6 +53,7 @@ from . import eos80_processing as eos80
 
 class MinVelocityType(Enum):
     """The minimum velocity type used with loop edit"""
+
     FIXED = 0
     PERCENT = 1
 
@@ -61,6 +62,7 @@ class WindowFilterType(Enum):
     """The window filter type. See CDT Processing in the docs for
     details.
     """
+
     BOXCAR = "boxcar"
     COSINE = "cosine"
     TRIANGLE = "triangle"
@@ -131,8 +133,8 @@ def align_ctd(
 
 
 def cell_thermal_mass(
-    temperature_C: np.ndarray,
-    conductivity_Sm: np.ndarray,
+    temperature_C: np.ndarray, # pylint: disable=invalid-name #TODO: change this to be snake_case for TKIT-75
+    conductivity_Sm: np.ndarray, # pylint: disable=invalid-name #TODO: change this to be snake_case for TKIT-75
     amplitude: float,
     time_constant: float,
     sample_interval: float,
@@ -597,8 +599,8 @@ def bin_average(
                 ]  # use bin_variable since this could be pressure or depth
                 center_pressure = index * bin_size
 
-                for col_name, col_data in dataset.items():
-                    if col_name == "nbin" or col_name == "flag" or col_name == "bin_number":
+                for col_name in dataset.items():
+                    if col_name in ("nbin","flag","bin_number"):
                         continue
                     prev_val = prev_row[col_name]
                     curr_val = row[col_name]
@@ -623,8 +625,8 @@ def bin_average(
         ]  # use bin_variable since this could be pressure or depth
         center_pressure = first_row_index * bin_size
 
-        for col_name, col_data in dataset.items():
-            if col_name == "nbin" or col_name == "flag" or col_name == "bin_number":
+        for col_name in dataset.items():
+            if col_name in("nbin","flag","bin_number"):
                 continue
             prev_val = second_row[col_name]  # reference second row's value
             curr_val = first_row[col_name]
@@ -839,7 +841,7 @@ def window_filter(
 
     # run a convolution, renormalizing weights as necessary
     for n in range(len(data)):
-        if data_start <= n and n < data_end:
+        if data_start <= n < data_end:
             value = 0
 
             if window_type == WindowFilterType.MEDIAN:

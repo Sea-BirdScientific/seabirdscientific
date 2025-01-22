@@ -41,9 +41,9 @@ from math import e, floor
 from typing import Literal
 
 # Third-party imports
-import gsw
+import gsw # type: ignore
 import numpy as np
-from scipy import stats
+from scipy import stats # type: ignore
 
 # Sea-Bird imports
 
@@ -70,7 +70,7 @@ KELVIN_OFFSET_0C = 273.15
 KELVIN_OFFSET_25C = 298.15
 OXYGEN_MLPERL_TO_MGPERL = 1.42903
 OXYGEN_MLPERL_TO_UMOLPERKG = 44660
-# taken from https://blog.seabird.com/ufaqs/what-is-the-difference-in-temperature-expressions-between-ipts-68-and-its-90/
+# taken from https://blog.seabird.com/ufaqs/what-is-the-difference-in-temperature-expressions-between-ipts-68-and-its-90/ # pylint: disable=line-too-long
 ITS90_TO_IPTS68 = 1.00024
 # micro moles of nitrate to milligrams of nitrogen per liter
 UMNO3_TO_MGNL = 0.014007
@@ -175,7 +175,7 @@ def convert_conductivity(
     :param temperature: reference temperature, in degrees C
     :param pressure: reference pressure, in dbar
     :param coefs: calibration coefficient for the conductivity sensor
-    
+
     :return: conductivity val converted to S/m
     """
     f = conductivity_count * np.sqrt(1 + coefs.wbotc * temperature) / 1000
@@ -545,14 +545,14 @@ def _convert_sbe43_oxygen(
 
 def convert_oxygen_to_mg_per_l(ox_values: np.ndarray):
     """Converts given oxygen values to milligrams/Liter.
-    
+
     From Application Note 64.
 
     :param ox_values: oxygen values, already converted to ml/L
 
     :return: oxygen values converted to milligrams/Liter
     """
-    
+
     return ox_values * OXYGEN_MLPERL_TO_MGPERL
 
 
@@ -564,7 +564,7 @@ def convert_oxygen_to_umol_per_kg(ox_values: np.ndarray, potential_density: np.n
     using gsw_rho(SA, CT, p_ref = 0) results in actual potential
     density, but this function already does the converison, so values
     will need to have 1000 subtracted from them before being passed into
-    this function. The function is done this way to stay matching to 
+    this function. The function is done this way to stay matching to
     Application Note 64, but the results of either method are identical.
 
     :param ox_values: oxygen values, already converted to ml/L
@@ -602,12 +602,12 @@ def convert_sbe18_ph(
     """Converts a raw voltage value for pH.
 
     All equation information comes from application note 18-1
-    
+
     :param raw_ph: raw output voltage from pH sensor (0-5V)
     :param temperature: temperature value to use for temperature
         compensation in degrees C
     :param coefs: slope and offset for the pH sensor
-    
+
     :return: converted pH
     """
     ph = 7 + (raw_ph - coefs.offset) / (
@@ -623,10 +623,10 @@ def convert_par_logarithmic(
     """Converts a raw voltage value for PAR to µmol photons/m2*s.
 
     All equation information comes from application note 96
-    
+
     :param raw_par: raw output voltage from PAR sensor
     :param coefs: calibration coefficients for the PAR sensor
-    
+
     :return: converted PAR in µmol photons/m2*s
     """
     par = coefs.multiplier * coefs.im * 10 ** ((raw_par - coefs.a0) / coefs.a1)
@@ -706,7 +706,7 @@ def convert_internal_seafet_ph(
     ph = (ph_volts - cell_ref_volts) / nernst_term
     return ph
 
-
+# pylint: disable=too-many-statements #TODO: break this function up
 def convert_external_seafet_ph(
     ph_counts: np.ndarray,
     temperature: np.ndarray,
@@ -862,6 +862,7 @@ def convert_external_seafet_ph(
     def _calculate_log_gamma_hcl(
         adh: np.ndarray, ionic_strength: np.ndarray, temperature: np.ndarray
     ):
+         # pylint: disable=anomalous-backslash-in-string
         """
         Khoo et al. (Anal. Chem., 49, 29-34, 1977).
         \log \gamma_{\pm} \left( HCl\right) =
@@ -978,7 +979,7 @@ def convert_external_seafet_ph(
 
 
 def convert_internal_seafet_temperature(temperature_counts: np.ndarray):
-    """Converts the raw internal temperature counts to degrees Celcius 
+    """Converts the raw internal temperature counts to degrees Celcius
 
     :param temperature_counts: raw internal temperature counts
     :return: internal temperature in Celcius

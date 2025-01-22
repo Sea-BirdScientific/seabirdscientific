@@ -5,9 +5,9 @@
 # Native imports
 
 # Third-party imports
-import gsw
+import gsw # type: ignore
 import numpy as np
-import pandas as pd
+import pandas as pd # type: ignore
 import pytest
 
 # Sea-Bird imports

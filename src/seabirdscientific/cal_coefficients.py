@@ -12,7 +12,7 @@
 # Internal imports
 
 
-class TemperatureCoefficients:
+class TemperatureCoefficients: # pylint: disable=too-few-public-methods
     """
     :param a0: calibration coefficient for the temperature sensor
     :param a1: calibration coefficient for the temperature sensor
@@ -27,7 +27,7 @@ class TemperatureCoefficients:
         self.a3 = a3
 
 
-class PressureCoefficients:
+class PressureCoefficients: # pylint: disable=too-few-public-methods, too-many-instance-attributes
     """
     :param pa0: calibration coefficient for the pressure sensor
     :param pa1: calibration coefficient for the pressure sensor
@@ -60,7 +60,7 @@ class PressureCoefficients:
         self.ptempa2 = ptempa2
 
 
-class ConductivityCoefficients:
+class ConductivityCoefficients: # pylint: disable=too-few-public-methods
     """
     :param g: calibration coefficient for the conductivity sensor
     :param h: calibration coefficient for the conductivity sensor
@@ -71,6 +71,7 @@ class ConductivityCoefficients:
     :param wbotc: bridge oscillator temperature coefficient see the
         37 Manual: https://www.seabird.com/asset-get.download.jsa?id=54627862348
     """
+
     def __init__(self, g, h, i, j, cpcor, ctcor, wbotc):
         self.g = g
         self.h = h
@@ -81,17 +82,18 @@ class ConductivityCoefficients:
         self.wbotc = wbotc
 
 
-class ECOCoefficients:
+class ECOCoefficients: # pylint: disable=too-few-public-methods
     """
     :param slope: units/count for digital, units/V for analog
     :param offset: dark counts for digital, dark voltage for analog
     """
+
     def __init__(self, slope, offset):
         self.slope = slope
         self.offset = offset
 
 
-class Oxygen63Coefficients:
+class Oxygen63Coefficients: # pylint: disable=too-few-public-methods, too-many-instance-attributes
     """
     :param a0: calibration coefficient
     :param a1: calibration coefficient
@@ -103,6 +105,7 @@ class Oxygen63Coefficients:
     :param c2: calibration coefficient
     :param e: calibration coefficient
     """
+
     def __init__(self, a0, a1, a2, b0, b1, c0, c1, c2, e):
         self.a0 = a0
         self.a1 = a1
@@ -115,13 +118,14 @@ class Oxygen63Coefficients:
         self.e = e
 
 
-class Thermistor63Coefficients:
+class Thermistor63Coefficients: # pylint: disable=too-few-public-methods
     """
     :param ta0: calibration coefficient for the thermistor in the SBE63 sensor
     :param ta1: calibration coefficient for the thermistor in the SBE63 sensor
     :param ta2: calibration coefficient for the thermistor in the SBE63 sensor
     :param ta3: calibration coefficient for the thermistor in the SBE63 sensor
     """
+
     def __init__(self, ta0, ta1, ta2, ta3):
         self.ta0 = ta0
         self.ta1 = ta1
@@ -129,7 +133,7 @@ class Thermistor63Coefficients:
         self.ta3 = ta3
 
 
-class Oxygen43Coefficients:
+class Oxygen43Coefficients: # pylint: disable=too-few-public-methods, too-many-instance-attributes
     """
     :param soc: linear scaling calibration coefficient
     :param v_offset: voltage at zero oxygen signal
@@ -146,6 +150,7 @@ class Oxygen43Coefficients:
     :param h2: calibration terms used for hysteresis correction
     :param h3: calibration terms used for hysteresis correction
     """
+
     def __init__(self, soc, v_offset, tau_20, a, b, c, e, d0, d1, d2, h1, h2, h3):
         self.soc = soc
         self.v_offset = v_offset
@@ -162,7 +167,7 @@ class Oxygen43Coefficients:
         self.h3 = h3
 
 
-class PH18Coefficients:
+class PH18Coefficients: # pylint: disable=too-few-public-methods
     """
     :param offset: calibration offset
     :param slope: calibration slope
@@ -173,13 +178,14 @@ class PH18Coefficients:
         self.offset = offset
 
 
-class PARCoefficients:
+class PARCoefficients: # pylint: disable=too-few-public-methods
     """
     :param im: immersion coefficient
     :param a0: calibration slope
     :param a1: calibration offset
     :param multiplier: 1.0 for units of μEinsteins/m2 sec
     """
+
     def __init__(self, im, a0, a1, multiplier):
         self.im = im
         self.a0 = a0
@@ -187,7 +193,7 @@ class PARCoefficients:
         self.multiplier = multiplier
 
 
-class PHSeaFETInternalCoefficients:
+class PHSeaFETInternalCoefficients: # pylint: disable=too-few-public-methods
     """
     :param int_k0: Internal K0 calibration coefficient
     :param int_k2: Internal K2 calibration coefficient
@@ -198,7 +204,7 @@ class PHSeaFETInternalCoefficients:
         self.int_k2 = int_k2
 
 
-class PHSeaFETExternalCoefficients:
+class PHSeaFETExternalCoefficients: # pylint: disable=too-few-public-methods, too-many-instance-attributes
     """
     :param ext_k0: External K0 calibration coefficient
     :param ext_k2: External K2 calibration coefficient
