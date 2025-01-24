@@ -1,8 +1,8 @@
-# Contributing guidelines
+# Contributing Guidelines
 
-## Before contributing
+## Before Contributing
 
-Thanks for your interest in contributing to the seabirdscientific repository. Before submitting any pull requests, please ensure that you __have fully read and understand these guidelines__. If you have any questions about contributing, please feel free to [sumbit a question](https://github.com/Sea-BirdScientific/seabirdscientific/issues/new).
+Thanks for your interest in contributing to the seabirdscientific repository. Before submitting any pull requests, ensure that you __have fully read and understand these guidelines__. If you're new to the process, take a look at the [Code Contribution Process Overview](#code-contribution-process-overview) section. If you've read through everything and still have any questions about contributing, please feel free to [submit a question](https://github.com/Sea-BirdScientific/seabirdscientific/issues/new).
 
 ## Contributing
 
@@ -10,82 +10,74 @@ Thanks for your interest in contributing to the seabirdscientific repository. Be
 
 We are grateful that you are considering a contribution. By being one of our contributors, you agree and confirm that:
 
-- You created the submitted code. If it's based on someone else's work, please give them due credit.
-- Your work will be distributed under the [MIT License](./LICENSE) once your pull request is merged. 
-  - If your work is derived from other code, please ensure that its licensing is compatible with the MIT License
-- Your submitted work is in keeping with our styles and standards (see the [Coding Style](#coding-style) section).
+- You created the submitted code. If it's based on someone else's work, give them due credit.
+- Your work will be distributed under the [MIT license](./LICENSE) once your pull request is merged.
+
+  - If your work is derived from code that is __already covered by the MIT License__, ask the originator if they would also like to be listed as a contributor to the toolkit before submitting your PR.
+  - __If your work is derived from code that is not covered by the MIT License, get the originator's approval to release it under the MIT license. Also find out if they would also like to be listed as a contributor before submitting your PR.__
+
+- Your submitted work is in keeping with our styles and standards below.
 
 ### Coding Style
 
-We want your work to be readable by others; therefore, we encourage you to adhere to the following:
+We want your work to be readable by others; therefore, we ask you to comply with the following:
 
-- Please adhere to the [PEP 8](https://peps.python.org/pep-0008/) style guide for your code.
+- Adhere to the [PEP 8](https://peps.python.org/pep-0008/) style guide for your code.
   - One diversion from the PEP 8 guide that we have chosen is to allow maximum line lengths of __99__ characters vs the recommended 79 characters.
-- Please take care when naming functions, classes, and variables. Help your reader by using __descriptive names__.
-  - Please avoid single letter variable names unless their life only spans a few lines.
+- Take care when naming functions, classes, and variables. Help your reader by using __descriptive names__.
+  - Avoid single letter variable names unless their life only spans a few lines.
   - Expand acronyms. Names like `gcd()` may not be obvious but `greatest_common_divisor()` is.
-  - Please follow the [PEP 8 Naming Conventions](https://pep8.org/#prescriptive-naming-conventions), including, but not limited to, the following:
+  - Follow the [PEP 8 Naming Conventions](https://pep8.org/#prescriptive-naming-conventions), including, but not limited to, the following:
     - Variable_names and function_names should be lower_case
     - Constants should be in UPPERCASE
     - ClassNames should be CamelCase, etc.
 - The use of [Python type hints](https://docs.python.org/3/library/typing.html) are encouraged for function parameters and return values.
-- Please use Python 3.9 or greater.
+- Use Python 3.9 or greater.
 
-### Formatting and style
-- Please run [black](#black) on your Python file(s) before submitting your pull request. This will make your code more readable and will automatically align it with much of [PEP 8](https://www.python.org/dev/peps/pep-0008/).
-- Please run [pylint](#pylint) on your Python file(s) before submitting your pull request. This will help identify errors and style issues.
-- Please run [mypy](#mypy) on your Python file(s) before submitting your pull request. This will help identify errors and improve code quality.
+### Formatting and Style Tools
+- Run [black](https://github.com/python/black) on your Python file(s) before submitting your pull request. It will make your code more readable and will automatically align it with much of [PEP 8](https://www.python.org/dev/peps/pep-0008/) formatting.
+
+  Black can be run on individual files or directories by running ```black path/to/file.py```. Running ```black src``` from the root directory of the toolkit folder will format all the .py files within src directory and its sub-directories.
+
+  The pyproject.toml file includes a setting that sets the maximum line length used by black to 99 characters.
+
+- Run [pylint](https://github.com/pylint-dev/pylint) on your Python file(s) before submitting your pull request. It will help identify errors and style issues in your code.
+
+  Pylint can be used to check an individual file by running ```pylint path/to/file.py```. Running ```pylint src``` from the root directory of the toolkit folder will check all files in the src directory.
+
+- Run [mypy](http://www.mypy-lang.org) on your Python file(s) before submitting your pull request. This will help identify errors and improve code quality.
+
+  Mypy can be used to check an individual file by running ```mypy --ignore-missing-imports path/to/file.py```. Running ```mypy --ignore-missing-imports src``` from the root directory of the toolkit folder will check all files in the src directory.
+
+- Ensure that your code compiles before submitting by running ```python -m compileall ./src``` from the root directory of the toolkit folder.
 
 ### Documenting
-- Please make use of docstrings based upon [PEP 257](https://peps.python.org/pep-0257/) to make your code more understandable.
-<!-- 
-TODO: Determine how to capture author information
-- At a minimum, include your github account in the header of each of your .py files. OR in  
--->
-- If your work is derived from other code, please include the name(s) of the developers for the originating code and where that code can be found.
+- Make use of docstrings based upon [PEP 257](https://peps.python.org/pep-0257/) to make your code more understandable.
+- Ensure that your language is concise and free of grammatical errors.
+- If this is your first submission to the toolkit, add your name and GitHub account to the list of [Contributors](CONTRIBUTORS.md).
 
 ### Testing
-- If possible, please write tests to illustrate and verify your work. We recommend the use of [pytest](https://docs.pytest.org) or [doctest](https://docs.python.org/3/library/doctest.html). 
-
-### TODO: Stuff to consider requesting
-- [__List comprehensions and generators__](https://docs.python.org/3/tutorial/datastructures.html#list-comprehensions) are preferred over the use of `lambda`, `map`, `filter`, `reduce` but the important thing is to demonstrate the power of Python in code that is easy to read and maintain.
-
-- Avoid importing external libraries for basic algorithms. Only use those libraries for complicated algorithms. 
-
-### Other Requirements for Submissions
-- Please ensure that your code compiles before submitting.
-- If you have modified existing documentation, or added new documentation, please ensure that your language is concise and free of grammatical errors.
+- If possible, write tests to illustrate and verify your work. We require the use of [pytest](https://docs.pytest.org). If you have doctests in your code, convert them to pytest.
 
 ## Package Use
  
-TODO: Add package suggestion information, eg. Pandas vs X-Array
+- Use the [TEOS-10 GSW Toolkit](https://www.teos-10.org/software.htm) for derived physical oceanography algorithms rather than any predecessor packages.
+- When working with 2 dimensional data, numpy is preferred over xarray.
+- Xarray is recommended when working with multidimensional data.
 
-## Code Contribution Process
+## Code Contribution Process Overview
 
-Please see the GitHub [contributing to a project](https://docs.github.com/en/get-started/exploring-projects-on-github/contributing-to-a-project) reference for the general steps to submit your code. Please [sumbit a question](https://github.com/Sea-BirdScientific/seabirdscientific/issues/new) if you need assistance.
+Below is the typical sequence for creating a submission. Feel free to [submit a question](https://github.com/Sea-BirdScientific/seabirdscientific/issues/new) if you need assistance.
 
-We ask that you submit new features to the relevant `community` sub-folder within the toolkit repository. If there doesn't seem to be a suitable folder, create a new one as part of your PR. Only proposed bugfixes or documentation updates should include changes to the files within the `src/seabirdscientific` folder.
+1. Create a fork of the seabirdscientific repository. We recommend that you only copy the main branch into your fork.
+1. Clone the fork to your computer.
+1. Create a new branch for your changes.
+1. If this is your first submission, add your name and github username to the CONTRIBUTORS.md file.
+1. Implement your changes, adhering to the [Coding Style](#coding-style) and [Documenting]{#documenting} guidelines above.
+1. All the processes listed in the [Formatting and Style Tools](#formatting-and-style-tools) section above.
+1. Verify that your tests pass.
+1. Commit your local branch to the GitHub server.
+1. Create a pull request and submit it after filling out the PR template.
+1. Monitor and respond to feedback from the Sea-Bird team via comments in your pull request. We will merge your PR into the toolkit once it's passed the review process.
 
-## Tools
-There are a number of tools that can be used to assist in ensuring that your code is consistent with the toolkit standards. The tools listed below have been included in the `[dev]` section of the `pyproject.toml` file. They can be installed by running the following:
-
-``` pip install .[dev]```
-
-### Black
-
-[Black](https://github.com/python/black) is a Python code formatting tool that helps to maintain consistency amongst the .py files in the toolkit. 
-
-It can be run on individual files or directories by running ```black {source file or directory}```. Running ```black src``` from the root directory of the toolkit folder will format all the .py files within src directory and its sub-directories. 
-
-The pyproject.toml file includes a setting that sets the maximum line length used by black to 99 characters.
-
-### Pylint
-
-[Pylint](https://github.com/pylint-dev/pylint) analyzes your code for errors and style issues.
-
-### MyPy
-
-[MyPy](http://www.mypy-lang.org) is a static type checker for Python that helps to improve code quality.
-
-Instructions on how to install mypy can be found at [https://github.com/python/mypy](https://github.com/python/mypy). 
-Please use the command `mypy --ignore-missing-imports .` to check all files or `mypy --ignore-missing-imports path/to/file.py` to check a specific file.
+More details on contributing to projects in general can be found at the GitHub [contributing to a project](https://docs.github.com/en/get-started/exploring-projects-on-github/contributing-to-a-project) page.
