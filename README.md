@@ -39,7 +39,7 @@ The ctd-processing.ipynb notebook in the documentation folder provides examples 
 
 ## Contributions to the Toolkit
 
-If you have code that you would like to contribute to the SBS community toolkit please see the [Toolkit Contribution Guidelines](contributing.md).
+If you have code that you would like to contribute to the SBS community toolkit please see the [Toolkit Contribution Guidelines](CONTRIBUTING.md).
 
 If you have a question, please submit it using this [question form](https://github.com/Sea-BirdScientific/seabirdscientific/issues/new?template=question.md).
 
