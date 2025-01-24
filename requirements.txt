@@ -1,0 +1,13 @@
+fsspec
+gsw
+jupyter
+ipykernel
+ipympl
+matplotlib
+netCDF4
+numpy
+pandas
+plotly
+pyserial
+scipy
+xarray
