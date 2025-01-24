@@ -73,7 +73,7 @@ Below is the typical sequence for creating a submission. Feel free to [submit a 
 1. Clone the fork to your computer.
 1. Create a new branch for your changes.
 1. If this is your first submission, add your name and github username to the CONTRIBUTORS.md file.
-1. Implement your changes, adhering to the [Coding Style](#coding-style) and [Documenting]{#documenting} guidelines above.
+1. Implement your changes, adhering to the [Coding Style](#coding-style) and [Documenting](#documenting) guidelines above.
 1. All the processes listed in the [Formatting and Style Tools](#formatting-and-style-tools) section above.
 1. Verify that your tests pass.
 1. Commit your local branch to the GitHub server.
