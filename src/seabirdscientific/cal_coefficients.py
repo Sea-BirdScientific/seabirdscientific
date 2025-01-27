@@ -12,7 +12,7 @@
 # Internal imports
 
 
-class TemperatureCoefficients: # pylint: disable=too-few-public-methods
+class TemperatureCoefficients:
     """
     :param a0: calibration coefficient for the temperature sensor
     :param a1: calibration coefficient for the temperature sensor
@@ -27,7 +27,7 @@ class TemperatureCoefficients: # pylint: disable=too-few-public-methods
         self.a3 = a3
 
 
-class PressureCoefficients: # pylint: disable=too-few-public-methods, too-many-instance-attributes
+class PressureCoefficients:
     """
     :param pa0: calibration coefficient for the pressure sensor
     :param pa1: calibration coefficient for the pressure sensor
@@ -60,7 +60,7 @@ class PressureCoefficients: # pylint: disable=too-few-public-methods, too-many-i
         self.ptempa2 = ptempa2
 
 
-class ConductivityCoefficients: # pylint: disable=too-few-public-methods
+class ConductivityCoefficients:
     """
     :param g: calibration coefficient for the conductivity sensor
     :param h: calibration coefficient for the conductivity sensor
@@ -82,7 +82,7 @@ class ConductivityCoefficients: # pylint: disable=too-few-public-methods
         self.wbotc = wbotc
 
 
-class ECOCoefficients: # pylint: disable=too-few-public-methods
+class ECOCoefficients:
     """
     :param slope: units/count for digital, units/V for analog
     :param offset: dark counts for digital, dark voltage for analog
@@ -93,7 +93,7 @@ class ECOCoefficients: # pylint: disable=too-few-public-methods
         self.offset = offset
 
 
-class Oxygen63Coefficients: # pylint: disable=too-few-public-methods, too-many-instance-attributes
+class Oxygen63Coefficients:
     """
     :param a0: calibration coefficient
     :param a1: calibration coefficient
@@ -118,7 +118,7 @@ class Oxygen63Coefficients: # pylint: disable=too-few-public-methods, too-many-i
         self.e = e
 
 
-class Thermistor63Coefficients: # pylint: disable=too-few-public-methods
+class Thermistor63Coefficients:
     """
     :param ta0: calibration coefficient for the thermistor in the SBE63 sensor
     :param ta1: calibration coefficient for the thermistor in the SBE63 sensor
@@ -133,7 +133,7 @@ class Thermistor63Coefficients: # pylint: disable=too-few-public-methods
         self.ta3 = ta3
 
 
-class Oxygen43Coefficients: # pylint: disable=too-few-public-methods, too-many-instance-attributes
+class Oxygen43Coefficients:
     """
     :param soc: linear scaling calibration coefficient
     :param v_offset: voltage at zero oxygen signal
@@ -167,7 +167,7 @@ class Oxygen43Coefficients: # pylint: disable=too-few-public-methods, too-many-i
         self.h3 = h3
 
 
-class PH18Coefficients: # pylint: disable=too-few-public-methods
+class PH18Coefficients:
     """
     :param offset: calibration offset
     :param slope: calibration slope
@@ -178,7 +178,7 @@ class PH18Coefficients: # pylint: disable=too-few-public-methods
         self.offset = offset
 
 
-class PARCoefficients: # pylint: disable=too-few-public-methods
+class PARCoefficients:
     """
     :param im: immersion coefficient
     :param a0: calibration slope
@@ -193,7 +193,7 @@ class PARCoefficients: # pylint: disable=too-few-public-methods
         self.multiplier = multiplier
 
 
-class PHSeaFETInternalCoefficients: # pylint: disable=too-few-public-methods
+class PHSeaFETInternalCoefficients:
     """
     :param int_k0: Internal K0 calibration coefficient
     :param int_k2: Internal K2 calibration coefficient
@@ -204,7 +204,7 @@ class PHSeaFETInternalCoefficients: # pylint: disable=too-few-public-methods
         self.int_k2 = int_k2
 
 
-class PHSeaFETExternalCoefficients: # pylint: disable=too-few-public-methods, too-many-instance-attributes
+class PHSeaFETExternalCoefficients:
     """
     :param ext_k0: External K0 calibration coefficient
     :param ext_k2: External K2 calibration coefficient

@@ -16,7 +16,7 @@ and salinity (TS) contours.
 from dataclasses import dataclass
 
 # Third-party imports
-import gsw # type: ignore
+import gsw
 import numpy as np
 
 # Sea-Bird imports

@@ -33,8 +33,8 @@ from pathlib import Path
 # Third-party imports
 import numpy as np
 import pandas as pd
-import plotly.express as px # type: ignore
-import plotly.graph_objects as go # type: ignore
+import plotly.express as px
+import plotly.graph_objects as go
 from plotly import subplots
 
 # Internal imports

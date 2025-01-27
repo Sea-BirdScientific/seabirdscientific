@@ -5,7 +5,7 @@
 
 
 import numpy as np
-from scipy import stats # type: ignore
+from scipy import stats
 
 
 def bouyancy_frequency(

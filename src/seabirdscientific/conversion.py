@@ -41,9 +41,9 @@ from math import e, floor
 from typing import Literal
 
 # Third-party imports
-import gsw # type: ignore
+import gsw
 import numpy as np
-from scipy import stats # type: ignore
+from scipy import stats
 
 # Sea-Bird imports
 

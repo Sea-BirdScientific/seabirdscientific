@@ -54,3 +54,6 @@ requires = [
 
 [tool.black]
 line-length=99
+
+[tool.mypy]
+disable_error_code = ["import-untyped"]

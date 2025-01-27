@@ -39,10 +39,10 @@ from enum import Enum
 import math
 
 # Third-party imports
-import gsw # type: ignore
+import gsw
 import numpy as np
 import pandas as pd
-from scipy import signal, stats # type: ignore
+from scipy import signal, stats
 
 # Sea-Bird imports
 
