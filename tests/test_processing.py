@@ -382,7 +382,10 @@ class TestLoopEdit:
 
 class TestBinAverage:
     def test_bin_average(self):
-
+        # fmt: off
+        # I think the extra wide lines here are less annoying than the
+        # extra tall lines formatted by black. Feel free to enable black
+        # here if you disagree
         data = {
             'pressure': [0, 0.5, 1, 1.2, 1.3, 1.5, 1.9, 2.5, 2.9, 3.5, 4, 5, 6, 7, 8, 9, 11, 13],
             'depth': [1, 1.5, 2, 22, 9, 16, 3, 4, 7, 8, 9, 8, 7, 1, 21, 19, 18, 6],
@@ -428,6 +431,7 @@ class TestBinAverage:
             interpolate=True
         )
         assert np.all(df3.temperature == [4.948447204968944, 8.842857142857142, -0.34516129032257936, 0.45999999999999996, 32.1])
+        # fmt: on
 
 
 class TestWildEdit:

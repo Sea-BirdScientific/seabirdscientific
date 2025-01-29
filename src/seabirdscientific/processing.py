@@ -53,6 +53,7 @@ from . import eos80_processing as eos80
 
 class MinVelocityType(Enum):
     """The minimum velocity type used with loop edit"""
+
     FIXED = 0
     PERCENT = 1
 
@@ -61,6 +62,7 @@ class WindowFilterType(Enum):
     """The window filter type. See CDT Processing in the docs for
     details.
     """
+
     BOXCAR = "boxcar"
     COSINE = "cosine"
     TRIANGLE = "triangle"
@@ -639,7 +641,7 @@ def bin_average(
 
     if not include_scan_count:
         dataset.drop("nbin", axis=1, inplace=True)
-    
+
     return dataset
 
 

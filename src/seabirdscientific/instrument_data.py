@@ -42,6 +42,7 @@ SECONDS_BETWEEN_EPOCH_AND_2000 = 946684800
 
 class InstrumentType(Enum):
     """The type of instrument that generated the hex file being read"""
+
     SBE37SM = "37-SM"
     SBE37SMP = "37-SMP"
     SBE37SMPODO = "37-SMP-ODO"
@@ -53,6 +54,7 @@ class InstrumentType(Enum):
 
 class HexDataTypes(Enum):
     """Possible data types in hex files"""
+
     temperature = "temperature"
     conductivity = "conductivity"
     pressure = "pressure"
@@ -101,6 +103,7 @@ HEX_LENGTH = {
 
 class Sensors(Enum):
     """Available sensors to read hex data from"""
+
     Temperature = "Temperature"
     Conductivity = "Conductivity"
     Pressure = "Pressure"
@@ -122,21 +125,23 @@ class Sensors(Enum):
 @dataclass
 class MeasurementSeries:
     """Container for measurement data."""
+
     label: str
     description: str
     units: str
-    start_time: date|None
+    start_time: date | None
     values: np.ndarray
 
 
 @dataclass
 class InstrumentData:
     """Container for instrument data parsed from a CNV file."""
+
     measurements: Dict[str, MeasurementSeries]
-    interval_s: float|None
+    interval_s: float | None
     latitude: float
-    start_time: date|None
-    sample_count: int|None
+    start_time: date | None
+    sample_count: int | None
 
 
 def cnv_to_instrument_data(filepath: Path) -> InstrumentData:
@@ -161,7 +166,7 @@ def cnv_to_instrument_data(filepath: Path) -> InstrumentData:
 
     logger.info("Unpacking instrument data from file: %s", filepath)
 
-    with open(filepath, "r", encoding='utf-8') as cnv:
+    with open(filepath, "r", encoding="utf-8") as cnv:
         for line in cnv:
             if line.startswith("*") or line.startswith("#"):
                 if line.startswith("# nvalues = "):
@@ -254,7 +259,7 @@ def read_hex_file(
     is_data = False
 
     # iterating over file twice in order to preallocate arrays
-    file = open(filepath, "r", encoding='utf-8')
+    file = open(filepath, "r", encoding="utf-8")
     for line in file:
         if is_data and not (line == "" or line.startswith("\n") or line.startswith("\r")):
             data_count += 1
@@ -300,7 +305,7 @@ def preallocate_dataframe(
     :param moored_mode: whether the 19 plus was in moored or profiling
         mode
     :param data_length: the number of rows of data in the hex file
-    
+
     :return: a dataframe fill of zeros
     """
     sensors = {}
@@ -336,11 +341,13 @@ def read_hex(
 
     if instrument_type == InstrumentType.SBE37SM:
         return read_SBE37SM_format_0(hex, enabled_sensors)
-    
+
     return {}
 
 
-def read_SBE19plus_format_0(hex: str, enabled_sensors: List[Sensors], moored_mode=False) -> Dict[str, float|datetime]:
+def read_SBE19plus_format_0(
+    hex: str, enabled_sensors: List[Sensors], moored_mode=False
+) -> Dict[str, float | datetime]:
     """Converts a 19plus V2 data hex string into engineering units.
 
     :param hex: one line from a hex data file
@@ -356,7 +363,7 @@ def read_SBE19plus_format_0(hex: str, enabled_sensors: List[Sensors], moored_mod
         expected length
     """
 
-    results: Dict[str, int|float|datetime] = {}
+    results: Dict[str, int | float | datetime] = {}
     n = 0
     for sensor in Sensors:
         if sensor in enabled_sensors:
@@ -476,7 +483,9 @@ def read_SBE19plus_format_0(hex: str, enabled_sensors: List[Sensors], moored_mod
     return results
 
 
-def read_SBE37SM_format_0(hex: str, enabled_sensors: List[Sensors]) -> Dict[str, int|float|datetime]:
+def read_SBE37SM_format_0(
+    hex: str, enabled_sensors: List[Sensors]
+) -> Dict[str, int | float | datetime]:
     """Converts a 37 family data hex string into engineering units.
 
     :param hex: one line from a hex data file
@@ -487,7 +496,7 @@ def read_SBE37SM_format_0(hex: str, enabled_sensors: List[Sensors]) -> Dict[str,
     :return: the 37 family sensor values in engineering units that were
         extracted from the input hex string
     """
-    results: Dict[str, int|float|datetime] = {}
+    results: Dict[str, int | float | datetime] = {}
     n = 0
     results[HexDataTypes.temperature.value] = int(hex[n : HEX_LENGTH["temperature"]], 16)
     n += HEX_LENGTH["temperature"]
