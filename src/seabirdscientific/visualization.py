@@ -56,10 +56,10 @@ class ChartConfig:
         y_names: List[str],
         z_names: List[str],
         chart_type: Literal['overlay', 'subplots'],
-        bounds: Dict[Literal['x', 'y', 'z'], Dict[int, List[int]]]=None,
-        x_titles: List[str]=None,
-        y_titles: List[str]=None,
-        z_titles: List[str]=None,
+        bounds: Dict[Literal['x', 'y', 'z'], Dict[int, List[int]]]|None=None,
+        x_titles: List[str]|None=None,
+        y_titles: List[str]|None=None,
+        z_titles: List[str]|None=None,
         plot_loop_edit_flags=False,
         lift_pen_over_bad_data=False,
         flag_value=-9.99e-29,
@@ -114,7 +114,8 @@ class ChartConfig:
         self.lift_pen_over_bad_data = lift_pen_over_bad_data
         self.flag_value = flag_value
 
-        for axis in ["x", "y", "z"]:
+        axes: List[Literal["x", "y", "z"]] = ["x", "y", "z"]
+        for axis in axes:
             if axis not in self.bounds.keys():
                 self.bounds[axis] = {}
 

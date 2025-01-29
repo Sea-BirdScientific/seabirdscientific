@@ -192,18 +192,20 @@ class PHSeaFETInternalCoefficients:
     """
     def __init__(
             self,
-            k0: float = None,
-            k2: float = None,
-            int_k0: float = None,
-            int_k2: float = None,
+            k0: float = 0,
+            k2: float = 0,
+            int_k0: float|None = None,
+            int_k2: float|None = None,
     ):
         self.k0 = k0
         self.k2 = k2
         if int_k0 is not None:
             self.int_k0 = int_k0
+            self.k0 = int_k0
             warnings.warn("int_k0 is deprecated, use k0", DeprecationWarning)
         if int_k2 is not None:
             self.int_k2 = int_k2
+            self.k2 = int_k2
             warnings.warn("int_k2 is deprecated, use k2", DeprecationWarning)
 
 
@@ -222,16 +224,16 @@ class PHSeaFETExternalCoefficients:
     """
     def __init__(
             self,
-            k0: float = None,
-            k2: float = None,
-            ext_k0: float = None,
-            ext_k2: float = None,
-            f1: float = None,
-            f2: float = None,
-            f3: float = None,
-            f4: float = None,
-            f5: float = None,
-            f6: float = None,
+            k0: float = 0,
+            k2: float = 0,
+            f1: float = 0,
+            f2: float = 0,
+            f3: float = 0,
+            f4: float = 0,
+            f5: float = 0,
+            f6: float = 0,
+            ext_k0: float|None = None,
+            ext_k2: float|None = None,
     ):
         self.k0 = k0
         self.k2 = k2
@@ -244,7 +246,9 @@ class PHSeaFETExternalCoefficients:
 
         if ext_k0 is not None:
             self.ext_k0 = ext_k0
+            self.k0 = ext_k0
             warnings.warn("int_k0 is deprecated, use k0", DeprecationWarning)
         if ext_k2 is not None:
             self.ext_k2 = ext_k2
+            self.k2 = ext_k2
             warnings.warn("int_k2 is deprecated, use k2", DeprecationWarning)
