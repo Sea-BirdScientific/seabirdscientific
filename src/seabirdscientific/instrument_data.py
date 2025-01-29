@@ -42,6 +42,7 @@ SECONDS_BETWEEN_EPOCH_AND_2000 = 946684800
 
 class InstrumentType(Enum):
     """The type of instrument that generated the hex file being read"""
+
     SBE37SM = "37-SM"
     SBE37SMP = "37-SMP"
     SBE37SMPODO = "37-SMP-ODO"
@@ -53,6 +54,7 @@ class InstrumentType(Enum):
 
 class HexDataTypes(Enum):
     """Possible data types in hex files"""
+
     temperature = "temperature"
     conductivity = "conductivity"
     pressure = "pressure"
@@ -101,6 +103,7 @@ HEX_LENGTH = {
 
 class Sensors(Enum):
     """Available sensors to read hex data from"""
+
     Temperature = "Temperature"
     Conductivity = "Conductivity"
     Pressure = "Pressure"
@@ -122,21 +125,23 @@ class Sensors(Enum):
 @dataclass
 class MeasurementSeries:
     """Container for measurement data."""
+
     label: str
     description: str
     units: str
-    start_time: date
+    start_time: date | None
     values: np.ndarray
 
 
 @dataclass
 class InstrumentData:
     """Container for instrument data parsed from a CNV file."""
+
     measurements: Dict[str, MeasurementSeries]
-    interval_s: float
+    interval_s: float | None
     latitude: float
-    start_time: date
-    sample_count: int
+    start_time: date | None
+    sample_count: int | None
 
 
 def cnv_to_instrument_data(filepath: Path) -> InstrumentData:
@@ -161,7 +166,7 @@ def cnv_to_instrument_data(filepath: Path) -> InstrumentData:
 
     logger.info("Unpacking instrument data from file: %s", filepath)
 
-    with open(filepath, "r", encoding='utf-8') as cnv:
+    with open(filepath, "r", encoding="utf-8") as cnv:
         for line in cnv:
             if line.startswith("*") or line.startswith("#"):
                 if line.startswith("# nvalues = "):
@@ -215,10 +220,12 @@ def cnv_to_instrument_data(filepath: Path) -> InstrumentData:
 
 def fix_exponents(values: List[str]) -> List[str]:
     """Fixes flag values and other numbers with negative exponents.
-
-    The fixes are performed by merging numbers that end in 'e' with the
-    following number in the list (the exponent), then deleting the
-    exponent
+    This is necessary because sometimes there is only a minus sign
+    separating two values in a cnv file. So we split values on the minus
+    sign which also splits negative exponents (e.g. 1e-2 becomes 1e, -2).
+    This function repairs the exponents by merging numbers that end in
+    'e' with the following number in the list (e.g. 1e, -2 becomes 1e-2),
+    then removes the extra exponent from the list.
 
     :param values: List of strings representing numbers
 
@@ -228,7 +235,8 @@ def fix_exponents(values: List[str]) -> List[str]:
     del_indices = [n + 1 for n, value in enumerate(values) if value.endswith("e")]
     for n in del_indices:
         values[n - 1] = f"{values[n-1]}{values[n]}"
-    return np.delete(values, del_indices)
+    new_values = list(np.delete(values, del_indices))
+    return new_values
 
 
 def read_hex_file(
@@ -251,7 +259,7 @@ def read_hex_file(
     is_data = False
 
     # iterating over file twice in order to preallocate arrays
-    file = open(filepath, "r", encoding='utf-8')
+    file = open(filepath, "r", encoding="utf-8")
     for line in file:
         if is_data and not (line == "" or line.startswith("\n") or line.startswith("\r")):
             data_count += 1
@@ -297,7 +305,7 @@ def preallocate_dataframe(
     :param moored_mode: whether the 19 plus was in moored or profiling
         mode
     :param data_length: the number of rows of data in the hex file
-    
+
     :return: a dataframe fill of zeros
     """
     sensors = {}
@@ -334,8 +342,12 @@ def read_hex(
     if instrument_type == InstrumentType.SBE37SM:
         return read_SBE37SM_format_0(hex, enabled_sensors)
 
+    return {}
 
-def read_SBE19plus_format_0(hex: str, enabled_sensors: List[Sensors], moored_mode=False) -> dict:
+
+def read_SBE19plus_format_0(
+    hex: str, enabled_sensors: List[Sensors], moored_mode=False
+) -> Dict[str, float | datetime]:
     """Converts a 19plus V2 data hex string into engineering units.
 
     :param hex: one line from a hex data file
@@ -351,7 +363,7 @@ def read_SBE19plus_format_0(hex: str, enabled_sensors: List[Sensors], moored_mod
         expected length
     """
 
-    results = {}
+    results: Dict[str, int | float | datetime] = {}
     n = 0
     for sensor in Sensors:
         if sensor in enabled_sensors:
@@ -471,7 +483,9 @@ def read_SBE19plus_format_0(hex: str, enabled_sensors: List[Sensors], moored_mod
     return results
 
 
-def read_SBE37SM_format_0(hex: str, enabled_sensors: List[Sensors]) -> dict:
+def read_SBE37SM_format_0(
+    hex: str, enabled_sensors: List[Sensors]
+) -> Dict[str, int | float | datetime]:
     """Converts a 37 family data hex string into engineering units.
 
     :param hex: one line from a hex data file
@@ -482,7 +496,7 @@ def read_SBE37SM_format_0(hex: str, enabled_sensors: List[Sensors]) -> dict:
     :return: the 37 family sensor values in engineering units that were
         extracted from the input hex string
     """
-    results = {}
+    results: Dict[str, int | float | datetime] = {}
     n = 0
     results[HexDataTypes.temperature.value] = int(hex[n : HEX_LENGTH["temperature"]], 16)
     n += HEX_LENGTH["temperature"]

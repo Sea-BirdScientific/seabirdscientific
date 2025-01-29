@@ -13,6 +13,7 @@ import warnings
 
 # Internal imports
 
+
 @dataclass
 class TemperatureCoefficients:
     """
@@ -21,6 +22,7 @@ class TemperatureCoefficients:
     :param a2: coefficient
     :param a3: coefficient
     """
+
     a0: float
     a1: float
     a2: float
@@ -43,6 +45,7 @@ class PressureCoefficients:
     :param ptempa1: coefficient
     :param ptempa2: coefficient
     """
+
     pa0: float
     pa1: float
     pa2: float
@@ -69,6 +72,7 @@ class ConductivityCoefficients:
     :param wbotc: bridge oscillator temperature coefficient see the
         37 Manual: https://www.seabird.com/asset-get.download.jsa?id=54627862348
     """
+
     g: float
     h: float
     i: float
@@ -84,6 +88,7 @@ class ECOCoefficients:
     :param slope: units/count for digital, units/V for analog
     :param offset: dark counts for digital, dark voltage for analog
     """
+
     slope: float
     offset: float
 
@@ -101,6 +106,7 @@ class Oxygen63Coefficients:
     :param c2: coefficient
     :param e: coefficient
     """
+
     a0: float
     a1: float
     a2: float
@@ -120,6 +126,7 @@ class Thermistor63Coefficients:
     :param ta2: coefficient
     :param ta3: coefficient
     """
+
     ta0: float
     ta1: float
     ta2: float
@@ -144,6 +151,7 @@ class Oxygen43Coefficients:
     :param h2: hysteresis correction coefficient
     :param h3: hysteresis correction coefficient
     """
+
     soc: float
     v_offset: float
     tau_20: float
@@ -165,6 +173,7 @@ class PH18Coefficients:
     :param slope: calibration slope
     :param offset: calibration offset
     """
+
     slope: float
     offset: float
 
@@ -177,6 +186,7 @@ class PARCoefficients:
     :param a1: calibration offset
     :param multiplier: 1.0 for units of μEinsteins/m2 sec
     """
+
     im: float
     a0: float
     a1: float
@@ -190,20 +200,23 @@ class PHSeaFETInternalCoefficients:
     :param int_k0: Deprecated, use k0
     :param int_k2: Deprecated, use k2
     """
+
     def __init__(
-            self,
-            k0: float = None,
-            k2: float = None,
-            int_k0: float = None,
-            int_k2: float = None,
+        self,
+        k0: float = 0,
+        k2: float = 0,
+        int_k0: float | None = None,
+        int_k2: float | None = None,
     ):
         self.k0 = k0
         self.k2 = k2
         if int_k0 is not None:
             self.int_k0 = int_k0
+            self.k0 = int_k0
             warnings.warn("int_k0 is deprecated, use k0", DeprecationWarning)
         if int_k2 is not None:
             self.int_k2 = int_k2
+            self.k2 = int_k2
             warnings.warn("int_k2 is deprecated, use k2", DeprecationWarning)
 
 
@@ -220,18 +233,19 @@ class PHSeaFETExternalCoefficients:
     :param f5: f(P) coefficient
     :param f6: f(P) coefficient
     """
+
     def __init__(
-            self,
-            k0: float = None,
-            k2: float = None,
-            ext_k0: float = None,
-            ext_k2: float = None,
-            f1: float = None,
-            f2: float = None,
-            f3: float = None,
-            f4: float = None,
-            f5: float = None,
-            f6: float = None,
+        self,
+        k0: float = 0,
+        k2: float = 0,
+        f1: float = 0,
+        f2: float = 0,
+        f3: float = 0,
+        f4: float = 0,
+        f5: float = 0,
+        f6: float = 0,
+        ext_k0: float | None = None,
+        ext_k2: float | None = None,
     ):
         self.k0 = k0
         self.k2 = k2
@@ -244,7 +258,9 @@ class PHSeaFETExternalCoefficients:
 
         if ext_k0 is not None:
             self.ext_k0 = ext_k0
+            self.k0 = ext_k0
             warnings.warn("int_k0 is deprecated, use k0", DeprecationWarning)
         if ext_k2 is not None:
             self.ext_k2 = ext_k2
+            self.k2 = ext_k2
             warnings.warn("int_k2 is deprecated, use k2", DeprecationWarning)

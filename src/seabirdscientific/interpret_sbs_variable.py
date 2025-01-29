@@ -13,9 +13,9 @@ import re
 
 def interpret_sbs_variable(sbs_var):
     """SBE variable name conversion to matlab friendly strings.
-    
+
     Converts the strings that define SBE variables to strings that
-    exclude special characters. Gives units for each variable and 
+    exclude special characters. Gives units for each variable and
     defines whether it is a number or a text string.
 
     All variables imported from SBEDataProcessing_7.26.4.pdf. There may

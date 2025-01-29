@@ -837,6 +837,8 @@ class TestSeaFETRelativeHumidity:
         expected_humidity = np.array([39.4845, 39.6001])
 
         temperature = dc.convert_internal_seafet_temperature(temperature_counts=temperature_counts)
-        humidity = dc.convert_seafet_relative_humidity(humidity_counts=humidity_counts, temperature=temperature)
+        humidity = dc.convert_seafet_relative_humidity(
+            humidity_counts=humidity_counts, temperature=temperature
+        )
 
         assert np.allclose(expected_humidity, humidity, atol=1e-6)

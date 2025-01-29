@@ -1,6 +1,6 @@
 [project]
 name = "seabirdscientific"
-version = "2.4.3"
+version = "2.4.4"
 description = "Sea-Bird Scientific Community Toolkit"
 readme = "README.md"
 authors = [
@@ -33,6 +33,7 @@ dependencies = [
 dev = [
   "black",
   "build",
+  "mypy",
   "nbformat",
   "notebook",
   "pre-commit",
@@ -53,3 +54,6 @@ requires = [
 
 [tool.black]
 line-length=99
+
+[tool.mypy]
+disable_error_code = ["import-untyped"]

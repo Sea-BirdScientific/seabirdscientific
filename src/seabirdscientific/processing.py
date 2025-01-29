@@ -53,6 +53,7 @@ from . import eos80_processing as eos80
 
 class MinVelocityType(Enum):
     """The minimum velocity type used with loop edit"""
+
     FIXED = 0
     PERCENT = 1
 
@@ -61,6 +62,7 @@ class WindowFilterType(Enum):
     """The window filter type. See CDT Processing in the docs for
     details.
     """
+
     BOXCAR = "boxcar"
     COSINE = "cosine"
     TRIANGLE = "triangle"
@@ -574,15 +576,13 @@ def bin_average(
     dataset.drop(dataset[dataset["nbin"] < min_scans].index, inplace=True)
     dataset.drop(dataset[dataset["nbin"] > max_scans].index, inplace=True)
 
-    print(dataset.to_string())
-
     # TODO: validate that this is running correctly
     if interpolate:
         new_dataset = dataset.copy()
         prev_row = None
-        first_row = None
-        first_row_index = None
-        second_row = None
+        first_row = pd.Series([])
+        first_row_index = 0
+        second_row = pd.Series([])
         for index, row in dataset.iterrows():
             if prev_row is None:
                 # we'll come back to the first row at the end
@@ -597,8 +597,8 @@ def bin_average(
                 ]  # use bin_variable since this could be pressure or depth
                 center_pressure = index * bin_size
 
-                for col_name, col_data in dataset.items():
-                    if col_name == "nbin" or col_name == "flag" or col_name == "bin_number":
+                for col_name in dataset.columns:
+                    if col_name in ["nbin", "flag", "bin_number"]:
                         continue
                     prev_val = prev_row[col_name]
                     curr_val = row[col_name]
@@ -623,8 +623,8 @@ def bin_average(
         ]  # use bin_variable since this could be pressure or depth
         center_pressure = first_row_index * bin_size
 
-        for col_name, col_data in dataset.items():
-            if col_name == "nbin" or col_name == "flag" or col_name == "bin_number":
+        for col_name in dataset.columns:
+            if col_name in ["nbin", "flag", "bin_number"]:
                 continue
             prev_val = second_row[col_name]  # reference second row's value
             curr_val = first_row[col_name]
@@ -638,9 +638,11 @@ def bin_average(
             new_dataset.loc[first_row_index, col_name] = interpolated_val
 
         dataset = new_dataset
-        print(dataset.to_string())
+
     if not include_scan_count:
         dataset.drop("nbin", axis=1, inplace=True)
+
+    return dataset
 
 
 def wild_edit(
@@ -843,7 +845,7 @@ def window_filter(
             value = 0
 
             if window_type == WindowFilterType.MEDIAN:
-                window = data[n + window_start : n + window_end]
+                window = np.array(data[n + window_start : n + window_end])
                 value = np.nanmedian(window)
             else:
                 window_valid = window.copy()
