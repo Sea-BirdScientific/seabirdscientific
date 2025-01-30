@@ -297,7 +297,8 @@ def read_hex_file(
                     instrument_type, line, enabled_sensors, moored_mode, data_length
                 )
             hex_data = read_hex(instrument_type, line, enabled_sensors, moored_mode)
-            data.iloc[data_count] = pd.DataFrame(hex_data, index=[data_count])
+            for key, value in hex_data.items():
+                data.loc[data_count, key] = value
             data_count += 1
         if line.startswith("*END*"):
             is_data = True
@@ -328,9 +329,12 @@ def preallocate_dataframe(
     """
     sensors = {}
     hex_data = read_hex(instrument_type, line, enabled_sensors, moored_mode)
-    hex_keys = pd.DataFrame(hex_data, index=[0]).columns
-    for key in hex_keys:
-        sensors[key] = np.zeros(data_length)
+    # hex_keys = pd.DataFrame(hex_data, index=[0]).columns
+    for key, value in hex_data.items():
+        if isinstance(value, datetime):
+            sensors[key] = pd.date_range(start='2000-01-01', end='2000-01-02', periods=data_length)
+        else:
+            sensors[key] = np.zeros(data_length)
 
     return pd.DataFrame(sensors)
 
@@ -606,5 +610,5 @@ def read_NMEA_Time(hex: str):
     Byte1 = hex[2 : 4]
     Byte2 = hex[4 : 6]
     Byte3 = hex[6 : 8]
-    reformatted = Byte3 + Byte2 + Byte1 + Byte0 
-    return int(reformatted, 16)
+    reformatted = int(Byte3 + Byte2 + Byte1 + Byte0, 16)
+    return reformatted
