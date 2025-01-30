@@ -1,14 +1,15 @@
 from seabirdscientific.cal_coefficients import (
-    ChlorophyllACoefficients,
     ConductivityCoefficients,
     Oxygen43Coefficients,
     Oxygen63Coefficients,
     PARCoefficients,
     PH18Coefficients,
+    PHSeaFETInternalCoefficients,
+    PHSeaFETExternalCoefficients,
     PressureCoefficients,
     TemperatureCoefficients,
     Thermistor63Coefficients,
-    TurbidityCoefficients,
+    ECOCoefficients,
 )
 
 
@@ -47,14 +48,9 @@ conductivity_coefs_sn6130 = ConductivityCoefficients(
     wbotc=0.00000000e000,
 )
 
-chlorophyll_a_coefs_sn6130 = ChlorophyllACoefficients(
-    scalar=10,
-    v_blank=0.0680,
-)
-
-turbidity_coefs_sn6130 = TurbidityCoefficients(
-    scalar=5,
-    dark_voltage=0.059000,
+chlorophyll_a_coefs_sn6130 = ECOCoefficients(
+    slope=10,
+    offset=0.0680,
 )
 
 
@@ -197,4 +193,20 @@ par_coefs_sn0411 = PARCoefficients(
     a0=1.372,
     a1=0.8839,
     multiplier=1,
+)
+
+ph_seafet_internal_coeffs = PHSeaFETInternalCoefficients(
+    k0=-1.354051,
+    k2=-0.001272858,
+)
+
+ph_seafet_external_coeffs = PHSeaFETExternalCoefficients(
+    k0=-1.345407,
+    k2=-0.001106957,
+    f1=0,
+    f2=0,
+    f3=0,
+    f4=0,
+    f5=0,
+    f6=0,
 )

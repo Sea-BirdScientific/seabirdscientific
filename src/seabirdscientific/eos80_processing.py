@@ -1,3 +1,9 @@
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
+
+"""EOS80 functions to support legacy processing"""
+
+
 import numpy as np
 from scipy import stats
 
@@ -8,35 +14,40 @@ def bouyancy_frequency(
     pressure_dbar_subset: np.ndarray,
     gravity: float,
 ):
-    """Calculates an N^2 value (buoyancy frequency) for the given window of temperature, salinity, and pressure, at the given latitude.
+    """Calculates an N^2 value (buoyancy frequency) for the given window
+    of temperature, salinity, and pressure, at the given latitude.
 
-    Expects temperature as ITS-90 temperature, salinity as practical salinity, and pressure as dbar, all of the same length
-    Performs the calculation following the SBE Data Processing formula using E0S-80 calculations for potential temp and density
+    Expects temperature as ITS-90 temperature, salinity as practical
+    salinity, and pressure as dbar, all of the same length. Performs the
+    calculation following the SBE Data Processing formula using E0S-80
+    calculations for potential temp and density
 
-    Args:
-        temp_ITS_subset (np.ndarray): ITS-90 temperature values for the given window
-        salinity_prac_subset (np.ndarray): practical salinity values for the given window
-        pressure_dbar_subset (np.ndarray): pressure values for the given window
-        gravity (float): gravity value
+    :param temp_ITS_subset: ITS-90 temperature values for the given
+        window
+    :param salinity_prac_subset: practical salinity values for the given
+        window
+    :param pressure_dbar_subset: pressure values for the given window
+    :param gravity: gravity value
 
-    Returns:
-        float: A single N^2 [Brunt-Väisälä (buoyancy) frequency]
+    :return: A single N^2 [Brunt-Väisälä (buoyancy) frequency]
     """
 
     db_to_pa = 1e4
 
     # Wrap these as a length-1 array so that GSW accepts them
-    pressure_bar = [np.mean(pressure_dbar_subset)]
-    temperature_bar = [np.mean(temp_ITS_subset)]
-    salinity_bar = [np.mean(salinity_prac_subset)]
+    pressure_bar = np.array([np.mean(pressure_dbar_subset)])
+    temperature_bar = np.array([np.mean(temp_ITS_subset)])
+    salinity_bar = np.array([np.mean(salinity_prac_subset)])
 
     # Compute average density over the window
     # rho_bar0 = gsw.rho(salinity_bar, temperature_bar, pressure_bar)[0]
     rho_bar = density(salinity_bar, temperature_bar, pressure_bar)[0]
 
     # Use SBE DP (EOS-80) formulas for potential temp and density
-    theta = potential_temperature(salinity_prac_subset, temp_ITS_subset, pressure_dbar_subset, pressure_bar)
-    v_vals = 1.0 / density(salinity_prac_subset, theta, [pressure_bar])
+    theta = potential_temperature(
+        salinity_prac_subset, temp_ITS_subset, pressure_dbar_subset, pressure_bar
+    )
+    v_vals = 1.0 / density(salinity_prac_subset, theta, pressure_bar)
 
     # Estimate vertical gradient of specific volume
     dvdp_result = stats.linregress(pressure_dbar_subset, v_vals)
@@ -52,67 +63,65 @@ def density(s0: np.ndarray, t: np.ndarray, p0: np.ndarray) -> np.ndarray:
 
     This was ported from CSharedCalc::Density()
 
-    Args:
-        s0 (np.ndarray): salinity data
-        t (np.ndarray): temperature data
-        p0 (np.ndarray): pressure data
+    :param s0: salinity data
+    :param t: temperature data
+    :param p0: pressure data
 
-    Returns:
-        np.ndarray: resulting density data
+    :return: resulting density data
     """
 
-    B0 = 8.24493e-1
-    B1 = -4.0899e-3
-    B2 = 7.6438e-5
-    B3 = -8.2467e-7
-    B4 = 5.3875e-9
+    b0 = 8.24493e-1
+    b1 = -4.0899e-3
+    b2 = 7.6438e-5
+    b3 = -8.2467e-7
+    b4 = 5.3875e-9
 
-    C0 = -5.72466e-3
-    C1 = 1.0227e-4
-    C2 = -1.6546e-6
+    c0 = -5.72466e-3
+    c1 = 1.0227e-4
+    c2 = -1.6546e-6
 
-    D0 = 4.8314e-4
+    d0 = 4.8314e-4
 
-    A0 = 999.842594
-    A1 = 6.793952e-2
-    A2 = -9.095290e-3
-    A3 = 1.001685e-4
-    A4 = -1.120083e-6
-    A5 = 6.536332e-9
+    a0 = 999.842594
+    a1 = 6.793952e-2
+    a2 = -9.095290e-3
+    a3 = 1.001685e-4
+    a4 = -1.120083e-6
+    a5 = 6.536332e-9
 
-    FQ0 = 54.6746
-    FQ1 = -0.603459
-    FQ2 = 1.09987e-2
-    FQ3 = -6.1670e-5
+    fq0 = 54.6746
+    fq1 = -0.603459
+    fq2 = 1.09987e-2
+    fq3 = -6.1670e-5
 
-    G0 = 7.944e-2
-    G1 = 1.6483e-2
-    G2 = -5.3009e-4
+    g0 = 7.944e-2
+    g1 = 1.6483e-2
+    g2 = -5.3009e-4
 
-    I0 = 2.2838e-3
-    I1 = -1.0981e-5
-    I2 = -1.6078e-6
+    i0 = 2.2838e-3
+    i1 = -1.0981e-5
+    i2 = -1.6078e-6
 
-    J0 = 1.91075e-4
+    j0 = 1.91075e-4
 
-    M0 = -9.9348e-7
-    M1 = 2.0816e-8
-    M2 = 9.1697e-10
+    m0 = -9.9348e-7
+    m1 = 2.0816e-8
+    m2 = 9.1697e-10
 
-    E0 = 19652.21
-    E1 = 148.4206
-    E2 = -2.327105
-    E3 = 1.360477e-2
-    E4 = -5.155288e-5
+    e0 = 19652.21
+    e1 = 148.4206
+    e2 = -2.327105
+    e3 = 1.360477e-2
+    e4 = -5.155288e-5
 
-    H0 = 3.239908
-    H1 = 1.43713e-3
-    H2 = 1.16092e-4
-    H3 = -5.77905e-7
+    h0 = 3.239908
+    h1 = 1.43713e-3
+    h2 = 1.16092e-4
+    h3 = -5.77905e-7
 
-    K0 = 8.50935e-5
-    K1 = -6.12293e-6
-    K2 = 5.2787e-8
+    k0 = 8.50935e-5
+    k1 = -6.12293e-6
+    k2 = 5.2787e-8
 
     s0, t, p0 = np.broadcast_arrays(s0, t, p0)
     p = p0.copy()
@@ -126,27 +135,27 @@ def density(s0: np.ndarray, t: np.ndarray, p0: np.ndarray) -> np.ndarray:
     s32 = s**1.5
     p /= 10.0
     sigma = (
-        A0
-        + A1 * t
-        + A2 * t2
-        + A3 * t3
-        + A4 * t4
-        + A5 * t5
-        + (B0 + B1 * t + B2 * t2 + B3 * t3 + B4 * t4) * s
-        + (C0 + C1 * t + C2 * t2) * s32
-        + D0 * s * s
+        a0
+        + a1 * t
+        + a2 * t2
+        + a3 * t3
+        + a4 * t4
+        + a5 * t5
+        + (b0 + b1 * t + b2 * t2 + b3 * t3 + b4 * t4) * s
+        + (c0 + c1 * t + c2 * t2) * s32
+        + d0 * s * s
     )
 
-    kw = E0 + E1 * t + E2 * t2 + E3 * t3 + E4 * t4
-    aw = H0 + H1 * t + H2 * t2 + H3 * t3
-    bw = K0 + K1 * t + K2 * t2
+    kw = e0 + e1 * t + e2 * t2 + e3 * t3 + e4 * t4
+    aw = h0 + h1 * t + h2 * t2 + h3 * t3
+    bw = k0 + k1 * t + k2 * t2
 
     k = (
         kw
-        + (FQ0 + FQ1 * t + FQ2 * t2 + FQ3 * t3) * s
-        + (G0 + G1 * t + G2 * t2) * s32
-        + (aw + (I0 + I1 * t + I2 * t2) * s + (J0 * s32)) * p
-        + (bw + (M0 + M1 * t + M2 * t2) * s) * p * p
+        + (fq0 + fq1 * t + fq2 * t2 + fq3 * t3) * s
+        + (g0 + g1 * t + g2 * t2) * s32
+        + (aw + (i0 + i1 * t + i2 * t2) * s + (j0 * s32)) * p
+        + (bw + (m0 + m1 * t + m2 * t2) * s) * p * p
     )
 
     val = 1 - p / k
@@ -157,19 +166,19 @@ def density(s0: np.ndarray, t: np.ndarray, p0: np.ndarray) -> np.ndarray:
     return val
 
 
-def potential_temperature(s: np.ndarray, t0: np.ndarray, p0: np.ndarray, pr: np.ndarray) -> np.ndarray:
+def potential_temperature(
+    s: np.ndarray, t0: np.ndarray, p0: np.ndarray, pr: np.ndarray
+) -> np.ndarray:
     """EOS-80 potential temperature calculation.
 
     This was ported from CSharedCalc::PoTemp()
 
-    Args:
-        s (np.ndarray): sainity data
-        t0 (np.ndarray): temperature data
-        p0 (np.ndarray): subset pressure data
-        pr (np.ndarray): pressure data
+    :param s: sainity data
+    :param t0: temperature data
+    :param p0: subset pressure data
+    :param pr: pressure data
 
-    Returns:
-        np.ndarray: calculated potential temperature data
+    :return: calculated potential temperature data
     """
 
     s, t0, p0, pr = np.broadcast_arrays(s, t0, p0, pr)
@@ -203,13 +212,11 @@ def adiabatic_temperature_gradient(
 
     This was ported from CSharedCalc::ATG()
 
-    Args:
-        s (np.ndarray): salinity data
-        t (np.ndarray): temperature data
-        p (np.ndarray): pressure data
+    :param s: salinity data
+    :param t: temperature data
+    :param p: pressure data
 
-    Returns:
-        np.ndarray: the resulting adiabatic lapse rate
+    :return: the resulting adiabatic lapse rate
     """
 
     s, t, p = np.broadcast_arrays(s, t, p)

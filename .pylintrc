@@ -1,0 +1,6 @@
+[MESSAGES CONTROL]
+disable=too-many-arguments,
+        too-many-locals,
+        too-many-lines,
+        too-many-instance-attributes,
+        too-few-public-methods,
