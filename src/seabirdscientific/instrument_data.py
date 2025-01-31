@@ -487,23 +487,23 @@ def read_SBE19plus_format_0(
                     int(hex[n : n + HEX_LENGTH["SBE63temperature"]], 16) / 1000000 - 1
                 )
                 n += HEX_LENGTH["SBE63temperature"]
-                
+
             # Extract NMEA Sensors
             if sensor == Sensors.nmeaLatitude:
-                lat = read_NMEA_Coordinates(hex[n : n + HEX_LENGTH["nmeaLatitude"]])
+                lat = read_nmea_coordinates(hex[n : n + HEX_LENGTH["nmeaLatitude"]])
                 results[HexDataTypes.nmeaLatitude.value] = lat
                 n += HEX_LENGTH["nmeaLatitude"]
             if sensor == Sensors.nmeaLongitude:
-                lon = read_NMEA_Coordinates(hex[n : n + HEX_LENGTH["nmeaLongitude"]])
+                lon = read_nmea_coordinates(hex[n : n + HEX_LENGTH["nmeaLongitude"]])
                 results[HexDataTypes.nmeaLongitude.value] = lon
                 n += HEX_LENGTH["nmeaLongitude"]
             if sensor == Sensors.statusAndSign:
-                signs = read_Status_Sign(hex[n : n + HEX_LENGTH["statusAndSign"]])
+                signs = read_status_sign(hex[n : n + HEX_LENGTH["statusAndSign"]])
                 results[HexDataTypes.nmeaLatitude.value] *= signs[0]
                 results[HexDataTypes.nmeaLongitude.value] *= signs[1]
                 n += HEX_LENGTH["statusAndSign"]
             if sensor == Sensors.nmeaTime:
-                seconds_since_2000 = read_NMEA_Time(hex[n : n + HEX_LENGTH["nmeaTime"]])
+                seconds_since_2000 = read_nmea_time(hex[n : n + HEX_LENGTH["nmeaTime"]])
                 timestamp = seconds_since_2000 + SECONDS_BETWEEN_EPOCH_AND_2000
                 results[HexDataTypes.nmeaTime.value] = datetime.fromtimestamp(timestamp)
                 n += HEX_LENGTH["nmeaTime"]
@@ -575,26 +575,43 @@ def read_SBE37SM_format_0(
     return results
 
 
-def read_NMEA_Coordinates(hex: str):
-    if len(hex) != 6:
-        raise RuntimeWarning(f"Unknown Coordinate Format. Received Hex of length {len(hex)}. Should have received Hex of length {HEX_LENGTH['nmeaLongitude']}")
-    Byte0 = int(hex[0 : 2], 16)
-    Byte1 = int(hex[2 : 4], 16)
-    Byte2 = int(hex[4 : 6], 16)
-    coordinate = (Byte0 * 65536 + Byte1 * 256 + Byte2)/50000
+def read_nmea_coordinates(hex_segment: str):
+    """Converts a 3 byte NMEA hex string to latitude or longitude
+
+    :param hex_segment: 3 byte hex string
+    :raises RuntimeWarning: raised if the hex string is the wrong length
+    :return: latitude or longitide coordinate
+    """
+    if len(hex_segment) != 6:
+        raise RuntimeWarning(
+            f"Unknown Coordinate Format. Received Hex of length {len(hex_segment)}. "
+            f"Should have received Hex of length {HEX_LENGTH['nmeaLongitude']}"
+        )
+    byte0 = int(hex_segment[0 : 2], 16)
+    byte1 = int(hex_segment[2 : 4], 16)
+    byte2 = int(hex_segment[4 : 6], 16)
+    coordinate = (byte0 * 65536 + byte1 * 256 + byte2)/50000
     return coordinate
 
-def read_Status_Sign(hex: str):
-    if len(hex) != 2:
+def read_status_sign(hex_segment: str):
+    """Converts a hex byte to the signs for NMEA latitude and longitude
+
+    :param hex_segment: 1 byte hex string
+    :raises RuntimeWarning: raised if the hex string is the wrong length
+    :raises RuntimeWarning: raised when the signs are converted
+        incorrectly
+    :return: a list of two integers (1 or -1)
+    """
+    if len(hex_segment) != 2:
         raise RuntimeWarning("Unknown Status Format")
-    integer = int(hex, 16)
+    integer = int(hex_segment, 16)
     binary = format(integer, '0>8b')
     signs = []
     if binary[0] == '0':
         signs.append(1)
     elif binary[0] == '1':
         signs.append(-1)
-        
+
     if binary[1] == '0':
         signs.append(1)
     elif binary[1] == '1':
@@ -603,12 +620,18 @@ def read_Status_Sign(hex: str):
         raise RuntimeWarning("An error occured while processing Coordinate Signs")
     return signs
 
-def read_NMEA_Time(hex: str):
-    if len(hex) != 8:
+def read_nmea_time(hex_segment: str):
+    """Convert an 8 byte hex string to the number of seconds since 2000
+
+    :param hex_segment: an 8 byte hex string
+    :raises RuntimeWarning: raised if the hex string is the wrong length
+    :return: _description_
+    """
+    if len(hex_segment) != 8:
         raise RuntimeWarning("Unknown Time Format")
-    Byte0 = hex[0 : 2]
-    Byte1 = hex[2 : 4]
-    Byte2 = hex[4 : 6]
-    Byte3 = hex[6 : 8]
-    reformatted = int(Byte3 + Byte2 + Byte1 + Byte0, 16)
+    byte0 = hex_segment[0 : 2]
+    byte1 = hex_segment[2 : 4]
+    byte2 = hex_segment[4 : 6]
+    byte3 = hex_segment[6 : 8]
+    reformatted = int(byte3 + byte2 + byte1 + byte0, 16)
     return reformatted
