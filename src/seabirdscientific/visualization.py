@@ -136,7 +136,7 @@ class ChartData:
         data = parse_instrument_data(data_source)
         if data is not None:
             data.mask(data == config.flag_value, inplace=True)
-            if not config.plot_loop_edit_flags:
+            if not config.plot_loop_edit_flags and "flag" in data.columns:
                 mask = data["flag"].isnull()
                 data.loc[mask, :] = np.nan
             self.x = select_subset(config.x_names, data)

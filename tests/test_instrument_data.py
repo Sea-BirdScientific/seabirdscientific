@@ -87,3 +87,29 @@ class TestReadHex:
         assert self.raw["pressure"].iloc[-1] == 533538
         assert self.raw["temperature compensation"].iloc[0] == 20625 / 13107
         assert self.raw["temperature compensation"].iloc[-1] == 20361 / 13107
+
+class TestReadNMEAHex:
+    filepath = "./tests/resources/test-data/19plus_V2_CTD_nmea_data.hex"
+    raw = id.read_hex_file(
+        filepath,
+        id.InstrumentType.SBE19Plus,
+        [
+            id.Sensors.Temperature,
+            id.Sensors.Conductivity,
+            id.Sensors.Pressure,
+            id.Sensors.ExtVolt0,
+            id.Sensors.ExtVolt1,
+            id.Sensors.nmeaLatitude,
+            id.Sensors.nmeaLongitude,
+            id.Sensors.statusAndSign,
+            id.Sensors.nmeaTime
+        ],
+    )
+
+    def test_read_nmea_hex(self):
+        assert self.raw["NMEA Latitude"].iloc[0] == 48.62280000
+        assert self.raw["NMEA Latitude"].iloc[-1] == 48.62298000
+        assert self.raw["NMEA Longitude"].iloc[0] == -123.50002000
+        assert self.raw["NMEA Longitude"].iloc[-1] == -123.49994000
+        assert self.raw["NMEA Date Time"].iloc[0] == datetime.fromisoformat("2023-03-18 05:15:19")
+        assert self.raw["NMEA Date Time"].iloc[-1] == datetime.fromisoformat("2023-03-18 05:36:02")
