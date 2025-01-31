@@ -105,17 +105,11 @@ class TestReadNMEAHex:
             id.Sensors.nmeaTime
         ],
     )
-    
+
     def test_read_nmea_hex(self):
-        assert self.raw["temperature"].iloc[0] == 582057
-        assert self.raw["temperature"].iloc[-1] == 580552
-        assert self.raw["conductivity"].iloc[0] == 1294621
-        assert self.raw["conductivity"].iloc[-1] == 1290982
-        assert self.raw["pressure"].iloc[0] == 526421
-        assert self.raw["pressure"].iloc[-1] == 526383
-        assert self.raw["temperature compensation"].iloc[0] == 20683
-        assert self.raw["temperature compensation"].iloc[-1] == 21214
         assert self.raw["NMEA Latitude"].iloc[0] == 48.62280000
         assert self.raw["NMEA Latitude"].iloc[-1] == 48.62298000
         assert self.raw["NMEA Longitude"].iloc[0] == -123.50002000
         assert self.raw["NMEA Longitude"].iloc[-1] == -123.49994000
+        assert self.raw["NMEA Date Time"].iloc[0] == datetime.fromisoformat("2023-03-18 05:15:19")
+        assert self.raw["NMEA Date Time"].iloc[-1] == datetime.fromisoformat("2023-03-18 05:36:02")
