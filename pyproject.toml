@@ -22,14 +22,11 @@ classifiers = [
   "Programming Language :: Python :: 3.12",
 ]
 dependencies = [
-    "fsspec",
     "gsw",
     "matplotlib",
-    "netCDF4",
     "numpy",
     "pandas",
     "plotly",
-    "pyserial",
     "scipy",
     "xarray",
 ]

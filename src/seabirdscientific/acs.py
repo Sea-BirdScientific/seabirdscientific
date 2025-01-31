@@ -3,7 +3,9 @@ import numpy as np
 import re
 import xarray as xr
 
-from src.sbs.core import NUM_PAT
+
+NUM_PAT = "[+-]?[0-9]*[.]?[0-9]+"  # Regex pattern for any number, positive or negative, int or float.
+
 
 class Dev():
     """
