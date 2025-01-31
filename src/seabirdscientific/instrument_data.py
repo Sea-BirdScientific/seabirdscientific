@@ -77,8 +77,8 @@ class HexDataTypes(Enum):
     SBE63phase = "SBE63 oxygen phase"
     SBE63temperature = "SBE63 oxygen temperature"
     dateTime = "date time"
-    
-    #NMEA Devices
+
+    # NMEA Devices
     nmeaTime = "NMEA Date Time"
     nmeaLatitude = "NMEA Latitude"
     nmeaLongitude = "NMEA Longitude"
@@ -104,12 +104,11 @@ HEX_LENGTH = {
     "SeaFETVext": 6,
     "SeaOWLChannel": 4,  # There are three of these for each SeaOWL
     "time": 8,
-    
     # nmea devices
     "nmeaLatitude": 6,
     "nmeaLongitude": 6,
     "nmeaTime": 8,
-    "statusAndSign": 2
+    "statusAndSign": 2,
 }
 
 
@@ -132,7 +131,7 @@ class Sensors(Enum):
     SBE63 = "SBE63"
     SBE38 = "SBE38"
     SeaFET = "SeaFET"
-    
+
     # nmea devices
     nmeaLatitude = "nmeaLatitude"
     nmeaLongitude = "nmeaLongitude"
@@ -332,7 +331,7 @@ def preallocate_dataframe(
     # hex_keys = pd.DataFrame(hex_data, index=[0]).columns
     for key, value in hex_data.items():
         if isinstance(value, datetime):
-            sensors[key] = pd.date_range(start='2000-01-01', end='2000-01-02', periods=data_length)
+            sensors[key] = pd.date_range(start="2000-01-01", end="2000-01-02", periods=data_length)
         else:
             sensors[key] = np.zeros(data_length)
 
@@ -571,7 +570,7 @@ def read_SBE37SM_format_0(
     )
     n += HEX_LENGTH["time"]
 
-    print (results)
+    print(results)
     return results
 
 
@@ -587,11 +586,12 @@ def read_nmea_coordinates(hex_segment: str):
             f"Unknown Coordinate Format. Received Hex of length {len(hex_segment)}. "
             f"Should have received Hex of length {HEX_LENGTH['nmeaLongitude']}"
         )
-    byte0 = int(hex_segment[0 : 2], 16)
-    byte1 = int(hex_segment[2 : 4], 16)
-    byte2 = int(hex_segment[4 : 6], 16)
-    coordinate = (byte0 * 65536 + byte1 * 256 + byte2)/50000
+    byte0 = int(hex_segment[0:2], 16)
+    byte1 = int(hex_segment[2:4], 16)
+    byte2 = int(hex_segment[4:6], 16)
+    coordinate = (byte0 * 65536 + byte1 * 256 + byte2) / 50000
     return coordinate
+
 
 def read_status_sign(hex_segment: str):
     """Converts a hex byte to the signs for NMEA latitude and longitude
@@ -605,20 +605,21 @@ def read_status_sign(hex_segment: str):
     if len(hex_segment) != 2:
         raise RuntimeWarning("Unknown Status Format")
     integer = int(hex_segment, 16)
-    binary = format(integer, '0>8b')
+    binary = format(integer, "0>8b")
     signs = []
-    if binary[0] == '0':
+    if binary[0] == "0":
         signs.append(1)
-    elif binary[0] == '1':
+    elif binary[0] == "1":
         signs.append(-1)
 
-    if binary[1] == '0':
+    if binary[1] == "0":
         signs.append(1)
-    elif binary[1] == '1':
+    elif binary[1] == "1":
         signs.append(-1)
     if len(signs) != 2:
         raise RuntimeWarning("An error occured while processing Coordinate Signs")
     return signs
+
 
 def read_nmea_time(hex_segment: str):
     """Convert an 8 byte hex string to the number of seconds since 2000
@@ -629,9 +630,9 @@ def read_nmea_time(hex_segment: str):
     """
     if len(hex_segment) != 8:
         raise RuntimeWarning("Unknown Time Format")
-    byte0 = hex_segment[0 : 2]
-    byte1 = hex_segment[2 : 4]
-    byte2 = hex_segment[4 : 6]
-    byte3 = hex_segment[6 : 8]
+    byte0 = hex_segment[0:2]
+    byte1 = hex_segment[2:4]
+    byte2 = hex_segment[4:6]
+    byte3 = hex_segment[6:8]
     reformatted = int(byte3 + byte2 + byte1 + byte0, 16)
     return reformatted
