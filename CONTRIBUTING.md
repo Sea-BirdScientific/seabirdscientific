@@ -34,7 +34,18 @@ We want your work to be readable by others; therefore, we ask you to comply with
 - The use of [Python type hints](https://docs.python.org/3/library/typing.html) are encouraged for function parameters and return values.
 - Use Python 3.9 or greater.
 
+### Documenting
+
+- Make use of docstrings based upon the [Sphinx docstring format](https://sphinx-rtd-tutorial.readthedocs.io/en/latest/docstrings.html) to help make your code more understandable and consistent with the rest of the toolkit.
+- Ensure that your language is concise and free of grammatical errors.
+- If this is your first submission to the toolkit, add your name and GitHub account to the list of [Contributors](CONTRIBUTORS.md).
+
+### Testing
+
+- If possible, write tests to illustrate and verify your work. We require the use of [pytest](https://docs.pytest.org). If you have doctests in your code, convert them to pytest.
+
 ### Formatting and Style Tools
+
 - Run [black](https://github.com/python/black) on your Python file(s) before submitting your pull request. It will make your code more readable and will automatically align it with much of [PEP 8](https://www.python.org/dev/peps/pep-0008/) formatting.
 
   Black can be run on individual files or directories by running `black path/to/file.py`. Running `black src` from the root directory of the toolkit folder will format all the .py files within src directory and its sub-directories.
@@ -50,14 +61,6 @@ We want your work to be readable by others; therefore, we ask you to comply with
   Mypy can be used to check an individual file by running `mypy path/to/file.py`. Running `mypy src` from the root directory of the toolkit folder will check all files in the src directory.
 
 - Ensure that your code compiles before submitting by running `python -m compileall ./src` from the root directory of the toolkit folder.
-
-### Documenting
-- Make use of docstrings based upon the [Sphinx docstring format](https://sphinx-rtd-tutorial.readthedocs.io/en/latest/docstrings.html) to help make your code more understandable and consistent with the rest of the toolkit.
-- Ensure that your language is concise and free of grammatical errors.
-- If this is your first submission to the toolkit, add your name and GitHub account to the list of [Contributors](CONTRIBUTORS.md).
-
-### Testing
-- If possible, write tests to illustrate and verify your work. We require the use of [pytest](https://docs.pytest.org). If you have doctests in your code, convert them to pytest.
 
 ## Package Use
  
