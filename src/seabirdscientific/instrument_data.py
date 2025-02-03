@@ -87,6 +87,11 @@ class HexDataTypes(Enum):
     SBE63phase = "SBE63 oxygen phase"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
     SBE63temperature = "SBE63 oxygen temperature"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
     dateTime = "date time"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
+    # NMEA Devices
+    nmeaTime = "NMEA Date Time"
+    nmeaLatitude = "NMEA Latitude"
+    nmeaLongitude = "NMEA Longitude"
+    statusAndSign = "status and sign"
 
 
 # export type HexDataTypeStrings = keyof typeof HexDataTypes;
@@ -108,6 +113,11 @@ HEX_LENGTH = {
     "SeaFETVext": 6,
     "SeaOWLChannel": 4,  # There are three of these for each SeaOWL
     "time": 8,
+    # nmea devices
+    "nmeaLatitude": 6,
+    "nmeaLongitude": 6,
+    "nmeaTime": 8,
+    "statusAndSign": 2,
 }
 
 
@@ -134,6 +144,11 @@ class Sensors(Enum):
     SBE63 = "SBE63"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
     SBE38 = "SBE38"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
     SeaFET = "SeaFET"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
+    # nmea devices
+    nmeaLatitude = "nmeaLatitude"
+    nmeaLongitude = "nmeaLongitude"
+    statusAndSign = "StatusAndSign"
+    nmeaTime = "nmeaTime"
 
 
 @dataclass
@@ -143,7 +158,7 @@ class MeasurementSeries:
     label: str
     description: str
     units: str
-    start_time: date
+    start_time: date | None
     values: np.ndarray
 
 
@@ -152,10 +167,10 @@ class InstrumentData:
     """Container for instrument data parsed from a CNV file."""
 
     measurements: Dict[str, MeasurementSeries]
-    interval_s: float
+    interval_s: float | None
     latitude: float
-    start_time: date
-    sample_count: int
+    start_time: date | None
+    sample_count: int | None
 
 
 def cnv_to_instrument_data(filepath: Path) -> InstrumentData:
@@ -235,10 +250,12 @@ def cnv_to_instrument_data(filepath: Path) -> InstrumentData:
 
 def fix_exponents(values: List[str]) -> List[str]:
     """Fixes flag values and other numbers with negative exponents.
-
-    The fixes are performed by merging numbers that end in 'e' with the
-    following number in the list (the exponent), then deleting the
-    exponent
+    This is necessary because sometimes there is only a minus sign
+    separating two values in a cnv file. So we split values on the minus
+    sign which also splits negative exponents (e.g. 1e-2 becomes 1e, -2).
+    This function repairs the exponents by merging numbers that end in
+    'e' with the following number in the list (e.g. 1e, -2 becomes 1e-2),
+    then removes the extra exponent from the list.
 
     :param values: List of strings representing numbers
 
@@ -248,7 +265,8 @@ def fix_exponents(values: List[str]) -> List[str]:
     del_indices = [n + 1 for n, value in enumerate(values) if value.endswith("e")]
     for n in del_indices:
         values[n - 1] = f"{values[n-1]}{values[n]}"
-    return np.delete(values, del_indices)
+    new_values = list(np.delete(values, del_indices))
+    return new_values
 
 
 def read_hex_file(
@@ -291,7 +309,8 @@ def read_hex_file(
                     instrument_type, line, enabled_sensors, moored_mode, data_length
                 )
             hex_data = read_hex(instrument_type, line, enabled_sensors, moored_mode)
-            data.iloc[data_count] = pd.DataFrame(hex_data, index=[data_count])
+            for key, value in hex_data.items():
+                data.loc[data_count, key] = value
             data_count += 1
         if line.startswith("*END*"):
             is_data = True
@@ -322,9 +341,12 @@ def preallocate_dataframe(
     """
     sensors = {}
     hex_data = read_hex(instrument_type, line, enabled_sensors, moored_mode)
-    hex_keys = pd.DataFrame(hex_data, index=[0]).columns
-    for key in hex_keys:
-        sensors[key] = np.zeros(data_length)
+    # hex_keys = pd.DataFrame(hex_data, index=[0]).columns
+    for key, value in hex_data.items():
+        if isinstance(value, datetime):
+            sensors[key] = pd.date_range(start="2000-01-01", end="2000-01-02", periods=data_length)
+        else:
+            sensors[key] = np.zeros(data_length)
 
     return pd.DataFrame(sensors)
 
@@ -354,10 +376,12 @@ def read_hex(
     if instrument_type == InstrumentType.SBE37SM:
         return read_SBE37SM_format_0(hex, enabled_sensors)
 
+    return {}
+
 #TODO: change the following fn name to be snake_case for TKIT-75
-def read_SBE19plus_format_0( # pylint: disable=invalid-name
+def read_SBE19plus_format_0(
     hex: str, enabled_sensors: List[Sensors], moored_mode=False
-) -> dict:
+) -> Dict[str, float | datetime]:
     """Converts a 19plus V2 data hex string into engineering units.
 
     :param hex: one line from a hex data file
@@ -373,7 +397,7 @@ def read_SBE19plus_format_0( # pylint: disable=invalid-name
         expected length
     """
 
-    results = {}
+    results: Dict[str, int | float | datetime] = {}
     n = 0
     for sensor in Sensors:
         if sensor in enabled_sensors:
@@ -476,6 +500,26 @@ def read_SBE19plus_format_0( # pylint: disable=invalid-name
                 )
                 n += HEX_LENGTH["SBE63temperature"]
 
+            # Extract NMEA Sensors
+            if sensor == Sensors.nmeaLatitude:
+                lat = read_nmea_coordinates(hex[n : n + HEX_LENGTH["nmeaLatitude"]])
+                results[HexDataTypes.nmeaLatitude.value] = lat
+                n += HEX_LENGTH["nmeaLatitude"]
+            if sensor == Sensors.nmeaLongitude:
+                lon = read_nmea_coordinates(hex[n : n + HEX_LENGTH["nmeaLongitude"]])
+                results[HexDataTypes.nmeaLongitude.value] = lon
+                n += HEX_LENGTH["nmeaLongitude"]
+            if sensor == Sensors.statusAndSign:
+                signs = read_status_sign(hex[n : n + HEX_LENGTH["statusAndSign"]])
+                results[HexDataTypes.nmeaLatitude.value] *= signs[0]
+                results[HexDataTypes.nmeaLongitude.value] *= signs[1]
+                n += HEX_LENGTH["statusAndSign"]
+            if sensor == Sensors.nmeaTime:
+                seconds_since_2000 = read_nmea_time(hex[n : n + HEX_LENGTH["nmeaTime"]])
+                timestamp = seconds_since_2000 + SECONDS_BETWEEN_EPOCH_AND_2000
+                results[HexDataTypes.nmeaTime.value] = datetime.fromtimestamp(timestamp)
+                n += HEX_LENGTH["nmeaTime"]
+
     if moored_mode:
         seconds_since_2000 = int(hex[n : n + HEX_LENGTH["time"]], 16)
         results[HexDataTypes.dateTime.value] = datetime.fromtimestamp(
@@ -495,7 +539,7 @@ def read_SBE19plus_format_0( # pylint: disable=invalid-name
 #TODO: change this to be snake_case for TKIT-75
 def read_SBE37SM_format_0( # pylint: disable=invalid-name
     hex: str, enabled_sensors: List[Sensors]
-) -> dict:
+) -> Dict[str, int | float | datetime]:
     """Converts a 37 family data hex string into engineering units.
 
     :param hex: one line from a hex data file
@@ -506,7 +550,7 @@ def read_SBE37SM_format_0( # pylint: disable=invalid-name
     :return: the 37 family sensor values in engineering units that were
         extracted from the input hex string
     """
-    results = {}
+    results: Dict[str, int | float | datetime] = {}
     n = 0
     results[HexDataTypes.temperature.value] = int(hex[n : HEX_LENGTH["temperature"]], 16)
     n += HEX_LENGTH["temperature"]
@@ -539,4 +583,69 @@ def read_SBE37SM_format_0( # pylint: disable=invalid-name
     )
     n += HEX_LENGTH["time"]
 
+    print(results)
     return results
+
+
+def read_nmea_coordinates(hex_segment: str):
+    """Converts a 3 byte NMEA hex string to latitude or longitude
+
+    :param hex_segment: 3 byte hex string
+    :raises RuntimeWarning: raised if the hex string is the wrong length
+    :return: latitude or longitide coordinate
+    """
+    if len(hex_segment) != 6:
+        raise RuntimeWarning(
+            f"Unknown Coordinate Format. Received Hex of length {len(hex_segment)}. "
+            f"Should have received Hex of length {HEX_LENGTH['nmeaLongitude']}"
+        )
+    byte0 = int(hex_segment[0:2], 16)
+    byte1 = int(hex_segment[2:4], 16)
+    byte2 = int(hex_segment[4:6], 16)
+    coordinate = (byte0 * 65536 + byte1 * 256 + byte2) / 50000
+    return coordinate
+
+
+def read_status_sign(hex_segment: str):
+    """Converts a hex byte to the signs for NMEA latitude and longitude
+
+    :param hex_segment: 1 byte hex string
+    :raises RuntimeWarning: raised if the hex string is the wrong length
+    :raises RuntimeWarning: raised when the signs are converted
+        incorrectly
+    :return: a list of two integers (1 or -1)
+    """
+    if len(hex_segment) != 2:
+        raise RuntimeWarning("Unknown Status Format")
+    integer = int(hex_segment, 16)
+    binary = format(integer, "0>8b")
+    signs = []
+    if binary[0] == "0":
+        signs.append(1)
+    elif binary[0] == "1":
+        signs.append(-1)
+
+    if binary[1] == "0":
+        signs.append(1)
+    elif binary[1] == "1":
+        signs.append(-1)
+    if len(signs) != 2:
+        raise RuntimeWarning("An error occured while processing Coordinate Signs")
+    return signs
+
+
+def read_nmea_time(hex_segment: str):
+    """Convert an 8 byte hex string to the number of seconds since 2000
+
+    :param hex_segment: an 8 byte hex string
+    :raises RuntimeWarning: raised if the hex string is the wrong length
+    :return: _description_
+    """
+    if len(hex_segment) != 8:
+        raise RuntimeWarning("Unknown Time Format")
+    byte0 = hex_segment[0:2]
+    byte1 = hex_segment[2:4]
+    byte2 = hex_segment[4:6]
+    byte3 = hex_segment[6:8]
+    reformatted = int(byte3 + byte2 + byte1 + byte0, 16)
+    return reformatted

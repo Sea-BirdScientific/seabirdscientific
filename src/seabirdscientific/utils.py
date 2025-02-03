@@ -62,7 +62,7 @@ def close_enough(
                 atol=absolute_tolerance,
             )
         )
-    return np.all(results)
+    return bool(np.all(results))
 
 
 def plot(**kwargs: np.ndarray):

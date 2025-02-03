@@ -196,13 +196,13 @@ par_coefs_sn0411 = PARCoefficients(
 )
 
 ph_seafet_internal_coeffs = PHSeaFETInternalCoefficients(
-    int_k0=-1.354051,
-    int_k2=-0.001272858,
+    k0=-1.354051,
+    k2=-0.001272858,
 )
 
 ph_seafet_external_coeffs = PHSeaFETExternalCoefficients(
-    ext_k0=-1.345407,
-    ext_k2=-0.001106957,
+    k0=-1.345407,
+    k2=-0.001106957,
     f1=0,
     f2=0,
     f3=0,

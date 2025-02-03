@@ -35,9 +35,9 @@ def bouyancy_frequency(
     db_to_pa = 1e4
 
     # Wrap these as a length-1 array so that GSW accepts them
-    pressure_bar = [np.mean(pressure_dbar_subset)]
-    temperature_bar = [np.mean(temp_ITS_subset)]
-    salinity_bar = [np.mean(salinity_prac_subset)]
+    pressure_bar = np.array([np.mean(pressure_dbar_subset)])
+    temperature_bar = np.array([np.mean(temp_ITS_subset)])
+    salinity_bar = np.array([np.mean(salinity_prac_subset)])
 
     # Compute average density over the window
     # rho_bar0 = gsw.rho(salinity_bar, temperature_bar, pressure_bar)[0]
@@ -47,7 +47,7 @@ def bouyancy_frequency(
     theta = potential_temperature(
         salinity_prac_subset, temp_ITS_subset, pressure_dbar_subset, pressure_bar
     )
-    v_vals = 1.0 / density(salinity_prac_subset, theta, [pressure_bar])
+    v_vals = 1.0 / density(salinity_prac_subset, theta, pressure_bar)
 
     # Estimate vertical gradient of specific volume
     dvdp_result = stats.linregress(pressure_dbar_subset, v_vals)
