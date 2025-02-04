@@ -7,7 +7,7 @@ import xarray as xr
 NUM_PAT = "[+-]?[0-9]*[.]?[0-9]+"  # Regex pattern for any number, positive or negative, int or float.
 
 
-class Dev():
+class ACSCalParser():
     """
     A class for parsing ACS .dev files and putting them into a format that is easier to work with for larger or
     multiple file datasets.
