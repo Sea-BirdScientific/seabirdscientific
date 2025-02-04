@@ -1,24 +1,38 @@
+"""A class for parsing ACS .dev files and putting them into a format
+that is easier to work with for larger or multiple file datasets.
+
+Note: This is a community contribution and not officially supported by
+Sea-Bird Scientific. We welcome further contributions and requests for
+support, but may not be able to provide our full attention at this time.
+"""
+
 from datetime import datetime
-import numpy as np
 import re
+import numpy as np
 import xarray as xr
 
 
-NUM_PAT = "[+-]?[0-9]*[.]?[0-9]+"  # Regex pattern for any number, positive or negative, int or float.
+# Regex pattern for any number, positive or negative, int or float.
+NUM_PAT = "[+-]?[0-9]*[.]?[0-9]+"
 
 
 class ACSCalParser():
     """
-    A class for parsing ACS .dev files and putting them into a format that is easier to work with for larger or
-    multiple file datasets.
+    A class for parsing ACS .dev files and putting them into a format
+    that is easier to work with for larger or multiple file datasets.
+    
+    Note: This is a community contribution and not officially supported
+    by Sea-Bird Scientific. We welcome further contributions and
+    requests for support, but may not be able to provide our full
+    attention at this time.
     """
 
     def __init__(self, filepath: str):
-        """
-        Run the following functions at instantiation to parse the .dev file and store the data as class attributes.
+        """Run the following functions at instantiation to parse the
+        .dev file and store the data as class attributes.
 
-        Args:
-            filepath: A string indicating the location of the .dev file.
+        :param filepath: A string indicating the location of the .dev
+            file.
         """
         self._filepath = filepath
         self.__read_dev()
@@ -28,18 +42,17 @@ class ACSCalParser():
         self.__check_parse()
 
     def __read_dev(self) -> None:
-        """
-        Import the .dev file as a text file.
-        The file contents are stored as a list of strings in the class attribute self._content.
+        """Import the .dev file as a text file.
+        The file contents are stored as a list of strings in the class
+        attribute self._content.
         """
 
-        with open(self._filepath, 'r') as _file:
+        with open(self._filepath, 'r', encoding="utf-8") as _file:
             self._content = _file.readlines()
 
 
     def __parse_metadata(self) -> None:
-        """
-        Parse the .dev file for individual sensor metadata.
+        """Parse the .dev file for individual sensor metadata.
         Sensor specific metadata are stored as class attributes.
         """
 
@@ -49,16 +62,17 @@ class ACSCalParser():
                 self.sensor_type = re.findall('(.*?)\n', line)[0]
             elif 'Serial' in line:
                 self.sn_hexdec = re.findall('(.*?)\t', line)[0]
-                self.sn = 'ACS-' + str(int(self.sn_hexdec[-6:], 16)).zfill(5) #Convert to sn shown on product sticker.
+                #Convert to sn shown on product sticker.
+                self.sn = 'ACS-' + str(int(self.sn_hexdec[-6:], 16)).zfill(5)
             elif 'structure version' in line:
                 self.structure_version = int(re.findall(f'({NUM_PAT})\t', line)[0])
             elif 'tcal' in line or 'Tcal' in line:
                 self.tcal, self.ical = [float(v) for v in re.findall(f': ({NUM_PAT}) C', line)]
-                cal_date_str = re.findall('file on (.*?)[.]', line)[0].replace(' ', '')
+                cal_date = re.findall('file on (.*?)[.]', line)[0].replace(' ', '')
                 try: #Sometimes the data is entered as yyyy or yy. This should handle both cases.
-                    self.cal_date = datetime.strptime(cal_date_str, '%m/%d/%Y').strftime('%Y-%m-%d')
-                except:
-                    self.cal_date = datetime.strptime(cal_date_str, '%m/%d/%y').strftime('%Y-%m-%d')
+                    self.cal_date = datetime.strptime(cal_date, '%m/%d/%Y').strftime('%Y-%m-%d')
+                except ValueError:
+                    self.cal_date = datetime.strptime(cal_date, '%m/%d/%y').strftime('%Y-%m-%d')
             elif 'Depth calibration' in line:
                 (self.depth_cal_1,
                  self.depth_cal_2) = [float(v) for v in re.findall(f'({NUM_PAT})', line)]
@@ -83,11 +97,14 @@ class ACSCalParser():
         tbins = tbin_line.split('\t')
         tbins = [v for v in tbins if v]  # Toss empty strings.
         tbins = [v for v in tbins if v != '\n'] #Toss newline characters.
-        self.tbin = [float(v) for v in tbins if 'temperature bins' not in v] # Convert to float and toss comment.
+        # Convert to float and toss comment.
+        self.tbin = [float(v) for v in tbins if 'temperature bins' not in v]
 
 
     def __parse_offsets(self) -> None:
-        """Parse the .dev file for a and c offsets. Data are saved as class attributes for access at a later time."""
+        """Parse the .dev file for a and c offsets. Data are saved as
+        class attributes for access at a later time.
+        """
 
         offset_lines = [line for line in self._content if 'C and A offset' in line]
 
@@ -134,27 +151,37 @@ class ACSCalParser():
         """Verify that the shape of the data is as expected."""
 
         if len(self.a_wavelength) != self.num_wavelength:
-            raise ValueError('Mismatch between number of wavelengths extracted for C and expected from file.'
-                             'Please verify the .dev file integrity.')
+            raise ValueError(
+                'Mismatch between number of wavelengths extracted for C and expected from file.'
+                'Please verify the .dev file integrity.'
+            )
         if len(self.c_wavelength) != self.num_wavelength:
-            raise ValueError('Mismatch between number of wavelengths extracted for C and expected from file.'
-                             'Please verify the .dev file integrity.')
+            raise ValueError(
+                'Mismatch between number of wavelengths extracted for C and expected from file.'
+                'Please verify the .dev file integrity.'
+            )
         if len(self.c_wavelength) != len(self.a_wavelength):
-            raise ValueError('Mismatch between number of wavelengths extracted for A and C.'
-                             'Please verify the .dev file integrity.')
+            raise ValueError(
+                'Mismatch between number of wavelengths extracted for A and C.'
+                'Please verify the .dev file integrity.'
+            )
         if np.array(self.a_delta_t).shape != (len(self.a_wavelength), self.num_tbin):
-            raise ValueError('Mismatch between length of A wavelengths and number of temperature bins.'
-                             'Please verify the .dev file integrity.')
+            raise ValueError(
+                'Mismatch between length of A wavelengths and number of temperature bins.'
+                'Please verify the .dev file integrity.'
+            )
         if np.array(self.c_delta_t).shape != (len(self.a_wavelength), self.num_tbin):
-            raise ValueError('Mismatch between length of C wavelengths and number of temperature bins.'
-                             'Please verify the .dev file integrity.')
+            raise ValueError(
+                'Mismatch between length of C wavelengths and number of temperature bins.'
+                'Please verify the .dev file integrity.'
+            )
 
 
     def to_xarray(self) -> xr.Dataset:
-        """
-        Convert the parsed .dev file data to an xarray dataset
+        """Convert the parsed .dev file data to an xarray dataset
 
-        Returns: An appropriately dimensioned xarray dataset containing device file data.
+        :return: An appropriately dimensioned xarray dataset containing
+        device file data.
         """
         ds = xr.Dataset()
         ds = ds.assign_coords({'a_wavelength': np.array(self.a_wavelength),
