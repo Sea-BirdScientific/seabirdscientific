@@ -8,7 +8,5 @@ assignees: ''
 ---
 
 **What is your question?**
-A clear and concise inquiry.
 
-**Contact Information**
-An email and or phone number will make it easier for us to get back to you.
+Provide a clear and concise inquiry.
