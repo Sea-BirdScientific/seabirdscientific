@@ -133,8 +133,8 @@ def align_ctd(
 
 
 def cell_thermal_mass(
-    temperature_C: np.ndarray,
-    conductivity_Sm: np.ndarray,
+    temperature_C: np.ndarray, # pylint: disable=invalid-name #TODO: change this to be snake_case for TKIT-75
+    conductivity_Sm: np.ndarray, # pylint: disable=invalid-name #TODO: change this to be snake_case for TKIT-75
     amplitude: float,
     time_constant: float,
     sample_interval: float,
@@ -841,7 +841,7 @@ def window_filter(
 
     # run a convolution, renormalizing weights as necessary
     for n in range(len(data)):
-        if data_start <= n and n < data_end:
+        if data_start <= n < data_end:
             value = 0
 
             if window_type == WindowFilterType.MEDIAN:

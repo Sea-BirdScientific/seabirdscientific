@@ -70,7 +70,7 @@ KELVIN_OFFSET_0C = 273.15
 KELVIN_OFFSET_25C = 298.15
 OXYGEN_MLPERL_TO_MGPERL = 1.42903
 OXYGEN_MLPERL_TO_UMOLPERKG = 44660
-# taken from https://blog.seabird.com/ufaqs/what-is-the-difference-in-temperature-expressions-between-ipts-68-and-its-90/
+# taken from https://blog.seabird.com/ufaqs/what-is-the-difference-in-temperature-expressions-between-ipts-68-and-its-90/ # pylint: disable=line-too-long
 ITS90_TO_IPTS68 = 1.00024
 # micro moles of nitrate to milligrams of nitrogen per liter
 UMNO3_TO_MGNL = 0.014007
@@ -706,7 +706,7 @@ def convert_internal_seafet_ph(
     ph = (ph_volts - cell_ref_volts) / nernst_term
     return ph
 
-
+# pylint: disable=too-many-statements #TODO: break this function up
 def convert_external_seafet_ph(
     ph_counts: np.ndarray,
     temperature: np.ndarray,
@@ -862,6 +862,7 @@ def convert_external_seafet_ph(
     def _calculate_log_gamma_hcl(
         adh: np.ndarray, ionic_strength: np.ndarray, temperature: np.ndarray
     ):
+         # pylint: disable=anomalous-backslash-in-string
         """
         Khoo et al. (Anal. Chem., 49, 29-34, 1977).
         \log \gamma_{\pm} \left( HCl\right) =
