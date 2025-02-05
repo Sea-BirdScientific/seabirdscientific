@@ -52,12 +52,6 @@ Listed in alphabetical order by surname.
     <th>Github</th>
   </tr>
   <tr>
-    <td>Ian Black</td>
-    <td>
-      <a href="https://github.com/IanTBlack">IanTBlack</a>
-    </td>
-  </tr>
-  <tr>
     <td>Lucas Christensen</td>
     <td>
       <a href="https://github.com/SBS-lchristensen">SBS-lchristensen</a>
