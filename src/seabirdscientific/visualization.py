@@ -592,8 +592,10 @@ def plot_ts_chart(
             size=2,
             colorbar=dict(
                 # sigma_theta kg m-3
-                title=config.z_titles[0],
-                titleside="top",
+                title=dict(
+                    text=config.z_titles[0],
+                    side="top",
+                )
             ),
         ),
     )
