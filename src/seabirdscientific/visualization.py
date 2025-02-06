@@ -144,7 +144,7 @@ class ChartData:
             self.z = select_subset(config.z_names, data)
 
 
-def parse_instrument_data(source: Any) -> pd.DataFrame:
+def parse_instrument_data(source: Union[str, Path, pd.DataFrame]) -> pd.DataFrame:
     """Top level function for converting instrument data to numpy array.
 
     Currently supports pandas dataframes, json strings, or a Path to the
