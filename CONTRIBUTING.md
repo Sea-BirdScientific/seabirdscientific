@@ -2,7 +2,7 @@
 
 ## Before Contributing
 
-Thanks for your interest in contributing to the seabirdscientific repository. Before submitting any pull requests, ensure that you __have fully read and understand these guidelines__. If you're new to the process, take a look at the [Code Contribution Process Overview](#code-contribution-process-overview) section. If you've read through everything and still have any questions about contributing, please feel free to [submit a question](https://github.com/Sea-BirdScientific/seabirdscientific/issues/new).
+Thanks for your interest in contributing to the seabirdscientific repository. Before submitting any pull requests, ensure that you __have fully read and understand these guidelines__. If you're new to the process, take a look at the [Code Contribution Process Overview](#code-contribution-process-overview) section. If you've read through everything and still have any questions about contributing, please feel free to [submit a question](https://github.com/Sea-BirdScientific/seabirdscientific/issues/new?template=question.md).
 
 ## Contributing
 
@@ -72,7 +72,7 @@ We want your work to be readable by others; therefore, we ask you to comply with
 
 ## Code Contribution Process Overview
 
-Below is the typical sequence for creating a submission. Feel free to [submit a question](https://github.com/Sea-BirdScientific/seabirdscientific/issues/new) if you need assistance.
+Below is the typical sequence for creating a submission. Feel free to [submit a question](https://github.com/Sea-BirdScientific/seabirdscientific/issues/new?template=question.md) if you need assistance.
 
 1. Create a fork of the seabirdscientific repository. We recommend that you only copy the main branch into your fork.
 1. Clone the fork to your computer.
