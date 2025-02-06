@@ -27,7 +27,7 @@ data
 # Native imports
 import json
 from logging import getLogger
-from typing import Dict, List, Literal
+from typing import Dict, List, Literal, Optional, Union, Any
 from pathlib import Path
 
 # Third-party imports
@@ -56,10 +56,10 @@ class ChartConfig:
         y_names: List[str],
         z_names: List[str],
         chart_type: Literal["overlay", "subplots"],
-        bounds: Dict[Literal["x", "y", "z"], Dict[int, List[int]]] | None = None,
-        x_titles: List[str] | None = None,
-        y_titles: List[str] | None = None,
-        z_titles: List[str] | None = None,
+        bounds: Optional[Dict[Literal["x", "y", "z"], Dict[int, List[int]]]] = None,
+        x_titles: Optional[List[str]] = None,
+        y_titles: Optional[List[str]] = None,
+        z_titles: Optional[List[str]] = None,
         plot_loop_edit_flags=False,
         lift_pen_over_bad_data=False,
         flag_value=-9.99e-29,
@@ -125,7 +125,7 @@ class ChartData:
 
     # TODO: move helper functions into ChartData
 
-    def __init__(self, data_source: str | pd.DataFrame, config: ChartConfig):
+    def __init__(self, data_source: Union[str, pd.DataFrame], config: ChartConfig):
         """Initializes an object to store chart data.
 
         :param data_source: A file path (.csv, .asc, .json), a JSON
@@ -144,7 +144,7 @@ class ChartData:
             self.z = select_subset(config.z_names, data)
 
 
-def parse_instrument_data(source: str | Path | pd.DataFrame) -> pd.DataFrame:
+def parse_instrument_data(source: Any) -> pd.DataFrame:
     """Top level function for converting instrument data to numpy array.
 
     Currently supports pandas dataframes, json strings, or a Path to the
