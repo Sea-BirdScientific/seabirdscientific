@@ -1,3 +1,4 @@
+<!-- markdownlint-configure-file {"MD033":{"allowed_elements": ["table","tr","th","td","a"]}} -->
 # Contributors
 
 ## Core Developers

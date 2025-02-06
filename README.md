@@ -12,7 +12,8 @@ This is the repository for the Sea-Bird Scientific (SBS) Community Toolkit. It i
 
 ## Package Installation With pip
 
-The seabirdscientific package uses Python 3.9 or greater. To install the package in a Python environment using pip send the command:
+The seabirdscientific package uses Python 3.9 or greater. To install the package in a Python
+environment using pip send the command:
 
 On Windows:
 
@@ -26,7 +27,9 @@ On Unix/macOS:
 python3 -m pip install seabirdscientific
 ```
 
-For additional information see the [Python.org Installing Packages](https://packaging.python.org/en/latest/tutorials/installing-packages/#installing-packages) reference.
+For additional information see the
+[Python.org Installing Packages](https://packaging.python.org/en/latest/tutorials/installing-packages/#installing-packages)
+reference.
 
 ## Example package use within python code
 
@@ -39,20 +42,30 @@ import seabirdscientific.processing as proc
 
 ## Required Software
 
-You must have [Python](https://www.python.org/downloads/) version 3.9 or higher installed in order to use the toolkit.
+You must have [Python](https://www.python.org/downloads/) version 3.9 or higher installed in order
+to use the toolkit.
 
 ## CTD Jupyter Notebook
 
-The ctd-processing.ipynb notebook in the documentation folder provides examples of the methods that can be applied to SBS CTD data within both the toolkit and the SBS Fathom application. There are a number of online references available with information on Jupyter notebook setup for different platforms and environments. For those who are not interested in an interactive notebook, there is a static version available in [PDF](https://github.com/Sea-BirdScientific/seabirdscientific/blob/main/documentation/ctd-notebook.pdf) format.
+The ctd-processing.ipynb notebook in the documentation folder provides examples of the methods that
+can be applied to SBS CTD data within both the toolkit and the SBS Fathom application. There are a
+number of online references available with information on Jupyter notebook setup for different
+platforms and environments. For those who are not interested in an interactive notebook, there is a
+static version available in
+[PDF](https://github.com/Sea-BirdScientific/seabirdscientific/blob/main/documentation/ctd-notebook.pdf)
+format.
 
 ## Contributions to the Toolkit
 
-If you have code that you would like to contribute to the SBS community toolkit please see the [Toolkit Contribution Guidelines](CONTRIBUTING.md).
+If you have code that you would like to contribute to the SBS community toolkit please see the
+[Toolkit Contribution Guidelines](CONTRIBUTING.md).
 
-If you have a question, please submit it using this [question form](https://github.com/Sea-BirdScientific/seabirdscientific/issues/new?template=question.md).
+If you have a question, please submit it using this
+[question form](https://github.com/Sea-BirdScientific/seabirdscientific/issues/new?template=question.md).
 
 If you would like to request a new feature, please submit a [feature request form](https://github.com/Sea-BirdScientific/seabirdscientific/issues/new?template=feature_request.md).
 
 If you find a bug, please submit a [bug report](https://github.com/Sea-BirdScientific/seabirdscientific/issues/new?template=bug_report.md).
 
-If you have data to share for inclusion in the toolkit, or for anything else, please contact [SBS customer support](https://www.seabird.com/support)
+If you have data to share for inclusion in the toolkit, or for anything else, please contact
+[SBS customer support](https://www.seabird.com/support)
