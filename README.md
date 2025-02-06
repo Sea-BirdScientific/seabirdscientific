@@ -12,8 +12,7 @@ This is the repository for the Sea-Bird Scientific (SBS) Community Toolkit. It i
 
 ## Package Installation With pip
 
-The seabirdscientific package uses Python 3.9 or greater. To install the package in a Python
-environment using pip send the command:
+The seabirdscientific package uses Python 3.9 or greater. To install the package in a Python environment using pip send the command:
 
 On Windows:
 
@@ -27,8 +26,7 @@ On Unix/macOS:
 python3 -m pip install seabirdscientific
 ```
 
-For additional information see the
-[Python.org Installing Packages](https://packaging.python.org/en/latest/tutorials/installing-packages/#installing-packages) reference.
+For additional information see the [Python.org Installing Packages](https://packaging.python.org/en/latest/tutorials/installing-packages/#installing-packages) reference.
 
 ## Example package use within python code
 
