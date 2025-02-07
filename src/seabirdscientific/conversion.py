@@ -706,6 +706,7 @@ def convert_internal_seafet_ph(
     ph = (ph_volts - cell_ref_volts) / nernst_term
     return ph
 
+
 # pylint: disable=too-many-statements #TODO: break this function up
 def convert_external_seafet_ph(
     ph_counts: np.ndarray,
@@ -862,7 +863,7 @@ def convert_external_seafet_ph(
     def _calculate_log_gamma_hcl(
         adh: np.ndarray, ionic_strength: np.ndarray, temperature: np.ndarray
     ):
-         # pylint: disable=anomalous-backslash-in-string
+        # pylint: disable=anomalous-backslash-in-string
         """
         Khoo et al. (Anal. Chem., 49, 29-34, 1977).
         \log \gamma_{\pm} \left( HCl\right) =

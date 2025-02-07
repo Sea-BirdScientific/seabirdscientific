@@ -9,7 +9,7 @@ from scipy import stats
 
 
 def bouyancy_frequency(
-    temp_ITS_subset: np.ndarray, # pylint: disable=invalid-name #TODO: change this to be all lower case for TKIT-75
+    temp_ITS_subset: np.ndarray,  # pylint: disable=invalid-name #TODO: change this to be all lower case for TKIT-75
     salinity_prac_subset: np.ndarray,
     pressure_dbar_subset: np.ndarray,
     gravity: float,
@@ -56,6 +56,7 @@ def bouyancy_frequency(
     # we index into v_bar, alpha_bar, and beta_bar as they are all arrays of len 1
     n2 = 0 - (rho_bar**2 * gravity**2 * dvdp_result.slope / db_to_pa)
     return n2
+
 
 # pylint: disable=too-many-statements #TODO: break this function up
 def density(s0: np.ndarray, t: np.ndarray, p0: np.ndarray) -> np.ndarray:

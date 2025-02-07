@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-""" A collection of utility functions related to the processing of SBS
+"""A collection of utility functions related to the processing of SBS
 instrument data.
 """
 # Functions:

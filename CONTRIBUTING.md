@@ -2,7 +2,7 @@
 
 ## Before Contributing
 
-Thanks for your interest in contributing to the seabirdscientific repository. Before submitting any pull requests, ensure that you __have fully read and understand these guidelines__. If you're new to the process, take a look at the [Code Contribution Process Overview](#code-contribution-process-overview) section. If you've read through everything and still have any questions about contributing, please feel free to [submit a question](https://github.com/Sea-BirdScientific/seabirdscientific/issues/new).
+Thanks for your interest in contributing to the seabirdscientific repository. Before submitting any pull requests, ensure that you __have fully read and understand these guidelines__. If you're new to the process, take a look at the [Code Contribution Process Overview](#code-contribution-process-overview) section. If you've read through everything and still have any questions about contributing, please feel free to [submit a question](https://github.com/Sea-BirdScientific/seabirdscientific/issues/new?template=question.md).
 
 ## Contributing
 
@@ -56,6 +56,8 @@ We want your work to be readable by others; therefore, we ask you to comply with
 
   Pylint can be used to check an individual file by running `pylint path/to/file.py`. Running `pylint src` from the root directory of the toolkit folder will check all files in the src directory.
 
+  __Note:__ There are currently recursion depth issues in `src\seabirdscientific\interpret_sbs_variable.py` and `src\seabirdscientific\visualization.py` that will cause pylint errors. To lint the toolkit excluding those files, run <nobr>`pylint --ignore-patterns=".*(interpret_sbs_variable|visualization)\.py" src`<nobr>
+
 - Run [mypy](http://www.mypy-lang.org) on your Python file(s) before submitting your pull request. This will help identify errors and improve code quality.
 
   Mypy can be used to check an individual file by running `mypy path/to/file.py`. Running `mypy src` from the root directory of the toolkit folder will check all files in the src directory.
@@ -70,7 +72,7 @@ We want your work to be readable by others; therefore, we ask you to comply with
 
 ## Code Contribution Process Overview
 
-Below is the typical sequence for creating a submission. Feel free to [submit a question](https://github.com/Sea-BirdScientific/seabirdscientific/issues/new) if you need assistance.
+Below is the typical sequence for creating a submission. Feel free to [submit a question](https://github.com/Sea-BirdScientific/seabirdscientific/issues/new?template=question.md) if you need assistance.
 
 1. Create a fork of the seabirdscientific repository. We recommend that you only copy the main branch into your fork.
 1. Clone the fork to your computer.

@@ -5,6 +5,7 @@
 
 # Native imports
 from dataclasses import dataclass
+from typing import Optional
 import warnings
 
 # Third-party imports
@@ -205,8 +206,8 @@ class PHSeaFETInternalCoefficients:
         self,
         k0: float = 0,
         k2: float = 0,
-        int_k0: float | None = None,
-        int_k2: float | None = None,
+        int_k0: Optional[float] = None,
+        int_k2: Optional[float] = None,
     ):
         self.k0 = k0
         self.k2 = k2
@@ -244,8 +245,8 @@ class PHSeaFETExternalCoefficients:
         f4: float = 0,
         f5: float = 0,
         f6: float = 0,
-        ext_k0: float | None = None,
-        ext_k2: float | None = None,
+        ext_k0: Optional[float] = None,
+        ext_k2: Optional[float] = None,
     ):
         self.k0 = k0
         self.k2 = k2
