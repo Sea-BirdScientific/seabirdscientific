@@ -759,8 +759,6 @@ class TestBuoyancy:
             30,  # window size
             True,
         )
-        print("output for modern calc:")
-        print(output_dataframe)
 
         expected_dataframe = pd.DataFrame()
         expected_dataframe["N2"] = self.expected_N2_win30
@@ -771,10 +769,6 @@ class TestBuoyancy:
         expected_dataframe["N2_rpd"] = (
             100 * (output_dataframe.N2 - self.expected_N2_win30) / self.expected_N2_win30
         )
-
-        print("Expected Dataframe")
-        print(expected_dataframe)
-        print(expected_dataframe.describe())
 
         # Comparing EOS-80 to TEOS-10 buoyancy calculations.
         # We do not expect them to agree better than +/-1.5% due to differences in the algorithms
@@ -804,9 +798,6 @@ class TestBuoyancy:
             False,
         )
 
-        print("output for retro calc:")
-        print(output_dataframe)
-
         expected_dataframe = pd.DataFrame()
         expected_dataframe["N2"] = self.expected_N2_win30
         expected_dataframe["N"] = self.expected_N_win30
@@ -816,10 +807,6 @@ class TestBuoyancy:
         expected_dataframe["N2_rpd"] = (
             100 * (output_dataframe.N2 - self.expected_N2_win30) / self.expected_N2_win30
         )
-
-        print("Expected Dataframe")
-        print(expected_dataframe)
-        print(expected_dataframe.describe())
 
         # Comparing SBE Data Processing C++ to local Python results using the same EOS-80 calculations.
         # We expect very very close agreement: << 1% differnce

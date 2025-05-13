@@ -608,7 +608,6 @@ def read_SBE37SM_format_0(  # pylint: disable=invalid-name
     )
     n += HEX_LENGTH["time"]
 
-    print(results)
     return results
 
 
