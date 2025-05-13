@@ -712,3 +712,35 @@ class TestSeaFETRelativeHumidity:
         )
 
         assert np.allclose(expected_humidity, humidity, atol=1e-6)
+
+
+class TestConvertSBE63Oxygen:
+    raw_oxygen = np.array([31.06, 31.66, 32.59, 33.92, 34.82, 35.44])
+    pressure = np.array([0, 0, 0, 0, 0, 0])
+    temperature = np.array([30, 26, 20, 12, 6, 2])
+    salinity = np.array([0, 0, 0, 0, 0, 0]) #  salinity is 0 PSU during calibration
+    expected_oxygen = np.array([0.706, 0.74, 0.799, 0.892, 1.005, 1.095])
+
+    def test_convert_sbe63_oxygen(self):
+        oxygen = dc.convert_sbe63_oxygen(
+            self.raw_oxygen,
+            self.temperature,
+            self.pressure,
+            self.salinity,
+            ec.oxygen_63_coefs_sn2568,
+            ec.thermistor_63_coefs_sn2568,
+            'C',
+        )
+        # TODO: fix tolerance in TKIT-110
+        assert np.allclose(self.expected_oxygen, oxygen, atol=1e-3)
+
+    def test_thermistor_temperature(self):
+        raw_temperature = np.array([1.12015, 1.12015, 1.12016, 1.12016, 0.99562, 0.82934, 0.64528])
+
+        expected = np.array([2.0002, 2.0002, 1.9999, 1.9999, 5.9998, 12.0, 19.9998])
+        thermistor_temperature = dc.convert_sbe63_thermistor(
+            raw_temperature,
+            ec.thermistor_63_coefs_sn2568
+        )
+        
+        assert np.allclose(expected, thermistor_temperature, atol=1e-6)
