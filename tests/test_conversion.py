@@ -5,6 +5,7 @@
 # Native imports
 
 # Third-party imports
+from pathlib import Path
 import numpy as np
 import pandas as pd
 import pytest
@@ -17,6 +18,7 @@ import seabirdscientific.instrument_data as id
 
 import example_coefficients as ec
 
+test_data = Path("./tests/resources/test-data")
 
 
 class TestConvertTemperature:
@@ -97,10 +99,10 @@ class TestConvertPressure:
 
 
 class TestConductivity19plus:
-    cnv_path = "./documentation/example_data/19plus_V2_CTD-processing_example.hex"
+    cnv_path = test_data / "19plus_V2_CTD-processing_example.hex"
     expected_data = id.cnv_to_instrument_data(cnv_path)
 
-    hex_path = "./documentation/example_data/19plus_V2_CTD-processing_example.hex"
+    hex_path = test_data / "19plus_V2_CTD-processing_example.hex"
     raw = id.read_hex_file(
         hex_path,
         id.InstrumentType.SBE19Plus,
@@ -146,10 +148,10 @@ class TestConductivity19plus:
 
 
 class TestConductivity37SM:
-    cnv_path = "./tests/resources/test-data/SBE37SM-RS232_03716125_2017_11_16.cnv"
+    cnv_path = test_data / "SBE37SM-RS232_03716125_2017_11_16.cnv"
     expected_data = id.cnv_to_instrument_data(cnv_path)
 
-    hex_path = "./tests/resources/test-data/SBE37SM-RS232_03716125_2017_11_16.hex"
+    hex_path = test_data / "SBE37SM-RS232_03716125_2017_11_16.hex"
     raw = id.read_hex_file(
         hex_path,
         id.InstrumentType.SBE37SM,
@@ -188,7 +190,7 @@ class TestConductivity37SM:
 
 
 class TestDeriveDensity:
-    data_path = "./tests/resources/test-data/SBE37SM-derived.asc"
+    data_path = test_data / "SBE37SM-derived.asc"
     data = pd.read_csv(data_path)
 
     @pytest.mark.parametrize(
@@ -258,7 +260,7 @@ class TestDeriveDensity:
 
 
 class TestDepthFromPressure:
-    data_path = "./tests/resources/test-data/SBE37SM.asc"
+    data_path = test_data / "SBE37SM.asc"
     data = pd.read_csv(data_path).loc[6:10]
 
     @pytest.mark.parametrize(
@@ -647,7 +649,7 @@ class TestPARlogarithmic:
 
 # class TestContourFromTSP:
 #     # Note: this class doesn't actually test anything and is only for debug
-#     data_path = './tests/resources/test-data/SBE37SM-RS232_03711722_2015_11_18_subset_derived.asc'
+#     data_path = test_data / 'SBE37SM-RS232_03711722_2015_11_18_subset_derived.asc'
 #     data = pd.read_csv(data_path)
 
 #     def test_contour_from_t_s_p_pass(self):

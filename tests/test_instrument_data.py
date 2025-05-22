@@ -4,6 +4,7 @@
 
 # Native imports
 from datetime import datetime
+from pathlib import Path
 
 # Third-party imports
 
@@ -11,6 +12,8 @@ from datetime import datetime
 
 # Internal imports
 import seabirdscientific.instrument_data as id
+
+test_data = Path("./tests/resources/test-data")
 
 
 class TestCnvToInstrumentData:
@@ -36,7 +39,7 @@ class TestCnvToInstrumentData:
         assert True  # fails before assert if data fails to instantiate
 
     def test_cnv_to_instrument_data_pass(self):
-        file_path = "./tests/resources/test-data/SBE37SM.cnv"
+        file_path = test_data / "SBE37SM.cnv"
         data = id.cnv_to_instrument_data(file_path)
 
         expected_labels = [
@@ -63,7 +66,7 @@ class TestCnvToInstrumentData:
 
 
 class TestReadHex:
-    filepath = "./documentation/example_data/19plus_V2_CTD-processing_example.hex"
+    filepath = test_data / "19plus_V2_CTD-processing_example.hex"
     raw = id.read_hex_file(
         filepath,
         id.InstrumentType.SBE19Plus,
@@ -89,7 +92,7 @@ class TestReadHex:
         assert self.raw["temperature compensation"].iloc[-1] == 20361 / 13107
 
 class TestReadNMEAHex:
-    filepath = "./tests/resources/test-data/19plus_V2_CTD_nmea_data.hex"
+    filepath = test_data / "19plus_V2_CTD_nmea_data.hex"
     raw = id.read_hex_file(
         filepath,
         id.InstrumentType.SBE19Plus,
