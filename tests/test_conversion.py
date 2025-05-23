@@ -24,6 +24,7 @@ test_data = Path("./tests/resources/test-data")
 class TestConvertTemperature:
     # test temperature raw values
     test_temp_vals = np.array([322798, 322808, 322827, 322838])
+    test_temp_no_mv_r = np.array([2864.51635696, 2864.61073548, 2864.79005751, 2864.89387722])
 
     def test_convert_temperature_90C(self):
         expected = [20.4459, 20.4451, 20.4436, 20.4427]
@@ -69,6 +70,17 @@ class TestConvertTemperature:
         )
         assert np.allclose(expected, result, rtol=0, atol=1e-4)
 
+    def test_convert_temperature_90C_no_mv_r(self):
+        expected = [20.4459, 20.4451, 20.4436, 20.4427]
+        result = dc.convert_temperature(
+            self.test_temp_no_mv_r,
+            ec.temperature_coefs_sn6130,
+            "ITS90",
+            "C",
+            False,
+        )
+        assert np.allclose(expected, result, rtol=0, atol=1e-4)
+
 
 class TestConvertPressure:
     # test pressure raw values
@@ -99,49 +111,49 @@ class TestConvertPressure:
 
 
 class TestConductivity19plus:
-    cnv_path = test_data / "19plus_V2_CTD-processing_example.hex"
-    expected_data = id.cnv_to_instrument_data(cnv_path)
-
+    cnv_path = test_data / "19plus_V2_CTD-processing_example.cnv"
     hex_path = test_data / "19plus_V2_CTD-processing_example.hex"
-    raw = id.read_hex_file(
-        hex_path,
-        id.InstrumentType.SBE19Plus,
-        [
-            id.Sensors.Temperature,
-            id.Sensors.Conductivity,
-            id.Sensors.Pressure,
-            id.Sensors.ExtVolt0,
-            id.Sensors.ExtVolt1,
-            id.Sensors.ExtVolt2,
-            id.Sensors.ExtVolt4,
-        ],
-    )
-
-    # test_cond_data = np.array([675415, 675404, 675405, 675398, 675391, 675379])
-
-    # test_temp_data = np.array([20.4459, 20.4451, 20.4436, 20.4427, 20.4413, 20.4401])
-    temperature = dc.convert_temperature(
-        raw["temperature"][0:6].values,
-        ec.temperature_coefs_sn6130,
-        "IPTS68",
-        "C",
-        True,
-    )
-
-    # test_press_data = np.array([-0.105, -0.106, -0.104, -0.107, -0.105, -0.104])
-    pressure = dc.convert_pressure(
-        raw["pressure"][0:6].values,
-        raw["temperature compensation"][0:6].values,
-        ec.pressure_coefs_sn6130,
-        "psia",
-    )
 
     def test_convert_conductivity(self):
+        # expected_data = id.cnv_to_instrument_data(self.cnv_path)
+
+        raw = id.read_hex_file(
+            self.hex_path,
+            id.InstrumentType.SBE19Plus,
+            [
+                id.Sensors.Temperature,
+                id.Sensors.Conductivity,
+                id.Sensors.Pressure,
+                id.Sensors.ExtVolt0,
+                id.Sensors.ExtVolt1,
+                id.Sensors.ExtVolt2,
+                id.Sensors.ExtVolt4,
+            ],
+        )
+
+        # test_cond_data = np.array([675415, 675404, 675405, 675398, 675391, 675379])
+
+        # test_temp_data = np.array([20.4459, 20.4451, 20.4436, 20.4427, 20.4413, 20.4401])
+        temperature = dc.convert_temperature(
+            raw["temperature"][0:6].values,
+            ec.temperature_coefs_sn6130,
+            "IPTS68",
+            "C",
+            True,
+        )
+
+        # test_press_data = np.array([-0.105, -0.106, -0.104, -0.107, -0.105, -0.104])
+        pressure = dc.convert_pressure(
+            raw["pressure"][0:6].values,
+            raw["temperature compensation"][0:6].values,
+            ec.pressure_coefs_sn6130,
+            "psia",
+        )
         expected = [0.008453, 0.008420, 0.008423, 0.008402, 0.008380, 0.008344]
         result = dc.convert_conductivity(
-            self.raw["conductivity"][0:6].values,
-            self.temperature,
-            self.pressure,
+            raw["conductivity"][0:6].values,
+            temperature,
+            pressure,
             ec.conductivity_coefs_sn6130,
         )
         assert np.allclose(expected, result, rtol=0, atol=1e-6)
@@ -149,41 +161,41 @@ class TestConductivity19plus:
 
 class TestConductivity37SM:
     cnv_path = test_data / "SBE37SM-RS232_03716125_2017_11_16.cnv"
-    expected_data = id.cnv_to_instrument_data(cnv_path)
-
     hex_path = test_data / "SBE37SM-RS232_03716125_2017_11_16.hex"
-    raw = id.read_hex_file(
-        hex_path,
-        id.InstrumentType.SBE37SM,
-        [
-            id.Sensors.Temperature,
-            id.Sensors.Conductivity,
-            id.Sensors.Pressure,
-        ],
-    )
-
-    temperature = dc.convert_temperature(
-        raw["temperature"][0:6],
-        ec.temperature_coefs_sn6130,
-        "IPTS68",
-        "C",
-        True,
-    )
-
-    # test_press_data = np.array([-0.105, -0.106, -0.104, -0.107, -0.105, -0.104])
-    pressure = dc.convert_pressure(
-        raw["pressure"][0:6],
-        raw["temperature compensation"][0:6],
-        ec.pressure_coefs_sn16125,
-        "psia",
-    )
 
     def test_convert_conductivity(self):
+        # expected_data = id.cnv_to_instrument_data(self.cnv_path)
+
+        raw = id.read_hex_file(
+            self.hex_path,
+            id.InstrumentType.SBE37SM,
+            [
+                id.Sensors.Temperature,
+                id.Sensors.Conductivity,
+                id.Sensors.Pressure,
+            ],
+        )
+
+        temperature = dc.convert_temperature(
+            raw["temperature"][0:6],
+            ec.temperature_coefs_sn6130,
+            "IPTS68",
+            "C",
+            True,
+        )
+
+        # test_press_data = np.array([-0.105, -0.106, -0.104, -0.107, -0.105, -0.104])
+        pressure = dc.convert_pressure(
+            raw["pressure"][0:6],
+            raw["temperature compensation"][0:6],
+            ec.pressure_coefs_sn16125,
+            "psia",
+        )
         expected = [2.711842, 2.715786, 2.715857, 2.715846, 2.715846, 2.715857]
         result = dc.convert_conductivity(
-            self.raw["conductivity"][0:6],
-            self.temperature,
-            self.pressure,
+            raw["conductivity"][0:6],
+            temperature,
+            pressure,
             ec.conductivity_coefs_sn16125,
         )
         assert np.allclose(expected, result, rtol=0, atol=1e-4)
