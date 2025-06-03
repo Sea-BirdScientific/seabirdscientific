@@ -18,6 +18,7 @@ instrument data.
 #   read_SBE37SM_format_0 (str, List[Sensors]) -> dict
 
 # Native imports
+import builtins
 from enum import Enum
 from dataclasses import dataclass
 from datetime import date, datetime
@@ -388,7 +389,7 @@ def read_hex(
     :return: the sensor values in engineering units that were extracted
         from the input hex string
     """
-    if hex is not __builtins__.hex:
+    if hex is not builtins.hex:
         warnings.warn("hex is deprecated, use hex_segment", DeprecationWarning)
 
     if instrument_type == InstrumentType.SBE19Plus:
@@ -423,7 +424,7 @@ def read_SBE19plus_format_0(
     :raises RuntimeWarning: if the hex string length does not match the
         expected length
     """
-    if hex is not __builtins__.hex:
+    if hex is not builtins.hex:
         warnings.warn("hex is deprecated, use hex_segment", DeprecationWarning)
 
     results: Dict[str, Union[int, float, datetime]] = {}
@@ -586,7 +587,7 @@ def read_SBE37SM_format_0(  # pylint: disable=invalid-name
     :return: the 37 family sensor values in engineering units that were
         extracted from the input hex string
     """
-    if hex is not __builtins__.hex:
+    if hex is not builtins.hex:
         warnings.warn("hex is deprecated, use hex_segment", DeprecationWarning)
 
     results: Dict[str, Union[int, float, datetime]] = {}
