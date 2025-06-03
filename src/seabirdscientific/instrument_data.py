@@ -225,7 +225,7 @@ def cnv_to_instrument_data(filepath: Path) -> InstrumentData:
                         description = line[line.find(": ") + 2 : line.find("\n")].strip()
                         units = ""
 
-                    num_values = data.sample_count or 0 # num_values to 0 if sample_count is None
+                    num_values = data.sample_count or 0  # num_values to 0 if sample_count is None
                     data.measurements[label] = MeasurementSeries(
                         label=label,
                         description=description,
@@ -306,9 +306,7 @@ def read_hex_file(
 
     # iterating over file twice in order to preallocate arrays
     # pylint: disable=consider-using-with # TODO: Fix this
-    file = open(
-        filepath, "r", encoding="utf-8"
-    )
+    file = open(filepath, "r", encoding="utf-8")
     for line in file:
         if is_data and not (line == "" or line.startswith("\n") or line.startswith("\r")):
             data_count += 1
@@ -435,13 +433,10 @@ def read_SBE19plus_format_0(
                 n += HEX_LENGTH["conductivity"]
 
             if sensor == Sensors.Pressure:  # TODO: add conversion for quartz pressure sensors
-                results[HexDataTypes.pressure.value] = int(
-                    hex[n : n + HEX_LENGTH["pressure"]], 16
-                )
+                results[HexDataTypes.pressure.value] = int(hex[n : n + HEX_LENGTH["pressure"]], 16)
                 n += HEX_LENGTH["pressure"]
                 result = (
-                    int(hex[n : n + HEX_LENGTH["temperatureCompensation"]], 16)
-                    / COUNTS_TO_VOLTS
+                    int(hex[n : n + HEX_LENGTH["temperatureCompensation"]], 16) / COUNTS_TO_VOLTS
                 )
                 results[HexDataTypes.temperatureCompensation.value] = result
                 n += HEX_LENGTH["temperatureCompensation"]

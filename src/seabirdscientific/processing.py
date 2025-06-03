@@ -769,6 +769,7 @@ def flag_data(
 
     return flagged_data
 
+
 # pylint: disable=too-many-branches # TODO: Fix this
 def window_filter(
     data_in: np.ndarray,
