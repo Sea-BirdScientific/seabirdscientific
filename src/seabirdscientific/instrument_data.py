@@ -371,7 +371,7 @@ def preallocate_dataframe(
 def read_hex(
     instrument_type: InstrumentType,
     hex_segment: str = "",
-    enabled_sensors: List[Sensors] = None,
+    enabled_sensors: List[Sensors] | None = None,
     moored_mode=False,
     hex=hex,  # pylint: disable=redefined-builtin
 ) -> dict:
@@ -404,7 +404,7 @@ def read_hex(
 # pylint: disable=invalid-name,too-many-branches,too-many-statements # TODO: Fix these
 def read_SBE19plus_format_0(
     hex_segment: str = "",
-    enabled_sensors: List[Sensors] = None,
+    enabled_sensors: List[Sensors] | None = None,
     moored_mode=False,
     hex=hex,  # pylint: disable=redefined-builtin
 ) -> Dict[str, Union[float, datetime]]:
@@ -429,7 +429,7 @@ def read_SBE19plus_format_0(
     results: Dict[str, Union[int, float, datetime]] = {}
     n = 0
     for sensor in Sensors:
-        if sensor in enabled_sensors:
+        if enabled_sensors and sensor in enabled_sensors:
             if sensor == Sensors.Temperature:
                 results[HexDataTypes.temperature.value] = int(
                     hex_segment[n : HEX_LENGTH["temperature"]], 16
@@ -572,7 +572,7 @@ def read_SBE19plus_format_0(
 # TODO: change this to be snake_case for TKIT-75
 def read_SBE37SM_format_0(  # pylint: disable=invalid-name
     hex_segment: str = "",
-    enabled_sensors: List[Sensors] = None,
+    enabled_sensors: List[Sensors] | None = None,
     hex=hex,  # pylint: disable=redefined-builtin
 ) -> Dict[str, Union[int, float, datetime]]:
     """Converts a 37 family data hex string into engineering units.
@@ -599,7 +599,7 @@ def read_SBE37SM_format_0(  # pylint: disable=invalid-name
     )
     n += HEX_LENGTH["conductivity"]
 
-    if Sensors.SBE63 in enabled_sensors:
+    if enabled_sensors and Sensors.SBE63 in enabled_sensors:
         results[HexDataTypes.SBE63phase.value] = (
             int(hex_segment[n : n + HEX_LENGTH["SBE63phase"]], 16) / 100000 - 10
         )
@@ -609,7 +609,7 @@ def read_SBE37SM_format_0(  # pylint: disable=invalid-name
         )
         n += HEX_LENGTH["SBE63temperature"]
 
-    if Sensors.Pressure in enabled_sensors:
+    if enabled_sensors and Sensors.Pressure in enabled_sensors:
         results[HexDataTypes.pressure.value] = int(hex_segment[n : n + HEX_LENGTH["pressure"]], 16)
         n += HEX_LENGTH["pressure"]
         result = int(hex_segment[n : n + HEX_LENGTH["temperatureCompensation"]], 16)
