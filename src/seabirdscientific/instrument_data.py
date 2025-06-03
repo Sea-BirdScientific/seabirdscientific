@@ -370,10 +370,10 @@ def preallocate_dataframe(
 
 def read_hex(
     instrument_type: InstrumentType,
-    hex_segment: str = '',
+    hex_segment: str = "",
     enabled_sensors: List[Sensors] = None,
     moored_mode=False,
-    hex=hex, # pylint: disable=redefined-builtin
+    hex=hex,  # pylint: disable=redefined-builtin
 ) -> dict:
     """Converts an instrument data hex string into engineering units.
 
@@ -403,10 +403,10 @@ def read_hex(
 # TODO: change the following fn name to be snake_case for TKIT-75
 # pylint: disable=invalid-name,too-many-branches,too-many-statements # TODO: Fix these
 def read_SBE19plus_format_0(
-    hex_segment: str = '',
+    hex_segment: str = "",
     enabled_sensors: List[Sensors] = None,
     moored_mode=False,
-    hex=hex # pylint: disable=redefined-builtin
+    hex=hex,  # pylint: disable=redefined-builtin
 ) -> Dict[str, Union[float, datetime]]:
     """Converts a 19plus V2 data hex string into engineering units.
 
@@ -448,8 +448,8 @@ def read_SBE19plus_format_0(
                 )
                 n += HEX_LENGTH["pressure"]
                 result = (
-                    int(hex_segment[n : n + HEX_LENGTH["temperatureCompensation"]], 16) /
-                    COUNTS_TO_VOLTS
+                    int(hex_segment[n : n + HEX_LENGTH["temperatureCompensation"]], 16)
+                    / COUNTS_TO_VOLTS
                 )
                 results[HexDataTypes.temperatureCompensation.value] = result
                 n += HEX_LENGTH["temperatureCompensation"]
@@ -571,9 +571,9 @@ def read_SBE19plus_format_0(
 
 # TODO: change this to be snake_case for TKIT-75
 def read_SBE37SM_format_0(  # pylint: disable=invalid-name
-    hex_segment: str = '',
+    hex_segment: str = "",
     enabled_sensors: List[Sensors] = None,
-    hex=hex # pylint: disable=redefined-builtin
+    hex=hex,  # pylint: disable=redefined-builtin
 ) -> Dict[str, Union[int, float, datetime]]:
     """Converts a 37 family data hex string into engineering units.
 
