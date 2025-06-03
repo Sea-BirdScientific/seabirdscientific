@@ -17,7 +17,6 @@ instrument data.
 #   read_SBE19plus_format_0 (str, List[Sensors], bool) -> dict
 #   read_SBE37SM_format_0 (str, List[Sensors]) -> dict
 
-
 # Native imports
 from enum import Enum
 from dataclasses import dataclass
@@ -25,6 +24,7 @@ from datetime import date, datetime
 from logging import getLogger
 from typing import List, Dict, Optional, Union
 from pathlib import Path
+import warnings
 
 # Third-party imports
 import numpy as np
@@ -370,28 +370,32 @@ def preallocate_dataframe(
 
 def read_hex(
     instrument_type: InstrumentType,
-    hex: str,
-    enabled_sensors: List[Sensors],
+    hex_segment: str = '',
+    enabled_sensors: List[Sensors] = None,
     moored_mode=False,
+    hex=hex, # pylint: disable=redefined-builtin
 ) -> dict:
     """Converts an instrument data hex string into engineering units.
 
     :param instrument_type: determines how units are converted
-    :param hex: one line from a hex data file
+    :param hex_segment: one line from a hex data file
     :param enabled_sensors: mooredMode parses time for 19plus in moored
         mode if true
     :param moored_mode: array of Sensors that are enabled. For 37 this
         is always temperature, conductivity, pressure. Defaults to False
+    :param hex: Deprecated, use hex_segment
 
     :return: the sensor values in engineering units that were extracted
         from the input hex string
     """
+    if hex is not __builtins__.hex:
+        warnings.warn("hex is deprecated, use hex_segment", DeprecationWarning)
 
     if instrument_type == InstrumentType.SBE19Plus:
-        return read_SBE19plus_format_0(hex, enabled_sensors, moored_mode)
+        return read_SBE19plus_format_0(hex_segment, enabled_sensors, moored_mode)
 
     if instrument_type == InstrumentType.SBE37SM:
-        return read_SBE37SM_format_0(hex, enabled_sensors)
+        return read_SBE37SM_format_0(hex_segment, enabled_sensors)
 
     return {}
 
@@ -399,15 +403,19 @@ def read_hex(
 # TODO: change the following fn name to be snake_case for TKIT-75
 # pylint: disable=invalid-name,too-many-branches,too-many-statements # TODO: Fix these
 def read_SBE19plus_format_0(
-    hex: str, enabled_sensors: List[Sensors], moored_mode=False
+    hex_segment: str = '',
+    enabled_sensors: List[Sensors] = None,
+    moored_mode=False,
+    hex=hex # pylint: disable=redefined-builtin
 ) -> Dict[str, Union[float, datetime]]:
     """Converts a 19plus V2 data hex string into engineering units.
 
-    :param hex: one line from a hex data file
+    :param hex_segment: one line from a hex data file
     :param enabled_sensors: array of Sensors that are enabled. For 37
         this is always temperature, conductivity, pressure. Defaults to
         False
     :param moored_mode: parses time for 19plus in moored mode if true
+    :param hex: Deprecated, use hex_segment
 
     :return: the 19plus V2 sensor values in engineering units that were
             extracted from the input hex string
@@ -415,6 +423,8 @@ def read_SBE19plus_format_0(
     :raises RuntimeWarning: if the hex string length does not match the
         expected length
     """
+    if hex is not __builtins__.hex:
+        warnings.warn("hex is deprecated, use hex_segment", DeprecationWarning)
 
     results: Dict[str, Union[int, float, datetime]] = {}
     n = 0
@@ -422,21 +432,24 @@ def read_SBE19plus_format_0(
         if sensor in enabled_sensors:
             if sensor == Sensors.Temperature:
                 results[HexDataTypes.temperature.value] = int(
-                    hex[n : HEX_LENGTH["temperature"]], 16
+                    hex_segment[n : HEX_LENGTH["temperature"]], 16
                 )
                 n += HEX_LENGTH["temperature"]
 
             if sensor == Sensors.Conductivity:
                 results[HexDataTypes.conductivity.value] = (
-                    int(hex[n : n + HEX_LENGTH["conductivity"]], 16) / 256
+                    int(hex_segment[n : n + HEX_LENGTH["conductivity"]], 16) / 256
                 )
                 n += HEX_LENGTH["conductivity"]
 
             if sensor == Sensors.Pressure:  # TODO: add conversion for quartz pressure sensors
-                results[HexDataTypes.pressure.value] = int(hex[n : n + HEX_LENGTH["pressure"]], 16)
+                results[HexDataTypes.pressure.value] = int(
+                    hex_segment[n : n + HEX_LENGTH["pressure"]], 16
+                )
                 n += HEX_LENGTH["pressure"]
                 result = (
-                    int(hex[n : n + HEX_LENGTH["temperatureCompensation"]], 16) / COUNTS_TO_VOLTS
+                    int(hex_segment[n : n + HEX_LENGTH["temperatureCompensation"]], 16) /
+                    COUNTS_TO_VOLTS
                 )
                 results[HexDataTypes.temperatureCompensation.value] = result
                 n += HEX_LENGTH["temperatureCompensation"]
@@ -449,98 +462,98 @@ def read_SBE19plus_format_0(
                 Sensors.ExtVolt4,
                 Sensors.ExtVolt5,
             ]:
-                result = int(hex[n : n + HEX_LENGTH["voltage"]], 16) / COUNTS_TO_VOLTS
+                result = int(hex_segment[n : n + HEX_LENGTH["voltage"]], 16) / COUNTS_TO_VOLTS
                 results[HexDataTypes[Sensors[sensor.value].value].value] = result
                 n += HEX_LENGTH["voltage"]
 
             if sensor == Sensors.SBE38:
                 results[HexDataTypes.SBE38temperature.value] = (
-                    int(hex[n : n + HEX_LENGTH["SBE38temperature"]], 16) / 100000 - 10
+                    int(hex_segment[n : n + HEX_LENGTH["SBE38temperature"]], 16) / 100000 - 10
                 )
                 n += HEX_LENGTH["SBE38temperature"]
 
             if sensor == Sensors.WETLABS:
                 results[HexDataTypes.wetlabs0.value] = int(
-                    hex[n : n + HEX_LENGTH["wetlabsSingleSensor"]], 16
+                    hex_segment[n : n + HEX_LENGTH["wetlabsSingleSensor"]], 16
                 )
                 n += HEX_LENGTH["wetlabsSingleSensor"]
 
                 results[HexDataTypes.wetlabs1.value] = int(
-                    hex[n : n + HEX_LENGTH["wetlabsSingleSensor"]], 16
+                    hex_segment[n : n + HEX_LENGTH["wetlabsSingleSensor"]], 16
                 )
                 n += HEX_LENGTH["wetlabsSingleSensor"]
 
                 results[HexDataTypes.wetlabs2.value] = int(
-                    hex[n : n + HEX_LENGTH["wetlabsSingleSensor"]], 16
+                    hex_segment[n : n + HEX_LENGTH["wetlabsSingleSensor"]], 16
                 )
                 n += HEX_LENGTH["wetlabsSingleSensor"]
 
             if sensor == Sensors.GTD:
                 results[HexDataTypes.GTDpressure.value] = (
-                    int(hex[n : n + HEX_LENGTH["GTDpressure"]], 16) / 10000
+                    int(hex_segment[n : n + HEX_LENGTH["GTDpressure"]], 16) / 10000
                 )
                 n += HEX_LENGTH["GTDpressure"]
                 results[HexDataTypes.GTDtemperature.value] = (
-                    int(hex[n : n + HEX_LENGTH["GTDtemperature"]], 16) / 10000 - 10
+                    int(hex_segment[n : n + HEX_LENGTH["GTDtemperature"]], 16) / 10000 - 10
                 )
                 n += HEX_LENGTH["GTDtemperature"]
 
             if sensor == Sensors.DualGTD:
                 results[HexDataTypes.GTDpressure.value] = (
-                    int(hex[n : n + HEX_LENGTH["GTDpressure"]], 16) / 10000
+                    int(hex_segment[n : n + HEX_LENGTH["GTDpressure"]], 16) / 10000
                 )
                 n += HEX_LENGTH["GTDpressure"]
                 results[HexDataTypes.GTDtemperature.value] = (
-                    int(hex[n : n + HEX_LENGTH["GTDtemperature"]], 16) / 10000 - 10
+                    int(hex_segment[n : n + HEX_LENGTH["GTDtemperature"]], 16) / 10000 - 10
                 )
                 n += HEX_LENGTH["GTDtemperature"]
                 results[HexDataTypes.GTDpressure2.value] = (
-                    int(hex[n : n + HEX_LENGTH["GTDpressure"]], 16) / 10000
+                    int(hex_segment[n : n + HEX_LENGTH["GTDpressure"]], 16) / 10000
                 )
                 n += HEX_LENGTH["GTDpressure"]
                 results[HexDataTypes.GTDtemperature2.value] = (
-                    int(hex[n : n + HEX_LENGTH["GTDtemperature"]], 16) / 10000 - 10
+                    int(hex_segment[n : n + HEX_LENGTH["GTDtemperature"]], 16) / 10000 - 10
                 )
                 n += HEX_LENGTH["GTDtemperature"]
 
             if sensor == Sensors.OPTODE:
                 results[HexDataTypes.optodeOxygen.value] = (
-                    int(hex[n : n + HEX_LENGTH["optodeOxygen"]], 16) / 10000 - 10
+                    int(hex_segment[n : n + HEX_LENGTH["optodeOxygen"]], 16) / 10000 - 10
                 )
                 n += HEX_LENGTH["optodeOxygen"]
 
             if sensor == Sensors.SBE63:
                 results[HexDataTypes.SBE63phase.value] = (
-                    int(hex[n : n + HEX_LENGTH["SBE63phase"]], 16) / 100000 - 10
+                    int(hex_segment[n : n + HEX_LENGTH["SBE63phase"]], 16) / 100000 - 10
                 )
                 n += HEX_LENGTH["SBE63phase"]
                 results[HexDataTypes.SBE63temperature.value] = (
-                    int(hex[n : n + HEX_LENGTH["SBE63temperature"]], 16) / 1000000 - 1
+                    int(hex_segment[n : n + HEX_LENGTH["SBE63temperature"]], 16) / 1000000 - 1
                 )
                 n += HEX_LENGTH["SBE63temperature"]
 
             # Extract NMEA Sensors
             if sensor == Sensors.nmeaLatitude:
-                lat = read_nmea_coordinates(hex[n : n + HEX_LENGTH["nmeaLatitude"]])
+                lat = read_nmea_coordinates(hex_segment[n : n + HEX_LENGTH["nmeaLatitude"]])
                 results[HexDataTypes.nmeaLatitude.value] = lat
                 n += HEX_LENGTH["nmeaLatitude"]
             if sensor == Sensors.nmeaLongitude:
-                lon = read_nmea_coordinates(hex[n : n + HEX_LENGTH["nmeaLongitude"]])
+                lon = read_nmea_coordinates(hex_segment[n : n + HEX_LENGTH["nmeaLongitude"]])
                 results[HexDataTypes.nmeaLongitude.value] = lon
                 n += HEX_LENGTH["nmeaLongitude"]
             if sensor == Sensors.statusAndSign:
-                signs = read_status_sign(hex[n : n + HEX_LENGTH["statusAndSign"]])
+                signs = read_status_sign(hex_segment[n : n + HEX_LENGTH["statusAndSign"]])
                 results[HexDataTypes.nmeaLatitude.value] *= signs[0]
                 results[HexDataTypes.nmeaLongitude.value] *= signs[1]
                 n += HEX_LENGTH["statusAndSign"]
             if sensor == Sensors.nmeaTime:
-                seconds_since_2000 = read_nmea_time(hex[n : n + HEX_LENGTH["nmeaTime"]])
+                seconds_since_2000 = read_nmea_time(hex_segment[n : n + HEX_LENGTH["nmeaTime"]])
                 timestamp = seconds_since_2000 + SECONDS_BETWEEN_EPOCH_AND_2000
                 results[HexDataTypes.nmeaTime.value] = datetime.fromtimestamp(timestamp)
                 n += HEX_LENGTH["nmeaTime"]
 
     if moored_mode:
-        seconds_since_2000 = int(hex[n : n + HEX_LENGTH["time"]], 16)
+        seconds_since_2000 = int(hex_segment[n : n + HEX_LENGTH["time"]], 16)
         results[HexDataTypes.dateTime.value] = datetime.fromtimestamp(
             seconds_since_2000 + SECONDS_BETWEEN_EPOCH_AND_2000
         )
@@ -548,7 +561,7 @@ def read_SBE19plus_format_0(
 
     # Validate hex length. Ensure length matches what is expected based
     # on enabled sensors and moored mode.
-    if n != len(hex.split("\n")[0]):
+    if n != len(hex_segment.split("\n")[0]):
         raise RuntimeWarning(
             "Hex string length does not match expectation based on enabled sensors and moored mode"
         )
@@ -558,46 +571,52 @@ def read_SBE19plus_format_0(
 
 # TODO: change this to be snake_case for TKIT-75
 def read_SBE37SM_format_0(  # pylint: disable=invalid-name
-    hex: str, enabled_sensors: List[Sensors]
+    hex_segment: str = '',
+    enabled_sensors: List[Sensors] = None,
+    hex=hex # pylint: disable=redefined-builtin
 ) -> Dict[str, Union[int, float, datetime]]:
     """Converts a 37 family data hex string into engineering units.
 
-    :param hex: one line from a hex data file
+    :param hex_segment: one line from a hex data file
     :param enabled_sensors: array of Sensors that are enabled. For 37
         this is always temperature, conductivity, pressure. Defaults to
         False
+    :param hex: Deprecated, use hex_segment
 
     :return: the 37 family sensor values in engineering units that were
         extracted from the input hex string
     """
+    if hex is not __builtins__.hex:
+        warnings.warn("hex is deprecated, use hex_segment", DeprecationWarning)
+
     results: Dict[str, Union[int, float, datetime]] = {}
     n = 0
-    results[HexDataTypes.temperature.value] = int(hex[n : HEX_LENGTH["temperature"]], 16)
+    results[HexDataTypes.temperature.value] = int(hex_segment[n : HEX_LENGTH["temperature"]], 16)
     n += HEX_LENGTH["temperature"]
 
     results[HexDataTypes.conductivity.value] = (
-        int(hex[n : n + HEX_LENGTH["conductivity"]], 16) / 256
+        int(hex_segment[n : n + HEX_LENGTH["conductivity"]], 16) / 256
     )
     n += HEX_LENGTH["conductivity"]
 
     if Sensors.SBE63 in enabled_sensors:
         results[HexDataTypes.SBE63phase.value] = (
-            int(hex[n : n + HEX_LENGTH["SBE63phase"]], 16) / 100000 - 10
+            int(hex_segment[n : n + HEX_LENGTH["SBE63phase"]], 16) / 100000 - 10
         )
         n += HEX_LENGTH["SBE63phase"]
         results[HexDataTypes.SBE63temperature.value] = (
-            int(hex[n : n + HEX_LENGTH["SBE63temperature"]], 16) / 1000000 - 1
+            int(hex_segment[n : n + HEX_LENGTH["SBE63temperature"]], 16) / 1000000 - 1
         )
         n += HEX_LENGTH["SBE63temperature"]
 
     if Sensors.Pressure in enabled_sensors:
-        results[HexDataTypes.pressure.value] = int(hex[n : n + HEX_LENGTH["pressure"]], 16)
+        results[HexDataTypes.pressure.value] = int(hex_segment[n : n + HEX_LENGTH["pressure"]], 16)
         n += HEX_LENGTH["pressure"]
-        result = int(hex[n : n + HEX_LENGTH["temperatureCompensation"]], 16)
+        result = int(hex_segment[n : n + HEX_LENGTH["temperatureCompensation"]], 16)
         results[HexDataTypes.temperatureCompensation.value] = result
         n += HEX_LENGTH["temperatureCompensation"]
 
-    seconds_since_2000 = int(hex[n : n + HEX_LENGTH["time"]], 16)
+    seconds_since_2000 = int(hex_segment[n : n + HEX_LENGTH["time"]], 16)
     results[HexDataTypes.dateTime.value] = datetime.fromtimestamp(
         seconds_since_2000 + SECONDS_BETWEEN_EPOCH_AND_2000
     )
