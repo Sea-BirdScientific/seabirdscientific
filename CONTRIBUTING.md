@@ -56,8 +56,6 @@ We want your work to be readable by others; therefore, we ask you to comply with
 
   Pylint can be used to check an individual file by running `pylint path/to/file.py`. Running `pylint src` from the root directory of the toolkit folder will check all files in the src directory.
 
-  __Note:__ There are currently recursion depth issues in `src\seabirdscientific\interpret_sbs_variable.py` and `src\seabirdscientific\visualization.py` that will cause pylint errors. To lint the toolkit excluding those files, run <nobr>`pylint --ignore-patterns=".*(interpret_sbs_variable|visualization)\.py" src`<nobr>
-
 - Run [mypy](http://www.mypy-lang.org) on your Python file(s) before submitting your pull request. This will help identify errors and improve code quality.
 
   Mypy can be used to check an individual file by running `mypy path/to/file.py`. Running `mypy src` from the root directory of the toolkit folder will check all files in the src directory.
@@ -67,22 +65,20 @@ We want your work to be readable by others; therefore, we ask you to comply with
 ## Package Use
  
 - Use the [TEOS-10 GSW Toolkit](https://www.teos-10.org/software.htm) for derived physical oceanography algorithms rather than any predecessor packages.
-- When working with 2 dimensional data, numpy is preferred over xarray.
-- Xarray is recommended when working with multidimensional data.
 
 ## Code Contribution Process Overview
 
 Below is the typical sequence for creating a submission. Feel free to [submit a question](https://github.com/Sea-BirdScientific/seabirdscientific/issues/new?template=question.md) if you need assistance.
 
 1. Create a fork of the seabirdscientific repository. We recommend that you only copy the main branch into your fork.
-1. Clone the fork to your computer.
-1. Create a new branch for your changes.
-1. If this is your first submission, add your name and github username to the CONTRIBUTORS.md file.
-1. Implement your changes, adhering to the [Coding Style](#coding-style) and [Documenting](#documenting) guidelines above.
-1. Run all the processes listed in the [Formatting and Style Tools](#formatting-and-style-tools) section above and ensure they are free of issues.
-1. Verify that your tests pass.
-1. Commit your local branch to the GitHub server.
-1. Create a pull request and submit it after filling out the PR template.
-1. Monitor and respond to feedback from the Sea-Bird team via comments in your pull request. We will merge your PR into the toolkit once it's passed the review process.
+2. Clone the fork to your computer.
+3. Create a new branch for your changes.
+4. If this is your first submission, add your name and github username to the CONTRIBUTORS.md file.
+5. Implement your changes, adhering to the [Coding Style](#coding-style) and [Documenting](#documenting) guidelines above.
+6. Run all the processes listed in the [Formatting and Style Tools](#formatting-and-style-tools) section above and ensure they are free of issues.
+7. Verify that your tests pass.
+8. Commit your local branch to the GitHub server.
+9. Create a pull request and submit it after filling out the PR template.
+10. Monitor and respond to feedback from the Sea-Bird team via comments in your pull request. We will merge your PR into the toolkit once it's passed the review process.
 
 More details on contributing to projects in general can be found at the GitHub [contributing to a project](https://docs.github.com/en/get-started/exploring-projects-on-github/contributing-to-a-project) page.

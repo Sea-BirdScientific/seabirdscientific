@@ -1,6 +1,6 @@
 [project]
 name = "seabirdscientific"
-version = "2.5.2"
+version = "2.5.3"
 description = "Sea-Bird Scientific Community Toolkit"
 readme = "README.md"
 authors = [
@@ -39,6 +39,7 @@ dev = [
   "pre-commit",
   "pylint",
   "pytest",
+  "pytest-cov",
   "twine",
 ]
 
@@ -57,3 +58,11 @@ line-length=99
 
 [tool.mypy]
 disable_error_code = ["import-untyped"]
+
+[tool.pytest.ini_options]
+addopts = "--cov=seabirdscientific --cov-report term-missing"
+
+[tool.coverage.run]
+omit = [
+  "interpret_sbs_variable.py"
+]

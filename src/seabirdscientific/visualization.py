@@ -27,7 +27,7 @@ data
 # Native imports
 import json
 from logging import getLogger
-from typing import Dict, List, Literal, Optional, Union, Any
+from typing import Dict, List, Literal, Optional, Union
 from pathlib import Path
 
 # Third-party imports
@@ -188,6 +188,7 @@ def parse_instrument_data(source: Union[str, Path, pd.DataFrame]) -> pd.DataFram
 
     except (NameError, TypeError) as e:
         logger.error(e)
+        return None
 
 
 def select_subset(axis_names: list[str], data: pd.DataFrame) -> pd.DataFrame:
@@ -217,8 +218,8 @@ def select_subset(axis_names: list[str], data: pd.DataFrame) -> pd.DataFrame:
 
     if len(axis_names) == 0:
         return pd.DataFrame({"Sample Count": list(range(0, len(data)))})
-    else:
-        return data[axis_names]
+
+    return data[axis_names]
 
 
 def plot_xy_chart(data: ChartData, config: ChartConfig) -> go.Figure:
@@ -402,16 +403,16 @@ def apply_single_config(figure: go.Figure, config: ChartConfig):
     """
 
     figure.update_layout(
-        xaxis=dict(
-            title="" if len(config.x_units) < 1 else config.x_units[0],
-            domain=[max(0, 0.1 * (len(config.y_units) - 1)), 1],
-            range=None if len(config.bounds["x"]) < 1 else config.bounds["x"][0],
-        ),
-        yaxis=dict(
-            title="" if len(config.y_units) < 1 else config.y_units[0],
-            domain=[max(0, 0.1 * (len(config.x_units) - 1)), 1],
-            range=None if len(config.bounds["y"]) < 1 else config.bounds["y"][0],
-        ),
+        xaxis={
+            "title": "" if len(config.x_units) < 1 else config.x_units[0],
+            "domain": [max(0, 0.1 * (len(config.y_units) - 1)), 1],
+            "range": None if len(config.bounds["x"]) < 1 else config.bounds["x"][0],
+        },
+        yaxis={
+            "title": "" if len(config.y_units) < 1 else config.y_units[0],
+            "domain": [max(0, 0.1 * (len(config.x_units) - 1)), 1],
+            "range": None if len(config.bounds["y"]) < 1 else config.bounds["y"][0],
+        },
     )
 
 
@@ -429,26 +430,26 @@ def apply_subplots_x_config(figure: go.Figure, config: ChartConfig):
     y_range = None if len(config.bounds["y"]) < 1 else config.bounds["y"][0]
 
     figure.update_layout(
-        xaxis=dict(
-            title="" if len(config.x_units) < 1 else config.x_units[0],
-            range=None if len(config.bounds["x"]) < 1 else config.bounds["x"][0],
-        ),
-        xaxis2=dict(
-            title="" if len(config.x_units) < 2 else config.x_units[1],
-            range=None if len(config.bounds["x"]) < 2 else config.bounds["x"][1],
-        ),
-        xaxis3=dict(
-            title="" if len(config.x_units) < 3 else config.x_units[2],
-            range=None if len(config.bounds["x"]) < 3 else config.bounds["x"][2],
-        ),
-        xaxis4=dict(
-            title="" if len(config.x_units) < 4 else config.x_units[3],
-            range=None if len(config.bounds["x"]) < 4 else config.bounds["x"][3],
-        ),
-        yaxis=dict(title="" if len(config.y_units) < 1 else config.y_units[0], range=y_range),
-        yaxis2=dict(range=y_range),
-        yaxis3=dict(range=y_range),
-        yaxis4=dict(range=y_range),
+        xaxis={
+            "title": "" if len(config.x_units) < 1 else config.x_units[0],
+            "range": None if len(config.bounds["x"]) < 1 else config.bounds["x"][0],
+        },
+        xaxis2={
+            "title": "" if len(config.x_units) < 2 else config.x_units[1],
+            "range": None if len(config.bounds["x"]) < 2 else config.bounds["x"][1],
+        },
+        xaxis3={
+            "title": "" if len(config.x_units) < 3 else config.x_units[2],
+            "range": None if len(config.bounds["x"]) < 3 else config.bounds["x"][2],
+        },
+        xaxis4={
+            "title": "" if len(config.x_units) < 4 else config.x_units[3],
+            "range": None if len(config.bounds["x"]) < 4 else config.bounds["x"][3],
+        },
+        yaxis={"title": "" if len(config.y_units) < 1 else config.y_units[0], "range": y_range},
+        yaxis2={"range": y_range},
+        yaxis3={"range": y_range},
+        yaxis4={"range": y_range},
     )
 
 
@@ -466,26 +467,26 @@ def apply_subplots_y_config(figure: go.Figure, config: ChartConfig):
     x_range = None if len(config.bounds["x"]) < 1 else config.bounds["x"][0]
 
     figure.update_layout(
-        xaxis=dict(range=x_range),
-        xaxis2=dict(range=x_range),
-        xaxis3=dict(range=x_range),
-        xaxis4=dict(title="" if len(config.x_units) < 1 else config.x_units[0], range=x_range),
-        yaxis=dict(
-            title="" if len(config.y_units) < 1 else config.y_units[0],
-            range=None if len(config.bounds["y"]) < 1 else config.bounds["y"][0],
-        ),
-        yaxis2=dict(
-            title="" if len(config.y_units) < 2 else config.y_units[1],
-            range=None if len(config.bounds["y"]) < 2 else config.bounds["y"][1],
-        ),
-        yaxis3=dict(
-            title="" if len(config.y_units) < 3 else config.y_units[2],
-            range=None if len(config.bounds["y"]) < 3 else config.bounds["y"][2],
-        ),
-        yaxis4=dict(
-            title="" if len(config.y_units) < 4 else config.y_units[3],
-            range=None if len(config.bounds["y"]) < 3 else config.bounds["y"][3],
-        ),
+        xaxis={"range": x_range},
+        xaxis2={"range": x_range},
+        xaxis3={"range": x_range},
+        xaxis4={"title": "" if len(config.x_units) < 1 else config.x_units[0], "range": x_range},
+        yaxis={
+            "title": "" if len(config.y_units) < 1 else config.y_units[0],
+            "range": None if len(config.bounds["y"]) < 1 else config.bounds["y"][0],
+        },
+        yaxis2={
+            "title": "" if len(config.y_units) < 2 else config.y_units[1],
+            "range": None if len(config.bounds["y"]) < 2 else config.bounds["y"][1],
+        },
+        yaxis3={
+            "title": "" if len(config.y_units) < 3 else config.y_units[2],
+            "range": None if len(config.bounds["y"]) < 3 else config.bounds["y"][2],
+        },
+        yaxis4={
+            "title": "" if len(config.y_units) < 4 else config.y_units[3],
+            "range": None if len(config.bounds["y"]) < 3 else config.bounds["y"][3],
+        },
     )
 
 
@@ -501,53 +502,53 @@ def apply_overlay_config(figure: go.Figure, config: ChartConfig):
     """
 
     figure.update_layout(
-        xaxis=dict(
-            title="" if len(config.x_units) < 1 else config.x_units[0],
-            domain=[max(0, 0.1 * (len(config.y_units) - 1)), 1],
-            range=None if len(config.bounds["x"]) < 1 else config.bounds["x"][0],
-        ),
-        xaxis2=dict(
-            title="" if len(config.x_units) < 2 else config.x_units[1],
-            overlaying="x",
-            position=0.1,
-            range=None if len(config.bounds["x"]) < 2 else config.bounds["x"][1],
-        ),
-        xaxis3=dict(
-            title="" if len(config.x_units) < 3 else config.x_units[2],
-            overlaying="x",
-            position=0.2,
-            range=None if len(config.bounds["x"]) < 3 else config.bounds["x"][2],
-        ),
-        xaxis4=dict(
-            title="" if len(config.x_units) < 4 else config.x_units[3],
-            overlaying="x",
-            position=0.3,
-            range=None if len(config.bounds["x"]) < 4 else config.bounds["x"][3],
-        ),
-        yaxis=dict(
-            title="" if len(config.y_units) < 1 else config.y_units[0],
-            domain=[0.1 * (len(config.x_units)), 1],
-            position=0,
-            range=None if len(config.bounds["y"]) < 1 else config.bounds["y"][0],
-        ),
-        yaxis2=dict(
-            title="" if len(config.y_units) < 2 else config.y_units[1],
-            overlaying="y",
-            position=0.1,
-            range=None if len(config.bounds["y"]) < 2 else config.bounds["y"][1],
-        ),
-        yaxis3=dict(
-            title="" if len(config.y_units) < 3 else config.y_units[2],
-            overlaying="y",
-            position=0.2,
-            range=None if len(config.bounds["y"]) < 3 else config.bounds["y"][2],
-        ),
-        yaxis4=dict(
-            title="" if len(config.y_units) < 4 else config.y_units[3],
-            overlaying="y",
-            position=0.3,
-            range=None if len(config.bounds["y"]) < 3 else config.bounds["y"][3],
-        ),
+        xaxis={
+            "title": "" if len(config.x_units) < 1 else config.x_units[0],
+            "domain": [max(0, 0.1 * (len(config.y_units) - 1)), 1],
+            "range": None if len(config.bounds["x"]) < 1 else config.bounds["x"][0],
+        },
+        xaxis2={
+            "title": "" if len(config.x_units) < 2 else config.x_units[1],
+            "overlaying": "x",
+            "position": 0.1,
+            "range": None if len(config.bounds["x"]) < 2 else config.bounds["x"][1],
+        },
+        xaxis3={
+            "title": "" if len(config.x_units) < 3 else config.x_units[2],
+            "overlaying": "x",
+            "position": 0.2,
+            "range": None if len(config.bounds["x"]) < 3 else config.bounds["x"][2],
+        },
+        xaxis4={
+            "title": "" if len(config.x_units) < 4 else config.x_units[3],
+            "overlaying": "x",
+            "position": 0.3,
+            "range": None if len(config.bounds["x"]) < 4 else config.bounds["x"][3],
+        },
+        yaxis={
+            "title": "" if len(config.y_units) < 1 else config.y_units[0],
+            "domain": [0.1 * (len(config.x_units)), 1],
+            "position": 0,
+            "range": None if len(config.bounds["y"]) < 1 else config.bounds["y"][0],
+        },
+        yaxis2={
+            "title": "" if len(config.y_units) < 2 else config.y_units[1],
+            "overlaying": "y",
+            "position": 0.1,
+            "range": None if len(config.bounds["y"]) < 2 else config.bounds["y"][1],
+        },
+        yaxis3={
+            "title": "" if len(config.y_units) < 3 else config.y_units[2],
+            "overlaying": "y",
+            "position": 0.2,
+            "range": None if len(config.bounds["y"]) < 3 else config.bounds["y"][2],
+        },
+        yaxis4={
+            "title": "" if len(config.y_units) < 4 else config.y_units[3],
+            "overlaying": "y",
+            "position": 0.3,
+            "range": None if len(config.bounds["y"]) < 3 else config.bounds["y"][3],
+        },
     )
 
 
@@ -586,18 +587,18 @@ def plot_ts_chart(
         x=x,
         y=y,
         mode="markers",
-        marker=dict(
-            color=z,
-            showscale=True,
-            size=2,
-            colorbar=dict(
+        marker={
+            "color": z,
+            "showscale": True,
+            "size": 2,
+            "colorbar": {
                 # sigma_theta kg m-3
-                title=dict(
-                    text=config.z_titles[0],
-                    side="top",
-                )
-            ),
-        ),
+                "title": {
+                    "text": config.z_titles[0],
+                    "side": "top",
+                }
+            },
+        },
     )
 
     # Contours in gray
@@ -608,7 +609,7 @@ def plot_ts_chart(
         z=z_mat,
         showscale=False,
         colorscale=colorscale,
-        contours=dict(coloring="lines", showlabels=True),
+        contours={"coloring": "lines", "showlabels": True},
     )
 
     # Overlay the plots

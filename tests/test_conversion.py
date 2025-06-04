@@ -5,7 +5,7 @@
 # Native imports
 
 # Third-party imports
-import gsw
+from pathlib import Path
 import numpy as np
 import pandas as pd
 import pytest
@@ -13,74 +13,18 @@ import pytest
 # Sea-Bird imports
 
 # Internal imports
-# import seabirdscientific.cal_coefficients as cc
 import seabirdscientific.conversion as dc
 import seabirdscientific.instrument_data as id
-import seabirdscientific.contour as c
 
 import example_coefficients as ec
 
-# DATASETS = [
-#     # cal
-#     # cnv
-#     # hex
-#     # cond_label
-#     # use_MV_R
-#     (
-#         cc.SN6130,
-#         id.cnv_to_instrument_data("./tests/resources/test-data/19plus_V2_CTD-processing_example.cnv"),
-#         id.read_hex_file("./documentation/example_data/19plus_V2_CTD-processing_example.hex",
-#             id.InstrumentType.SBE19Plus,
-#             [
-#                 id.Sensors.Temperature,
-#                 id.Sensors.Conductivity,
-#                 id.Sensors.Pressure,
-#                 id.Sensors.ExtVolt0,
-#                 id.Sensors.ExtVolt1,
-#                 id.Sensors.ExtVolt2,
-#                 id.Sensors.ExtVolt4,
-#             ],
-#         ),
-#         "c0S/m",
-#         True,
-#     ),
-#     # removing until we get a smaller version of this source (NSI-3079)
-#     # (
-#     #     cc.SN03706385,
-#     #     id.cnv_to_instrument_data("./tests/resources/test-data/SBE37SM.cnv"),
-#     #     id.read_hex_file(
-#     #         "./tests/resources/test-data/SBE37SM.hex",
-#     #         id.InstrumentType.SBE37SM,
-#     #         [
-#     #             id.Sensors.Temperature,
-#     #             id.Sensors.Conductivity,
-#     #             id.Sensors.Pressure,
-#     #         ],
-#     #     ),
-#     #     "cond0S/m",
-#     #     False,
-#     # ),
-#     (
-#         cc.SN03716125,
-#         id.cnv_to_instrument_data("./tests/resources/test-data/SBE37SM-RS232_03716125_2017_11_16.cnv"
-#         ),
-#         id.read_hex_file("./tests/resources/test-data/SBE37SM-RS232_03716125_2017_11_16.hex",
-#             id.InstrumentType.SBE37SM,
-#             [
-#                 id.Sensors.Temperature,
-#                 id.Sensors.Conductivity,
-#                 id.Sensors.Pressure,
-#             ],
-#         ),
-#         "cond0S/m",
-#         False,
-#     ),
-# ]
+test_data = Path("./tests/resources/test-data")
 
 
 class TestConvertTemperature:
     # test temperature raw values
     test_temp_vals = np.array([322798, 322808, 322827, 322838])
+    test_temp_no_mv_r = np.array([2864.51635696, 2864.61073548, 2864.79005751, 2864.89387722])
 
     def test_convert_temperature_90C(self):
         expected = [20.4459, 20.4451, 20.4436, 20.4427]
@@ -126,6 +70,17 @@ class TestConvertTemperature:
         )
         assert np.allclose(expected, result, rtol=0, atol=1e-4)
 
+    def test_convert_temperature_90C_no_mv_r(self):
+        expected = [20.4459, 20.4451, 20.4436, 20.4427]
+        result = dc.convert_temperature(
+            self.test_temp_no_mv_r,
+            ec.temperature_coefs_sn6130,
+            "ITS90",
+            "C",
+            False,
+        )
+        assert np.allclose(expected, result, rtol=0, atol=1e-4)
+
 
 class TestConvertPressure:
     # test pressure raw values
@@ -156,98 +111,98 @@ class TestConvertPressure:
 
 
 class TestConductivity19plus:
-    cnv_path = "./documentation/example_data/19plus_V2_CTD-processing_example.hex"
-    expected_data = id.cnv_to_instrument_data(cnv_path)
-
-    hex_path = "./documentation/example_data/19plus_V2_CTD-processing_example.hex"
-    raw = id.read_hex_file(
-        hex_path,
-        id.InstrumentType.SBE19Plus,
-        [
-            id.Sensors.Temperature,
-            id.Sensors.Conductivity,
-            id.Sensors.Pressure,
-            id.Sensors.ExtVolt0,
-            id.Sensors.ExtVolt1,
-            id.Sensors.ExtVolt2,
-            id.Sensors.ExtVolt4,
-        ],
-    )
-
-    # test_cond_data = np.array([675415, 675404, 675405, 675398, 675391, 675379])
-
-    # test_temp_data = np.array([20.4459, 20.4451, 20.4436, 20.4427, 20.4413, 20.4401])
-    temperature = dc.convert_temperature(
-        raw["temperature"][0:6].values,
-        ec.temperature_coefs_sn6130,
-        "IPTS68",
-        "C",
-        True,
-    )
-
-    # test_press_data = np.array([-0.105, -0.106, -0.104, -0.107, -0.105, -0.104])
-    pressure = dc.convert_pressure(
-        raw["pressure"][0:6].values,
-        raw["temperature compensation"][0:6].values,
-        ec.pressure_coefs_sn6130,
-        "psia",
-    )
+    cnv_path = test_data / "19plus_V2_CTD-processing_example.cnv"
+    hex_path = test_data / "19plus_V2_CTD-processing_example.hex"
 
     def test_convert_conductivity(self):
+        # expected_data = id.cnv_to_instrument_data(self.cnv_path)
+
+        raw = id.read_hex_file(
+            self.hex_path,
+            id.InstrumentType.SBE19Plus,
+            [
+                id.Sensors.Temperature,
+                id.Sensors.Conductivity,
+                id.Sensors.Pressure,
+                id.Sensors.ExtVolt0,
+                id.Sensors.ExtVolt1,
+                id.Sensors.ExtVolt2,
+                id.Sensors.ExtVolt4,
+            ],
+        )
+
+        # test_cond_data = np.array([675415, 675404, 675405, 675398, 675391, 675379])
+
+        # test_temp_data = np.array([20.4459, 20.4451, 20.4436, 20.4427, 20.4413, 20.4401])
+        temperature = dc.convert_temperature(
+            raw["temperature"][0:6].values,
+            ec.temperature_coefs_sn6130,
+            "IPTS68",
+            "C",
+            True,
+        )
+
+        # test_press_data = np.array([-0.105, -0.106, -0.104, -0.107, -0.105, -0.104])
+        pressure = dc.convert_pressure(
+            raw["pressure"][0:6].values,
+            raw["temperature compensation"][0:6].values,
+            ec.pressure_coefs_sn6130,
+            "psia",
+        )
         expected = [0.008453, 0.008420, 0.008423, 0.008402, 0.008380, 0.008344]
         result = dc.convert_conductivity(
-            self.raw["conductivity"][0:6].values,
-            self.temperature,
-            self.pressure,
+            raw["conductivity"][0:6].values,
+            temperature,
+            pressure,
             ec.conductivity_coefs_sn6130,
         )
         assert np.allclose(expected, result, rtol=0, atol=1e-6)
 
 
 class TestConductivity37SM:
-    cnv_path = "./tests/resources/test-data/SBE37SM-RS232_03716125_2017_11_16.cnv"
-    expected_data = id.cnv_to_instrument_data(cnv_path)
-
-    hex_path = "./tests/resources/test-data/SBE37SM-RS232_03716125_2017_11_16.hex"
-    raw = id.read_hex_file(
-        hex_path,
-        id.InstrumentType.SBE37SM,
-        [
-            id.Sensors.Temperature,
-            id.Sensors.Conductivity,
-            id.Sensors.Pressure,
-        ],
-    )
-
-    temperature = dc.convert_temperature(
-        raw["temperature"][0:6],
-        ec.temperature_coefs_sn6130,
-        "IPTS68",
-        "C",
-        True,
-    )
-
-    # test_press_data = np.array([-0.105, -0.106, -0.104, -0.107, -0.105, -0.104])
-    pressure = dc.convert_pressure(
-        raw["pressure"][0:6],
-        raw["temperature compensation"][0:6],
-        ec.pressure_coefs_sn16125,
-        "psia",
-    )
+    cnv_path = test_data / "SBE37SM-RS232_03716125_2017_11_16.cnv"
+    hex_path = test_data / "SBE37SM-RS232_03716125_2017_11_16.hex"
 
     def test_convert_conductivity(self):
+        # expected_data = id.cnv_to_instrument_data(self.cnv_path)
+
+        raw = id.read_hex_file(
+            self.hex_path,
+            id.InstrumentType.SBE37SM,
+            [
+                id.Sensors.Temperature,
+                id.Sensors.Conductivity,
+                id.Sensors.Pressure,
+            ],
+        )
+
+        temperature = dc.convert_temperature(
+            raw["temperature"][0:6],
+            ec.temperature_coefs_sn6130,
+            "IPTS68",
+            "C",
+            True,
+        )
+
+        # test_press_data = np.array([-0.105, -0.106, -0.104, -0.107, -0.105, -0.104])
+        pressure = dc.convert_pressure(
+            raw["pressure"][0:6],
+            raw["temperature compensation"][0:6],
+            ec.pressure_coefs_sn16125,
+            "psia",
+        )
         expected = [2.711842, 2.715786, 2.715857, 2.715846, 2.715846, 2.715857]
         result = dc.convert_conductivity(
-            self.raw["conductivity"][0:6],
-            self.temperature,
-            self.pressure,
+            raw["conductivity"][0:6],
+            temperature,
+            pressure,
             ec.conductivity_coefs_sn16125,
         )
         assert np.allclose(expected, result, rtol=0, atol=1e-4)
 
 
 class TestDeriveDensity:
-    data_path = "./tests/resources/test-data/SBE37SM-derived.asc"
+    data_path = test_data / "SBE37SM-derived.asc"
     data = pd.read_csv(data_path)
 
     @pytest.mark.parametrize(
@@ -317,7 +272,7 @@ class TestDeriveDensity:
 
 
 class TestDepthFromPressure:
-    data_path = "./tests/resources/test-data/SBE37SM.asc"
+    data_path = test_data / "SBE37SM.asc"
     data = pd.read_csv(data_path).loc[6:10]
 
     @pytest.mark.parametrize(
@@ -334,77 +289,6 @@ class TestDepthFromPressure:
         pressure = self.data[pressure].values
         result_depth = dc.depth_from_pressure(pressure, 0, depth_units, pressure_units)
         assert np.allclose(expected_depth, result_depth, atol=0.002)
-
-
-# class TestSalinityFromTCP:
-#     @pytest.mark.parametrize("cal, cnv, hex, cond_label, use_MV_R", DATASETS)
-#     def test_salinity_from_tcp(self, cal, cnv, hex, cond_label, use_MV_R):
-#         expected_salinity = cnv.measurements["sal00"].values[800:810]
-#         temperature = cnv.measurements["tv290C"].values[800:810]
-#         pressure = cnv.measurements["prdM"].values[800:810]
-#         conductivity = cnv.measurements[cond_label].values[800:810] * 10
-#         result_salinity = gsw.SP_from_C(conductivity, temperature, pressure)
-#         assert np.allclose(expected_salinity, result_salinity, rtol=0, atol=1e-4)
-
-#     @pytest.mark.parametrize("cal, cnv, hex, cond_label, use_MV_R", DATASETS)
-#     def test_salinity_from_tcp_raw(self, cal, cnv, hex, cond_label, use_MV_R):
-#         """Converts data from raw hex values.
-
-#         The unused data loaded from cnv are not needed for the test,
-#         but are useful for comparing during a debug session.
-
-#         Args:
-#             parameterized from the DATASET const at the top of the file
-#         """
-
-#         salinity_expected = cnv.measurements["sal00"].values[800:810]
-#         temperature = cnv.measurements["tv290C"].values[800:810]
-#         temperature_raw = hex.temperature.values[800:810]
-#         temperature_conv = dc.convert_temperature_array(
-#             temperature_raw, cal.A0, cal.A1, cal.A2, cal.A3, True, True, use_MV_R
-#         )
-
-#         pressure = cnv.measurements["prdM"].values[800:810]
-#         pressure_raw = hex.pressure.values[800:810]
-#         other_raw = hex.iloc[:, 3].values[800:810]  # either salinity or pressure temperature compensation
-#         pressure_conv = dc.convert_pressure_array(
-#             pressure_raw,
-#             other_raw,
-#             True,
-#             cal.PA0,
-#             cal.PA1,
-#             cal.PA2,
-#             cal.PTEMPA0,
-#             cal.PTEMPA1,
-#             cal.PTEMPA2,
-#             cal.PTCA0,
-#             cal.PTCA1,
-#             cal.PTCA2,
-#             cal.PTCB0,
-#             cal.PTCB1,
-#             cal.PTCB2,
-#         )
-
-#         conductivity = cnv.measurements[cond_label].values[800:810] * 10
-#         conductivity_raw = hex.conductivity.values[800:810]
-#         conductivity_conv = (
-#             dc.convert_conductivity_array(
-#                 conductivity_raw,
-#                 temperature_conv,
-#                 pressure_conv,
-#                 cal.G,
-#                 cal.H,
-#                 cal.I,
-#                 cal.J,
-#                 cal.CPCOR,
-#                 cal.CTCOR,
-#                 cal.WBOTC,
-#             )
-#             * 10
-#         )
-#         # can't un-round cnv data, so instead validate that converted hex data rounds to same value
-#         salinity_result = np.round(gsw.SP_from_C(conductivity_conv, temperature_conv, pressure_conv), 4)
-#         assert np.allclose(salinity_expected, salinity_result, rtol=0, atol=1e-4)
 
 
 class TestConvertOxygen:
@@ -777,7 +661,7 @@ class TestPARlogarithmic:
 
 # class TestContourFromTSP:
 #     # Note: this class doesn't actually test anything and is only for debug
-#     data_path = './tests/resources/test-data/SBE37SM-RS232_03711722_2015_11_18_subset_derived.asc'
+#     data_path = test_data / 'SBE37SM-RS232_03711722_2015_11_18_subset_derived.asc'
 #     data = pd.read_csv(data_path)
 
 #     def test_contour_from_t_s_p_pass(self):
@@ -842,3 +726,35 @@ class TestSeaFETRelativeHumidity:
         )
 
         assert np.allclose(expected_humidity, humidity, atol=1e-6)
+
+
+class TestConvertSBE63Oxygen:
+    raw_oxygen = np.array([31.06, 31.66, 32.59, 33.92, 34.82, 35.44])
+    pressure = np.array([0, 0, 0, 0, 0, 0])
+    temperature = np.array([30, 26, 20, 12, 6, 2])
+    salinity = np.array([0, 0, 0, 0, 0, 0]) #  salinity is 0 PSU during calibration
+    expected_oxygen = np.array([0.706, 0.74, 0.799, 0.892, 1.005, 1.095])
+
+    def test_convert_sbe63_oxygen(self):
+        oxygen = dc.convert_sbe63_oxygen(
+            self.raw_oxygen,
+            self.temperature,
+            self.pressure,
+            self.salinity,
+            ec.oxygen_63_coefs_sn2568,
+            ec.thermistor_63_coefs_sn2568,
+            'C',
+        )
+        # TODO: fix tolerance in TKIT-110
+        assert np.allclose(self.expected_oxygen, oxygen, atol=1e-3)
+
+    def test_thermistor_temperature(self):
+        raw_temperature = np.array([1.12015, 1.12015, 1.12016, 1.12016, 0.99562, 0.82934, 0.64528])
+
+        expected = np.array([2.0002, 2.0002, 1.9999, 1.9999, 5.9998, 12.0, 19.9998])
+        thermistor_temperature = dc.convert_sbe63_thermistor(
+            raw_temperature,
+            ec.thermistor_63_coefs_sn2568
+        )
+        
+        assert np.allclose(expected, thermistor_temperature, atol=1e-6)
