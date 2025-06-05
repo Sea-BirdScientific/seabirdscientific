@@ -579,7 +579,7 @@ def convert_oxygen_to_umol_per_kg(ox_values: np.ndarray, potential_density: np.n
 
 
 def convert_eco(
-    raw: float,
+    raw: np.ndarray,
     coefs: ECOCoefficients,
 ):
     """Converts a raw value for any ECO measurand.
@@ -595,8 +595,8 @@ def convert_eco(
 
 
 def convert_sbe18_ph(
-    raw_ph: float,
-    temperature: float,
+    raw_ph: np.ndarray,
+    temperature: np.ndarray,
     coefs: PH18Coefficients,
 ):
     """Converts a raw voltage value for pH.
@@ -617,7 +617,7 @@ def convert_sbe18_ph(
 
 
 def convert_par_logarithmic(
-    raw_par: float,
+    raw_par: np.ndarray,
     coefs: PARCoefficients,
 ):
     """Converts a raw voltage value for PAR to µmol photons/m2*s.
