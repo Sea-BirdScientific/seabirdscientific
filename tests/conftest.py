@@ -5,7 +5,7 @@ from pathlib import Path
 
 
 now = datetime.now().isoformat(timespec='seconds').replace(':', '-')
-RESULTS_PATH = Path(f"./tests/results/{now}.json")
+RESULTS_PATH = Path(f"./tests/results/results_{now}.json")
 
 
 def pytest_configure(config):
