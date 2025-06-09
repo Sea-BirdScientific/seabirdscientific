@@ -866,9 +866,7 @@ def convert_external_seafet_ph(
         # pylint: disable=anomalous-backslash-in-string
         """
         Khoo et al. (Anal. Chem., 49, 29-34, 1977).
-        \log \gamma_{\pm} \left( HCl\right) =
-        \dfrac{-A \cdot \sqrt{I}}{1+\rho\cdot\sqrt{I}} +
-        \left( B_{0} + B_{1}\cdot T \right) I
+        log γ±(HCl) = -A·√I / (1 + ρ·√I) + (B₀ + B₁·T)·I
         As implemented in the calibration .xls
 
         :param adh: Debeye-Huckel constant
