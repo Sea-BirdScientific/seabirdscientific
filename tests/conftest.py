@@ -1,12 +1,9 @@
 import json
 import os
-from datetime import date, datetime
 from pathlib import Path
 
 
-now = datetime.now().isoformat(timespec='seconds').replace(':', '-')
-RESULTS_PATH = Path(f"./tests/results/results_{now}.json")
-
+RESULTS_PATH = Path(f"./tests/results/py_values.json")
 
 def pytest_configure(config):
     if not os.path.exists(RESULTS_PATH.parent):

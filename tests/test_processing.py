@@ -595,7 +595,7 @@ class TestWindowFilter:
         request.node.return_value = filtered_pressure.tolist()
         assert close_enough(filtered_pressure, expected_pressure, 3, 1e-12)
 
-    def test_median_filter_exclude_flags(self, request):
+    def test_median_filter(self, request):
         expected_dataset = idata.cnv_to_instrument_data(f"{self.file_prefix}_median_5.cnv")
         expected_pressure = expected_dataset.measurements["prdM"].values
 
@@ -654,7 +654,7 @@ class TestBuoyancy:
     )
     # fmt: on
 
-    def test_modern_calc(self, request):
+    def test_buoyancy(self, request):
         output_dataframe = dp.buoyancy(
             self.temperature,
             self.salinity,
@@ -687,7 +687,7 @@ class TestBuoyancy:
             self.expected_E_pow_8_win30, rel=rel_tol
         )
 
-    def test_retro_calc(self, request):
+    def test_buoyancy_eos80(self, request):
         output_dataframe = dp.buoyancy(
             self.temperature,
             self.salinity,

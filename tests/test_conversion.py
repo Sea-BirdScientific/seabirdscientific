@@ -446,6 +446,7 @@ class TestConvertOxygen:
         )
         expected = [6.3921, 6.3913, 6.3969, 6.4064, 6.4119, 6.4137, 6.4138, 6.4138, 6.2461, 6.1663]
         result = dc.convert_oxygen_to_mg_per_l(oxMlPerL)
+        request.node.return_value = result.tolist()
         assert np.allclose(expected, result, rtol=0, atol=1e-3)
 
     def test_convert_to_umol_per_kg(self, request):
