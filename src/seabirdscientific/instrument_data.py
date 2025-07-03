@@ -227,7 +227,16 @@ def cnv_to_instrument_data(filepath: Path) -> InstrumentData:
                         units = ""
 
                     num_values = data.sample_count or 0  # num_values to 0 if sample_count is None
-                    data.measurements[label] = MeasurementSeries(
+
+                    key = label
+                    # check for label collision
+                    # if collision, increment until find available key
+                    i = 1
+                    while key in data.measurements:
+                        key = f'{label}{i}'
+                        i += 1
+
+                    data.measurements[key] = MeasurementSeries(
                         label=label,
                         description=description,
                         units=units,

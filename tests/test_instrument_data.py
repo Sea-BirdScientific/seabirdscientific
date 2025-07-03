@@ -64,6 +64,40 @@ class TestCnvToInstrumentData:
         assert data.measurements["tv290C"].values[0] == 20.8989
         assert data.measurements["tv290C"].values[-1] == -45.7713
 
+    def test_duplicate_labels(self):
+        """
+        Verify that duplicate labels are handled correctly.
+        This .cnv file is from the Australian Institute of Marine Science
+        """
+        file_path = test_data / "WQR086CFACLWDB.cnv"
+        data = id.cnv_to_instrument_data(file_path)
+
+        expected_labels = [
+            'prDM',
+            't090C',
+            'c0S/m',
+            'scan',
+            'depSM',
+            'timeS',
+            'cpar',
+            'spar',
+            'turbWETntu0',
+            'flECO-AFL',
+            'par',
+            't190C',
+            'c1S/m',
+            'depSM1', # this duplicate "depSM" was a problem, increments to "depSM1"
+            'sal00',
+            'nbin',
+            'flag'
+        ]
+
+        assert len(expected_labels) == len(data.measurements)
+        for expected, result in zip(expected_labels, data.measurements):
+            assert expected == result
+
+        # MeasurementSeries should have the original label
+        assert data.measurements['depSM1'].label == 'depSM'
 
 class TestReadHex:
     filepath = test_data / "19plus_V2_CTD-processing_example.hex"
