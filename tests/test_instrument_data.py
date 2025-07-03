@@ -73,34 +73,35 @@ class TestCnvToInstrumentData:
         data = id.cnv_to_instrument_data(file_path)
 
         expected_labels = [
-            'prDM',
-            't090C',
-            'c0S/m',
-            'scan',
-            'depSM',
-            'timeS',
-            'cpar',
-            'spar',
-            'turbWETntu0',
-            'flECO-AFL',
-            'par',
-            't190C',
-            'c1S/m',
-            'depSM1', # this duplicate "depSM" was a problem, increments to "depSM1"
-            'sal00',
-            'nbin',
-            'flag'
+            "prDM",
+            "t090C",
+            "c0S/m",
+            "scan",
+            "depSM",
+            "timeS",
+            "cpar",
+            "spar",
+            "turbWETntu0",
+            "flECO-AFL",
+            "par",
+            "t190C",
+            "c1S/m",
+            "depSM1",  # this duplicate "depSM" was a problem, increments to "depSM1"
+            "sal00",
+            "nbin",
+            "flag",
         ]
 
         assert list(data.measurements.keys()) == expected_labels
 
         # MeasurementSeries should have the original label
-        assert data.measurements['depSM1'].label == 'depSM'
+        assert data.measurements["depSM1"].label == "depSM"
 
         first_values = [m.values[0] for m in data.measurements.values()]
         first_data_line = "1.006 28.0831 5.811991 5248 0.998 218.616 6.9285e+01 3.9379e+02 11.8057 0.8223 2.7316e+02 28.0829 5.811250 1.000 36.2666 31 0.0000e+00"
         expected_first_values = [float(v) for v in first_data_line.split()]
         assert first_values == expected_first_values
+
 
 class TestReadHex:
     filepath = test_data / "19plus_V2_CTD-processing_example.hex"
@@ -127,6 +128,7 @@ class TestReadHex:
         assert self.raw["pressure"].iloc[-1] == 533538
         assert self.raw["temperature compensation"].iloc[0] == 20625 / 13107
         assert self.raw["temperature compensation"].iloc[-1] == 20361 / 13107
+
 
 class TestReadNMEAHex:
     filepath = test_data / "19plus_V2_CTD_nmea_data.hex"

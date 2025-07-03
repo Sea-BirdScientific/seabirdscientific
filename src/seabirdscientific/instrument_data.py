@@ -243,7 +243,7 @@ def cnv_to_instrument_data(filepath: Path) -> InstrumentData:
                     # if collision, increment until find available key
                     i = 1
                     while key in data.measurements:
-                        key = f'{label}{i}'
+                        key = f"{label}{i}"
                         i += 1
 
                     data.measurements[key] = MeasurementSeries(
@@ -255,7 +255,11 @@ def cnv_to_instrument_data(filepath: Path) -> InstrumentData:
                     )
 
                     if key != label:
-                        logger.warning('duplicate measurement "%s" will use key "%s" in measurements dict', label, key)
+                        logger.warning(
+                            'duplicate measurement "%s" will use key "%s" in measurements dict',
+                            label,
+                            key,
+                        )
 
                 elif line.startswith("# interval = "):
                     interval = float(
