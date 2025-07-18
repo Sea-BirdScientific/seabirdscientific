@@ -86,7 +86,7 @@ class TestCnvToInstrumentData:
             "par",
             "t190C",
             "c1S/m",
-            "depSM1",  # this duplicate "depSM" was a problem, increments to "depSM1"
+            "depSM_1",  # this duplicate "depSM" was a problem, increments to "depSM1"
             "sal00",
             "nbin",
             "flag",
@@ -95,7 +95,7 @@ class TestCnvToInstrumentData:
         assert list(data.measurements.keys()) == expected_labels
 
         # MeasurementSeries should have the original label
-        assert data.measurements["depSM1"].label == "depSM"
+        assert data.measurements["depSM_1"].label == "depSM"
 
         first_values = [m.values[0] for m in data.measurements.values()]
         first_data_line = "1.006 28.0831 5.811991 5248 0.998 218.616 6.9285e+01 3.9379e+02 11.8057 0.8223 2.7316e+02 28.0829 5.811250 1.000 36.2666 31 0.0000e+00"
