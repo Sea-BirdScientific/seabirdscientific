@@ -579,7 +579,7 @@ def convert_oxygen_to_umol_per_kg(ox_values: np.ndarray, potential_density: np.n
 
 
 def convert_eco(
-    raw: float,
+    raw: np.ndarray,
     coefs: ECOCoefficients,
 ):
     """Converts a raw value for any ECO measurand.
@@ -595,8 +595,8 @@ def convert_eco(
 
 
 def convert_sbe18_ph(
-    raw_ph: float,
-    temperature: float,
+    raw_ph: np.ndarray,
+    temperature: np.ndarray,
     coefs: PH18Coefficients,
 ):
     """Converts a raw voltage value for pH.
@@ -617,7 +617,7 @@ def convert_sbe18_ph(
 
 
 def convert_par_logarithmic(
-    raw_par: float,
+    raw_par: np.ndarray,
     coefs: PARCoefficients,
 ):
     """Converts a raw voltage value for PAR to µmol photons/m2*s.
@@ -866,9 +866,7 @@ def convert_external_seafet_ph(
         # pylint: disable=anomalous-backslash-in-string
         """
         Khoo et al. (Anal. Chem., 49, 29-34, 1977).
-        \log \gamma_{\pm} \left( HCl\right) =
-        \dfrac{-A \cdot \sqrt{I}}{1+\rho\cdot\sqrt{I}} +
-        \left( B_{0} + B_{1}\cdot T \right) I
+        log γ±(HCl) = -A·√I / (1 + ρ·√I) + (B₀ + B₁·T)·I
         As implemented in the calibration .xls
 
         :param adh: Debeye-Huckel constant
