@@ -182,6 +182,12 @@ class InstrumentData:
     """Container for instrument data parsed from a CNV file."""
 
     measurements: Dict[str, MeasurementSeries]
+    """
+    Dictionary of MeasurementSeries by their label.
+
+    Note: duplicate labels can occur and cnv_to_instrument_data will numerically
+    increment the duplicate labels, e.g. the second "depSM" becomes "depSM1".
+    """
     interval_s: Optional[float]
     latitude: float
     start_time: Optional[date]
@@ -190,8 +196,12 @@ class InstrumentData:
 
 # pylint: disable=too-many-branches # TODO: Fix this
 def cnv_to_instrument_data(filepath: Path) -> InstrumentData:
-    """Import the data from a .cnv file and put it into an
-    InstrumentData object.
+    """
+    Import the data from a .cnv file and put it into an InstrumentData object.
+
+    Duplicate labels will be incremented for InstrumentData.measurements keys.
+    For example, the second "depSM" becomes "depSM1".
+    However, the MeasurementSeries.label will be the original label.
 
     :param filepath: the path to the .cnv file to be imported
 
@@ -227,13 +237,29 @@ def cnv_to_instrument_data(filepath: Path) -> InstrumentData:
                         units = ""
 
                     num_values = data.sample_count or 0  # num_values to 0 if sample_count is None
-                    data.measurements[label] = MeasurementSeries(
+
+                    key = label
+                    # check for label collision
+                    # if collision, increment until find available key
+                    i = 1
+                    while key in data.measurements:
+                        key = f"{label}_{i}"
+                        i += 1
+
+                    data.measurements[key] = MeasurementSeries(
                         label=label,
                         description=description,
                         units=units,
                         start_time=None,
                         values=np.zeros(num_values),
                     )
+
+                    if key != label:
+                        logger.warning(
+                            'duplicate measurement "%s" will use key "%s" in measurements dict',
+                            label,
+                            key,
+                        )
 
                 elif line.startswith("# interval = "):
                     interval = float(
