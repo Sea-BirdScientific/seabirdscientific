@@ -371,7 +371,7 @@ def convert_sbe63_oxygen(
 
     # temperature in Kelvin
     temperature_k = temperature + KELVIN_OFFSET_0C
-    p_corr_exp = (e * pressure) / temperature_k
+    p_corr_exp = (coefs.e * pressure) / temperature_k
     p_corr = e**p_corr_exp
 
     # fmt: off
