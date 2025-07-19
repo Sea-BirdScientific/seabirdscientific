@@ -59,9 +59,6 @@ line-length=99
 [tool.mypy]
 disable_error_code = ["import-untyped"]
 
-[tool.pytest.ini_options]
-addopts = "--cov=seabirdscientific --cov-report term-missing"
-
 [tool.coverage.run]
 omit = [
   "interpret_sbs_variable.py"

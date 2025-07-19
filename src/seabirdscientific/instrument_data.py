@@ -21,7 +21,7 @@ instrument data.
 import builtins
 from enum import Enum
 from dataclasses import dataclass
-from datetime import date, datetime
+from datetime import date, datetime, UTC
 from logging import getLogger
 from typing import List, Dict, Optional, Union
 from pathlib import Path
@@ -269,8 +269,8 @@ def cnv_to_instrument_data(filepath: Path) -> InstrumentData:
 
                 elif line.startswith("# start_time = "):
                     end = min(line.find("\n"), line.find(" ["))
-                    date_string = line[line.find("= ") + 2 : end]
-                    start_time = datetime.strptime(date_string, "%b %d %Y %H:%M:%S")
+                    date_string = line[line.find("= ") + 2 : end] +" UTC"
+                    start_time = datetime.strptime(date_string, "%b %d %Y %H:%M:%S %Z").replace(tzinfo=None)
                     data.start_time = start_time
                     for measurement in data.measurements.values():
                         measurement.start_time = start_time
@@ -576,14 +576,14 @@ def read_SBE19plus_format_0(
             if sensor == Sensors.nmeaTime:
                 seconds_since_2000 = read_nmea_time(hex_segment[n : n + HEX_LENGTH["nmeaTime"]])
                 timestamp = seconds_since_2000 + SECONDS_BETWEEN_EPOCH_AND_2000
-                results[HexDataTypes.nmeaTime.value] = datetime.fromtimestamp(timestamp)
+                results[HexDataTypes.nmeaTime.value] = datetime.fromtimestamp(timestamp, UTC).replace(tzinfo=None)
                 n += HEX_LENGTH["nmeaTime"]
 
     if moored_mode:
         seconds_since_2000 = int(hex_segment[n : n + HEX_LENGTH["time"]], 16)
         results[HexDataTypes.dateTime.value] = datetime.fromtimestamp(
-            seconds_since_2000 + SECONDS_BETWEEN_EPOCH_AND_2000
-        )
+            seconds_since_2000 + SECONDS_BETWEEN_EPOCH_AND_2000, UTC
+        ).replace(txinfo=None)
         n += HEX_LENGTH["time"]
 
     # Validate hex length. Ensure length matches what is expected based
@@ -645,8 +645,8 @@ def read_SBE37SM_format_0(  # pylint: disable=invalid-name
 
     seconds_since_2000 = int(hex_segment[n : n + HEX_LENGTH["time"]], 16)
     results[HexDataTypes.dateTime.value] = datetime.fromtimestamp(
-        seconds_since_2000 + SECONDS_BETWEEN_EPOCH_AND_2000
-    )
+        seconds_since_2000 + SECONDS_BETWEEN_EPOCH_AND_2000, UTC
+    ).replace(tzinfo=None)
     n += HEX_LENGTH["time"]
 
     return results

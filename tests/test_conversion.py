@@ -729,11 +729,11 @@ class TestSeaFETRelativeHumidity:
 
 
 class TestConvertSBE63Oxygen:
-    raw_oxygen = np.array([31.06, 31.66, 32.59, 33.92, 34.82, 35.44])
-    pressure = np.array([0, 0, 0, 0, 0, 0])
-    temperature = np.array([30, 26, 20, 12, 6, 2])
-    salinity = np.array([0, 0, 0, 0, 0, 0]) #  salinity is 0 PSU during calibration
-    expected_oxygen = np.array([0.706, 0.74, 0.799, 0.892, 1.005, 1.095])
+    raw_oxygen = np.array([31.06, 31.66, 32.59, 33.92, 34.82, 35.44, 35.44, 35.44])
+    pressure = np.array([0, 0, 0, 0, 0, 0, 1000, 100])
+    temperature = np.array([30, 26, 20, 12, 6, 2, 2, 2])
+    salinity = np.array([0, 0, 0, 0, 0, 0, 0, 35]) #  salinity is 0 PSU during calibration
+    expected_oxygen = np.array([0.706, 0.74, 0.799, 0.892, 1.005, 1.095, 1.1398, 0.8647])
 
     def test_convert_sbe63_oxygen(self):
         oxygen = dc.convert_sbe63_oxygen(
