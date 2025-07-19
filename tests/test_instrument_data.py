@@ -153,5 +153,5 @@ class TestReadNMEAHex:
         assert self.raw["NMEA Latitude"].iloc[-1] == 48.62298000
         assert self.raw["NMEA Longitude"].iloc[0] == -123.50002000
         assert self.raw["NMEA Longitude"].iloc[-1] == -123.49994000
-        assert self.raw["NMEA Date Time"].iloc[0] == datetime.fromisoformat("2023-03-18 05:15:19")
-        assert self.raw["NMEA Date Time"].iloc[-1] == datetime.fromisoformat("2023-03-18 05:36:02")
+        assert self.raw["NMEA Date Time"].iloc[0] == datetime.fromisoformat("2023-03-18 12:15:19 Z").replace(tzinfo=None)
+        assert self.raw["NMEA Date Time"].iloc[-1] == datetime.fromisoformat("2023-03-18 12:36:02 Z").replace(tzinfo=None)
