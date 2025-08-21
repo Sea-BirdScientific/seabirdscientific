@@ -16,9 +16,9 @@ accept and merge pull requests.
 
 ## Other Contributors
 
-Listed in alphabetical order by surname.
-
 | Name | GitHub |
 | ---- | ------ |
 | Lucas Christensen | [SBS-lchristensen](https://github.com/SBS-lchristensen) |
 | Keegan Wright | [ONC-KWright](https://github.com/ONC-KWright) |
+| Arlo White | [arlowhite](https://github.com/arlowhite) |
+| Peter Jansen | [petejan](https://github.com/petejan) |
