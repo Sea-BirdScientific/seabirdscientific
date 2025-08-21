@@ -30,18 +30,12 @@ dependencies = [
   "plotly>=6.0.0",
   "scipy",
 ]
-[project.optional-dependencies]
+[dependency-groups]
 dev = [
-  "black",
-  "build",
-  "mypy",
   "nbformat",
   "notebook",
-  "pre-commit",
-  "pylint",
   "pytest",
   "pytest-cov",
-  "twine",
 ]
 
 [project.urls]
