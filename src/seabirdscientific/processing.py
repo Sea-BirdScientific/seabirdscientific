@@ -51,6 +51,8 @@ from .conversion import depth_from_pressure
 from . import eos80_processing as eos80
 
 
+DEFAULT_FLAG_VALUE = -9.99e-29
+
 class MinVelocityType(Enum):
     """The minimum velocity type used with loop edit"""
 
@@ -68,6 +70,16 @@ class WindowFilterType(Enum):
     TRIANGLE = "triangle"
     GAUSSIAN = "gaussian"
     MEDIAN = "median"
+
+
+class CastType(Enum):
+    """The subsection of data to use when splitting by upcast and/or
+    downcast
+    """
+
+    BOTH = 0
+    DOWNCAST = 1
+    UPCAST = 2
 
 
 def butterworth_filter(x: np.ndarray, time_constant: float, sample_interval: float) -> np.ndarray:
@@ -113,7 +125,7 @@ def low_pass_filter(x: np.ndarray, time_constant: float, sample_interval: float)
 
 
 def align_ctd(
-    x: np.ndarray, offset: float, sample_interval: float, flag_value=-9.99e-29
+    x: np.ndarray, offset: float, sample_interval: float, flag_value=DEFAULT_FLAG_VALUE
 ) -> np.ndarray:
     """Takes an ndarray object of data for a single variable and applies
     a time offset to the series.
@@ -183,7 +195,7 @@ def loop_edit_pressure(
     max_soak_depth: float,
     use_deck_pressure_offset: bool,
     exclude_flags: bool,
-    flag_value=-9.99e-29,
+    flag_value=DEFAULT_FLAG_VALUE,
 ) -> np.ndarray:
     """Variation of loop_edit_depth that derives depth from pressure
     and latitude.
@@ -246,7 +258,7 @@ def loop_edit_depth(
     max_soak_depth: float,
     use_deck_pressure_offset: bool,
     exclude_flags: bool,
-    flag_value=-9.99e-29,
+    flag_value=DEFAULT_FLAG_VALUE,
 ) -> np.ndarray:
     """Marks scans determined to be part of a pressure loop as bad.
 
@@ -511,12 +523,20 @@ def bin_average(
     dataset: pd.DataFrame,
     bin_variable: str,
     bin_size: float,
-    include_scan_count: bool,
-    min_scans: int,
-    max_scans: int,
-    exclude_bad_scans: bool,
-    interpolate: bool,
-):
+    include_scan_count: bool = True,
+    min_scans: int = 1,
+    max_scans: int = 999999,
+    exclude_bad_scans: bool = True,
+    interpolate: bool = False,
+	cast_type: CastType = CastType.BOTH,
+	trim_start: int = 0,
+	trim_end: int = 0,
+	include_surface_bin: bool = False,
+	surface_bin_min: float = 0,
+	surface_bin_max: float = 0,
+	surface_bin_value: float = 0,
+	flag_falue = DEFAULT_FLAG_VALUE,
+) -> pd.DataFrame:
     """Averages data into a number of set bins, averaging values within
     each bin.
 
@@ -546,44 +566,53 @@ def bin_average(
     # TODO: Currently unimplemented: surface bin, begin/end scans to omit,
     #     processing upcast vs downcast vs both, time bins, scan number bins
 
-    if exclude_bad_scans and "flag" in dataset.columns:
-        # remove all scans marked as bad (i.e. flag greater than 0)
-        dataset.drop(dataset[dataset["flag"] > 0].index, inplace=True)
-    bin_row = dataset[
-        bin_variable
-    ].to_numpy()  # pd series containing the variable we want to bin for, converted to ndarray
-    max_val = np.amax(bin_row)
+    _dataset = dataset.copy().iloc[trim_start : len(dataset) - trim_end]
 
-    bin_min = bin_size - (bin_size / 2.0)  # min value of first bin
+    if exclude_bad_scans and "flag" in _dataset.columns:
+        # remove all scans marked as bad
+        _dataset.drop(_dataset[_dataset["flag"] == DEFAULT_FLAG_VALUE].index, inplace=True)
+    # pd series containing the variable we want to bin for, converted to ndarray
+    control = _dataset[bin_variable].to_numpy()
+
+    bin_min = bin_size / 2.0  # min value of first bin
+    bin_max = np.amax(control) - ((bin_min + np.amax(control)) % bin_size) + bin_size
+
+    # split into ascending and descending, including peak in both
+    peak_index = np.argmax(control)
+    control_asc = control[:peak_index+1]
+    control_desc = control[peak_index:]
 
     # create the bins to sort into
-    # note that we create an inital "dummy" bin from -bin_min to bin_min to catch extra low values
-    # TODO: Above issue can be addressed by surface bin likely
-    bin_targets = np.arange(start=bin_min - bin_size, stop=max_val + bin_size, step=bin_size)
+    ascending = np.arange(start=bin_min, stop=bin_max + bin_size, step=bin_size)
+    descending = np.arange(start=bin_max, stop=bin_min - bin_size, step=-bin_size)
 
     # setup bins to indicate where each index should be sorted into
-    bins = np.digitize(x=bin_row, bins=bin_targets, right=True)
+    asc_bins = np.digitize(x=control_asc, bins=ascending)
+    desc_bins = np.digitize(x=control_desc, bins=descending, right=True)
+    desc_bins += np.amax(asc_bins) - 1
+    _dataset["bin_number"] = np.concat((asc_bins[:-1], desc_bins))
 
-    dataset["bin_number"] = bins
-
-    dataset = dataset.groupby("bin_number").mean()
+    if not include_surface_bin:
+        _dataset.drop(_dataset[_dataset["bin_number"] == 0].index, inplace=True)
+        _dataset.drop(_dataset[_dataset["bin_number"] == np.amax(desc_bins)].index, inplace=True)
 
     # get the number of scans in each bin
-    nbin_unfiltered = np.bincount(bins)
-    nbin = np.delete(nbin_unfiltered, np.where(nbin_unfiltered == 0))
-    dataset["nbin"] = nbin
+    nbin_unfiltered = np.bincount(_dataset["bin_number"])
 
-    dataset.drop(dataset[dataset["nbin"] < min_scans].index, inplace=True)
-    dataset.drop(dataset[dataset["nbin"] > max_scans].index, inplace=True)
+    _dataset = _dataset.groupby("bin_number").mean()
+    _dataset["nbin"] = np.delete(nbin_unfiltered, np.where(nbin_unfiltered == 0))
+
+    _dataset.drop(_dataset[_dataset["nbin"] < min_scans].index, inplace=True)
+    _dataset.drop(_dataset[_dataset["nbin"] > max_scans].index, inplace=True)
 
     # TODO: validate that this is running correctly
     if interpolate:
-        new_dataset = dataset.copy()
+        new_dataset = _dataset.copy()
         prev_row = None
         first_row = pd.Series([])
         first_row_index = 0
         second_row = pd.Series([])
-        for index, row in dataset.iterrows():
+        for index, row in _dataset.iterrows():
             if prev_row is None:
                 # we'll come back to the first row at the end
                 first_row = row
@@ -597,7 +626,7 @@ def bin_average(
                 ]  # use bin_variable since this could be pressure or depth
                 center_pressure = index * bin_size
 
-                for col_name in dataset.columns:
+                for col_name in _dataset.columns:
                     if col_name in ["nbin", "flag", "bin_number"]:
                         continue
                     prev_val = prev_row[col_name]
@@ -623,7 +652,7 @@ def bin_average(
         ]  # use bin_variable since this could be pressure or depth
         center_pressure = first_row_index * bin_size
 
-        for col_name in dataset.columns:
+        for col_name in _dataset.columns:
             if col_name in ["nbin", "flag", "bin_number"]:
                 continue
             prev_val = second_row[col_name]  # reference second row's value
@@ -637,12 +666,12 @@ def bin_average(
             ) + prev_val
             new_dataset.loc[first_row_index, col_name] = interpolated_val
 
-        dataset = new_dataset
+        _dataset = new_dataset
 
     if not include_scan_count:
-        dataset.drop("nbin", axis=1, inplace=True)
+        _dataset.drop("nbin", axis=1, inplace=True)
 
-    return dataset
+    return _dataset
 
 
 def wild_edit(
@@ -653,7 +682,7 @@ def wild_edit(
     scans_per_block: int,
     distance_to_mean: float,
     exclude_bad_flags: bool,
-    flag_value=-9.99e-29,
+    flag_value=DEFAULT_FLAG_VALUE,
 ) -> np.ndarray:
     """Flags outliers in a dataset.
 
@@ -728,7 +757,7 @@ def flag_data(
     std_pass_2: float,
     distance_to_mean: float,
     exclude_bad_flags: bool,
-    flag_value=-9.99e-29,
+    flag_value=DEFAULT_FLAG_VALUE,
 ) -> np.ndarray:
     """Helper function for wild_edit() that handles the three main loops
 
@@ -780,7 +809,7 @@ def window_filter(
     half_width=1,
     offset=0.0,
     exclude_flags=False,
-    flag_value=-9.99e-29,
+    flag_value=DEFAULT_FLAG_VALUE,
 ) -> np.ndarray:
     """Filters a dataset by convolving it with an array of weights.
 
@@ -923,7 +952,7 @@ def buoyancy(
     longitude: np.ndarray,
     window_size: float,
     use_modern_formula=True,
-    flag_value=-9.99e-29,
+    flag_value=DEFAULT_FLAG_VALUE,
 ):
     """Calculates the 4 buoyancy values based off the incoming data.
 

@@ -419,7 +419,34 @@ class TestBinAverage:
         )
         request.node.return_value = result.temperature.tolist()
         assert np.all(result.temperature == [4.948447204968944, 8.842857142857142, -0.34516129032257936, 0.45999999999999996, 32.1])
-        # fmt: on
+        
+    def test_bin_average_default(self, request):
+        source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
+        source_in2 = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped2.cnv"
+        source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_binavg.cnv"
+        source_out2 = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped2_binavg.cnv"
+        data = idata.cnv_to_instrument_data(source_in)._to_dataframe()
+        data2 = idata.cnv_to_instrument_data(source_in2)._to_dataframe()
+        expected = idata.cnv_to_instrument_data(source_out)._to_dataframe()
+        expected2 = idata.cnv_to_instrument_data(source_out2)._to_dataframe()
+
+        binavg = dp.bin_average(
+            dataset = data,
+            bin_variable = 'prdM',
+            bin_size = 2,
+        )
+
+        binavg2 = dp.bin_average(
+            dataset = data2,
+            bin_variable = 'prdM',
+            bin_size = 2,
+        )
+
+        for variable in expected.columns:
+            np.allclose(expected[variable], binavg[variable], rtol=0, atol=1e-6)
+            np.allclose(expected2[variable], binavg2[variable], rtol=0, atol=1e-6)
+
+    # fmt: on
 
 
 class TestWildEdit:
