@@ -581,20 +581,20 @@ def bin_average(
     bin_min = bin_size / 2.0  # min value of first bin
     bin_max = np.amax(control) - ((bin_min + np.amax(control)) % bin_size) + bin_size
 
-    # split into ascending and descending, including peak in both
+    # split into descending and ascending, including peak in both
     peak_index = np.argmax(control)
-    control_asc = control[:peak_index+1]
-    control_desc = control[peak_index:]
+    control_desc = control[:peak_index+1]
+    control_asc = control[peak_index:]
 
     # create the bins to sort into
-    ascending = np.arange(start=bin_min, stop=bin_max + bin_size, step=bin_size)
-    descending = np.arange(start=bin_max, stop=bin_min - bin_size, step=-bin_size)
+    descending = np.arange(start=bin_min, stop=bin_max + bin_size, step=bin_size)
+    ascending = np.arange(start=bin_max, stop=bin_min - bin_size, step=-bin_size)
 
     # setup bins to indicate where each index should be sorted into
-    asc_bins = np.digitize(x=control_asc, bins=ascending)
-    desc_bins = np.digitize(x=control_desc, bins=descending, right=True)
-    desc_bins += np.amax(asc_bins) - 1
-    _dataset["bin_number"] = np.concat((asc_bins[:-1], desc_bins))
+    desc_bins = np.digitize(x=control_desc, bins=descending)
+    asc_bins = np.digitize(x=control_asc, bins=ascending, right=True)
+    asc_bins += np.amax(desc_bins) - 1
+    _dataset["bin_number"] = np.concat((desc_bins[:-1], asc_bins))
 
     if include_surface_bin:
         if surface_bin_min < 0:
@@ -604,20 +604,20 @@ def bin_average(
         if not surface_bin_min <= surface_bin_max <= bin_min:
             logger.warning(f'Surface bin max set to {_surface_bin_max}')
         
-        surface_asc_bin = np.digitize(x=control_asc, bins=(_surface_bin_min, _surface_bin_max)) == 1
-        surface_desc_bin = np.digitize(x=control_desc, bins=(_surface_bin_min, _surface_bin_max), right=True) == 1
+        surface_desc_bin = np.digitize(x=control_desc, bins=(_surface_bin_min, _surface_bin_max)) == 1
+        surface_asc_bin = np.digitize(x=control_asc, bins=(_surface_bin_min, _surface_bin_max), right=True) == 1
         
-        surface_asc = _dataset[:len(surface_asc_bin)][surface_asc_bin]
-        surface_desc = _dataset[len(surface_asc_bin)-1:][surface_desc_bin]
+        surface_desc = _dataset[:len(surface_desc_bin)][surface_desc_bin]
+        surface_asc = _dataset[len(surface_desc_bin)-1:][surface_asc_bin]
 
         pass
 
     # always drop these since they're not necessarily the same as surface bin
     _dataset.drop(_dataset[_dataset["bin_number"] == 0].index, inplace=True)
-    _dataset.drop(_dataset[_dataset["bin_number"] == np.amax(desc_bins)].index, inplace=True)
+    _dataset.drop(_dataset[_dataset["bin_number"] == np.amax(asc_bins)].index, inplace=True)
 
     if include_surface_bin:
-        _dataset = pd.concat((surface_asc, _dataset, surface_desc))
+        _dataset = pd.concat((surface_desc, _dataset, surface_asc))
 
     # get the number of scans in each bin
     nbin_unfiltered = np.bincount(_dataset["bin_number"])
@@ -638,7 +638,7 @@ def bin_average(
             return x_i
 
         midpoints = np.concat((
-            (ascending[:-1] + ascending[1:]) / 2, (descending[1:-1] + descending[2:]) / 2
+            (descending[:-1] + descending[1:]) / 2, (ascending[1:-1] + ascending[2:]) / 2
         ))
 
         if include_surface_bin:
