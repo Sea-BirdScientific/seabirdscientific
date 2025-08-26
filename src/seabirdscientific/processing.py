@@ -641,6 +641,9 @@ def bin_average(
             (ascending[:-1] + ascending[1:]) / 2, (descending[1:-1] + descending[2:]) / 2
         ))
 
+        if include_surface_bin:
+            midpoints = np.concat(([surface_bin_value], midpoints, [0]))
+
         for column in (_dataset.columns).difference(["nbin", "flag", "bin_number", bin_variable]):
             interp_result = []
             for n in range(len(_dataset[column])):
