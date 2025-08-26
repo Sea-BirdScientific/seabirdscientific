@@ -18,6 +18,7 @@ import numpy as np
 # Sea-Bird imports
 
 # Internal imports
+from .processing import DEFAULT_FLAG_VALUE
 
 
 def close_enough(
@@ -89,3 +90,13 @@ def percent_match(x1: np.ndarray, x2: np.ndarray) -> str:
     """
 
     return f"{100 - (x1 != x2).sum()*100 / len(x1):0.2f}% match"
+
+
+def get_decimal_length(data: np.ndarray):
+    decimal_lengths = [0]
+    for n in range(len(data)):
+        if not np.isnan(data[n]) and data[n] != DEFAULT_FLAG_VALUE:
+            decimal_lengths.append(len(f'{data[n]}'.split('.')[1]))
+            if len(decimal_lengths) >= 10:
+                break
+    return max(decimal_lengths)

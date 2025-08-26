@@ -35,8 +35,9 @@ data.
 #     buoyancy (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, float, bool, float)
 
 # Native imports
-from enum import Enum
 import math
+from enum import Enum
+from logging import getLogger
 
 # Third-party imports
 import gsw
@@ -49,6 +50,9 @@ from scipy import signal, stats
 # Internal imports
 from .conversion import depth_from_pressure
 from . import eos80_processing as eos80
+
+
+logger = getLogger(__name__)
 
 
 DEFAULT_FLAG_VALUE = -9.99e-29
@@ -533,8 +537,8 @@ def bin_average(
 	trim_end: int = 0,
 	include_surface_bin: bool = False,
 	surface_bin_min: float = 0,
-	surface_bin_max: float = 0,
-	surface_bin_value: float = 0,
+	surface_bin_max: float = 5,
+	surface_bin_value: float = 2.5,
 	flag_falue = DEFAULT_FLAG_VALUE,
 ) -> pd.DataFrame:
     """Averages data into a number of set bins, averaging values within
@@ -592,9 +596,28 @@ def bin_average(
     desc_bins += np.amax(asc_bins) - 1
     _dataset["bin_number"] = np.concat((asc_bins[:-1], desc_bins))
 
-    if not include_surface_bin:
-        _dataset.drop(_dataset[_dataset["bin_number"] == 0].index, inplace=True)
-        _dataset.drop(_dataset[_dataset["bin_number"] == np.amax(desc_bins)].index, inplace=True)
+    if include_surface_bin:
+        if surface_bin_min < 0:
+            logger.warning('Surface bin min set to 0')
+        _surface_bin_min = max(surface_bin_min, 0)
+        _surface_bin_max = max(surface_bin_min, min(surface_bin_max, bin_min))
+        if not surface_bin_min <= surface_bin_max <= bin_min:
+            logger.warning(f'Surface bin max set to {_surface_bin_max}')
+        
+        surface_asc_bin = np.digitize(x=control_asc, bins=(_surface_bin_min, _surface_bin_max)) == 1
+        surface_desc_bin = np.digitize(x=control_desc, bins=(_surface_bin_min, _surface_bin_max), right=True) == 1
+        
+        surface_asc = _dataset[:len(surface_asc_bin)][surface_asc_bin]
+        surface_desc = _dataset[len(surface_asc_bin)-1:][surface_desc_bin]
+
+        pass
+
+    # always drop these since they're not necessarily the same as surface bin
+    _dataset.drop(_dataset[_dataset["bin_number"] == 0].index, inplace=True)
+    _dataset.drop(_dataset[_dataset["bin_number"] == np.amax(desc_bins)].index, inplace=True)
+
+    if include_surface_bin:
+        _dataset = pd.concat((surface_asc, _dataset, surface_desc))
 
     # get the number of scans in each bin
     nbin_unfiltered = np.bincount(_dataset["bin_number"])
@@ -605,68 +628,34 @@ def bin_average(
     _dataset.drop(_dataset[_dataset["nbin"] < min_scans].index, inplace=True)
     _dataset.drop(_dataset[_dataset["nbin"] > max_scans].index, inplace=True)
 
-    # TODO: validate that this is running correctly
+
     if interpolate:
-        new_dataset = _dataset.copy()
-        prev_row = None
-        first_row = pd.Series([])
-        first_row_index = 0
-        second_row = pd.Series([])
-        for index, row in _dataset.iterrows():
-            if prev_row is None:
-                # we'll come back to the first row at the end
-                first_row = row
-                first_row_index = index
-            else:
-                prev_presure = prev_row[
-                    bin_variable
-                ]  # use bin_variable since this could be pressure or depth
-                curr_pressure = row[
-                    bin_variable
-                ]  # use bin_variable since this could be pressure or depth
-                center_pressure = index * bin_size
+        def interp(p_p, x_p, p_c, x_c, p_i):
+            """Interpolate according to SBE Data Processing manual
+            version 7.26.8, page 89
+            """
+            x_i = ((x_c - x_p) * (p_i - p_p) / (p_c - p_p)) + x_p
+            return x_i
 
-                for col_name in _dataset.columns:
-                    if col_name in ["nbin", "flag", "bin_number"]:
-                        continue
-                    prev_val = prev_row[col_name]
-                    curr_val = row[col_name]
+        midpoints = np.concat((
+            (ascending[:-1] + ascending[1:]) / 2, (descending[1:-1] + descending[2:]) / 2
+        ))
 
-                    # formula from the seasoft data processing manual, page 89, version 7.26.8-3
-                    interpolated_val = (
-                        (curr_val - prev_val)
-                        * (center_pressure - prev_presure)
-                        / (curr_pressure - prev_presure)
-                    ) + prev_val
-                    new_dataset.loc[index, col_name] = interpolated_val
+        for column in (_dataset.columns).difference(["nbin", "flag", "bin_number", bin_variable]):
+            interp_result = []
+            for n in range(len(_dataset[column])):
+                n_p = 1 if n == 0 else n-1
+                p_p = _dataset[bin_variable].iloc[n_p]
+                x_p = _dataset[column].iloc[n_p]
+                p_c = _dataset[bin_variable].iloc[n]
+                x_c = _dataset[column].iloc[n]
+                p_i = midpoints[n]
+                x_i = interp(p_p, x_p, p_c, x_c, p_i)
+                interp_result.append(x_i)
 
-            prev_row = row
-            if index == 2:
-                # save this so we can reference it at the end for interpolating the first row
-                second_row = row
-
-        # back to the first row now
-        prev_presure = second_row[bin_variable]  # reference second row's value
-        curr_pressure = first_row[
-            bin_variable
-        ]  # use bin_variable since this could be pressure or depth
-        center_pressure = first_row_index * bin_size
-
-        for col_name in _dataset.columns:
-            if col_name in ["nbin", "flag", "bin_number"]:
-                continue
-            prev_val = second_row[col_name]  # reference second row's value
-            curr_val = first_row[col_name]
-
-            # formula from the seasoft manual, page 89
-            interpolated_val = (
-                (curr_val - prev_val)
-                * (center_pressure - prev_presure)
-                / (curr_pressure - prev_presure)
-            ) + prev_val
-            new_dataset.loc[first_row_index, col_name] = interpolated_val
-
-        _dataset = new_dataset
+            _dataset[column] = pd.Series(interp_result, index=_dataset.index)
+        
+        _dataset[bin_variable] = midpoints
 
     if not include_scan_count:
         _dataset.drop("nbin", axis=1, inplace=True)

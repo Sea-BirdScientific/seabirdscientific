@@ -12,7 +12,7 @@
             "program": "${file}",
             "purpose": ["debug-test"],
             "console": "integratedTerminal",
-            "env": {},
+            "env": {"PYTEST_ADDOPTS": "--no-cov"},
             "justMyCode": false
         }
     ]
