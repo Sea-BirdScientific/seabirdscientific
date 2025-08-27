@@ -539,7 +539,7 @@ def bin_average(
 	surface_bin_min: float = 0,
 	surface_bin_max: float = 5,
 	surface_bin_value: float = 2.5,
-	flag_falue = DEFAULT_FLAG_VALUE,
+	flag_value = DEFAULT_FLAG_VALUE,
 ) -> pd.DataFrame:
     """Averages data into a number of set bins, averaging values within
     each bin.
@@ -600,24 +600,50 @@ def bin_average(
         if surface_bin_min < 0:
             logger.warning('Surface bin min set to 0')
         _surface_bin_min = max(surface_bin_min, 0)
-        _surface_bin_max = max(surface_bin_min, min(surface_bin_max, bin_min))
+        
         if not surface_bin_min <= surface_bin_max <= bin_min:
             logger.warning(f'Surface bin max set to {_surface_bin_max}')
+        _surface_bin_max = max(surface_bin_min, min(surface_bin_max, bin_min))
         
-        surface_desc_bin = np.digitize(x=control_desc, bins=(_surface_bin_min, _surface_bin_max)) == 1
-        surface_asc_bin = np.digitize(x=control_asc, bins=(_surface_bin_min, _surface_bin_max), right=True) == 1
+        bins = (_surface_bin_min, _surface_bin_max)
+        surface_desc_bin = np.digitize(x=control_desc, bins=bins) == 1
+        surface_asc_bin = np.digitize(x=control_asc, bins=bins, right=True) == 1
         
+        # these will get added back in depending on the cast type
         surface_desc = _dataset[:len(surface_desc_bin)][surface_desc_bin]
         surface_asc = _dataset[len(surface_desc_bin)-1:][surface_asc_bin]
 
-        pass
+    if cast_type == CastType.BOTH:
+        # always drop these since they're not necessarily the same as surface bin
+        zero_index = (_dataset["bin_number"] == 0)
+        max_index = (_dataset["bin_number"] == np.amax(asc_bins))
+        _dataset.drop(_dataset[zero_index | max_index].index, inplace=True)
 
-    # always drop these since they're not necessarily the same as surface bin
-    _dataset.drop(_dataset[_dataset["bin_number"] == 0].index, inplace=True)
-    _dataset.drop(_dataset[_dataset["bin_number"] == np.amax(asc_bins)].index, inplace=True)
+        if include_surface_bin:
+            _dataset = pd.concat((surface_desc, _dataset, surface_asc))
+        
+    elif cast_type == CastType.DOWNCAST:
+        # keeping one past the peak index to match SBE data processing
+        _dataset = _dataset[:peak_index+2]
+        zero_index = (_dataset["bin_number"] == 0)
+        _dataset.drop(_dataset[zero_index].index, inplace=True)
 
-    if include_surface_bin:
-        _dataset = pd.concat((surface_desc, _dataset, surface_asc))
+        if include_surface_bin:
+            _dataset = pd.concat((surface_desc, _dataset))
+        
+    elif cast_type == CastType.UPCAST:
+        _dataset = _dataset[peak_index:]
+        # discarding the first bin to match SBE data processing
+        min_index = (_dataset["bin_number"] == np.amin(asc_bins))
+        max_index = (_dataset["bin_number"] == np.amax(asc_bins))
+        _dataset.drop(_dataset[min_index | max_index].index, inplace=True)
+
+        if include_surface_bin:
+            _dataset = pd.concat((_dataset, surface_asc))
+    
+    else:
+        logger.error('Unknown cast_type')
+
 
     # get the number of scans in each bin
     nbin_unfiltered = np.bincount(_dataset["bin_number"])

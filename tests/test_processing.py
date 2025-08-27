@@ -443,8 +443,9 @@ class TestBinAverage:
         )
 
         for variable in expected.columns:
-            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=1e-3)
-            assert np.allclose(expected2[variable], binavg2[variable], rtol=0, atol=1e-3)
+            exponent = -1 * get_decimal_length(expected[variable])
+            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=10**exponent)
+            assert np.allclose(expected2[variable], binavg2[variable], rtol=0, atol=10**exponent)
 
     def test_bin_average_include_surface(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
@@ -462,7 +463,8 @@ class TestBinAverage:
         )
 
         for variable in expected.columns:
-            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=1e-3)
+            exponent = -1 * get_decimal_length(expected[variable])
+            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=10**exponent)
 
     def test_bin_average_interpolate(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
@@ -499,7 +501,44 @@ class TestBinAverage:
         )
 
         for variable in expected.columns:
-            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=1e-3)
+            exponent = -1 * get_decimal_length(expected[variable])
+            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=10**exponent)
+
+
+    def test_bin_average_downcast(self, request):
+        source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
+        source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_binavg_downcast.cnv"
+        data = idata.cnv_to_instrument_data(source_in)._to_dataframe()
+        expected = idata.cnv_to_instrument_data(source_out)._to_dataframe()
+
+        binavg = p.bin_average(
+            dataset = data,
+            bin_variable = 'prdM',
+            bin_size = 2,
+            cast_type = p.CastType.DOWNCAST
+        )
+
+        for variable in expected.columns:
+            exponent = -1 * get_decimal_length(expected[variable])
+            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=10**exponent)
+
+
+    def test_bin_average_upcast(self, request):
+        source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
+        source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_binavg_upcast.cnv"
+        data = idata.cnv_to_instrument_data(source_in)._to_dataframe()
+        expected = idata.cnv_to_instrument_data(source_out)._to_dataframe()
+
+        binavg = p.bin_average(
+            dataset = data,
+            bin_variable = 'prdM',
+            bin_size = 2,
+            cast_type = p.CastType.UPCAST
+        )
+
+        for variable in expected.columns:
+            exponent = -1 * get_decimal_length(expected[variable])
+            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=10**exponent)
 
     # fmt: on
 
