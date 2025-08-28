@@ -55,7 +55,7 @@ from . import eos80_processing as eos80
 logger = getLogger(__name__)
 
 
-DEFAULT_FLAG_VALUE = -9.99e-29
+FLAG_VALUE = -9.99e-29
 
 class MinVelocityType(Enum):
     """The minimum velocity type used with loop edit"""
@@ -129,7 +129,7 @@ def low_pass_filter(x: np.ndarray, time_constant: float, sample_interval: float)
 
 
 def align_ctd(
-    x: np.ndarray, offset: float, sample_interval: float, flag_value=DEFAULT_FLAG_VALUE
+    x: np.ndarray, offset: float, sample_interval: float, flag_value=FLAG_VALUE
 ) -> np.ndarray:
     """Takes an ndarray object of data for a single variable and applies
     a time offset to the series.
@@ -199,7 +199,7 @@ def loop_edit_pressure(
     max_soak_depth: float,
     use_deck_pressure_offset: bool,
     exclude_flags: bool,
-    flag_value=DEFAULT_FLAG_VALUE,
+    flag_value=FLAG_VALUE,
 ) -> np.ndarray:
     """Variation of loop_edit_depth that derives depth from pressure
     and latitude.
@@ -262,7 +262,7 @@ def loop_edit_depth(
     max_soak_depth: float,
     use_deck_pressure_offset: bool,
     exclude_flags: bool,
-    flag_value=DEFAULT_FLAG_VALUE,
+    flag_value=FLAG_VALUE,
 ) -> np.ndarray:
     """Marks scans determined to be part of a pressure loop as bad.
 
@@ -539,7 +539,7 @@ def bin_average(
 	surface_bin_min: float = 0,
 	surface_bin_max: float = 5,
 	surface_bin_value: float = 2.5,
-	flag_value = DEFAULT_FLAG_VALUE,
+	flag_value = FLAG_VALUE,
 ) -> pd.DataFrame:
     """Averages data into a number of set bins, averaging values within
     each bin.
@@ -567,19 +567,23 @@ def bin_average(
         bins
 
     """
-    # TODO: Currently unimplemented: surface bin, begin/end scans to omit,
-    #     processing upcast vs downcast vs both, time bins, scan number bins
 
     _dataset = dataset.copy().iloc[trim_start : len(dataset) - trim_end]
 
+    # remove scans marked as bad during loop edit
     if exclude_bad_scans and "flag" in _dataset.columns:
-        # remove all scans marked as bad
-        _dataset.drop(_dataset[_dataset["flag"] == DEFAULT_FLAG_VALUE].index, inplace=True)
+        _dataset.drop(_dataset[_dataset["flag"] == flag_value].index, inplace=True)
+
+    # always remove scans marked bad during wild edit
+    for column in _dataset.columns.difference(["flag"]):
+        _dataset.drop(_dataset[_dataset[column] == flag_value].index, inplace=True)
+
     # pd series containing the variable we want to bin for, converted to ndarray
     control = _dataset[bin_variable].to_numpy()
 
     bin_min = bin_size / 2.0  # min value of first bin
-    bin_max = np.amax(control) - ((bin_min + np.amax(control)) % bin_size) + bin_size
+    control_max = np.amax(control)
+    bin_max = control_max - ((bin_min + control_max) % bin_size) + bin_size
 
     # split into descending and ascending, including peak in both
     peak_index = np.argmax(control)
@@ -612,17 +616,8 @@ def bin_average(
         # these will get added back in depending on the cast type
         surface_desc = _dataset[:len(surface_desc_bin)][surface_desc_bin]
         surface_asc = _dataset[len(surface_desc_bin)-1:][surface_asc_bin]
-
-    if cast_type == CastType.BOTH:
-        # always drop these since they're not necessarily the same as surface bin
-        zero_index = (_dataset["bin_number"] == 0)
-        max_index = (_dataset["bin_number"] == np.amax(asc_bins))
-        _dataset.drop(_dataset[zero_index | max_index].index, inplace=True)
-
-        if include_surface_bin:
-            _dataset = pd.concat((surface_desc, _dataset, surface_asc))
         
-    elif cast_type == CastType.DOWNCAST:
+    if cast_type == CastType.DOWNCAST:
         # keeping one past the peak index to match SBE data processing
         _dataset = _dataset[:peak_index+2]
         zero_index = (_dataset["bin_number"] == 0)
@@ -640,15 +635,30 @@ def bin_average(
 
         if include_surface_bin:
             _dataset = pd.concat((_dataset, surface_asc))
-    
-    else:
-        logger.error('Unknown cast_type')
 
+    else: # cast_type == CastType.BOTH:
+        # always drop these since they're not necessarily the same as surface bin
+        zero_index = (_dataset["bin_number"] == 0)
+        max_index = (_dataset["bin_number"] == np.amax(asc_bins))
+        _dataset.drop(_dataset[zero_index | max_index].index, inplace=True)
+
+        if include_surface_bin:
+            _dataset = pd.concat((surface_desc, _dataset, surface_asc))
 
     # get the number of scans in each bin
     nbin_unfiltered = np.bincount(_dataset["bin_number"])
 
-    _dataset = _dataset.groupby("bin_number").mean()
+    if exclude_bad_scans:
+        _dataset = _dataset.groupby("bin_number").mean()
+    else:
+        # need to handle the flag column differently
+        not_flag = _dataset[_dataset.columns.difference(['flag'])].groupby("bin_number").mean()
+        # if all the values in a group are the flag_value the assign it
+        # to the group, otherwise 0
+        flag = _dataset[['bin_number', 'flag']].groupby("bin_number").mean()
+        flag.loc[flag['flag'] != FLAG_VALUE] = 0
+        _dataset = pd.concat([not_flag, flag], axis=1)
+
     _dataset["nbin"] = np.delete(nbin_unfiltered, np.where(nbin_unfiltered == 0))
 
     _dataset.drop(_dataset[_dataset["nbin"] < min_scans].index, inplace=True)
@@ -663,12 +673,26 @@ def bin_average(
             x_i = ((x_c - x_p) * (p_i - p_p) / (p_c - p_p)) + x_p
             return x_i
 
-        midpoints = np.concat((
-            (descending[:-1] + descending[1:]) / 2, (ascending[1:-1] + ascending[2:]) / 2
-        ))
+        desc_midpoints = (descending[:-1] + descending[1:]) / 2
+        asc_midpoints = (ascending[1:-1] + ascending[2:]) / 2
+        
+        if cast_type == CastType.DOWNCAST:
+            midpoints = desc_midpoints
+            if include_surface_bin:
+                midpoints = np.concat(([surface_bin_value], midpoints))
+                
+        elif cast_type == CastType.UPCAST:
+            midpoints = asc_midpoints
+            if include_surface_bin:
+                midpoints = np.concat((midpoints, [0]))
+                
+        else: # cast_type == CastType.BOTH:
+            midpoints = np.concat((desc_midpoints, asc_midpoints))
+            if include_surface_bin:
+                midpoints = np.concat(([surface_bin_value], midpoints, [0]))
 
-        if include_surface_bin:
-            midpoints = np.concat(([surface_bin_value], midpoints, [0]))
+        # remove midpoints for bins with no data
+        midpoints = midpoints[_dataset.index - 1]
 
         for column in (_dataset.columns).difference(["nbin", "flag", "bin_number", bin_variable]):
             interp_result = []
@@ -700,7 +724,7 @@ def wild_edit(
     scans_per_block: int,
     distance_to_mean: float,
     exclude_bad_flags: bool,
-    flag_value=DEFAULT_FLAG_VALUE,
+    flag_value=FLAG_VALUE,
 ) -> np.ndarray:
     """Flags outliers in a dataset.
 
@@ -775,7 +799,7 @@ def flag_data(
     std_pass_2: float,
     distance_to_mean: float,
     exclude_bad_flags: bool,
-    flag_value=DEFAULT_FLAG_VALUE,
+    flag_value=FLAG_VALUE,
 ) -> np.ndarray:
     """Helper function for wild_edit() that handles the three main loops
 
@@ -827,7 +851,7 @@ def window_filter(
     half_width=1,
     offset=0.0,
     exclude_flags=False,
-    flag_value=DEFAULT_FLAG_VALUE,
+    flag_value=FLAG_VALUE,
 ) -> np.ndarray:
     """Filters a dataset by convolving it with an array of weights.
 
@@ -970,7 +994,7 @@ def buoyancy(
     longitude: np.ndarray,
     window_size: float,
     use_modern_formula=True,
-    flag_value=DEFAULT_FLAG_VALUE,
+    flag_value=FLAG_VALUE,
 ):
     """Calculates the 4 buoyancy values based off the incoming data.
 
