@@ -620,8 +620,9 @@ def bin_average(
     if cast_type == CastType.DOWNCAST:
         # keeping one past the peak index to match SBE data processing
         _dataset = _dataset[:peak_index+2]
-        zero_index = (_dataset["bin_number"] == 0)
-        _dataset.drop(_dataset[zero_index].index, inplace=True)
+        min_bin_number = 1
+        below_min = (_dataset["bin_number"] < min_bin_number)
+        _dataset.drop(_dataset[below_min].index, inplace=True)
 
         if include_surface_bin:
             _dataset = pd.concat((surface_desc, _dataset))
@@ -629,24 +630,31 @@ def bin_average(
     elif cast_type == CastType.UPCAST:
         _dataset = _dataset[peak_index:]
         # discarding the first bin to match SBE data processing
-        min_index = (_dataset["bin_number"] == np.amin(asc_bins))
-        max_index = (_dataset["bin_number"] == np.amax(asc_bins))
-        _dataset.drop(_dataset[min_index | max_index].index, inplace=True)
+        min_bin_number = np.amin(asc_bins) + 1
+        max_bin_number = np.amax(asc_bins) - 1
+        below_min = (_dataset["bin_number"] < min_bin_number)
+        over_max = (_dataset["bin_number"] > max_bin_number)
+        _dataset.drop(_dataset[below_min | over_max].index, inplace=True)
 
         if include_surface_bin:
             _dataset = pd.concat((_dataset, surface_asc))
 
     else: # cast_type == CastType.BOTH:
-        # always drop these since they're not necessarily the same as surface bin
-        zero_index = (_dataset["bin_number"] == 0)
-        max_index = (_dataset["bin_number"] == np.amax(asc_bins))
-        _dataset.drop(_dataset[zero_index | max_index].index, inplace=True)
+        # drop first and last these since they're not necessarily the same as surface bin
+        min_bin_number = 1
+        max_bin_number = np.amax(asc_bins) - 1
+        below_min = (_dataset["bin_number"] < min_bin_number)
+        over_max = (_dataset["bin_number"] > max_bin_number)
+        _dataset.drop(_dataset[below_min | over_max].index, inplace=True)
 
         if include_surface_bin:
             _dataset = pd.concat((surface_desc, _dataset, surface_asc))
 
     # get the number of scans in each bin
     nbin_unfiltered = np.bincount(_dataset["bin_number"])
+    if not include_surface_bin or cast_type == CastType.UPCAST:
+        # trim the first 0 bins so we can use this to filter midpoints later
+        nbin_unfiltered = nbin_unfiltered[min_bin_number:]
 
     if exclude_bad_scans:
         _dataset = _dataset.groupby("bin_number").mean()
@@ -656,7 +664,7 @@ def bin_average(
         # if all the values in a group are the flag_value the assign it
         # to the group, otherwise 0
         flag = _dataset[['bin_number', 'flag']].groupby("bin_number").mean()
-        flag.loc[flag['flag'] != FLAG_VALUE] = 0
+        flag.loc[flag['flag'] != flag_value] = 0
         _dataset = pd.concat([not_flag, flag], axis=1)
 
     _dataset["nbin"] = np.delete(nbin_unfiltered, np.where(nbin_unfiltered == 0))
@@ -692,7 +700,7 @@ def bin_average(
                 midpoints = np.concat(([surface_bin_value], midpoints, [0]))
 
         # remove midpoints for bins with no data
-        midpoints = midpoints[_dataset.index - 1]
+        midpoints = midpoints[nbin_unfiltered != 0]
 
         for column in (_dataset.columns).difference(["nbin", "flag", "bin_number", bin_variable]):
             interp_result = []
