@@ -93,6 +93,13 @@ def percent_match(x1: np.ndarray, x2: np.ndarray) -> str:
 
 
 def get_decimal_length(data: np.ndarray):
+    """Checks the first 10 values of an array and returns the longest
+    decimal length to the right of the decimal. Used for unit tests so
+    a variable tolerance can be used to compare results
+
+    :param data: a numpy array of numbers
+    :return: the number of significant digits to the right of the decimal
+    """
     decimal_lengths = [0]
     for n in range(len(data)):
         if not np.isnan(data[n]) and data[n] != FLAG_VALUE:
