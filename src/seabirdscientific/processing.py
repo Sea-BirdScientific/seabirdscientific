@@ -84,6 +84,7 @@ class CastType(Enum):
     BOTH = 0
     DOWNCAST = 1
     UPCAST = 2
+    NA = 3
 
 
 def butterworth_filter(x: np.ndarray, time_constant: float, sample_interval: float) -> np.ndarray:
@@ -541,32 +542,50 @@ def bin_average(
 	surface_bin_value: float = 2.5,
 	flag_value = FLAG_VALUE,
 ) -> pd.DataFrame:
-    """Averages data into a number of set bins, averaging values within
-    each bin.
+    """Averages data into bins, using intervals based on bin_variable.
+    Returns a new dataframe with the binned data
 
-    Bins with fewer than min_scans or larger than max_scans get removed.
-    Updates the dataset argument to be in bins.
-
-    :param dataset: Data frame containing all data to group into bins.
-        Will be modified by this function.
-    :param bin_variable: name of the variable to use bins for. Expected
-        to be one of "pressure", "depth", "scan_number", or "time"
-    :param bin_size: size for each bin of data
-    :param include_scan_count: indicates whether to include a column in
-        the updated dataset for the number of scans in each bin
-    :param min_scans: indicates the minimum number of scans required in
-        a bin for it to be included in the dataset. Note that bins with
-        0 scans are always dropped.
-    :param max_scans: indicates the maximum number of scans allowed to
-        be in a bin for it to be included in the dataset. Bins with more
-        scans than max_Scans will be dropped.
-    :param exclude_bad_scans: indicates whether to include bad scans
-        within the bins.
-    :param interpolate: indicates whether to interpolate the balues in
-        the bins after averaging. Only possible for pressure or depth
-        bins
-
+    :param dataset: Dataframe containing all data to group into bins
+    :param bin_variable: The variable that will control binning,
+        typically pressure, depth, or time (scan number not currently
+        supported)
+    :param bin_size: The bin width or range of data for each bin
+    :param include_scan_count: If True includes a column (nbin) in the
+        returned dataframe for the number of scans in each bin. Defaults
+        to True
+    :param min_scans: The minimum number of scans required in a bin for
+        it to be included in the dataset. Defaults to 1
+    :param max_scans: the maximum number of scans allowed to for a bin
+        to be included in the dataset. Defaults to 999999
+    :param exclude_bad_scans: If True, removes scans marked bad by loop
+        edit (scans marked bad by wild edit are always excluded).
+        Defaults to True
+    :param interpolate: If True interpolates bins after averaging.
+        Defaults to False
+    :param cast_type: Sets which data to include. When binning by depth
+        or pressure use, UPCAST, DOWNCAST, or BOTH. When binning by time
+        or other variables use NA. Defaults to CastType.BOTH
+    :param trim_start: Remove this number of scans from the beginning
+        of the initial dataset. Defaults to 0
+    :param trim_end: Remove this number of scans fro mteh end of the
+        initial dataset. Defaults to 0
+    :param include_surface_bin: Includes a surface bin at the beginning
+        of the downcast and/or at the end of the upcast. Defaults to
+        False
+    :param surface_bin_min: The minimum value of the bin_variable to
+        include in the surface bin. Defaults to 0 (value less than 0
+        will be set to 0)
+    :param surface_bin_max: The maximum value of the bin_variable to
+        include in the surface bin. Defaults to 5 (this will be
+        constrained to surface_bin_min and bin_size / 2)
+    :param surface_bin_value: The target value for interpolating the
+        surface bin at the beginning of the downcast. Defaults to 2.5
+        (the target value for the upcast surface bin is always 0)
+    :param flag_value: The magical number indicating bad data.
+        Defaults to -9.99e-29
+    :return: A new dataframe with binned data
     """
+
 
     _dataset = dataset.copy().iloc[trim_start : len(dataset) - trim_end]
 
@@ -651,7 +670,7 @@ def bin_average(
         if include_surface_bin:
             _dataset = pd.concat((_dataset, surface_asc))
 
-    else: # cast_type == CastType.BOTH:
+    elif cast_type == CastType.BOTH:
         # drop first and last these since they're not necessarily the same as surface bin
         min_bin_number = 1
         max_bin_number = np.amax(asc_bins) - 1
@@ -661,13 +680,16 @@ def bin_average(
 
         if include_surface_bin:
             _dataset = pd.concat((surface_desc, _dataset, surface_asc))
+    
+    # else cast_type == CastType.NA:
+        # do nothing
 
     # get the number of scans in each bin
     scans_per_bin = np.bincount(_dataset["bin_number"])
     _dataset['nbin'] = _dataset['bin_number'].map(lambda x: scans_per_bin[x])
 
     if exclude_bad_scans:
-        _dataset = _dataset.groupby("bin_number").mean()
+        _dataset = _dataset.groupby("bin_number", as_index=False).mean()
     else:
         # need to handle the flag column differently
         not_flag = _dataset[_dataset.columns.difference(['flag'])].groupby("bin_number").mean()
@@ -675,7 +697,7 @@ def bin_average(
         # flag value to the group, otherwise 0
         flag = _dataset[['bin_number', 'flag']].groupby("bin_number").mean()
         flag.loc[flag['flag'] != flag_value] = 0
-        _dataset = pd.concat([not_flag, flag], axis=1)
+        _dataset = pd.concat([not_flag, flag], axis=1).reset_index()
 
     _dataset = _dataset.drop(_dataset[_dataset["nbin"] < min_scans].index)
     _dataset = _dataset.drop(_dataset[_dataset["nbin"] > max_scans].index)
@@ -705,6 +727,8 @@ def bin_average(
         
         _dataset[bin_variable] = _dataset['midpoint']
         _dataset = _dataset.drop("midpoint", axis=1)
+    
+    _dataset = _dataset.drop("bin_number", axis=1)
 
     if not include_scan_count:
         _dataset = _dataset.drop("nbin", axis=1)
