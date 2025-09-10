@@ -15,9 +15,9 @@ import pytest
 
 # Internal imports
 import seabirdscientific.instrument_data as idata
-import seabirdscientific.processing as dp
-import seabirdscientific.conversion as dc
-from seabirdscientific.utils import close_enough
+import seabirdscientific.processing as p
+import seabirdscientific.conversion as c
+from seabirdscientific.utils import close_enough, get_decimal_length
 
 test_data = Path("./tests/resources/test-data")
 logger = getLogger(__name__)
@@ -32,7 +32,7 @@ class TestLowPassFilter:
         source_path = test_data / "SBE37SM-unfiltered.asc"
         source = pd.read_csv(source_path)["Tv290C"].values
 
-        filtered = dp.low_pass_filter(source, 10000, sample_interval=120)
+        filtered = p.low_pass_filter(source, 10000, sample_interval=120)
 
         request.node.return_value = filtered.tolist()
 
@@ -58,7 +58,7 @@ class TestAlignCtd:
         self.expected_data.measurements["tv290C"].values[
             len(self.expected_data.measurements["tv290C"].values) - 1
         ] = -9.99e-29
-        result = dp.align_ctd(self.source_data.measurements["tv290C"].values, 12, 120)
+        result = p.align_ctd(self.source_data.measurements["tv290C"].values, 12, 120)
         request.node.return_value = result.tolist()
         assert np.allclose(self.expected_data.measurements["tv290C"].values, result, atol=0.0001)
 
@@ -67,22 +67,22 @@ class TestAlignCtd:
         self.expected_data.measurements["cond0S/m"].values[
             len(self.expected_data.measurements["cond0S/m"].values) - 2
         ] = -9.99e-29
-        result = dp.align_ctd(self.source_data.measurements["cond0S/m"].values, 150, 120)
+        result = p.align_ctd(self.source_data.measurements["cond0S/m"].values, 150, 120)
         request.node.return_value = result.tolist()
         assert np.allclose(self.expected_data.measurements["cond0S/m"].values, result, atol=0.0001)
 
     def test_align_ctd_add_exact_factor(self, request):
-        result = dp.align_ctd(self.source_data.measurements["prdM"].values, 120, 120)
+        result = p.align_ctd(self.source_data.measurements["prdM"].values, 120, 120)
         request.node.return_value = result.tolist()
         assert np.allclose(self.expected_data.measurements["prdM"].values, result, atol=0.0001)
 
     def test_align_ctd_no_change(self, request):
-        result = dp.align_ctd(self.source_data.measurements["prdE"].values, 0, 120)
+        result = p.align_ctd(self.source_data.measurements["prdE"].values, 0, 120)
         request.node.return_value = result.tolist()
         assert np.allclose(self.expected_data.measurements["prdE"].values, result, atol=0.0001)
 
     def test_align_ctd_subtract(self, request):
-        result = dp.align_ctd(self.source_data.measurements["sal00"].values, -240, 120)
+        result = p.align_ctd(self.source_data.measurements["sal00"].values, -240, 120)
         request.node.return_value = result.tolist()
         assert np.allclose(self.expected_data.measurements["sal00"].values, result, atol=0.0001)
 
@@ -93,7 +93,7 @@ class TestCellThermalMass:
         expected_data = idata.cnv_to_instrument_data(expected_data_path)
         source_data_path = test_data / "SBE37SM.cnv"
         source_data = idata.cnv_to_instrument_data(source_data_path)
-        corrected_conductivity = dp.cell_thermal_mass(
+        corrected_conductivity = p.cell_thermal_mass(
             source_data.measurements["tv290C"].values,
             source_data.measurements["cond0S/m"].values,
             0.03,
@@ -115,12 +115,12 @@ class TestLoopEdit:
         )
         data = idata.cnv_to_instrument_data(test_data / "CAST0002_mod_filt.cnv")
 
-        dp.loop_edit_pressure(
+        p.loop_edit_pressure(
             pressure=data.measurements["prSM"].values,
             latitude=data.latitude,
             flag=data.measurements["flag"].values,
             sample_interval=data.interval_s,
-            min_velocity_type=dp.MinVelocityType.FIXED,
+            min_velocity_type=p.MinVelocityType.FIXED,
             min_velocity=0.1,
             window_size=3,
             mean_speed_percent=20,
@@ -150,12 +150,12 @@ class TestLoopEdit:
         )
         data = idata.cnv_to_instrument_data(test_data / "CAST0002_mod_filt.cnv")
 
-        dp.loop_edit_pressure(
+        p.loop_edit_pressure(
             pressure=data.measurements["prSM"].values,
             latitude=data.latitude,
             flag=data.measurements["flag"].values,
             sample_interval=data.interval_s,
-            min_velocity_type=dp.MinVelocityType.FIXED,
+            min_velocity_type=p.MinVelocityType.FIXED,
             min_velocity=0.1,
             window_size=3,
             mean_speed_percent=20,
@@ -187,12 +187,12 @@ class TestLoopEdit:
             test_data / "CAST0002_mod_filt_loop_min_v_remove_soak.cnv"
         )
 
-        dp.loop_edit_pressure(
+        p.loop_edit_pressure(
             pressure=data.measurements["prSM"].values,
             latitude=data.latitude,
             flag=data.measurements["flag"].values,
             sample_interval=data.interval_s,
-            min_velocity_type=dp.MinVelocityType.FIXED,
+            min_velocity_type=p.MinVelocityType.FIXED,
             min_velocity=0.1,
             window_size=3,
             mean_speed_percent=20,
@@ -224,12 +224,12 @@ class TestLoopEdit:
             test_data / "CAST0002_mod_filt_loop_min_v_exclude_flags_from_remove_soak.cnv"
         )
 
-        dp.loop_edit_pressure(
+        p.loop_edit_pressure(
             pressure=data.measurements["prSM"].values,
             latitude=data.latitude,
             flag=data.measurements["flag"].values,
             sample_interval=data.interval_s,
-            min_velocity_type=dp.MinVelocityType.FIXED,
+            min_velocity_type=p.MinVelocityType.FIXED,
             min_velocity=0.1,
             window_size=3,
             mean_speed_percent=20,
@@ -259,12 +259,12 @@ class TestLoopEdit:
         )
         data = idata.cnv_to_instrument_data(test_data / "CAST0002_mod_filt.cnv")
 
-        dp.loop_edit_pressure(
+        p.loop_edit_pressure(
             pressure=data.measurements["prSM"].values,
             latitude=data.latitude,
             flag=data.measurements["flag"].values,
             sample_interval=data.interval_s,
-            min_velocity_type=dp.MinVelocityType.PERCENT,
+            min_velocity_type=p.MinVelocityType.PERCENT,
             min_velocity=0.1,
             window_size=3,
             mean_speed_percent=20,
@@ -295,12 +295,12 @@ class TestLoopEdit:
         )
         data = idata.cnv_to_instrument_data(test_data / "CAST0002_mod_filt.cnv")
 
-        dp.loop_edit_pressure(
+        p.loop_edit_pressure(
             pressure=data.measurements["prSM"].values,
             latitude=data.latitude,
             flag=data.measurements["flag"].values,
             sample_interval=data.interval_s,
-            min_velocity_type=dp.MinVelocityType.PERCENT,
+            min_velocity_type=p.MinVelocityType.PERCENT,
             min_velocity=0.1,
             window_size=3,
             mean_speed_percent=20,
@@ -333,12 +333,12 @@ class TestLoopEdit:
         )
         data = idata.cnv_to_instrument_data(test_data / "SBE19plus.cnv")
 
-        dp.loop_edit_pressure(
+        p.loop_edit_pressure(
             pressure=data.measurements["prdM"].values,
             latitude=data.latitude,
             flag=data.measurements["flag"].values,
             sample_interval=data.interval_s,
-            min_velocity_type=dp.MinVelocityType.FIXED,
+            min_velocity_type=p.MinVelocityType.FIXED,
             min_velocity=0.25,
             window_size=3,
             mean_speed_percent=20,
@@ -371,55 +371,290 @@ class TestBinAverage:
     # I think the extra wide lines here are less annoying than the
     # extra tall lines formatted by black. Feel free to enable black
     # here if you disagree
-    data = {
-        'pressure': [0, 0.5, 1, 1.2, 1.3, 1.5, 1.9, 2.5, 2.9, 3.5, 4, 5, 6, 7, 8, 9, 11, 13],
-        'depth': [1, 1.5, 2, 22, 9, 16, 3, 4, 7, 8, 9, 8, 7, 1, 21, 19, 18, 6],
-        'temperature': [0, 0.5, 1, 1.2, 1.3, 1.5, 1.9, 2.5, 2.9, 3.5, 4, 5, 6, 7, 8, 9, 11, 13],
-        'flag': [0, 0, 0, 9999, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9999, 0, 0, 0],
-    }
-    def test_bin_average_bin_2(self, request):
-        result = dp.bin_average(
-            dataset=pd.DataFrame(self.data),
-            bin_variable='depth',
-            bin_size=2,
-            include_scan_count=True,
-            min_scans=0,
-            max_scans=10,
-            exclude_bad_scans=False,
-            interpolate=True
-        )
-        request.node.return_value = result.temperature.tolist()
-        # TODO: Validate bin average output in TKIT-19 (why are there negative values?)
-        assert np.all(result.temperature == [1.471428571428571, -2.5857142857142863, 3.9909090909090907, 9.7, 0.3000000000000007, 0.98, 15.1, 7.2, -12.399999999999999])
 
-    def test_bin_average_bin_3(self, request):
-        result = dp.bin_average(
-            dataset=pd.DataFrame(self.data),
-            bin_variable='depth',
+    def test_bin_average_interp_bin_3(self, request):
+        source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
+        source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_binavg_interp_bin3.cnv"
+        data = idata.cnv_to_instrument_data(source_in)._to_dataframe()
+        expected = idata.cnv_to_instrument_data(source_out)._to_dataframe()
+        binavg = p.bin_average(
+            dataset=data,
+            bin_variable='prdM',
             bin_size=3,
-            include_scan_count=True,
-            min_scans=0,
-            max_scans=10,
-            exclude_bad_scans=False,
             interpolate=True
             )
-        request.node.return_value = result.temperature.tolist()
-        assert np.all(result.temperature == [1.8, 0.6545454545454548, 10.8, -3.9000000000000012, 0.98, 18.5, 0.09999999999999964])
+        for variable in expected.columns:
+            exponent = -1 * get_decimal_length(expected[variable])
+            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=10**exponent)
 
-    def test_bin_average_bin_5_exclude_flags(self, request):
-        result = dp.bin_average(
-            dataset=pd.DataFrame(self.data),
-            bin_variable='depth',
+    def test_bin_average_interp_bin_5(self, request):
+        source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
+        source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_binavg_interp_bin5.cnv"
+        data = idata.cnv_to_instrument_data(source_in)._to_dataframe()
+        expected = idata.cnv_to_instrument_data(source_out)._to_dataframe()
+        binavg = p.bin_average(
+            dataset=data,
+            bin_variable='prdM',
             bin_size=5,
-            include_scan_count=True,
-            min_scans=0,
-            max_scans=10,
-            exclude_bad_scans=True,
             interpolate=True
         )
-        request.node.return_value = result.temperature.tolist()
-        assert np.all(result.temperature == [4.948447204968944, 8.842857142857142, -0.34516129032257936, 0.45999999999999996, 32.1])
-        # fmt: on
+        for variable in expected.columns:
+            exponent = -1 * get_decimal_length(expected[variable])
+            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=10**exponent)
+
+    def test_bin_average_default(self, request):
+        source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
+        source_in2 = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped2.cnv"
+        source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_binavg.cnv"
+        source_out2 = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped2_binavg.cnv"
+        data = idata.cnv_to_instrument_data(source_in)._to_dataframe()
+        data2 = idata.cnv_to_instrument_data(source_in2)._to_dataframe()
+        expected = idata.cnv_to_instrument_data(source_out)._to_dataframe()
+        expected2 = idata.cnv_to_instrument_data(source_out2)._to_dataframe()
+        binavg = p.bin_average(
+            dataset = data,
+            bin_variable = 'prdM',
+            bin_size = 2,
+        )
+        binavg2 = p.bin_average(
+            dataset = data2,
+            bin_variable = 'prdM',
+            bin_size = 2,
+        )
+        for variable in expected.columns:
+            exponent = -1 * get_decimal_length(expected[variable])
+            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=10**exponent)
+            assert np.allclose(expected2[variable], binavg2[variable], rtol=0, atol=10**exponent)
+
+    def test_bin_average_include_surface(self, request):
+        source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
+        source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_binavg_surface.cnv"
+        data = idata.cnv_to_instrument_data(source_in)._to_dataframe()
+        expected = idata.cnv_to_instrument_data(source_out)._to_dataframe()
+        binavg = p.bin_average(
+            dataset = data,
+            bin_variable = 'prdM',
+            bin_size = 2,
+            include_surface_bin = True,
+            surface_bin_min = 0,
+            surface_bin_max = 1,
+        )
+        for variable in expected.columns:
+            exponent = -1 * get_decimal_length(expected[variable])
+            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=10**exponent)
+
+    def test_bin_average_interpolate(self, request):
+        source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
+        source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_binavg_interp.cnv"
+        data = idata.cnv_to_instrument_data(source_in)._to_dataframe()
+        expected = idata.cnv_to_instrument_data(source_out)._to_dataframe()
+        binavg = p.bin_average(
+            dataset = data,
+            bin_variable = 'prdM',
+            bin_size = 2,
+            interpolate = True,
+        )
+        for variable in expected.columns:
+            exponent = -1 * get_decimal_length(expected[variable])
+            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=10**exponent)
+    
+    def test_bin_average_interpolate_surface(self, request):
+        source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
+        source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_binavg_interp_surface.cnv"
+        data = idata.cnv_to_instrument_data(source_in)._to_dataframe()
+        expected = idata.cnv_to_instrument_data(source_out)._to_dataframe()
+        binavg = p.bin_average(
+            dataset = data,
+            bin_variable = 'prdM',
+            bin_size = 2,
+            interpolate = True,
+            include_surface_bin = True,
+            surface_bin_min = 0,
+            surface_bin_max = 1,
+            surface_bin_value = 0.5,
+        )
+        for variable in expected.columns:
+            exponent = -1 * get_decimal_length(expected[variable])
+            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=10**exponent)
+
+    def test_bin_average_downcast(self, request):
+        source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
+        source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_binavg_downcast.cnv"
+        data = idata.cnv_to_instrument_data(source_in)._to_dataframe()
+        expected = idata.cnv_to_instrument_data(source_out)._to_dataframe()
+        binavg = p.bin_average(
+            dataset = data,
+            bin_variable = 'prdM',
+            bin_size = 2,
+            cast_type = p.CastType.DOWNCAST
+        )
+        for variable in expected.columns:
+            exponent = -1 * get_decimal_length(expected[variable])
+            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=10**exponent)
+
+    def test_bin_average_downcast_interp(self, request):
+        source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
+        source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_binavg_downcast_interp.cnv"
+        data = idata.cnv_to_instrument_data(source_in)._to_dataframe()
+        expected = idata.cnv_to_instrument_data(source_out)._to_dataframe()
+        binavg = p.bin_average(
+            dataset = data,
+            bin_variable = 'prdM',
+            bin_size = 2,
+            cast_type = p.CastType.DOWNCAST,
+            interpolate = True,
+        )
+        for variable in expected.columns:
+            exponent = -1 * get_decimal_length(expected[variable])
+            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=10**exponent)
+
+    def test_bin_average_downcast_interp_surface(self, request):
+        source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
+        source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_binavg_downcast_interp_surface.cnv"
+        data = idata.cnv_to_instrument_data(source_in)._to_dataframe()
+        expected = idata.cnv_to_instrument_data(source_out)._to_dataframe()
+        binavg = p.bin_average(
+            dataset = data,
+            bin_variable = 'prdM',
+            bin_size = 2,
+            cast_type = p.CastType.DOWNCAST,
+            interpolate = True,
+            include_surface_bin = True,
+            surface_bin_min = 0,
+            surface_bin_max = 1,
+            surface_bin_value = 0.5,
+        )
+        for variable in expected.columns:
+            exponent = -1 * get_decimal_length(expected[variable])
+            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=10**exponent)
+
+    def test_bin_average_upcast(self, request):
+        source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
+        source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_binavg_upcast.cnv"
+        data = idata.cnv_to_instrument_data(source_in)._to_dataframe()
+        expected = idata.cnv_to_instrument_data(source_out)._to_dataframe()
+        binavg = p.bin_average(
+            dataset = data,
+            bin_variable = 'prdM',
+            bin_size = 2,
+            cast_type = p.CastType.UPCAST
+        )
+        for variable in expected.columns:
+            exponent = -1 * get_decimal_length(expected[variable])
+            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=10**exponent)
+
+    def test_bin_average_upcast_interp(self, request):
+        source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
+        source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_binavg_upcast_interp.cnv"
+        data = idata.cnv_to_instrument_data(source_in)._to_dataframe()
+        expected = idata.cnv_to_instrument_data(source_out)._to_dataframe()
+        binavg = p.bin_average(
+            dataset = data,
+            bin_variable = 'prdM',
+            bin_size = 2,
+            cast_type = p.CastType.UPCAST,
+            interpolate = True,
+        )
+        for variable in expected.columns:
+            exponent = -1 * get_decimal_length(expected[variable])
+            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=10**exponent)
+
+    def test_bin_average_upcast_interp_surface(self, request):
+        source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
+        source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_binavg_upcast_interp_surface.cnv"
+        data = idata.cnv_to_instrument_data(source_in)._to_dataframe()
+        expected = idata.cnv_to_instrument_data(source_out)._to_dataframe()
+        binavg = p.bin_average(
+            dataset = data,
+            bin_variable = 'prdM',
+            bin_size = 2,
+            cast_type = p.CastType.UPCAST,
+            interpolate = True,
+            include_surface_bin = True,
+            surface_bin_min = 0,
+            surface_bin_max = 1,
+            surface_bin_value = 0.5,
+        )
+        for variable in expected.columns:
+            exponent = -1 * get_decimal_length(expected[variable])
+            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=10**exponent)
+
+    def test_bin_average_exclude_flags(self, request):
+        source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_loopedit_wildedit.cnv"
+        source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_loopedit_wildedit_binavg_exclude.cnv"
+        data = idata.cnv_to_instrument_data(source_in)._to_dataframe()
+        expected = idata.cnv_to_instrument_data(source_out)._to_dataframe()
+        binavg = p.bin_average(
+            dataset = data,
+            bin_variable = 'prdM',
+            bin_size = 2,
+        )
+        for variable in expected.columns:
+            exponent = -1 * get_decimal_length(expected[variable])
+            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=10**exponent)
+
+    def test_bin_average_include_flags(self, request):
+        source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_loopedit_wildedit.cnv"
+        source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_loopedit_wildedit_binavg_include.cnv"
+        data = idata.cnv_to_instrument_data(source_in)._to_dataframe()
+        expected = idata.cnv_to_instrument_data(source_out)._to_dataframe()
+        binavg = p.bin_average(
+            dataset = data,
+            bin_variable = 'prdM',
+            bin_size = 2,
+            exclude_bad_scans = False
+        )
+        for variable in expected.columns:
+            exponent = -1 * get_decimal_length(expected[variable])
+            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=10**exponent)
+
+    def test_bin_average_include_flags_interp(self, request):
+        source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_loopedit_wildedit.cnv"
+        source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_loopedit_wildedit_binavg_include_interp.cnv"
+        data = idata.cnv_to_instrument_data(source_in)._to_dataframe()
+        expected = idata.cnv_to_instrument_data(source_out)._to_dataframe()
+        binavg = p.bin_average(
+            dataset = data,
+            bin_variable = 'prdM',
+            bin_size = 2,
+            interpolate = True,
+            exclude_bad_scans = False,
+        )
+        for variable in expected.columns:
+            exponent = -1 * get_decimal_length(expected[variable])
+            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=10**exponent)
+
+    def test_bin_average_exclude_flags_interp(self, request):
+        source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_loopedit_wildedit.cnv"
+        source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_loopedit_wildedit_binavg_exclude_interp.cnv"
+        data = idata.cnv_to_instrument_data(source_in)._to_dataframe()
+        expected = idata.cnv_to_instrument_data(source_out)._to_dataframe()
+        binavg = p.bin_average(
+            dataset = data,
+            bin_variable = 'prdM',
+            bin_size = 2,
+            interpolate = True,
+        )
+        for variable in expected.columns:
+            exponent = -1 * get_decimal_length(expected[variable])
+            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=10**exponent)
+
+    def test_bin_average_time(self, request):
+        source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
+        source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_binavg_time.cnv"
+        data = idata.cnv_to_instrument_data(source_in)._to_dataframe()
+        expected = idata.cnv_to_instrument_data(source_out)._to_dataframe()
+        binavg = p.bin_average(
+            dataset = data,
+            bin_variable = 'timeS',
+            bin_size = 10,
+            cast_type = p.CastType.NA
+        )
+        for variable in expected.columns:
+            exponent = -1 * get_decimal_length(expected[variable])
+            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=10**exponent)
+
+    # fmt: on
 
 
 class TestWildEdit:
@@ -435,7 +670,7 @@ class TestWildEdit:
         conductivity = dataset.measurements["c0S/m"].values
         flags = dataset.measurements["flag"].values
 
-        wild_edit_output = dp.wild_edit(conductivity, flags, 2, 20, 100, 0, False)
+        wild_edit_output = p.wild_edit(conductivity, flags, 2, 20, 100, 0, False)
 
         request.node.return_value = wild_edit_output.tolist()
         assert np.all(wild_edit_output == expected_conductivity)
@@ -455,10 +690,10 @@ class TestWindowFilter:
         expected_dataset = idata.cnv_to_instrument_data(f"{self.file_prefix}_boxcar_5.cnv")
         expected_pressure = expected_dataset.measurements["prdM"].values
 
-        filtered_pressure = dp.window_filter(
+        filtered_pressure = p.window_filter(
             self.pressure,
             self.flags,
-            dp.WindowFilterType.BOXCAR,
+            p.WindowFilterType.BOXCAR,
             self.window_width,
             self.cnvdata.interval_s,
             self.half_width,
@@ -473,10 +708,10 @@ class TestWindowFilter:
         expected_dataset = idata.cnv_to_instrument_data(f"{self.file_prefix}_boxcar_5_excluded.cnv")
         expected_pressure = expected_dataset.measurements["prdM"].values
 
-        filtered_pressure = dp.window_filter(
+        filtered_pressure = p.window_filter(
             self.pressure,
             self.flags,
-            dp.WindowFilterType.BOXCAR,
+            p.WindowFilterType.BOXCAR,
             self.window_width,
             self.cnvdata.interval_s,
             self.half_width,
@@ -491,10 +726,10 @@ class TestWindowFilter:
         expected_dataset = idata.cnv_to_instrument_data(f"{self.file_prefix}_cosine_5.cnv")
         expected_pressure = expected_dataset.measurements["prdM"].values
 
-        filtered_pressure = dp.window_filter(
+        filtered_pressure = p.window_filter(
             self.pressure,
             self.flags,
-            dp.WindowFilterType.COSINE,
+            p.WindowFilterType.COSINE,
             self.window_width,
             self.cnvdata.interval_s,
             self.half_width,
@@ -509,10 +744,10 @@ class TestWindowFilter:
         expected_dataset = idata.cnv_to_instrument_data(f"{self.file_prefix}_cosine_5_excluded.cnv")
         expected_pressure = expected_dataset.measurements["prdM"].values
 
-        filtered_pressure = dp.window_filter(
+        filtered_pressure = p.window_filter(
             self.pressure,
             self.flags,
-            dp.WindowFilterType.COSINE,
+            p.WindowFilterType.COSINE,
             self.window_width,
             self.cnvdata.interval_s,
             self.half_width,
@@ -527,10 +762,10 @@ class TestWindowFilter:
         expected_dataset = idata.cnv_to_instrument_data(f"{self.file_prefix}_triangle_5.cnv")
         expected_pressure = expected_dataset.measurements["prdM"].values
 
-        filtered_pressure = dp.window_filter(
+        filtered_pressure = p.window_filter(
             self.pressure,
             self.flags,
-            dp.WindowFilterType.TRIANGLE,
+            p.WindowFilterType.TRIANGLE,
             self.window_width,
             self.cnvdata.interval_s,
             self.half_width,
@@ -545,10 +780,10 @@ class TestWindowFilter:
         expected_dataset = idata.cnv_to_instrument_data(f"{self.file_prefix}_triangle_5_excluded.cnv")
         expected_pressure = expected_dataset.measurements["prdM"].values
 
-        filtered_pressure = dp.window_filter(
+        filtered_pressure = p.window_filter(
             self.pressure,
             self.flags,
-            dp.WindowFilterType.TRIANGLE,
+            p.WindowFilterType.TRIANGLE,
             self.window_width,
             self.cnvdata.interval_s,
             self.half_width,
@@ -563,10 +798,10 @@ class TestWindowFilter:
         expected_dataset = idata.cnv_to_instrument_data(f"{self.file_prefix}_gaussian_5_1_025.cnv")
         expected_pressure = expected_dataset.measurements["prdM"].values
 
-        filtered_pressure = dp.window_filter(
+        filtered_pressure = p.window_filter(
             self.pressure,
             self.flags,
-            dp.WindowFilterType.GAUSSIAN,
+            p.WindowFilterType.GAUSSIAN,
             self.window_width,
             self.cnvdata.interval_s,
             self.half_width,
@@ -581,10 +816,10 @@ class TestWindowFilter:
         expected_dataset = idata.cnv_to_instrument_data(f"{self.file_prefix}_gaussian_5_1_025_excluded.cnv")
         expected_pressure = expected_dataset.measurements["prdM"].values
 
-        filtered_pressure = dp.window_filter(
+        filtered_pressure = p.window_filter(
             self.pressure,
             self.flags,
-            dp.WindowFilterType.GAUSSIAN,
+            p.WindowFilterType.GAUSSIAN,
             self.window_width,
             self.cnvdata.interval_s,
             self.half_width,
@@ -599,10 +834,10 @@ class TestWindowFilter:
         expected_dataset = idata.cnv_to_instrument_data(f"{self.file_prefix}_median_5.cnv")
         expected_pressure = expected_dataset.measurements["prdM"].values
 
-        filtered_pressure = dp.window_filter(
+        filtered_pressure = p.window_filter(
             self.pressure,
             self.flags,
-            dp.WindowFilterType.MEDIAN,
+            p.WindowFilterType.MEDIAN,
             self.window_width,
             self.cnvdata.interval_s,
             self.half_width,
@@ -616,10 +851,10 @@ class TestWindowFilter:
         expected_dataset = idata.cnv_to_instrument_data(f"{self.file_prefix}_median_5_excluded.cnv")
         expected_pressure = expected_dataset.measurements["prdM"].values
 
-        filtered_pressure = dp.window_filter(
+        filtered_pressure = p.window_filter(
             self.pressure,
             self.flags,
-            dp.WindowFilterType.MEDIAN,
+            p.WindowFilterType.MEDIAN,
             self.window_width,
             self.cnvdata.interval_s,
             self.half_width,
@@ -655,7 +890,7 @@ class TestBuoyancy:
     # fmt: on
 
     def test_buoyancy(self, request):
-        output_dataframe = dp.buoyancy(
+        output_dataframe = p.buoyancy(
             self.temperature,
             self.salinity,
             self.pressure,
@@ -688,7 +923,7 @@ class TestBuoyancy:
         )
 
     def test_buoyancy_eos80(self, request):
-        output_dataframe = dp.buoyancy(
+        output_dataframe = p.buoyancy(
             self.temperature,
             self.salinity,
             self.pressure,
@@ -728,12 +963,12 @@ class TestNitrate:
 
     def test_convert_nitrate_umno3(self, request):
         expected_umno3 = np.array([-5, 18.75625, 45.00625, 71.25625, 100])
-        nitrate = dc.convert_nitrate(self.voltages, dac_min=self.dac_min, dac_max=self.dac_max)
+        nitrate = c.convert_nitrate(self.voltages, dac_min=self.dac_min, dac_max=self.dac_max)
         request.node.return_value = nitrate.tolist()
         assert np.allclose(expected_umno3, nitrate, atol=0.000001)
 
     def test_convert_nitrate_mgnl(self, request):
         expected_mgnl = np.array([-0.070035, 0.26271879375, 0.63040254375, 0.99808629375, 1.4007])
-        nitrate = dc.convert_nitrate(self.voltages, dac_min=self.dac_min, dac_max=self.dac_max, units='mgNL')
+        nitrate = c.convert_nitrate(self.voltages, dac_min=self.dac_min, dac_max=self.dac_max, units='mgNL')
         request.node.return_value = nitrate.tolist()
         assert np.allclose(expected_mgnl, nitrate, atol=0.000001)

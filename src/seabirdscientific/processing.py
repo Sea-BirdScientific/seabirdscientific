@@ -35,8 +35,9 @@ data.
 #     buoyancy (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, float, bool, float)
 
 # Native imports
-from enum import Enum
 import math
+from enum import Enum
+from logging import getLogger
 
 # Third-party imports
 import gsw
@@ -50,6 +51,11 @@ from scipy import signal, stats
 from .conversion import depth_from_pressure
 from . import eos80_processing as eos80
 
+
+logger = getLogger(__name__)
+
+
+FLAG_VALUE = -9.99e-29
 
 class MinVelocityType(Enum):
     """The minimum velocity type used with loop edit"""
@@ -68,6 +74,17 @@ class WindowFilterType(Enum):
     TRIANGLE = "triangle"
     GAUSSIAN = "gaussian"
     MEDIAN = "median"
+
+
+class CastType(Enum):
+    """The subsection of data to use when splitting by upcast and/or
+    downcast
+    """
+
+    BOTH = 0
+    DOWNCAST = 1
+    UPCAST = 2
+    NA = 3
 
 
 def butterworth_filter(x: np.ndarray, time_constant: float, sample_interval: float) -> np.ndarray:
@@ -113,7 +130,7 @@ def low_pass_filter(x: np.ndarray, time_constant: float, sample_interval: float)
 
 
 def align_ctd(
-    x: np.ndarray, offset: float, sample_interval: float, flag_value=-9.99e-29
+    x: np.ndarray, offset: float, sample_interval: float, flag_value=FLAG_VALUE
 ) -> np.ndarray:
     """Takes an ndarray object of data for a single variable and applies
     a time offset to the series.
@@ -183,7 +200,7 @@ def loop_edit_pressure(
     max_soak_depth: float,
     use_deck_pressure_offset: bool,
     exclude_flags: bool,
-    flag_value=-9.99e-29,
+    flag_value=FLAG_VALUE,
 ) -> np.ndarray:
     """Variation of loop_edit_depth that derives depth from pressure
     and latitude.
@@ -246,7 +263,7 @@ def loop_edit_depth(
     max_soak_depth: float,
     use_deck_pressure_offset: bool,
     exclude_flags: bool,
-    flag_value=-9.99e-29,
+    flag_value=FLAG_VALUE,
 ) -> np.ndarray:
     """Marks scans determined to be part of a pressure loop as bad.
 
@@ -511,138 +528,212 @@ def bin_average(
     dataset: pd.DataFrame,
     bin_variable: str,
     bin_size: float,
-    include_scan_count: bool,
-    min_scans: int,
-    max_scans: int,
-    exclude_bad_scans: bool,
-    interpolate: bool,
-):
-    """Averages data into a number of set bins, averaging values within
-    each bin.
+    include_scan_count: bool = True,
+    min_scans: int = 1,
+    max_scans: int = 999999,
+    exclude_bad_scans: bool = True,
+    interpolate: bool = False,
+	cast_type: CastType = CastType.BOTH,
+	trim_start: int = 0,
+	trim_end: int = 0,
+	include_surface_bin: bool = False,
+	surface_bin_min: float = 0,
+	surface_bin_max: float = 5,
+	surface_bin_value: float = 2.5,
+	flag_value = FLAG_VALUE,
+) -> pd.DataFrame:
+    """Averages data into bins, using intervals based on bin_variable.
+    Returns a new dataframe with the binned data
 
-    Bins with fewer than min_scans or larger than max_scans get removed.
-    Updates the dataset argument to be in bins.
-
-    :param dataset: Data frame containing all data to group into bins.
-        Will be modified by this function.
-    :param bin_variable: name of the variable to use bins for. Expected
-        to be one of "pressure", "depth", "scan_number", or "time"
-    :param bin_size: size for each bin of data
-    :param include_scan_count: indicates whether to include a column in
-        the updated dataset for the number of scans in each bin
-    :param min_scans: indicates the minimum number of scans required in
-        a bin for it to be included in the dataset. Note that bins with
-        0 scans are always dropped.
-    :param max_scans: indicates the maximum number of scans allowed to
-        be in a bin for it to be included in the dataset. Bins with more
-        scans than max_Scans will be dropped.
-    :param exclude_bad_scans: indicates whether to include bad scans
-        within the bins.
-    :param interpolate: indicates whether to interpolate the balues in
-        the bins after averaging. Only possible for pressure or depth
-        bins
-
+    :param dataset: Dataframe containing all data to group into bins
+    :param bin_variable: The variable that will control binning,
+        typically pressure, depth, or time (scan number not currently
+        supported)
+    :param bin_size: The bin width or range of data for each bin
+    :param include_scan_count: If True includes a column (nbin) in the
+        returned dataframe for the number of scans in each bin. Defaults
+        to True
+    :param min_scans: The minimum number of scans required in a bin for
+        it to be included in the dataset. Defaults to 1
+    :param max_scans: the maximum number of scans allowed to for a bin
+        to be included in the dataset. Defaults to 999999
+    :param exclude_bad_scans: If True, removes scans marked bad by loop
+        edit (scans marked bad by wild edit are always excluded).
+        Defaults to True
+    :param interpolate: If True interpolates bins after averaging.
+        Defaults to False
+    :param cast_type: Sets which data to include. When binning by depth
+        or pressure use, UPCAST, DOWNCAST, or BOTH. When binning by time
+        or other variables use NA. Defaults to CastType.BOTH
+    :param trim_start: Remove this number of scans from the beginning
+        of the initial dataset. Defaults to 0
+    :param trim_end: Remove this number of scans fro mteh end of the
+        initial dataset. Defaults to 0
+    :param include_surface_bin: Includes a surface bin at the beginning
+        of the downcast and/or at the end of the upcast. Defaults to
+        False
+    :param surface_bin_min: The minimum value of the bin_variable to
+        include in the surface bin. Defaults to 0 (value less than 0
+        will be set to 0)
+    :param surface_bin_max: The maximum value of the bin_variable to
+        include in the surface bin. Defaults to 5 (this will be
+        constrained to surface_bin_min and bin_size / 2)
+    :param surface_bin_value: The target value for interpolating the
+        surface bin at the beginning of the downcast. Defaults to 2.5
+        (the target value for the upcast surface bin is always 0)
+    :param flag_value: The magical number indicating bad data.
+        Defaults to -9.99e-29
+    :return: A new dataframe with binned data
     """
-    # TODO: Currently unimplemented: surface bin, begin/end scans to omit,
-    #     processing upcast vs downcast vs both, time bins, scan number bins
 
-    if exclude_bad_scans and "flag" in dataset.columns:
-        # remove all scans marked as bad (i.e. flag greater than 0)
-        dataset.drop(dataset[dataset["flag"] > 0].index, inplace=True)
-    bin_row = dataset[
-        bin_variable
-    ].to_numpy()  # pd series containing the variable we want to bin for, converted to ndarray
-    max_val = np.amax(bin_row)
 
-    bin_min = bin_size - (bin_size / 2.0)  # min value of first bin
+    _dataset = dataset.copy().iloc[trim_start : len(dataset) - trim_end]
+
+    # remove scans marked as bad during loop edit
+    if exclude_bad_scans and "flag" in _dataset.columns:
+        _dataset = _dataset.drop(_dataset[_dataset["flag"] == flag_value].index)
+
+    # always remove scans marked bad during wild edit
+    for column in _dataset.columns.difference(["flag"]):
+        _dataset = _dataset.drop(_dataset[_dataset[column] == flag_value].index)
+
+    # pd series containing the variable we want to bin for, converted to ndarray
+    control = _dataset[bin_variable].to_numpy()
+
+    bin_min = bin_size / 2.0  # min value of first bin
+    control_max = np.amax(control)
+    bin_max = control_max - ((bin_min + control_max) % bin_size) + bin_size
+
+    # split into descending and ascending, including peak in both
+    peak_index = np.argmax(control)
+    control_desc = control[:peak_index+1]
+    control_asc = control[peak_index:]
 
     # create the bins to sort into
-    # note that we create an inital "dummy" bin from -bin_min to bin_min to catch extra low values
-    # TODO: Above issue can be addressed by surface bin likely
-    bin_targets = np.arange(start=bin_min - bin_size, stop=max_val + bin_size, step=bin_size)
+    desc_bin_edges = np.arange(start=bin_min, stop=bin_max + bin_size, step=bin_size)
+    asc_bin_adges = np.arange(start=bin_max, stop=bin_min - bin_size, step=-bin_size)
 
     # setup bins to indicate where each index should be sorted into
-    bins = np.digitize(x=bin_row, bins=bin_targets, right=True)
+    desc_bins = np.digitize(x=control_desc, bins=desc_bin_edges)
+    asc_bins = np.digitize(x=control_asc, bins=asc_bin_adges, right=True)
+    asc_bins += np.amax(desc_bins) - 1
+    _dataset["bin_number"] = np.concat((desc_bins[:-1], asc_bins))
 
-    dataset["bin_number"] = bins
+    if interpolate:
+        desc_midpoints = (desc_bin_edges[:-1] + desc_bin_edges[1:]) / 2
+        asc_midpoints = (asc_bin_adges[1:-1] + asc_bin_adges[2:]) / 2
+        midpoints = np.concat((desc_midpoints, asc_midpoints))
+        _dataset['midpoint'] = _dataset['bin_number'].map(
+            lambda n: midpoints[n - 1] if 0 < n <= len(midpoints) else np.nan
+        )
 
-    dataset = dataset.groupby("bin_number").mean()
+    if include_surface_bin:
+        if surface_bin_min < 0:
+            logger.warning('Surface bin min set to 0')
+        _surface_bin_min = max(surface_bin_min, 0)
+        
+        if not surface_bin_min <= surface_bin_max <= bin_min:
+            logger.warning(f'Surface bin max set to {_surface_bin_max}')
+        _surface_bin_max = max(surface_bin_min, min(surface_bin_max, bin_min))
+        
+        bins = (_surface_bin_min, _surface_bin_max)
+        surface_desc_bin = np.digitize(x=control_desc, bins=bins) == 1
+        surface_asc_bin = np.digitize(x=control_asc, bins=bins, right=True) == 1
+        
+        # these will get added back in depending on the cast type
+        surface_desc = _dataset[:len(surface_desc_bin)][surface_desc_bin]
+        surface_asc = _dataset[len(surface_desc_bin)-1:][surface_asc_bin]
+
+        if interpolate:
+            surface_desc['midpoint'] = surface_desc['midpoint'].fillna(surface_bin_value)
+            surface_asc['midpoint'] = surface_asc['midpoint'].fillna(0)
+
+    if cast_type == CastType.DOWNCAST:
+        # keeping one past the peak index to match SBE data processing
+        _dataset = _dataset[:peak_index+2]
+        min_bin_number = 1
+        below_min = (_dataset["bin_number"] < min_bin_number)
+        _dataset = _dataset.drop(_dataset[below_min].index)
+
+        if include_surface_bin:
+            _dataset = pd.concat((surface_desc, _dataset))
+        
+    elif cast_type == CastType.UPCAST:
+        _dataset = _dataset[peak_index:]
+        # discarding the first bin to match SBE data processing
+        min_bin_number = np.amin(asc_bins) + 1
+        max_bin_number = np.amax(asc_bins) - 1
+        below_min = (_dataset["bin_number"] < min_bin_number)
+        over_max = (_dataset["bin_number"] > max_bin_number)
+        _dataset = _dataset.drop(_dataset[below_min | over_max].index)
+
+        if include_surface_bin:
+            _dataset = pd.concat((_dataset, surface_asc))
+
+    elif cast_type == CastType.BOTH:
+        # drop first and last these since they're not necessarily the same as surface bin
+        min_bin_number = 1
+        max_bin_number = np.amax(asc_bins) - 1
+        below_min = (_dataset["bin_number"] < min_bin_number)
+        over_max = (_dataset["bin_number"] > max_bin_number)
+        _dataset = _dataset.drop(_dataset[below_min | over_max].index)
+
+        if include_surface_bin:
+            _dataset = pd.concat((surface_desc, _dataset, surface_asc))
+    
+    # else cast_type == CastType.NA:
+        # do nothing
 
     # get the number of scans in each bin
-    nbin_unfiltered = np.bincount(bins)
-    nbin = np.delete(nbin_unfiltered, np.where(nbin_unfiltered == 0))
-    dataset["nbin"] = nbin
+    scans_per_bin = np.bincount(_dataset["bin_number"])
+    _dataset['nbin'] = _dataset['bin_number'].map(lambda x: scans_per_bin[x])
 
-    dataset.drop(dataset[dataset["nbin"] < min_scans].index, inplace=True)
-    dataset.drop(dataset[dataset["nbin"] > max_scans].index, inplace=True)
+    if exclude_bad_scans:
+        _dataset = _dataset.groupby("bin_number", as_index=False).mean()
+    else:
+        # need to handle the flag column differently
+        not_flag = _dataset[_dataset.columns.difference(['flag'])].groupby("bin_number").mean()
+        # if all the values in a group are the flag value the assign the
+        # flag value to the group, otherwise 0
+        flag = _dataset[['bin_number', 'flag']].groupby("bin_number").mean()
+        flag.loc[flag['flag'] != flag_value] = 0
+        _dataset = pd.concat([not_flag, flag], axis=1).reset_index()
 
-    # TODO: validate that this is running correctly
+    _dataset = _dataset.drop(_dataset[_dataset["nbin"] < min_scans].index)
+    _dataset = _dataset.drop(_dataset[_dataset["nbin"] > max_scans].index)
+
     if interpolate:
-        new_dataset = dataset.copy()
-        prev_row = None
-        first_row = pd.Series([])
-        first_row_index = 0
-        second_row = pd.Series([])
-        for index, row in dataset.iterrows():
-            if prev_row is None:
-                # we'll come back to the first row at the end
-                first_row = row
-                first_row_index = index
-            else:
-                prev_presure = prev_row[
-                    bin_variable
-                ]  # use bin_variable since this could be pressure or depth
-                curr_pressure = row[
-                    bin_variable
-                ]  # use bin_variable since this could be pressure or depth
-                center_pressure = index * bin_size
+        def interp(p_p, x_p, p_c, x_c, p_i):
+            """Interpolate according to SBE Data Processing manual
+            version 7.26.8, page 89
+            """
+            x_i = ((x_c - x_p) * (p_i - p_p) / (p_c - p_p)) + x_p
+            return x_i
 
-                for col_name in dataset.columns:
-                    if col_name in ["nbin", "flag", "bin_number"]:
-                        continue
-                    prev_val = prev_row[col_name]
-                    curr_val = row[col_name]
+        excluded_columns = ["nbin", "flag", "bin_number", bin_variable, 'midpoint']
+        for column in (_dataset.columns).difference(excluded_columns):
+            interp_result = []
+            for n in range(len(_dataset[column])):
+                n_p = 1 if n == 0 else n-1
+                p_p = _dataset[bin_variable].iloc[n_p]
+                x_p = _dataset[column].iloc[n_p]
+                p_c = _dataset[bin_variable].iloc[n]
+                x_c = _dataset[column].iloc[n]
+                p_i = _dataset['midpoint'].iloc[n]
+                x_i = interp(p_p, x_p, p_c, x_c, p_i)
+                interp_result.append(x_i)
 
-                    # formula from the seasoft data processing manual, page 89, version 7.26.8-3
-                    interpolated_val = (
-                        (curr_val - prev_val)
-                        * (center_pressure - prev_presure)
-                        / (curr_pressure - prev_presure)
-                    ) + prev_val
-                    new_dataset.loc[index, col_name] = interpolated_val
-
-            prev_row = row
-            if index == 2:
-                # save this so we can reference it at the end for interpolating the first row
-                second_row = row
-
-        # back to the first row now
-        prev_presure = second_row[bin_variable]  # reference second row's value
-        curr_pressure = first_row[
-            bin_variable
-        ]  # use bin_variable since this could be pressure or depth
-        center_pressure = first_row_index * bin_size
-
-        for col_name in dataset.columns:
-            if col_name in ["nbin", "flag", "bin_number"]:
-                continue
-            prev_val = second_row[col_name]  # reference second row's value
-            curr_val = first_row[col_name]
-
-            # formula from the seasoft manual, page 89
-            interpolated_val = (
-                (curr_val - prev_val)
-                * (center_pressure - prev_presure)
-                / (curr_pressure - prev_presure)
-            ) + prev_val
-            new_dataset.loc[first_row_index, col_name] = interpolated_val
-
-        dataset = new_dataset
+            _dataset[column] = pd.Series(interp_result, index=_dataset.index)
+        
+        _dataset[bin_variable] = _dataset['midpoint']
+        _dataset = _dataset.drop("midpoint", axis=1)
+    
+    _dataset = _dataset.drop("bin_number", axis=1)
 
     if not include_scan_count:
-        dataset.drop("nbin", axis=1, inplace=True)
+        _dataset = _dataset.drop("nbin", axis=1)
 
-    return dataset
+    return _dataset
 
 
 def wild_edit(
@@ -653,7 +744,7 @@ def wild_edit(
     scans_per_block: int,
     distance_to_mean: float,
     exclude_bad_flags: bool,
-    flag_value=-9.99e-29,
+    flag_value=FLAG_VALUE,
 ) -> np.ndarray:
     """Flags outliers in a dataset.
 
@@ -728,7 +819,7 @@ def flag_data(
     std_pass_2: float,
     distance_to_mean: float,
     exclude_bad_flags: bool,
-    flag_value=-9.99e-29,
+    flag_value=FLAG_VALUE,
 ) -> np.ndarray:
     """Helper function for wild_edit() that handles the three main loops
 
@@ -780,7 +871,7 @@ def window_filter(
     half_width=1,
     offset=0.0,
     exclude_flags=False,
-    flag_value=-9.99e-29,
+    flag_value=FLAG_VALUE,
 ) -> np.ndarray:
     """Filters a dataset by convolving it with an array of weights.
 
@@ -923,7 +1014,7 @@ def buoyancy(
     longitude: np.ndarray,
     window_size: float,
     use_modern_formula=True,
-    flag_value=-9.99e-29,
+    flag_value=FLAG_VALUE,
 ):
     """Calculates the 4 buoyancy values based off the incoming data.
 

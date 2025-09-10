@@ -193,6 +193,10 @@ class InstrumentData:
     start_time: Optional[date]
     sample_count: Optional[int]
 
+    def _to_dataframe(self):
+        measurements = {k: v.values for k,v in self.measurements.items()}
+        return pd.DataFrame(measurements)
+
 
 # pylint: disable=too-many-branches # TODO: Fix this
 def cnv_to_instrument_data(filepath: Path) -> InstrumentData:
