@@ -144,7 +144,7 @@ class TestReadNMEAHex:
             id.Sensors.nmeaLatitude,
             id.Sensors.nmeaLongitude,
             id.Sensors.statusAndSign,
-            id.Sensors.nmeaTime
+            id.Sensors.nmeaTime,
         ],
     )
 

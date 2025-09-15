@@ -124,7 +124,7 @@ class TestChartData:
             chart_type="",
         )
         data = viz.ChartData(data_path, config)
-        
+
         assert isinstance(data, viz.ChartData)
 
 

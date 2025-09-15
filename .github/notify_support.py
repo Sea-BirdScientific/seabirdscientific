@@ -15,9 +15,9 @@ def send_alert(args):
 
     message = EmailMessage()
     message.set_content(args.body)
-    message['Subject'] = args.subject
-    message['From'] = args.sender
-    message['To'] = args.recipient
+    message["Subject"] = args.subject
+    message["From"] = args.sender
+    message["To"] = args.recipient
 
     context = ssl.create_default_context()
     with smtplib.SMTP(args.host, args.port) as mailserver:
@@ -26,14 +26,14 @@ def send_alert(args):
         mailserver.send_message(message)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--host')
-    parser.add_argument('--port')
-    parser.add_argument('--username')
-    parser.add_argument('--password')
-    parser.add_argument('--sender')
-    parser.add_argument('--recipient')
-    parser.add_argument('--subject')
-    parser.add_argument('--body')
+    parser.add_argument("--host")
+    parser.add_argument("--port")
+    parser.add_argument("--username")
+    parser.add_argument("--password")
+    parser.add_argument("--sender")
+    parser.add_argument("--recipient")
+    parser.add_argument("--subject")
+    parser.add_argument("--body")
     send_alert(args=parser.parse_args())
