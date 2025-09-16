@@ -50,6 +50,7 @@ dev = [
   "notebook",
   "pytest",
   "pytest-cov",
+  "black==25.1.0"
 ]
 
 
