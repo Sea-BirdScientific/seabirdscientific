@@ -197,10 +197,12 @@ class TestReadSBE911plus:
         assert self.raw["surface par"].iloc[0], 3 == 0.02442
         assert self.raw["NMEA Latitude"].iloc[0] == 32.9438
         assert self.raw["NMEA Longitude"].iloc[0] == -117.29792
-        assert int(self.raw["SBE911 pump status"].iloc[0]) == 0  # Does not match SBE Processing
+        assert (
+            int(self.raw["SBE911 pump status"].iloc[0]) == 0
+        )  # Does not match SBE Processing, matches Fathom
         assert (
             int(self.raw["SBE911 bottom contact status"].iloc[0]) == 0
-        )  # Does not match SBE Processing
+        )  # Does not match SBE Processing, matches Fathom
         assert int(self.raw["SBE911 confirm status"].iloc[0]) == 1
         assert int(self.raw["SBE911 modem status"].iloc[0]) == 1
         assert int(self.raw["data integrity"].iloc[0]) == 95
