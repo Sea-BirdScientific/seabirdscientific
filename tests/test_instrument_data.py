@@ -1,6 +1,4 @@
-"""instrument data conversion unit tests.
-
-"""
+"""instrument data conversion unit tests."""
 
 # Native imports
 from datetime import datetime
@@ -103,7 +101,7 @@ class TestCnvToInstrumentData:
         assert first_values == expected_first_values
 
 
-class TestReadHex:
+class TestReadHex19plus:
     filepath = test_data / "19plus_V2_CTD-processing_example.hex"
     raw = id.read_hex_file(
         filepath,
@@ -119,7 +117,7 @@ class TestReadHex:
         ],
     )
 
-    def test_read_hex(self):
+    def test_read_19plus_hex(self):
         assert self.raw["temperature"].iloc[0] == 322798
         assert self.raw["temperature"].iloc[-1] == 326317
         assert self.raw["conductivity"].iloc[0] == 675415 / 256
@@ -128,6 +126,47 @@ class TestReadHex:
         assert self.raw["pressure"].iloc[-1] == 533538
         assert self.raw["temperature compensation"].iloc[0] == 20625 / 13107
         assert self.raw["temperature compensation"].iloc[-1] == 20361 / 13107
+
+
+class TestReadHex39plus:
+    filepath = test_data / "SBE39plus.hex"
+    raw = id.read_hex_file(
+        filepath,
+        id.InstrumentType.SBE39Plus,
+        [
+            id.Sensors.Temperature,
+            id.Sensors.Conductivity,
+            id.Sensors.Pressure,
+        ],
+    )
+
+    def test_read_39plus_hex(self):
+        assert self.raw["temperature"].iloc[0] == 1804057
+        assert self.raw["temperature"].iloc[-1] == 1803910
+        assert self.raw["pressure"].iloc[0] == 108184
+        assert self.raw["pressure"].iloc[-1] == 108132
+        assert self.raw["temperature compensation"].iloc[0] == 445677321 / 13107
+        assert self.raw["temperature compensation"].iloc[-1] == 445664214 / 13107
+        assert self.raw["date time"].iloc[0] == datetime(2025, 9, 15, 20, 27, 22)
+        assert self.raw["date time"].iloc[-1] == datetime(2025, 9, 15, 20, 28, 9)
+
+
+class TestReadSeaFET2:
+    filepath = test_data / "SeaFET2.hex"
+    raw = id.read_hex_file(filepath, id.InstrumentType.SeaFET2, [], False, True)
+
+    def test_read_seaFET2_hex(self):
+        print(self.raw)
+        assert self.raw["vrs external"].iloc[0] == 5106181
+        assert self.raw["vrs internal"].iloc[0] == 5096276
+        assert self.raw["pH temperature"].iloc[0] == 1002679
+        assert self.raw["vk"].iloc[0] == 5960288
+        assert self.raw["ib"].iloc[0] == 8381912
+        assert self.raw["ik"].iloc[0] == 8384541
+        assert self.raw["relative humidity"].iloc[0] == 17632
+        assert self.raw["internal temperature"].iloc[0] == 26016
+        assert self.raw["error flag"].iloc[0] == 0
+        assert self.raw["date time"].iloc[0] == datetime(2025, 9, 15, 21, 35, 48)
 
 
 class TestReadNMEAHex:
@@ -153,5 +192,5 @@ class TestReadNMEAHex:
         assert self.raw["NMEA Latitude"].iloc[-1] == 48.62298000
         assert self.raw["NMEA Longitude"].iloc[0] == -123.50002000
         assert self.raw["NMEA Longitude"].iloc[-1] == -123.49994000
-        assert self.raw["NMEA Date Time"].iloc[0] == datetime.fromisoformat("2023-03-18 05:15:19")
-        assert self.raw["NMEA Date Time"].iloc[-1] == datetime.fromisoformat("2023-03-18 05:36:02")
+        assert self.raw["NMEA Date Time"].iloc[0] == datetime(2023, 3, 18, 12, 15, 19)
+        assert self.raw["NMEA Date Time"].iloc[-1] == datetime(2023, 3, 18, 12, 36, 2)
