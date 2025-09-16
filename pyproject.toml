@@ -54,6 +54,10 @@ exclude = '''
 /(
     CONTRIBUTING\.md
   | README\.md
+  | venv
+  | \.venv
+  | build
+  | dist
 )/
 '''
 
