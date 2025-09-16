@@ -194,7 +194,7 @@ class TestReadSBE911plus:
         assert round(self.raw["volt 5"].iloc[0], 4) == 2.8755
         assert round(self.raw["volt 6"].iloc[0], 4) == 2.8193
         assert self.raw["volt 7"].iloc[0] == 0
-        assert self.raw["surface par"].iloc[0], 3 == 0.02442
+        assert self.raw["surface par"].iloc[0] == 0.02442
         assert self.raw["NMEA Latitude"].iloc[0] == 32.9438
         assert self.raw["NMEA Longitude"].iloc[0] == -117.29792
         assert (
