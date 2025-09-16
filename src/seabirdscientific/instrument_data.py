@@ -14,8 +14,11 @@ instrument data.
 #   read_hex_file (str, InstrumentType, List[Sensors], bool) -> pd.DataFrame
 #   preallocate_dataframe (InstrumentType, str, List[Sensors], bool, int) -> pd.DataFrame
 #   read_hex (InstrumentType, str, List[Sensors], bool) -> dict
-#   read_SBE19plus_format_0 (str, List[Sensors], bool) -> dict
-#   read_SBE37SM_format_0 (str, List[Sensors]) -> dict
+#   read_SBE19plus_format_0
+#   read_SBE37SM_format_0
+#   read_SBE39plus_format_0
+#   read_seafet_format_0
+#   read_SBE911plus_format_0
 
 # Native imports
 import builtins
