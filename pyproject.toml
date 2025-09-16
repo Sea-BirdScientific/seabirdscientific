@@ -50,6 +50,12 @@ requires = [
 
 [tool.black]
 line-length=99
+exclude = '''
+/(
+    CONTRIBUTING\.md
+  | README\.md
+)/
+'''
 
 [tool.mypy]
 disable_error_code = ["import-untyped"]
