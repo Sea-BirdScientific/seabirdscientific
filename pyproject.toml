@@ -1,6 +1,6 @@
 [project]
 name = "seabirdscientific"
-version = "2.6.0"
+version = "2.6.1"
 description = "Sea-Bird Scientific Community Toolkit"
 readme = "README.md"
 license = "MIT"
@@ -30,13 +30,28 @@ dependencies = [
   "plotly>=6.0.0",
   "scipy",
 ]
-[dependency-groups]
+
+# For dev environment created with venv and pip
+[project.optional-dependencies]
 dev = [
   "nbformat",
   "notebook",
   "pytest",
   "pytest-cov",
+  "black==25.1.0",
+  "pylint",
+  "build"
 ]
+
+# For dev environment created with UV
+[dependency-groups]
+dev = [
+  "nbformat",
+  "notebook",
+  "pytest",
+  "pytest-cov"
+]
+
 
 [project.urls]
 Homepage = "https://www.seabird.com/software"
@@ -50,6 +65,16 @@ requires = [
 
 [tool.black]
 line-length=99
+exclude = '''
+/(
+    CONTRIBUTING\.md
+  | README\.md
+  | venv
+  | \.venv
+  | build
+  | dist
+)/
+'''
 
 [tool.mypy]
 disable_error_code = ["import-untyped"]

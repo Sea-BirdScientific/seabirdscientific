@@ -5,6 +5,7 @@ from pathlib import Path
 
 RESULTS_PATH = Path(f"./tests/results/py_values.json")
 
+
 def pytest_configure(config):
     if not os.path.exists(RESULTS_PATH.parent):
         os.makedirs(RESULTS_PATH.parent)

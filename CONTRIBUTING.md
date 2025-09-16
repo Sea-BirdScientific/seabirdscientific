@@ -52,6 +52,8 @@ We want your work to be readable by others; therefore, we ask you to comply with
 
   The pyproject.toml file includes a setting that sets the maximum line length used by black to 99 characters.
 
+  If you're using VS Code, black can be set up to run on each save in Settings > search Format On Save > format a file on save.
+
 - Run [pylint](https://github.com/pylint-dev/pylint) on your Python file(s) before submitting your pull request. It will help identify errors and style issues in your code.
 
   Pylint can be used to check an individual file by running `pylint path/to/file.py`. Running `pylint src` from the root directory of the toolkit folder will check all files in the src directory.
@@ -70,6 +72,12 @@ We want your work to be readable by others; therefore, we ask you to comply with
 
 Below is the typical sequence for creating a submission. Feel free to [submit a question](https://github.com/Sea-BirdScientific/seabirdscientific/issues/new?template=question.md) if you need assistance.
 
+Environment setup:
+1. Setup virtual environment `python -m venv .venv`
+2. Activate environment `.venv\Scripts\activate`
+3. Install all developer packages with `pip install -e ".[dev]"`
+
+Contributions:
 1. Create a fork of the seabirdscientific repository. We recommend that you only copy the main branch into your fork.
 2. Clone the fork to your computer.
 3. Create a new branch for your changes.

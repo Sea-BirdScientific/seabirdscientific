@@ -103,7 +103,7 @@ def get_decimal_length(data: np.ndarray):
     decimal_lengths = [0]
     for n in range(len(data)):
         if not np.isnan(data[n]) and data[n] != FLAG_VALUE:
-            decimal_lengths.append(len(f'{data[n]}'.split('.')[1]))
+            decimal_lengths.append(len(f"{data[n]}".split(".")[1]))
             if len(decimal_lengths) >= 10:
                 break
     return max(decimal_lengths)

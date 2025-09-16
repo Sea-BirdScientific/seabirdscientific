@@ -1,6 +1,4 @@
-"""Data processing unit tests.
-
-"""
+"""Data processing unit tests."""
 
 # Native imports
 from logging import getLogger
@@ -328,9 +326,7 @@ class TestLoopEdit:
         assert mismatches / len(result_flags) < 0.02
 
     def test_loop_edit_pressure_min_velocity_pass_2(self, request):
-        expected_data = idata.cnv_to_instrument_data(
-            test_data / "SBE19plus_loop_edit.cnv"
-        )
+        expected_data = idata.cnv_to_instrument_data(test_data / "SBE19plus_loop_edit.cnv")
         data = idata.cnv_to_instrument_data(test_data / "SBE19plus.cnv")
 
         p.loop_edit_pressure(
@@ -664,9 +660,7 @@ class TestWildEdit:
         )
         expected_conductivity = expected_dataset.measurements["c0S/m"].values
 
-        dataset = idata.cnv_to_instrument_data(
-            test_data / "19plus_V2_CTD-processing_example.cnv"
-        )
+        dataset = idata.cnv_to_instrument_data(test_data / "19plus_V2_CTD-processing_example.cnv")
         conductivity = dataset.measurements["c0S/m"].values
         flags = dataset.measurements["flag"].values
 
@@ -705,7 +699,9 @@ class TestWindowFilter:
         assert close_enough(filtered_pressure, expected_pressure, 3, 1e-12)
 
     def test_boxcar_filter_exclude_flags(self, request):
-        expected_dataset = idata.cnv_to_instrument_data(f"{self.file_prefix}_boxcar_5_excluded.cnv")
+        expected_dataset = idata.cnv_to_instrument_data(
+            f"{self.file_prefix}_boxcar_5_excluded.cnv"
+        )
         expected_pressure = expected_dataset.measurements["prdM"].values
 
         filtered_pressure = p.window_filter(
@@ -741,7 +737,9 @@ class TestWindowFilter:
         assert close_enough(filtered_pressure, expected_pressure, 3, 1e-12)
 
     def test_cosine_filter_exclude_flags(self, request):
-        expected_dataset = idata.cnv_to_instrument_data(f"{self.file_prefix}_cosine_5_excluded.cnv")
+        expected_dataset = idata.cnv_to_instrument_data(
+            f"{self.file_prefix}_cosine_5_excluded.cnv"
+        )
         expected_pressure = expected_dataset.measurements["prdM"].values
 
         filtered_pressure = p.window_filter(
@@ -777,7 +775,9 @@ class TestWindowFilter:
         assert close_enough(filtered_pressure, expected_pressure, 3, 1e-12)
 
     def test_triangle_filter_exclude_flags(self, request):
-        expected_dataset = idata.cnv_to_instrument_data(f"{self.file_prefix}_triangle_5_excluded.cnv")
+        expected_dataset = idata.cnv_to_instrument_data(
+            f"{self.file_prefix}_triangle_5_excluded.cnv"
+        )
         expected_pressure = expected_dataset.measurements["prdM"].values
 
         filtered_pressure = p.window_filter(
@@ -813,7 +813,9 @@ class TestWindowFilter:
         assert close_enough(filtered_pressure, expected_pressure, 3, 1e-12)
 
     def test_gaussian_filter_exclude_flags(self, request):
-        expected_dataset = idata.cnv_to_instrument_data(f"{self.file_prefix}_gaussian_5_1_025_excluded.cnv")
+        expected_dataset = idata.cnv_to_instrument_data(
+            f"{self.file_prefix}_gaussian_5_1_025_excluded.cnv"
+        )
         expected_pressure = expected_dataset.measurements["prdM"].values
 
         filtered_pressure = p.window_filter(
@@ -845,10 +847,12 @@ class TestWindowFilter:
             False,
         )
         request.node.return_value = filtered_pressure.tolist()
-        assert(close_enough(filtered_pressure, expected_pressure, 3, 1e-12))
+        assert close_enough(filtered_pressure, expected_pressure, 3, 1e-12)
 
     def test_median_filter_exclude_flags(self, request):
-        expected_dataset = idata.cnv_to_instrument_data(f"{self.file_prefix}_median_5_excluded.cnv")
+        expected_dataset = idata.cnv_to_instrument_data(
+            f"{self.file_prefix}_median_5_excluded.cnv"
+        )
         expected_pressure = expected_dataset.measurements["prdM"].values
 
         filtered_pressure = p.window_filter(
@@ -862,7 +866,7 @@ class TestWindowFilter:
             True,
         )
         request.node.return_value = filtered_pressure.tolist()
-        assert(close_enough(filtered_pressure, expected_pressure, 3, 1e-12))
+        assert close_enough(filtered_pressure, expected_pressure, 3, 1e-12)
 
 
 class TestBuoyancy:
@@ -901,10 +905,10 @@ class TestBuoyancy:
         )
 
         request.node.return_value = {
-            'N2': output_dataframe["N2"].to_list(),
-            'N': output_dataframe["N"].to_list(),
-            'E': output_dataframe["E"].to_list(),
-            'E10^-8': output_dataframe["E10^-8"].to_list(),
+            "N2": output_dataframe["N2"].to_list(),
+            "N": output_dataframe["N"].to_list(),
+            "E": output_dataframe["E"].to_list(),
+            "E10^-8": output_dataframe["E10^-8"].to_list(),
         }
         # Comparing EOS-80 to TEOS-10 buoyancy calculations.
         # We do not expect them to agree better than +/-1.5% due to differences in the algorithms
@@ -934,10 +938,10 @@ class TestBuoyancy:
         )
 
         request.node.return_value = {
-            'N2': output_dataframe["N2"].to_list(),
-            'N': output_dataframe["N"].to_list(),
-            'E': output_dataframe["E"].to_list(),
-            'E10^-8': output_dataframe["E10^-8"].to_list(),
+            "N2": output_dataframe["N2"].to_list(),
+            "N": output_dataframe["N"].to_list(),
+            "E": output_dataframe["E"].to_list(),
+            "E10^-8": output_dataframe["E10^-8"].to_list(),
         }
         # Comparing SBE Data Processing C++ to local Python results using the same EOS-80 calculations.
         # We expect very very close agreement: << 1% differnce
@@ -969,6 +973,8 @@ class TestNitrate:
 
     def test_convert_nitrate_mgnl(self, request):
         expected_mgnl = np.array([-0.070035, 0.26271879375, 0.63040254375, 0.99808629375, 1.4007])
-        nitrate = c.convert_nitrate(self.voltages, dac_min=self.dac_min, dac_max=self.dac_max, units='mgNL')
+        nitrate = c.convert_nitrate(
+            self.voltages, dac_min=self.dac_min, dac_max=self.dac_max, units="mgNL"
+        )
         request.node.return_value = nitrate.tolist()
         assert np.allclose(expected_mgnl, nitrate, atol=0.000001)
