@@ -1,6 +1,4 @@
-"""Visualization unit tests
-
-"""
+"""Visualization unit tests"""
 
 # Native imports
 import importlib.resources
@@ -124,7 +122,7 @@ class TestChartData:
             chart_type="",
         )
         data = viz.ChartData(data_path, config)
-        
+
         assert isinstance(data, viz.ChartData)
 
 

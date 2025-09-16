@@ -1,6 +1,4 @@
-"""instrument data conversion unit tests.
-
-"""
+"""instrument data conversion unit tests."""
 
 # Native imports
 from datetime import datetime
@@ -144,7 +142,7 @@ class TestReadNMEAHex:
             id.Sensors.nmeaLatitude,
             id.Sensors.nmeaLongitude,
             id.Sensors.statusAndSign,
-            id.Sensors.nmeaTime
+            id.Sensors.nmeaTime,
         ],
     )
 

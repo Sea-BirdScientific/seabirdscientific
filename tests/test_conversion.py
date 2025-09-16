@@ -1,6 +1,4 @@
-"""Data conversion unit tests.
-
-"""
+"""Data conversion unit tests."""
 
 # Native imports
 
@@ -224,7 +222,9 @@ class TestDeriveDensity:
             (4000.0, "gsw_sigma4A0"),
         ],
     )
-    def test_derive_potential_density_from_t_s_p_pass(self, request, reference_pressure, expected_column):
+    def test_derive_potential_density_from_t_s_p_pass(
+        self, request, reference_pressure, expected_column
+    ):
         temperature = self.data["t090C"].values
         salinity = self.data["sal00"].values
         pressure = self.data["prM"].values
@@ -259,7 +259,9 @@ class TestDeriveDensity:
             (4000.0, "gsw_sigma4A0"),
         ],
     )
-    def test_derive_potential_density_from_t_c_p_pass(self, request, reference_pressure, expected_column):
+    def test_derive_potential_density_from_t_c_p_pass(
+        self, request, reference_pressure, expected_column
+    ):
         temperature = self.data["t090C"].values
         conductivity = self.data["c0S/m"].values * 10.0
         pressure = self.data["prM"].values
@@ -361,7 +363,7 @@ class TestConvertOxygen:
         expected = np.array(
             [4.4728, 4.4722, 4.4762, 4.4828, 4.4867, 4.4879, 4.488, 4.488, 4.3707, 4.3148]
         )
-        #fmt: on
+        # fmt: on
         result = dc._convert_sbe43_oxygen(
             raw_oxygen,
             temperature,
@@ -592,7 +594,7 @@ class TestConvertSBE63Oxygen:
     raw_oxygen = np.array([31.06, 31.66, 32.59, 33.92, 34.82, 35.44, 35.44, 35.44])
     pressure = np.array([0, 0, 0, 0, 0, 0, 1000, 100])
     temperature = np.array([30, 26, 20, 12, 6, 2, 2, 2])
-    salinity = np.array([0, 0, 0, 0, 0, 0, 0, 35]) #  salinity is 0 PSU during calibration
+    salinity = np.array([0, 0, 0, 0, 0, 0, 0, 35])  #  salinity is 0 PSU during calibration
     expected_oxygen = np.array([0.706, 0.74, 0.799, 0.892, 1.005, 1.095, 1.1398, 0.8647])
 
     def test_convert_sbe63_oxygen(self, request):
@@ -603,7 +605,7 @@ class TestConvertSBE63Oxygen:
             self.salinity,
             ec.oxygen_63_coefs_sn2568,
             ec.thermistor_63_coefs_sn2568,
-            'C',
+            "C",
         )
         # TODO: fix tolerance in TKIT-110
         request.node.return_value = oxygen.tolist()
@@ -614,9 +616,8 @@ class TestConvertSBE63Oxygen:
 
         expected = np.array([2.0002, 2.0002, 1.9999, 1.9999, 5.9998, 12.0, 19.9998])
         thermistor_temperature = dc.convert_sbe63_thermistor(
-            raw_temperature,
-            ec.thermistor_63_coefs_sn2568
+            raw_temperature, ec.thermistor_63_coefs_sn2568
         )
-        
+
         request.node.return_value = thermistor_temperature.tolist()
         assert np.allclose(expected, thermistor_temperature, atol=1e-6)

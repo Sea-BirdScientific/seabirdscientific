@@ -72,8 +72,12 @@ We want your work to be readable by others; therefore, we ask you to comply with
 
 Below is the typical sequence for creating a submission. Feel free to [submit a question](https://github.com/Sea-BirdScientific/seabirdscientific/issues/new?template=question.md) if you need assistance.
 
-Install all developer packages with `py -m pip install seabirdscientific[dev]`
+Environment setup:
+1. Setup virtual environment `python -m venv .venv`
+2. Activate environment `.venv\Scripts\activate`
+3. Install all developer packages with `pip install -e ".[dev]"`
 
+Contributions:
 1. Create a fork of the seabirdscientific repository. We recommend that you only copy the main branch into your fork.
 2. Clone the fork to your computer.
 3. Create a new branch for your changes.

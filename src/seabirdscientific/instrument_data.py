@@ -194,7 +194,7 @@ class InstrumentData:
     sample_count: Optional[int]
 
     def _to_dataframe(self):
-        measurements = {k: v.values for k,v in self.measurements.items()}
+        measurements = {k: v.values for k, v in self.measurements.items()}
         return pd.DataFrame(measurements)
 
 
