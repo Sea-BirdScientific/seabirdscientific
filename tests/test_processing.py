@@ -1,6 +1,4 @@
-"""Data processing unit tests.
-
-"""
+"""Data processing unit tests."""
 
 # Native imports
 from logging import getLogger

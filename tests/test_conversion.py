@@ -1,6 +1,4 @@
-"""Data conversion unit tests.
-
-"""
+"""Data conversion unit tests."""
 
 # Native imports
 

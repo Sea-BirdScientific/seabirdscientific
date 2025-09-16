@@ -30,6 +30,20 @@ dependencies = [
   "plotly>=6.0.0",
   "scipy",
 ]
+
+# For dev environment created with venv and pip
+[project.optional-dependencies]
+dev = [
+  "nbformat",
+  "notebook",
+  "pytest",
+  "pytest-cov",
+  "black==25.1.0",
+  "pylint",
+  "build"
+]
+
+# For dev environment created with UV
 [dependency-groups]
 dev = [
   "nbformat",
@@ -37,6 +51,7 @@ dev = [
   "pytest",
   "pytest-cov",
 ]
+
 
 [project.urls]
 Homepage = "https://www.seabird.com/software"

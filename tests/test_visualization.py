@@ -1,6 +1,4 @@
-"""Visualization unit tests
-
-"""
+"""Visualization unit tests"""
 
 # Native imports
 import importlib.resources

@@ -1,5 +1,4 @@
-"""Send an email with credentials passed in as command line args 
-"""
+"""Send an email with credentials passed in as command line args"""
 
 import argparse
 import smtplib
