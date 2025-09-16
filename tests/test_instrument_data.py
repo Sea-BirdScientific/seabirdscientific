@@ -152,9 +152,7 @@ class TestReadHex39plus:
 
 
 class TestReadSBE911plus:
-
     filepath = test_data / "SBE911plus/2401002.hex"
-
     raw = id.read_hex_file(
         filepath,
         id.InstrumentType.SBE911Plus,
