@@ -15,8 +15,10 @@ def pytest_configure(config):
 
 def pytest_addoption(parser):
     parser.addoption(
-        "--log-results", action="store_true", default=False,
-        help="Log results to a json file for comparing to Fathom"
+        "--log-results",
+        action="store_true",
+        default=False,
+        help="Log results to a json file for comparing to Fathom",
     )
 
 
