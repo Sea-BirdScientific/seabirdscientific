@@ -174,13 +174,10 @@ class TestReadSBE911plus:
             id.Sensors.nmeaLocation,
             id.Sensors.SystemTime,
         ],
-        False,
-        True,
     )
 
     # Expected values are from SBE Data Processing
     def test_read_911plus_hex(self):
-        print(self.raw.iloc[0])
         assert round(self.raw["temperature"].iloc[0], 3) == 8262.223
         assert round(self.raw["conductivity"].iloc[0], 3) == 5697.117
         assert round(self.raw["digiquartz pressure"].iloc[0], 3) == 33116.492
@@ -194,7 +191,7 @@ class TestReadSBE911plus:
         assert round(self.raw["volt 5"].iloc[0], 4) == 2.8755
         assert round(self.raw["volt 6"].iloc[0], 4) == 2.8193
         assert self.raw["volt 7"].iloc[0] == 0
-        assert self.raw["surface par"].iloc[0] == 0.02442
+        assert round(self.raw["surface par"].iloc[0], 5) == 0.02442
         assert self.raw["NMEA Latitude"].iloc[0] == 32.9438
         assert self.raw["NMEA Longitude"].iloc[0] == -117.29792
         assert (

@@ -587,6 +587,10 @@ def read_SBE39plus_format_0(
         results[HexDataTypes.temperatureCompensation.value] = temp_comp
         n += HEX_LENGTH["temperatureCompensation"]
 
+    # Validate hex length
+    if n != len(hex_segment.strip()):
+        raise ValueError("Hex string length does not match expectation based on enabled sensors")
+
     return results
 
 
@@ -695,6 +699,12 @@ def read_seafet_format_0(
     # Error flag
     results[HexDataTypes.errorFlag.value] = int(hex_segment[n : n + HEX_LENGTH["errorFlag"]], 16)
     n += HEX_LENGTH["errorFlag"]
+
+    # Validate hex length
+    if n != len(hex_segment.strip()):
+        raise ValueError(
+            "Hex string length does not match expectation based on instrument_type and is_shallow"
+        )
 
     return results
 
@@ -873,10 +883,8 @@ def read_SBE911plus_format_0(  # pylint: disable=invalid-name
         n += HEX_LENGTH["systemTime"]
 
     # Validate hex length
-    print(n)
-    print(len(hex_segment))
-    # if n != len(hex_segment):
-    #    raise ValueError("Hex string length does not match expectation based on enabled sensors")
+    if n != len(hex_segment.strip()):
+        raise ValueError("Hex string length does not match expectation based on enabled sensors")
 
     return results
 
@@ -1044,7 +1052,7 @@ def read_SBE19plus_format_0(
 
     # Validate hex length. Ensure length matches what is expected based
     # on enabled sensors and moored mode.
-    if n != len(hex_segment.split("\n")[0]):
+    if n != len(hex_segment.strip()):
         raise RuntimeWarning(
             "Hex string length does not match expectation based on enabled sensors and moored mode"
         )
@@ -1104,6 +1112,10 @@ def read_SBE37SM_format_0(  # pylint: disable=invalid-name
         seconds=seconds_since_2000 + SECONDS_BETWEEN_EPOCH_AND_2000
     )
     n += HEX_LENGTH["time"]
+
+    # Validate hex length
+    if n != len(hex_segment.strip()):
+        raise ValueError("Hex string length does not match expectation based on enabled sensors")
 
     return results
 
