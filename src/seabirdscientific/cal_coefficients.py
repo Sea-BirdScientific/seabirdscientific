@@ -29,6 +29,22 @@ class TemperatureCoefficients:
     a2: float
     a3: float
 
+@dataclass
+class TemperatureFrequencyCoefficients:
+    """
+    :param g: coefficient
+    :param h: coefficient
+    :param i: coefficient
+    :param j: coefficient
+    :param f0: coefficient
+    """
+
+    g: float
+    h: float
+    i: float
+    j: float
+    f0: float
+
 
 @dataclass
 class PressureCoefficients:
@@ -60,6 +76,70 @@ class PressureCoefficients:
     ptempa1: float
     ptempa2: float
 
+@dataclass 
+class PressureDigiquartzCoefficients:
+    """
+    :param a0: coefficient
+    :param a1: coefficient
+    :param a2: coefficient
+    :param b0: coefficient
+    :param b1: coefficient
+    :param b2: coefficient
+    :param c0: coefficient
+    :param c1: coefficient
+    :param c2: coefficient
+    :param d0: coefficient
+    :param d1: coefficient
+    :param d2: coefficient
+    """
+
+    c1: float
+    c2: float
+    c3: float
+    d1: float
+    d2: float
+    t1: float
+    t2: float
+    t3: float
+    t4: float
+    t5: float
+    AD590M: float
+    AD590B: float
+
+     def __init__(
+        self,
+        c1: float,
+        c2: float,
+        c3: float,
+        d1: float,
+        d2: float,
+        t1: float,
+        t2: float,
+        t3: float,
+        t4: float,
+        t5: float,
+        AD590M: Optional[float] = None,
+        AD590B: Optional[float] = None
+    ):
+        self.c1 = c1
+        self.c2 = c2
+        self.c3 = c3
+        self.d1 = d1
+        self.d2 = d2
+        self.t1 = t1
+        self.t2 = t2
+        self.t3 = t3
+        self.t4 = t4
+        self.t5 = t5
+        if AD590M is not None:
+            self.AD590M = AD590M
+        else:
+            self.AD590M = 0.028927  # default value for SBE16plus V2 and SBE19plus V2
+
+        if AD590B is not None:
+            self.AD590B = AD590B
+        else:
+            self.AD590B = -41.1733  # default value for SBE16plus V2 and SBE19plus V2
 
 @dataclass
 class ConductivityCoefficients:
