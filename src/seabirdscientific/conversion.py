@@ -131,11 +131,11 @@ def convert_temperature_frequency(
     standard: Literal["ITS90", "IPTS68"] = "ITS90",
     units: Literal["C", "F"] = "C",
 ):
-    """Convert raw frequency to temperature in degrees Celsius
+    """Convert raw frequency to temperature in degrees Celsius or degrees Fahrenheit
 
     :param frequency: raw frequency from the temperature sensor
     :param coefs: calibration coefficients for the temperature sensor
-    :return: temperature in Celsius
+    :return: temperature in Celsius or Fahrenheit
     """
     fLog = np.log(coefs.f0 / frequency)
     temperature = (
@@ -194,7 +194,7 @@ def convert_pressure_digiquartz(
     units: Literal["dbar", "psia"],
     sample_interval: float,
 ):
-    """Converts pressure counts to PSIA (pounds per square inch, abolute) for a digiquartz pressure sensor.
+    """Converts pressure counts to PSIA (pounds per square inch, abolute) or dbar for a digiquartz pressure sensor.
 
     pressure_count and compensation_voltage are expected to be raw data
     from an instrument in A/D counts
@@ -206,7 +206,7 @@ def convert_pressure_digiquartz(
     :param units: whether or not to use psia or dbar as the returned
         unit type
     :param sample_interval: sample rate of the data to be used for temperature compensation correction, in seconds
-    :return: pressure val in PSIA
+    :return: pressure val in PSIA or dbar
     """
     sea_level_pressure = 14.7
     # First, average temperature compensation over 30 seconds
