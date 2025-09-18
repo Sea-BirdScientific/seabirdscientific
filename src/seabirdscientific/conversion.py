@@ -57,7 +57,9 @@ from .cal_coefficients import (
     PHSeaFETInternalCoefficients,
     PHSeaFETExternalCoefficients,
     PressureCoefficients,
+    PressureDigiquartzCoefficients,
     TemperatureCoefficients,
+    TemperatureFrequencyCoefficients,
     Thermistor63Coefficients,
     ECOCoefficients,
 )
@@ -123,6 +125,31 @@ def convert_temperature(
     return temperature
 
 
+def convert_temperature_frequency(
+    frequency: np.ndarray,
+    coefs: TemperatureFrequencyCoefficients,
+    standard: Literal["ITS90", "IPTS68"] = "ITS90",
+    units: Literal["C", "F"] = "C",
+):
+    """Convert raw frequency to temperature in degrees Celsius or degrees Fahrenheit
+
+    :param frequency: raw frequency from the temperature sensor
+    :param coefs: calibration coefficients for the temperature sensor
+    :return: temperature in Celsius or Fahrenheit
+    """
+    fLog = np.log(coefs.f0 / frequency)
+    temperature = (
+        1 / (coefs.g + coefs.h * fLog + coefs.i * fLog**2 + coefs.j * fLog**3) - KELVIN_OFFSET_0C
+    )
+
+    if standard == "IPTS68":
+        temperature *= ITS90_TO_IPTS68
+    if units == "F":
+        temperature = temperature * 9 / 5 + 32  # Convert C to F
+
+    return temperature
+
+
 def convert_pressure(
     pressure_count: np.ndarray,
     compensation_voltage: np.ndarray,
@@ -160,11 +187,82 @@ def convert_pressure(
     return pressure
 
 
+def convert_pressure_digiquartz(
+    pressure_count: np.ndarray,
+    compensation_voltage: np.ndarray,
+    coefs: PressureDigiquartzCoefficients,
+    units: Literal["dbar", "psia"],
+    sample_interval: float,
+):
+    """Converts pressure counts to PSIA (pounds per square inch, abolute) or dbar for a digiquartz pressure sensor.
+
+    pressure_count and compensation_voltage are expected to be raw data
+    from an instrument in A/D counts
+
+    :param pressure_count: pressure value to convert, in A/D counts
+    :param compensation_voltage: pressure temperature compensation
+        voltage, in counts or volts depending on the instrument
+    :param coefs: calibration coefficients for the digiquartz pressure sensor
+    :param units: whether or not to use psia or dbar as the returned
+        unit type
+    :param sample_interval: sample rate of the data to be used for temperature compensation correction, in seconds
+    :return: pressure val in PSIA or dbar
+    """
+    sea_level_pressure = 14.7
+    # First, average temperature compensation over 30 seconds
+    max_scans_in_30_seconds = 720
+    scans_in_window = floor(30 / sample_interval)
+    scans_in_window = max(scans_in_window, 1)
+    scans_in_window = min(scans_in_window, max_scans_in_30_seconds)
+
+    rolling_sum = compensation_voltage[0] * scans_in_window
+    modified_compensation_voltage = compensation_voltage.copy()
+
+    for i in range(0, len(compensation_voltage)):
+        if i < scans_in_window:
+            # remove a copy of 0-index value from rolling sum
+            rolling_sum -= compensation_voltage[0]
+        else:
+            # remove oldest value from rolling sum
+            rolling_sum -= compensation_voltage[i - scans_in_window]
+
+        rolling_sum += compensation_voltage[i]
+        modified_compensation_voltage[i] = (
+            rolling_sum / scans_in_window * coefs.AD590M + coefs.AD590B
+        )
+
+    # Now, calculate pressure
+
+    t = 1 / pressure_count * 1000000  # convert to period in usec
+    c = (
+        coefs.c1
+        + coefs.c2 * modified_compensation_voltage
+        + coefs.c3 * modified_compensation_voltage**2
+    )
+    d = coefs.d1 + coefs.d2 * modified_compensation_voltage
+    t0 = (
+        coefs.t1
+        + coefs.t2 * modified_compensation_voltage
+        + coefs.t3 * modified_compensation_voltage**2
+        + coefs.t4 * modified_compensation_voltage**3
+        + coefs.t5 * modified_compensation_voltage**4
+    )
+
+    t0_squared_over_t_squared = (t0**2) / (t**2)
+    one_minus_ratio = 1 - t0_squared_over_t_squared
+    p = c * one_minus_ratio * (1 - d * one_minus_ratio)
+    abs_pressure = p - sea_level_pressure
+    if units == "dbar":
+        abs_pressure *= PSI_TO_DBAR
+    return abs_pressure
+
+
 def convert_conductivity(
     conductivity_count: np.ndarray,
     temperature: np.ndarray,
     pressure: np.ndarray,
     coefs: ConductivityCoefficients,
+    scalar: float = 1.0,
 ):
     """Converts raw conductivity counts to S/m.
 
@@ -175,13 +273,14 @@ def convert_conductivity(
     :param temperature: reference temperature, in degrees C
     :param pressure: reference pressure, in dbar
     :param coefs: calibration coefficient for the conductivity sensor
+    :param scalar: value to multiply by at the end. For most instruments, this is 1. For SBE911, it is 1/10
 
     :return: conductivity val converted to S/m
     """
     f = conductivity_count * np.sqrt(1 + coefs.wbotc * temperature) / 1000
     numerator = coefs.g + coefs.h * f**2 + coefs.i * f**3 + coefs.j * f**4
     denominator = 1 + coefs.ctcor * temperature + coefs.cpcor * pressure
-    return numerator / denominator
+    return numerator / denominator * scalar
 
 
 def potential_density_from_t_s_p(
@@ -841,7 +940,7 @@ def convert_external_seafet_ph(
         return khso4_tps
 
     def _calculate_adh(temperature):
-        """Calculates the Debeye-Huckel constant (temperature [Celcius]
+        """Calculates the Debeye-Huckel constant (temperature [Celsius]
         dependence only)
 
         :param temperature: temperature in C
@@ -978,10 +1077,10 @@ def convert_external_seafet_ph(
 
 
 def convert_internal_seafet_temperature(temperature_counts: np.ndarray):
-    """Converts the raw internal temperature counts to degrees Celcius
+    """Converts the raw internal temperature counts to degrees Celsius
 
     :param temperature_counts: raw internal temperature counts
-    :return: internal temperature in Celcius
+    :return: internal temperature in Celsius
     """
     slope = 175.72
     offset = -46.85
@@ -995,7 +1094,7 @@ def convert_seafet_relative_humidity(humidity_counts: np.ndarray, temperature: n
     """Convert relative humidity counts to percent
 
     :param humidity_counts: raw relative humidity counts
-    :param temperature: converted internal temperature in Celcius
+    :param temperature: converted internal temperature in Celsius
     :return: temperature compensated relative humidity in percent
     """
     slope = 125

@@ -7,7 +7,9 @@ from seabirdscientific.cal_coefficients import (
     PHSeaFETInternalCoefficients,
     PHSeaFETExternalCoefficients,
     PressureCoefficients,
+    PressureDigiquartzCoefficients,
     TemperatureCoefficients,
+    TemperatureFrequencyCoefficients,
     Thermistor63Coefficients,
     ECOCoefficients,
 )
@@ -23,6 +25,14 @@ temperature_coefs_sn6130 = TemperatureCoefficients(
     a3=1.39024630e-007,
 )
 
+temperature_frequency_coefs_sn5102 = TemperatureFrequencyCoefficients(
+    g=4.39377604e-003,
+    h=6.43356818e-004,
+    i=2.23495143e-005,
+    j=2.02840480e-006,
+    f0=1000.0
+)
+
 pressure_coefs_sn6130 = PressureCoefficients(
     pa0=6.51546669e-002,
     pa1=1.54424116e-003,
@@ -36,6 +46,21 @@ pressure_coefs_sn6130 = PressureCoefficients(
     ptempa0=-6.28624239e001,
     ptempa1=5.41620689e001,
     ptempa2=-2.96026659e-001,
+)
+
+pressure_digiquartz_coefs_sn5102 = PressureDigiquartzCoefficients(
+    c1=-4.164639e+004,
+    c2=-5.769818e-001,
+    c3=1.259640e-002,
+    d1=3.483300e-002,
+    d2=0,
+    t1=3.004422e+001,
+    t2=-4.702082e-004,
+    t3=4.039850e-006,
+    t4=3.117530e-009,
+    t5=0,
+    AD590M=1.281400e-002,
+    AD590B=-9.348340e+000
 )
 
 conductivity_coefs_sn6130 = ConductivityCoefficients(
