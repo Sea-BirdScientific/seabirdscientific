@@ -1,0 +1,534 @@
+* Sea-Bird SBE19plus  Data File:
+* FileName = SBE19plus_01906398_2019_07_15_0033.hex
+* Software version 2.8.0.119
+* Temperature SN = 6398
+* Conductivity SN = 6398
+* System UpLoad Time = Jul 15 2019 10:56:00
+* <ApplicationData>
+* <Seaterm232>
+* <SoftwareVersion>2.8.0.119</SoftwareVersion>
+* <BuildDate>07-Nov-2018</BuildDate>
+* </Seaterm232>
+* </ApplicationData>
+* <InstrumentState>
+* <HardwareData DeviceType='SBE19plus' SerialNumber='01906398'>
+*
+*    <Manufacturer>Sea-Bird Electronics, Inc.</Manufacturer>
+*
+*    <FirmwareVersion>2.5.2</FirmwareVersion>
+*
+*    <FirmwareDate>12 Mar 2013 11:50</FirmwareDate>
+*
+*    <CommandSetVersion>1.3</CommandSetVersion>
+*
+*    <PCBAssembly PCBSerialNum='9270' AssemblyNum='41054G'/>
+*
+*    <PCBAssembly PCBSerialNum='9117' AssemblyNum='41580B'/>
+*
+*    <PCBAssembly PCBSerialNum='11030' AssemblyNum='41606'/>
+*
+*    <PCBAssembly PCBSerialNum='10002' AssemblyNum='41059D'/>
+*
+*    <MfgDate>07  AUG   2009</MfgDate>
+*
+*    <InternalSensors>
+*
+*       <Sensor id='Main Temperature'>
+*
+*          <type>temperature0</type>
+*
+*          <SerialNumber>01906398</SerialNumber>
+*
+*       </Sensor>
+*
+*       <Sensor id='Main Conductivity'>
+*
+*          <type>conductivity-0</type>
+*
+*          <SerialNumber>01906398</SerialNumber>
+*
+*       </Sensor>
+*
+*       <Sensor id='Main Pressure'>
+*
+*          <type>strain-0</type>
+*
+*          <SerialNumber> 2945715</SerialNumber>
+*
+*       </Sensor>
+*
+*    </InternalSensors>
+*
+*    <ExternalSensors>
+*
+*       <Sensor id='volt 0'>
+*
+*          <type>SBE 43 OXY</type>
+*
+*          <SerialNumber>431686</SerialNumber>
+*
+*       </Sensor>
+*
+*       <Sensor id='volt 1'>
+*
+*          <type>not assigned</type>
+*
+*          <SerialNumber>not assigned</SerialNumber>
+*
+*       </Sensor>
+*
+*       <Sensor id='volt 2'>
+*
+*          <type>SBE 18 pH</type>
+*
+*          <SerialNumber>180726</SerialNumber>
+*
+*       </Sensor>
+*
+*       <Sensor id='volt 3'>
+*
+*          <type>not assigned</type>
+*
+*          <SerialNumber>not assigned</SerialNumber>
+*
+*       </Sensor>
+*
+*       <Sensor id='volt 4'>
+*
+*          <type>not assigned</type>
+*
+*          <SerialNumber>not assigned</SerialNumber>
+*
+*       </Sensor>
+*
+*       <Sensor id='volt 5'>
+*
+*          <type>not assigned</type>
+*
+*          <SerialNumber>not assigned</SerialNumber>
+*
+*       </Sensor>
+*
+*       <Sensor id='serial'>
+*
+*          <type>not assigned</type>
+*
+*          <SerialNumber>not assigned</SerialNumber>
+*
+*       </Sensor>
+*
+*    </ExternalSensors>
+*
+* </HardwareData>
+* <StatusData DeviceType='SBE19plus' SerialNumber='01906398'>
+*
+*    <DateTime>2019-07-15T14:55:31</DateTime>
+*
+*    <LoggingState>not logging</LoggingState>
+*
+*    <EventSummary numEvents='0'/>
+*
+*    <Power>
+*
+*       <vMain>12.9</vMain>
+*
+*       <vLith>8.1</vLith>
+*
+*       <iMain>60.9</iMain>
+*
+*       <iPump>37.8</iPump>
+*
+*       <iExt01> 5.2</iExt01>
+*
+*       <iExt2345> 7.7</iExt2345>
+*
+*    </Power>
+*
+*    <MemorySummary>
+*
+*       <Bytes>800730</Bytes>
+*
+*       <Samples>53382</Samples>
+*
+*       <SamplesFree>4333160</SamplesFree>
+*
+*       <SampleLength>15</SampleLength>
+*
+*       <Profiles>36</Profiles>
+*
+*    </MemorySummary>
+*
+* </StatusData>
+* <ConfigurationData DeviceType='SBE19plus' SerialNumber='01906398'>
+*
+*    <ProfileMode>
+*
+*       <ScansToAverage>1</ScansToAverage>
+*
+*       <MinimumCondFreq>3031</MinimumCondFreq>
+*
+*       <PumpDelay>60</PumpDelay>
+*
+*       <AutoRun>no</AutoRun>
+*
+*       <IgnoreSwitch>no</IgnoreSwitch>
+*
+*    </ProfileMode>
+*
+*    <Battery>
+*
+*       <Type>alkaline</Type>
+*
+*       <CutOff>7.5</CutOff>
+*
+*    </Battery>
+*
+*    <DataChannels>
+*
+*       <ExtVolt0>yes</ExtVolt0>
+*
+*       <ExtVolt1>no</ExtVolt1>
+*
+*       <ExtVolt2>yes</ExtVolt2>
+*
+*       <ExtVolt3>no</ExtVolt3>
+*
+*       <ExtVolt4>no</ExtVolt4>
+*
+*       <ExtVolt5>no</ExtVolt5>
+*
+*       <SBE38>no</SBE38>
+*
+*       <WETLABS>no</WETLABS>
+*
+*       <OPTODE>no</OPTODE>
+*
+*       <SBE63>no</SBE63>
+*
+*       <GTD>no</GTD>
+*
+*    </DataChannels>
+*
+*    <EchoCharacters>yes</EchoCharacters>
+*
+*    <OutputExecutedTag>yes</OutputExecutedTag>
+*
+*    <OutputFormat>raw HEX</OutputFormat>
+*
+* </ConfigurationData>
+* <CalibrationCoefficients DeviceType='SBE19plus' SerialNumber='01906398'>
+*
+*    <Calibration format='TEMP1' id='Main Temperature'>
+*
+*       <SerialNum>01906398</SerialNum>
+*
+*       <CalDate>28-Jul-18</CalDate>
+*
+*       <TA0>1.260959e-03</TA0>
+*
+*       <TA1>2.591380e-04</TA1>
+*
+*       <TA2>-1.767619e-07</TA2>
+*
+*       <TA3>1.436997e-07</TA3>
+*
+*       <TOFFSET>0.000000e+00</TOFFSET>
+*
+*    </Calibration>
+*
+*    <Calibration format='WBCOND0' id='Main Conductivity'>
+*
+*       <SerialNum>01906398</SerialNum>
+*
+*       <CalDate>28-Jul-18</CalDate>
+*
+*       <G>-1.032066e+00</G>
+*
+*       <H>1.618533e-01</H>
+*
+*       <I>-6.162699e-04</I>
+*
+*       <J>6.881150e-05</J>
+*
+*       <CPCOR>-9.570000e-08</CPCOR>
+*
+*       <CTCOR>3.250000e-06</CTCOR>
+*
+*       <CSLOPE>1.000000e+00</CSLOPE>
+*
+*    </Calibration>
+*
+*    <Calibration format='STRAIN0' id='Main Pressure'>
+*
+*       <SerialNum> 2945715</SerialNum>
+*
+*       <CalDate>26-Jul-18</CalDate>
+*
+*       <PA0>-2.384401e-01</PA0>
+*
+*       <PA1>4.878331e-04</PA1>
+*
+*       <PA2>-5.821914e-12</PA2>
+*
+*       <PTCA0>5.244422e+05</PTCA0>
+*
+*       <PTCA1>-2.996721e+01</PTCA1>
+*
+*       <PTCA2>3.563378e-01</PTCA2>
+*
+*       <PTCB0>2.500613e+01</PTCB0>
+*
+*       <PTCB1>-7.750000e-04</PTCB1>
+*
+*       <PTCB2>0.000000e+00</PTCB2>
+*
+*       <PTEMPA0>-6.743632e+01</PTEMPA0>
+*
+*       <PTEMPA1>5.322650e+01</PTEMPA1>
+*
+*       <PTEMPA2>-5.033771e-01</PTEMPA2>
+*
+*       <POFFSET>0.000000e+00</POFFSET>
+*
+*       <PRANGE>1.600000e+02</PRANGE>
+*
+*    </Calibration>
+*
+*    <Calibration format='VOLT0' id='Volt 0'>
+*
+*       <OFFSET>-4.502316e-02</OFFSET>
+*
+*       <SLOPE>1.250388e+00</SLOPE>
+*
+*    </Calibration>
+*
+*    <Calibration format='VOLT0' id='Volt 1'>
+*
+*       <OFFSET>-4.554316e-02</OFFSET>
+*
+*       <SLOPE>1.250640e+00</SLOPE>
+*
+*    </Calibration>
+*
+*    <Calibration format='VOLT0' id='Volt 2'>
+*
+*       <OFFSET>-4.476105e-02</OFFSET>
+*
+*       <SLOPE>1.250449e+00</SLOPE>
+*
+*    </Calibration>
+*
+*    <Calibration format='VOLT0' id='Volt 3'>
+*
+*       <OFFSET>-4.540210e-02</OFFSET>
+*
+*       <SLOPE>1.250253e+00</SLOPE>
+*
+*    </Calibration>
+*
+*    <Calibration format='VOLT0' id='Volt 4'>
+*
+*       <OFFSET>-4.589369e-02</OFFSET>
+*
+*       <SLOPE>1.250627e+00</SLOPE>
+*
+*    </Calibration>
+*
+*    <Calibration format='VOLT0' id='Volt 5'>
+*
+*       <OFFSET>-4.496105e-02</OFFSET>
+*
+*       <SLOPE>1.250115e+00</SLOPE>
+*
+*    </Calibration>
+*
+*    <Calibration format='FREQ0' id='external frequency channel'>
+*
+*       <EXTFREQSF>9.999961e-01</EXTFREQSF>
+*
+*    </Calibration>
+*
+* </CalibrationCoefficients>
+* <EventCounters DeviceType='SBE19plus' SerialNumber='01906398'>
+*
+*    <EventSummary numEvents='0'/>
+*
+* </EventCounters></InstrumentState>
+* <Headers>
+*
+* cast  33 02 Jul 2019 15:46:41 samples 49934 to 50915, avg = 1, stop = mag switch
+*
+# nquan = 6
+# nvalues = 19                          
+# units = specified
+# name 0 = timeS: Time, Elapsed [seconds]
+# name 1 = c0mS/cm: Conductivity [mS/cm]
+# name 2 = prdM: Pressure, Strain Gauge [db]
+# name 3 = tv290C: Temperature [ITS-90, deg C]
+# name 4 = nbin: number of scans per bin
+# name 5 = flag: flag
+# span 0 =    129.550,    217.889       
+# span 1 =  11.591767,  27.680269       
+# span 2 =      2.000,     22.000       
+# span 3 =    22.9107,    26.6537       
+# span 4 =          1,         31       
+# span 5 =  0.0000e+00,  0.0000e+00     
+# interval = decibars: 2                
+# start_time = Jul 02 2019 15:46:41 [Instrument's time stamp, header]
+# bad_flag = -9.990e-29
+# <Sensors count="5" >
+#   <sensor Channel="1" >
+#     <!-- Count, Temperature -->
+#     <TemperatureSensor SensorID="58" >
+#       <SerialNumber>6398</SerialNumber>
+#       <CalibrationDate>28-Jul-18</CalibrationDate>
+#       <A0>1.26095907e-03</A0>
+#       <A1>2.59137989e-04</A1>
+#       <A2>-1.76761879e-07</A2>
+#       <A3>1.43699673e-07</A3>
+#       <Slope>1.00000000</Slope>
+#       <Offset>0.0000</Offset>
+#     </TemperatureSensor>
+#   </sensor>
+#   <sensor Channel="2" >
+#     <!-- Frequency 0, Conductivity -->
+#     <ConductivitySensor SensorID="3" >
+#       <SerialNumber>6398</SerialNumber>
+#       <CalibrationDate>28-Jul-18</CalibrationDate>
+#       <UseG_J>1</UseG_J>
+#       <!-- Cell const and series R are applicable only for wide range sensors. -->
+#       <SeriesR>0.0000</SeriesR>
+#       <CellConst>2000.0000</CellConst>
+#       <ConductivityType>0</ConductivityType>
+#       <Coefficients equation="0" >
+#         <A>0.00000000e+00</A>
+#         <B>0.00000000e+00</B>
+#         <C>0.00000000e+00</C>
+#         <D>0.00000000e+00</D>
+#         <M>0.0</M>
+#         <CPcor>-9.57000000e-08</CPcor>
+#       </Coefficients>
+#       <Coefficients equation="1" >
+#         <G>-1.03206551e+00</G>
+#         <H>1.61853283e-01</H>
+#         <I>-6.16269794e-04</I>
+#         <J>6.88114987e-05</J>
+#         <CPcor>-9.57000000e-08</CPcor>
+#         <CTcor>3.2500e-06</CTcor>
+#         <!-- WBOTC not applicable unless ConductivityType = 1. -->
+#         <WBOTC>0.00000000e+00</WBOTC>
+#       </Coefficients>
+#       <Slope>1.00000000</Slope>
+#       <Offset>0.00000</Offset>
+#     </ConductivitySensor>
+#   </sensor>
+#   <sensor Channel="3" >
+#     <!-- Count, Pressure, Strain Gauge -->
+#     <PressureSensor SensorID="46" >
+#       <SerialNumber>6398</SerialNumber>
+#       <CalibrationDate>26-Jul-18</CalibrationDate>
+#       <PA0>-2.38440127e-01</PA0>
+#       <PA1>4.87833137e-04</PA1>
+#       <PA2>-5.82191388e-12</PA2>
+#       <PTEMPA0>-6.74363150e+01</PTEMPA0>
+#       <PTEMPA1>5.32265012e+01</PTEMPA1>
+#       <PTEMPA2>-5.03377089e-01</PTEMPA2>
+#       <PTCA0>5.24442060e+05</PTCA0>
+#       <PTCA1>-2.99672123e+01</PTCA1>
+#       <PTCA2>3.56337762e-01</PTCA2>
+#       <PTCB0>2.50061250e+01</PTCB0>
+#       <PTCB1>-7.75000000e-04</PTCB1>
+#       <PTCB2>0.00000000e+00</PTCB2>
+#       <Offset>0.000000</Offset>
+#     </PressureSensor>
+#   </sensor>
+#   <sensor Channel="4" >
+#     <!-- A/D voltage 0, Oxygen, SBE 43 -->
+#     <OxygenSensor SensorID="38" >
+#       <SerialNumber>431686</SerialNumber>
+#       <CalibrationDate></CalibrationDate>
+#       <Use2007Equation>1</Use2007Equation>
+#       <CalibrationCoefficients equation="0" >
+#         <!-- Coefficients for Owens-Millard equation. -->
+#         <Boc>0.0000</Boc>
+#         <Soc>0.0000e+00</Soc>
+#         <offset>0.0000</offset>
+#         <Pcor>0.00e+00</Pcor>
+#         <Tcor>0.0000</Tcor>
+#         <Tau>0.0</Tau>
+#       </CalibrationCoefficients>
+#       <CalibrationCoefficients equation="1" >
+#         <!-- Coefficients for Sea-Bird equation - SBE calibration in 2007 and later. -->
+#         <Soc>3.8980e-01</Soc>
+#         <offset>-0.4980</offset>
+#         <A>-3.3982e-03</A>
+#         <B> 1.5817e-04</B>
+#         <C>-2.6651e-06</C>
+#         <D0> 2.5826e+00</D0>
+#         <D1> 1.92634e-04</D1>
+#         <D2>-4.64803e-02</D2>
+#         <E> 3.6000e-02</E>
+#         <Tau20> 1.0800</Tau20>
+#         <H1>-3.3000e-02</H1>
+#         <H2> 5.0000e+03</H2>
+#         <H3> 1.4500e+03</H3>
+#       </CalibrationCoefficients>
+#     </OxygenSensor>
+#   </sensor>
+#   <sensor Channel="5" >
+#     <!-- A/D voltage 1, pH -->
+#     <pH_Sensor SensorID="43" >
+#       <SerialNumber>180726</SerialNumber>
+#       <CalibrationDate></CalibrationDate>
+#       <Slope>4.6067</Slope>
+#       <Offset>2.5157</Offset>
+#     </pH_Sensor>
+#   </sensor>
+# </Sensors>
+# datcnv_date = Mar 27 2023 11:21:22, 7.27.0.20 [datcnv_vars = 4]
+# datcnv_in = SBE19plus_01906398_2019_07_15_0033_cropped.hex SBE19plus_01906398_2019_07_15_0033_cropped.xmlcon
+# datcnv_skipover = 500
+# loopedit_date = Aug 27 2025 13:04:49, 7.27.2.38
+# loopedit_in = C:\Users\jtemplin\git\seabirdscientific\tests\resources\test-data\SBE19plus_01906398_2019_07_15_0033_cropped.cnv
+# loopedit_minVelocity = 0.250                                                                                            
+# loopedit_surfaceSoak: do not remove                                                                                     
+# loopedit_excl_bad_scans = yes
+# wildedit_date = Aug 27 2025 15:29:08, 7.27.2.38
+# wildedit_in = C:\Users\jtemplin\git\seabirdscientific\tests\resources\test-data\SBE19plus_01906398_2019_07_15_0033_cropped_loopedit.cnv
+# wildedit_pass1_nstd = 1.0
+# wildedit_pass2_nstd = 2.5
+# wildedit_pass2_mindelta = 1.000e-01
+# wildedit_npoint = 100
+# wildedit_vars = c0mS/cm prdM tv290C
+# wildedit_excl_bad_scans = no
+# binavg_date = Aug 27 2025 16:18:48, 7.27.2.38
+# binavg_in = C:\Users\jtemplin\git\seabirdscientific\tests\resources\test-data\SBE19plus_01906398_2019_07_15_0033_cropped_loopedit_wildedit.cnv
+# binavg_bintype = decibars
+# binavg_binsize = 2
+# binavg_excl_bad_scans = no
+# binavg_skipover = 0
+# binavg_omit = 0
+# binavg_min_scans_bin = 1
+# binavg_max_scans_bin = 2147483647
+# binavg_surface_bin = no, min = 0.000, max = 1.000, value = 0.500
+# file_type = ascii
+*END*
+    129.550  11.610750      2.000    26.6537         17  0.0000e+00
+    134.409  11.681729      4.000    26.3744         20  0.0000e+00
+    138.845  14.728883      6.000    25.3896         16  0.0000e+00
+    142.866  17.000176      8.000    24.7176         17  0.0000e+00
+    147.460  20.886625     10.000    24.2770          2  0.0000e+00
+    151.595  23.784232     12.000    23.2613          4  0.0000e+00
+    155.966  25.257785     14.000    22.9411         17  0.0000e+00
+    160.151  25.438144     16.000    22.9378         18  0.0000e+00
+    164.748  26.900954     18.000    22.9529         20  0.0000e+00
+    169.343  27.450527     20.000    23.0357         17  0.0000e+00
+    176.829  27.680269     22.000    23.0591         31  0.0000e+00
+    183.353  27.663826     20.000    23.0623         13  0.0000e+00
+    186.234  27.341831     18.000    23.0411         13  0.0000e+00
+    189.999  26.371418     16.000    22.9577         18  0.0000e+00
+    194.688  25.002445     14.000    22.9107          1  0.0000e+00
+    206.285  19.623053      8.000    23.7751          9  0.0000e+00
+    210.273  16.574826      6.000    24.5948         16  0.0000e+00
+    214.039  12.936605      4.000    25.4477         15  0.0000e+00
+    217.889  11.591767      2.000    26.3627         16  0.0000e+00

@@ -100,7 +100,7 @@ def convert_temperature(
     :param use_mv_r: true to perform extra conversion steps required by
         some instruments (check the cal sheet to see if this is required)
 
-    :return: temperature val converted to ITS-90 degrees C
+    :return: temperature val converted to ITS-90 or IPTS68 in degrees C or F
     """
 
     if use_mv_r:
@@ -141,7 +141,7 @@ def convert_pressure(
     :param units: whether or not to use psia or dbar as the returned
         unit type
 
-    :return: pressure val in PSIA
+    :return: pressure val in DBAR or PSIA
     """
     sea_level_pressure = 14.7
 
