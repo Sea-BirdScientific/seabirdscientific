@@ -178,7 +178,6 @@ class TestReadSBE911plus:
 
     # Expected values are from SBE Data Processing
     def test_read_911plus_hex(self):
-        print(self.raw.iloc[0])
         assert round(self.raw["temperature"].iloc[0], 3) == 4651.168
         assert round(self.raw["conductivity"].iloc[0], 3) == 6638.984
         assert round(self.raw["digiquartz pressure"].iloc[0], 3) == 33302.258

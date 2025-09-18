@@ -18,9 +18,6 @@ import plotly.graph_objects as go
 # Internal imports
 import seabirdscientific.visualization as viz
 
-print(os.getcwd())
-print(sys.path)
-
 test_resources = importlib.resources.files("resources")
 
 
