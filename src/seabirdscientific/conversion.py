@@ -124,6 +124,7 @@ def convert_temperature(
 
     return temperature
 
+
 def convert_temperature_frequency(
     frequency: np.ndarray,
     coefs: TemperatureFrequencyCoefficients,
@@ -137,7 +138,9 @@ def convert_temperature_frequency(
     :return: temperature in Celsius
     """
     fLog = np.log(coefs.f0 / frequency)
-    temperature = 1 / (coefs.g + coefs.h * fLog + coefs.i * fLog ** 2 + coefs.j * fLog ** 3) - KELVIN_OFFSET_0C
+    temperature = (
+        1 / (coefs.g + coefs.h * fLog + coefs.i * fLog**2 + coefs.j * fLog**3) - KELVIN_OFFSET_0C
+    )
 
     if standard == "IPTS68":
         temperature *= ITS90_TO_IPTS68
@@ -183,6 +186,7 @@ def convert_pressure(
 
     return pressure
 
+
 def convert_pressure_digiquartz(
     pressure_count: np.ndarray,
     compensation_voltage: np.ndarray,
@@ -212,7 +216,7 @@ def convert_pressure_digiquartz(
         scans_in_window = 1
     if scans_in_window > max_scans_in_30_seconds:
         scans_in_window = max_scans_in_30_seconds
-    
+
     rolling_sum = compensation_voltage[0] * scans_in_window
     modified_compensation_voltage = compensation_voltage.copy()
 
@@ -225,19 +229,31 @@ def convert_pressure_digiquartz(
             rolling_sum -= compensation_voltage[i - scans_in_window]
 
         rolling_sum += compensation_voltage[i]
-        modified_compensation_voltage[i] = rolling_sum / scans_in_window * coefs.AD590M + coefs.AD590B
-        
+        modified_compensation_voltage[i] = (
+            rolling_sum / scans_in_window * coefs.AD590M + coefs.AD590B
+        )
+
     # Now, calculate pressure
 
-    t = 1 / pressure_count * 1000000 # convert to period in usec
-    c = coefs.c1 + coefs.c2 * modified_compensation_voltage + coefs.c3 * modified_compensation_voltage**2
+    t = 1 / pressure_count * 1000000  # convert to period in usec
+    c = (
+        coefs.c1
+        + coefs.c2 * modified_compensation_voltage
+        + coefs.c3 * modified_compensation_voltage**2
+    )
     d = coefs.d1 + coefs.d2 * modified_compensation_voltage
-    t0 = coefs.t1 + coefs.t2 * modified_compensation_voltage + coefs.t3 * modified_compensation_voltage**2 + coefs.t4 * modified_compensation_voltage**3 + coefs.t5 * modified_compensation_voltage**4
+    t0 = (
+        coefs.t1
+        + coefs.t2 * modified_compensation_voltage
+        + coefs.t3 * modified_compensation_voltage**2
+        + coefs.t4 * modified_compensation_voltage**3
+        + coefs.t5 * modified_compensation_voltage**4
+    )
 
     t0_squared_over_t_squared = (t0**2) / (t**2)
     one_minus_ratio = 1 - t0_squared_over_t_squared
     p = c * one_minus_ratio * (1 - d * one_minus_ratio)
-    abs_pressure = (p - sea_level_pressure)
+    abs_pressure = p - sea_level_pressure
     if units == "dbar":
         abs_pressure *= PSI_TO_DBAR
     return abs_pressure
@@ -248,7 +264,7 @@ def convert_conductivity(
     temperature: np.ndarray,
     pressure: np.ndarray,
     coefs: ConductivityCoefficients,
-    scalar: float = 1.0
+    scalar: float = 1.0,
 ):
     """Converts raw conductivity counts to S/m.
 

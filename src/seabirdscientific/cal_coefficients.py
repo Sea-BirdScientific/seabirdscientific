@@ -29,6 +29,7 @@ class TemperatureCoefficients:
     a2: float
     a3: float
 
+
 @dataclass
 class TemperatureFrequencyCoefficients:
     """
@@ -76,7 +77,8 @@ class PressureCoefficients:
     ptempa1: float
     ptempa2: float
 
-@dataclass 
+
+@dataclass
 class PressureDigiquartzCoefficients:
     """
     :param a0: coefficient
@@ -119,7 +121,7 @@ class PressureDigiquartzCoefficients:
         t4: float,
         t5: float,
         AD590M: Optional[float] = None,
-        AD590B: Optional[float] = None
+        AD590B: Optional[float] = None,
     ):
         self.c1 = c1
         self.c2 = c2
@@ -140,6 +142,7 @@ class PressureDigiquartzCoefficients:
             self.AD590B = AD590B
         else:
             self.AD590B = -41.1733  # default value for SBE16plus V2 and SBE19plus V2
+
 
 @dataclass
 class ConductivityCoefficients:
