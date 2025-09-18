@@ -13,19 +13,8 @@ def pytest_configure(config):
         json.dump({}, f)
 
 
-def pytest_addoption(parser):
-    parser.addoption(
-        "--log-results",
-        action="store_true",
-        default=False,
-        help="Log results to a json file for comparing to Fathom",
-    )
-
-
 def pytest_runtest_teardown(item, nextitem):
-    log_results = item.config.getoption("--log-results")
-
-    if log_results and hasattr(item, "return_value"):
+    if hasattr(item, "return_value"):
         with open(RESULTS_PATH, "r+") as f:
             data = json.load(f)
             data[item.name] = item.return_value
