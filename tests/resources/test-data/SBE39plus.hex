@@ -1,0 +1,144 @@
+* Sea-Bird SBE39plus Data File:
+* FileName = C:\Downloads/39plus_03906502_2025_09_15.hex
+* Software version Fathom 3.0.4
+* Temperature SN = 03906502
+* Pressure SN = notset
+* System UpLoad Time = 2025-Sep-15 20:29:03 +00:00
+* sample interval = 1 seconds
+* <ApplicationData>
+*   <Fathom>
+*     <SoftwareVersion>3.0.4</SoftwareVersion>
+*     <BuildDate>11-Sep-2025</BuildDate>
+*   </Fathom>
+* </ApplicationData>
+* <InstrumentState>
+* <HardwareData DeviceType="SBE39plus" SerialNumber="03906502">
+*   <Manufacturer>Sea-Bird Electronics, Inc.</Manufacturer>
+*   <FirmwareVersion build="30">4.3.4</FirmwareVersion>
+*   <FirmwareDate>08 Nov 2023, 12:39:01</FirmwareDate>
+*   <CommandSetVersion>1.0</CommandSetVersion>
+*   <PCBAssembly PCBSerialNum="59268" AssemblyNum="41770c"></PCBAssembly>
+*   <PCBAssembly PCBSerialNum="59280" AssemblyNum="41769b"></PCBAssembly>
+*   <MfgDate>10jun2013</MfgDate>
+*   <FirmwareLoader>Loader_PD002_v1.0.3</FirmwareLoader>
+*   <InternalSensors>
+*     <Sensor id="Temperature">
+*       <type>temperature-1</type>
+*       <SerialNumber>03906502</SerialNumber>
+*     </Sensor>
+*     <Sensor id="Pressure">
+*       <type>strain-0</type>
+*       <SerialNumber>notset</SerialNumber>
+*     </Sensor>
+*   </InternalSensors>
+* </HardwareData>
+* <StatusData DeviceType="SBE39plus" SerialNumber="03906502">
+*   <DateTime>2025-09-15T20:28:34</DateTime>
+*   <EventSummary numEvents="163"></EventSummary>
+*   <Power>
+*     <vMain>9.55</vMain>
+*     <vBackup>3.02</vBackup>
+*   </Power>
+*   <MemorySummary>
+*     <Bytes>576</Bytes>
+*     <Samples>48</Samples>
+*     <SamplesFree>5592357</SamplesFree>
+*     <SampleLength>12</SampleLength>
+*     <FLASH_Address>0x00000200</FLASH_Address>
+*   </MemorySummary>
+*   <AutonomousSampling>no, received stop command</AutonomousSampling>
+* </StatusData>
+* <Executed></Executed>
+* <ConfigurationData DeviceType="SBE39plus" SerialNumber="03906502">
+*   <PressureInstalled>true</PressureInstalled>
+*   <OutputFormat>0</OutputFormat>
+*   <TxRealTime>true</TxRealTime>
+*   <SampleInterval>1</SampleInterval>
+*   <SyncMode>false</SyncMode>
+* </ConfigurationData>
+* <CalibrationCoefficients DeviceType="SBE39plus" SerialNumber="03906502">
+*   <Calibration id="Temperature" format="TEMP1">
+*     <SerialNum>03906502</SerialNum>
+*     <CalDate>13-jul-16</CalDate>
+*     <A0>-0.0008170231</A0>
+*     <A1>0.0003358073</A1>
+*     <A2>-0.000006115756</A2>
+*     <A3>2.096198e-7</A3>
+*   </Calibration>
+*   <Calibration id="Pressure" format="STRAIN0">
+*     <SerialNum>notset</SerialNum>
+*     <CalDate>06-jul-16</CalDate>
+*     <PA0>0.5459716</PA0>
+*     <PA1>0.0009598281</PA1>
+*     <PA2>-2.781709e-12</PA2>
+*     <PTHA0>685.9287</PTHA0>
+*     <PTHA1>0.005264199</PTHA1>
+*     <PTHA2>-0.000001318757</PTHA2>
+*     <PTCA0>2018.425</PTCA0>
+*     <PTCA1>87.51056</PTCA1>
+*     <PTCA2>-2.633389</PTCA2>
+*     <PTCB0>25.02572</PTCB0>
+*     <PTCB1>0.0003508772</PTCB1>
+*     <PTCB2>0</PTCB2>
+*     <POFFSET>0</POFFSET>
+*     <PRANGE>870</PRANGE>
+*   </Calibration>
+* </CalibrationCoefficients>
+* <EventCounters DeviceType="SBE39plus" SerialNumber="03906502">
+*   <EventSummary numEvents="163">
+*     <Event type="PowerOnReset" count="122"></Event>
+*     <Event type="LoggingRestartNoAlarm" count="2"></Event>
+*     <Event type="Event37" count="39"></Event>
+*   </EventSummary>
+* </EventCounters>
+* </InstrumentState>
+* 
+*END*
+305B332A1B871901A69884D3
+305B332B1B86EF01A69B84D3
+305B332C1B86DE01A5DE84D3
+305B332D1B86E201A66E84D3
+305B332E1B873C01A67484D2
+305B332F1B870C01A62D84D2
+305B33301B86F501A63784D2
+305B33311B870F01A70E84D2
+305B33321B86E901A69A84D2
+305B33331B871401A69884D2
+305B33341B86EE01A60784D2
+305B33351B870701A63984D2
+305B33361B86D301A66384D2
+305B33371B86FB01A67684D2
+305B33381B871D01A65884D2
+305B33391B86F301A66F84D2
+305B333A1B86F601A67084D2
+305B333B1B871001A62184D2
+305B333C1B86D901A62684D2
+305B333D1B86B601A64184D2
+305B333E1B86D001A6D684D2
+305B333F1B86EC01A60384D2
+305B33401B86D601A5BF84D2
+305B33411B86E101A63484D1
+305B33421B86EA01A60984D2
+305B33431B86CA01A65784D1
+305B33441B86BC01A62B84D2
+305B33451B86AF01A59F84D1
+305B33461B869301A69A84D2
+305B33471B86AF01A6A284D2
+305B33481B86A501A5D084D1
+305B33491B869A01A60684D1
+305B334A1B867E01A67D84D2
+305B334B1B868401A5F484D1
+305B334C1B869D01A71884D2
+305B334D1B868D01A5F084D2
+305B334E1B86BA01A64D84D2
+305B334F1B868B01A64A84D2
+305B33501B86B901A5E884D2
+305B33511B868301A6B884D2
+305B33521B867F01A64084D2
+305B33531B867301A64D84D2
+305B33541B868301A6BB84D2
+305B33551B869401A5FC84D1
+305B33561B866001A62C84D2
+305B33571B86AB01A61484D2
+305B33581B86AF01A5FE84D2
+305B33591B868601A66484D2
