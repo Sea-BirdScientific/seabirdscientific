@@ -84,6 +84,51 @@ class TestConvertTemperature:
         request.node.return_value = result.tolist()
         assert np.allclose(expected, result, rtol=0, atol=1e-4)
 
+class TestConvertTemperatureFrequency:
+    test_temp_freq_vals =  np.array([4651.168, 4650.961, 4650.219, 4649.523, 4649.418, 4649.879, 3771.953, 4084.508])
+    def test_convert_temperature_frequency_90C(self, request):
+        expected = [16.6799, 16.6777, 16.6698, 16.6624, 16.6613, 16.6662, 6.6247, 10.3732]
+        result = dc.convert_temperature_frequency(
+            self.test_temp_freq_vals,
+            ec.temperature_frequency_coefs_sn5102,
+            "ITS90",
+            "C",
+        )
+        request.node.return_value = result.tolist()
+        assert np.allclose(expected, result, rtol=0, atol=1e-4)
+
+    def test_convert_temperature_frequency_90F(self, request):
+        expected = [62.0238, 62.0199, 62.0056, 61.9923, 61.9903, 61.9991, 43.9244, 50.6718]
+        result = dc.convert_temperature_frequency(
+            self.test_temp_freq_vals,
+            ec.temperature_frequency_coefs_sn5102,
+            "ITS90",
+            "F",
+        )
+        request.node.return_value = result.tolist()
+        assert np.allclose(expected, result, rtol=0, atol=1e-4)
+
+    def test_convert_temperature_frequency_68C(self, request):
+        expected = [16.6839, 16.6817, 16.6738, 16.6664, 16.6653, 16.6702, 6.6263, 10.3757]
+        result = dc.convert_temperature_frequency(
+            self.test_temp_freq_vals,
+            ec.temperature_frequency_coefs_sn5102,
+            "IPTS68",
+            "C",
+        )
+        request.node.return_value = result.tolist()
+        assert np.allclose(expected, result, rtol=0, atol=1e-4)
+
+    def test_convert_temperature_frequency_68F(self, request):
+        expected = [62.0310, 62.0271, 62.0128, 61.9995, 61.9975, 62.0063, 43.9273, 50.6763]
+        result = dc.convert_temperature_frequency(
+            self.test_temp_freq_vals,
+            ec.temperature_frequency_coefs_sn5102,
+            "IPTS68",
+            "F",
+        )
+        request.node.return_value = result.tolist()
+        assert np.allclose(expected, result, rtol=0, atol=1e-4)
 
 class TestConvertPressure:
     # test pressure raw values
@@ -114,6 +159,26 @@ class TestConvertPressure:
         request.node.return_value = result.tolist()
         assert np.allclose(expected, result, rtol=0, atol=1e-3)
 
+class TestDigiquartzPressure:
+     # test pressure raw values
+    test_pressure_vals = np.array([33302.258, 33302.250, 33302.230, 33302.285, 33302.250, 33302.258])
+
+    # test pressure temperature compensation raw values
+    test_compensation_vals = np.array([2498.0,2499.0,2498.0,2499.0,2499.0,2498.0])
+
+    def test_convert_pressure_digiquartz_dbar(self, request):
+        expected = [2.099, 2.085, 2.051, 2.146, 2.085, 2.099]
+        result = dc.convert_pressure_digiquartz(
+            self.test_pressure_vals,
+            self.test_compensation_vals,
+            ec.pressure_digiquartz_coefs_sn5102,
+            "dbar",
+            0.25
+        )
+        # apply slope and offset values
+        result = result * 1.00001297 - 2.46118
+        request.node.return_value = result.tolist()
+        assert np.allclose(expected, result, rtol=0, atol=1e-3)
 
 class TestConductivity19plus:
     cnv_path = test_data / "19plus_V2_CTD-processing_example.cnv"
