@@ -1,0 +1,72 @@
+* Sea-Bird SBE19plus Data File:
+* FileName = C:\seabirdscientific\documentation\example_data\19plus_V2_CTD-processing_example.hex
+* Software Version 1.59
+* Temperature SN =  6130
+* Conductivity SN =  6130
+* System UpLoad Time = Dec 12 2016 13:25:15
+* ds
+* SBE 19plus V 2.5.2  SERIAL NO. 6130    12 Dec 2016 09:24:17
+* vbatt = 12.6, vlith =  8.5, ioper =  61.9 ma, ipump =  43.5 ma,
+* iext01 =  31.4 ma, iext2345 =  40.5 ma
+* status = not logging
+* number of scans to average = 1
+* samples = 19696, free = 3443364, casts = 6
+* mode = profile, minimum cond freq = 3128, pump delay = 60 sec
+* autorun = no, ignore magnetic switch = no
+* battery type = alkaline, battery cutoff =  7.5 volts
+* pressure sensor = strain gauge, range = 508.0
+* SBE 38 = no, WETLABS = no, OPTODE = no, SBE63 = no, Gas Tension Device = no
+* Ext Volt 0 = yes, Ext Volt 1 = yes
+* Ext Volt 2 = yes, Ext Volt 3 = no
+* Ext Volt 4 = yes, Ext Volt 5 = no
+* echo characters = yes
+* output format = raw HEX
+
+
+* S>
+*
+* SBE 19plus V 2.5.2  SERIAL NO. 6130    12 Dec 2016 09:24:23
+* temperature:  22-Jul-16
+*     TA0 = 1.280156e-03
+*     TA1 = 2.583678e-04
+*     TA2 = -1.395276e-08
+*     TA3 = 1.390246e-07
+*     TOFFSET = 0.000000e+00
+* conductivity:  22-Jul-16
+*     G = -1.023657e+00
+*     H = 1.493062e-01
+*     I = -5.632062e-04
+*     J = 6.518213e-05
+*     CPCOR = -9.570000e-08
+*     CTCOR = 3.250000e-06
+*     CSLOPE = 1.000000e+00
+* pressure S/N = 2711888, range = 508 psia:  21-Jul-16
+*     PA0 = 6.515467e-02
+*     PA1 = 1.544241e-03
+*     PA2 = 6.136531e-12
+*     PTCA0 = 5.241084e+05
+*     PTCA1 = 5.473716e+00
+*     PTCA2 = -1.533652e-01
+*     PTCB0 = 2.590087e+01
+*     PTCB1 = 7.750000e-04
+*     PTCB2 = 0.000000e+00
+*     PTEMPA0 = -6.286242e+01
+*     PTEMPA1 = 5.416207e+01
+*     PTEMPA2 = -2.960267e-01
+*     POFFSET = 0.000000e+00
+* volt 0: offset = -4.602000e-02, slope = 1.252711e+00
+* volt 1: offset = -4.693579e-02, slope = 1.254109e+00
+* volt 2: offset = -4.649053e-02, slope = 1.252902e+00
+* volt 3: offset = -4.816842e-02, slope = 1.253247e+00
+* volt 4: offset = -4.683579e-02, slope = 1.252668e+00
+* volt 5: offset = -4.772737e-02, slope = 1.253371e+00
+*     EXTFREQSF = 9.999889e-01
+
+* dh
+* cast   1 10 Dec 2016 06:16:51 samples 1 to 3069, avg = 1, stop = mag switch
+
+
+* S>
+*END*
+04ECEE0A4E570824235091061C3C390A9AAE14
+04FAAD18469F0824224F89027B04920AFEA794

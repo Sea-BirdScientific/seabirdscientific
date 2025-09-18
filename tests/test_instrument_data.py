@@ -102,7 +102,7 @@ class TestCnvToInstrumentData:
 
 
 class TestReadHex19plus:
-    filepath = test_data / "19plus_V2" / "19plus_V2.hex"
+    filepath = test_data / "19plus_V2" / "19plus_V2_trim.hex"
     raw = id.read_hex_file(
         filepath,
         id.InstrumentType.SBE19Plus,
@@ -152,7 +152,7 @@ class TestReadHex39plus:
 
 
 class TestReadSBE911plus:
-    filepath = test_data / "SBE911plus/2507054.hex"
+    filepath = test_data / "SBE911plus/2507054_trim.hex"
     raw = id.read_hex_file(
         filepath,
         id.InstrumentType.SBE911Plus,
@@ -191,8 +191,8 @@ class TestReadSBE911plus:
         assert round(self.raw["volt 4"].iloc[0], 4) == 2.4884
         assert round(self.raw["volt 5"].iloc[0], 4) == 2.6777
         assert round(self.raw["volt 6"].iloc[0], 4) == 0.1502
-        assert round(self.raw["volt 7"].iloc[0], 3) == 2.7912
-        assert round(self.raw["surface par"].iloc[0], 5) == 1.4310
+        assert round(self.raw["volt 7"].iloc[0], 4) == 2.7912
+        assert round(self.raw["surface par"].iloc[0], 5) == 1.43101
         assert self.raw["NMEA Latitude"].iloc[0] == 34.2757
         assert self.raw["NMEA Longitude"].iloc[0] == -120.0256
         assert (
