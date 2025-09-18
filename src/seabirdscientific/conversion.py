@@ -212,10 +212,8 @@ def convert_pressure_digiquartz(
     # First, average temperature compensation over 30 seconds
     max_scans_in_30_seconds = 720
     scans_in_window = floor(30 / sample_interval)
-    if scans_in_window < 1:
-        scans_in_window = 1
-    if scans_in_window > max_scans_in_30_seconds:
-        scans_in_window = max_scans_in_30_seconds
+    scans_in_window = max(scans_in_window, 1)
+    scans_in_window = min(scans_in_window, max_scans_in_30_seconds)
 
     rolling_sum = compensation_voltage[0] * scans_in_window
     modified_compensation_voltage = compensation_voltage.copy()
