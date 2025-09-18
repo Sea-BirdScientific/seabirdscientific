@@ -38,7 +38,7 @@ import plotly.graph_objects as go
 from plotly import subplots
 
 # Internal imports
-from .interpret_sbs_variable import interpret_sbs_variable
+from seabirdscientific.interpret_sbs_variable import interpret_sbs_variable
 
 # TODO: check python version
 # TODO: translate warning and error messages
