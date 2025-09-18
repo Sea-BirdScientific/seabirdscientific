@@ -106,7 +106,7 @@ class PressureDigiquartzCoefficients:
     AD590M: float
     AD590B: float
 
-     def __init__(
+    def __init__(
         self,
         c1: float,
         c2: float,
