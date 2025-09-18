@@ -48,9 +48,15 @@ conductivity_coefs_sn6130 = ConductivityCoefficients(
     wbotc=0.00000000e000,
 )
 
+# ECO
 chlorophyll_a_coefs_sn6130 = ECOCoefficients(
     slope=10,
     offset=0.0680,
+)
+
+chlorophyll_a_coefs_sn3122 = ECOCoefficients(
+    slope=13,
+    offset=0.0380,
 )
 
 
@@ -179,6 +185,39 @@ oxygen_43_coefs_sn1686 = Oxygen43Coefficients(
     h3=1.45e3,
 )
 
+# cal coefficients for SN1590
+oxygen_43_coefs_sn1590 = Oxygen43Coefficients(
+    soc=5.7640e-001,
+    v_offset=-0.5278,
+    tau_20=1.5700,
+    a=-2.1585e-003,
+    b=1.0617e-004,
+    c=1.9903e-006,
+    e=3.6000e-002,
+    d0=2.5826e000,
+    d1=1.92634e-004,
+    d2=-4.64803e-002,
+    h1=-3.3000e-002,
+    h2=5.0000e003,
+    h3=1.4500e003,
+)
+
+# cal coefficients for SN0680
+oxygen_43_coefs_sn0680 = Oxygen43Coefficients(
+    soc=4.9197e-001,
+    v_offset=-0.4928,
+    tau_20=1.1900,
+    a=-2.7974e-003,
+    b=1.2124e-004,
+    c=-1.9448e-006,
+    e=3.6000e-002,
+    d0=2.5826e000,
+    d1=1.92634e-004,
+    d2=-4.64803e-002,
+    h1=-3.3000e-002,
+    h2=5.0000e003,
+    h3=1.4500e003,
+)
 
 # cal coefficients for SN180726
 ph_coefs_sn0762 = PH18Coefficients(
@@ -186,6 +225,11 @@ ph_coefs_sn0762 = PH18Coefficients(
     offset=2.5157,
 )
 
+# cal coefficients for SN0709
+ph_coefs_sn0709 = PH18Coefficients(
+    slope=4.4559,
+    offset=2.5700,
+)
 
 # cal coefficients for SN0411
 par_coefs_sn0411 = PARCoefficients(

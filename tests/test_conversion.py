@@ -16,7 +16,7 @@ import seabirdscientific.instrument_data as id
 
 import example_coefficients as ec
 
-test_data = Path("./tests/resources/test-data")
+test_data = Path("./resources/test-data")
 
 
 class TestConvertTemperature:
@@ -117,7 +117,7 @@ class TestConvertPressure:
 
 class TestConductivity19plus:
     cnv_path = test_data / "19plus_V2_CTD-processing_example.cnv"
-    hex_path = test_data / "19plus_V2_CTD-processing_example.hex"
+    hex_path = test_data / "19plus_v2" / "19plus_V2.hex"
 
     def test_convert_conductivity(self, request):
         # expected_data = id.cnv_to_instrument_data(self.cnv_path)

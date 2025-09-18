@@ -11,7 +11,7 @@ from pathlib import Path
 # Internal imports
 import seabirdscientific.instrument_data as id
 
-test_data = Path("./tests/resources/test-data")
+test_data = Path("./resources/test-data")
 
 
 class TestCnvToInstrumentData:
@@ -102,7 +102,7 @@ class TestCnvToInstrumentData:
 
 
 class TestReadHex19plus:
-    filepath = test_data / "19plus_V2_CTD-processing_example.hex"
+    filepath = test_data / "19plus_V2" / "19plus_V2.hex"
     raw = id.read_hex_file(
         filepath,
         id.InstrumentType.SBE19Plus,
@@ -129,7 +129,7 @@ class TestReadHex19plus:
 
 
 class TestReadHex39plus:
-    filepath = test_data / "SBE39plus.hex"
+    filepath = test_data / "SBE39plus" / "SBE39plus.hex"
     raw = id.read_hex_file(
         filepath,
         id.InstrumentType.SBE39Plus,
@@ -152,7 +152,7 @@ class TestReadHex39plus:
 
 
 class TestReadSBE911plus:
-    filepath = test_data / "SBE911plus/2401002.hex"
+    filepath = test_data / "SBE911plus/2507054.hex"
     raw = id.read_hex_file(
         filepath,
         id.InstrumentType.SBE911Plus,
@@ -178,22 +178,23 @@ class TestReadSBE911plus:
 
     # Expected values are from SBE Data Processing
     def test_read_911plus_hex(self):
-        assert round(self.raw["temperature"].iloc[0], 3) == 8262.223
-        assert round(self.raw["conductivity"].iloc[0], 3) == 5697.117
-        assert round(self.raw["digiquartz pressure"].iloc[0], 3) == 33116.492
-        assert round(self.raw["secondary temperature"].iloc[0], 3) == 8331.066
-        assert round(self.raw["secondary conductivity"].iloc[0], 3) == 9572.898
-        assert round(self.raw["volt 0"].iloc[0], 4) == 4.0708
-        assert round(self.raw["volt 1"].iloc[0], 4) == 0.2308
-        assert round(self.raw["volt 2"].iloc[0], 4) == 2.3358
-        assert round(self.raw["volt 3"].iloc[0], 4) == 0.3223
-        assert round(self.raw["volt 4"].iloc[0], 4) == 3.1538
-        assert round(self.raw["volt 5"].iloc[0], 4) == 2.8755
-        assert round(self.raw["volt 6"].iloc[0], 4) == 2.8193
-        assert self.raw["volt 7"].iloc[0] == 0
-        assert round(self.raw["surface par"].iloc[0], 5) == 0.02442
-        assert self.raw["NMEA Latitude"].iloc[0] == 32.9438
-        assert self.raw["NMEA Longitude"].iloc[0] == -117.29792
+        print(self.raw.iloc[0])
+        assert round(self.raw["temperature"].iloc[0], 3) == 4651.168
+        assert round(self.raw["conductivity"].iloc[0], 3) == 6638.984
+        assert round(self.raw["digiquartz pressure"].iloc[0], 3) == 33302.258
+        assert round(self.raw["secondary temperature"].iloc[0], 3) == 4651.781
+        assert round(self.raw["secondary conductivity"].iloc[0], 3) == 6230.480
+        assert round(self.raw["volt 0"].iloc[0], 4) == 3.7338
+        assert round(self.raw["volt 1"].iloc[0], 4) == 0.2112
+        assert round(self.raw["volt 2"].iloc[0], 4) == 4.9328
+        assert round(self.raw["volt 3"].iloc[0], 4) == 2.3370
+        assert round(self.raw["volt 4"].iloc[0], 4) == 2.4884
+        assert round(self.raw["volt 5"].iloc[0], 4) == 2.6777
+        assert round(self.raw["volt 6"].iloc[0], 4) == 0.1502
+        assert round(self.raw["volt 7"].iloc[0], 3) == 2.7912
+        assert round(self.raw["surface par"].iloc[0], 5) == 1.4310
+        assert self.raw["NMEA Latitude"].iloc[0] == 34.2757
+        assert self.raw["NMEA Longitude"].iloc[0] == -120.0256
         assert (
             int(self.raw["SBE911 pump status"].iloc[0]) == 0
         )  # Does not match SBE Processing, matches Fathom
@@ -202,12 +203,12 @@ class TestReadSBE911plus:
         )  # Does not match SBE Processing, matches Fathom
         assert int(self.raw["SBE911 confirm status"].iloc[0]) == 1
         assert int(self.raw["SBE911 modem status"].iloc[0]) == 1
-        assert int(self.raw["data integrity"].iloc[0]) == 95
-        assert self.raw["system time"].iloc[0] == datetime(2024, 1, 20, 1, 45, 31)
+        assert int(self.raw["data integrity"].iloc[0]) == 83
+        assert self.raw["system time"].iloc[0] == datetime(2025, 7, 28, 23, 43, 53)
 
 
 class TestReadSeaFET2:
-    filepath = test_data / "SeaFET2.hex"
+    filepath = test_data / "SeaFET_V2/SeaFET2.hex"
     raw = id.read_hex_file(filepath, id.InstrumentType.SeaFET2, [], False, True)
 
     def test_read_seaFET2_hex(self):

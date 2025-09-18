@@ -17,7 +17,7 @@ import seabirdscientific.processing as p
 import seabirdscientific.conversion as c
 from seabirdscientific.utils import close_enough, get_decimal_length
 
-test_data = Path("./tests/resources/test-data")
+test_data = Path("./resources/test-data")
 logger = getLogger(__name__)
 
 

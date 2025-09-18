@@ -2,6 +2,10 @@
 
 # Native imports
 import importlib.resources
+import sys
+import os
+
+sys.path.append(os.path.abspath("."))
 
 # Third-party imports
 import numpy as np
@@ -13,6 +17,9 @@ import plotly.graph_objects as go
 
 # Internal imports
 import seabirdscientific.visualization as viz
+
+print(os.getcwd())
+print(sys.path)
 
 test_resources = importlib.resources.files("resources")
 
