@@ -95,7 +95,7 @@ def percent_match(x1: np.ndarray, x2: np.ndarray) -> str:
 def get_tolerance(data: np.ndarray):
     """Checks the first 10 values of an array, gets the longest decimal
     length to the right of the decimal, and returns 1/10^length. Used
-    for unit tests so results can be comared with a variable tolerance
+    for unit tests so results can be compared with a variable tolerance
 
     :param data: a numpy array of numbers
     :return: the number of significant digits to the right of the decimal
