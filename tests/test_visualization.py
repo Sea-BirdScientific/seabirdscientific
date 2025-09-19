@@ -2,10 +2,6 @@
 
 # Native imports
 import importlib.resources
-import sys
-import os
-
-sys.path.append(os.path.abspath("."))
 
 # Third-party imports
 import numpy as np

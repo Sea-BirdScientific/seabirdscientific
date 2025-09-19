@@ -11,7 +11,7 @@ from pathlib import Path
 # Internal imports
 import seabirdscientific.instrument_data as id
 
-test_data = Path("./resources/test-data")
+test_data = Path("./tests/resources/test-data")
 
 
 class TestCnvToInstrumentData:
@@ -102,7 +102,7 @@ class TestCnvToInstrumentData:
 
 
 class TestReadHex19plus:
-    filepath = test_data / "19plus_V2" / "19plus_V2_trim.hex"
+    filepath = test_data / "19plus_V2_trim.hex"
     raw = id.read_hex_file(
         filepath,
         id.InstrumentType.SBE19Plus,
@@ -129,7 +129,7 @@ class TestReadHex19plus:
 
 
 class TestReadHex39plus:
-    filepath = test_data / "SBE39plus" / "SBE39plus.hex"
+    filepath = test_data / "SBE39plus.hex"
     raw = id.read_hex_file(
         filepath,
         id.InstrumentType.SBE39Plus,
@@ -152,7 +152,7 @@ class TestReadHex39plus:
 
 
 class TestReadSBE911plus:
-    filepath = test_data / "SBE911plus/2507054_trim.hex"
+    filepath = test_data / "911plus_trim.hex"
     raw = id.read_hex_file(
         filepath,
         id.InstrumentType.SBE911Plus,
@@ -207,7 +207,7 @@ class TestReadSBE911plus:
 
 
 class TestReadSeaFET2:
-    filepath = test_data / "SeaFET_V2/SeaFET2.hex"
+    filepath = test_data / "SeaFET2.hex"
     raw = id.read_hex_file(filepath, id.InstrumentType.SeaFET2, [], False, True)
 
     def test_read_seaFET2_hex(self):
