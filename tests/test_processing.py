@@ -15,7 +15,7 @@ import pytest
 import seabirdscientific.instrument_data as idata
 import seabirdscientific.processing as p
 import seabirdscientific.conversion as c
-from seabirdscientific.utils import close_enough, get_decimal_length
+from seabirdscientific.utils import close_enough, get_tolerance
 
 test_data = Path("./tests/resources/test-data")
 logger = getLogger(__name__)
@@ -380,8 +380,8 @@ class TestBinAverage:
             interpolate=True
             )
         for variable in expected.columns:
-            exponent = -1 * get_decimal_length(expected[variable])
-            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=10**exponent)
+            tolerance = get_tolerance(expected[variable])
+            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=tolerance)
 
     def test_bin_average_interp_bin_5(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
@@ -395,8 +395,8 @@ class TestBinAverage:
             interpolate=True
         )
         for variable in expected.columns:
-            exponent = -1 * get_decimal_length(expected[variable])
-            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=10**exponent)
+            tolerance = get_tolerance(expected[variable])
+            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=tolerance)
 
     def test_bin_average_default(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
@@ -418,9 +418,9 @@ class TestBinAverage:
             bin_size = 2,
         )
         for variable in expected.columns:
-            exponent = -1 * get_decimal_length(expected[variable])
-            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=10**exponent)
-            assert np.allclose(expected2[variable], binavg2[variable], rtol=0, atol=10**exponent)
+            tolerance = get_tolerance(expected[variable])
+            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=tolerance)
+            assert np.allclose(expected2[variable], binavg2[variable], rtol=0, atol=tolerance)
 
     def test_bin_average_include_surface(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
@@ -436,8 +436,8 @@ class TestBinAverage:
             surface_bin_max = 1,
         )
         for variable in expected.columns:
-            exponent = -1 * get_decimal_length(expected[variable])
-            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=10**exponent)
+            tolerance = get_tolerance(expected[variable])
+            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=tolerance)
 
     def test_bin_average_interpolate(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
@@ -451,8 +451,8 @@ class TestBinAverage:
             interpolate = True,
         )
         for variable in expected.columns:
-            exponent = -1 * get_decimal_length(expected[variable])
-            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=10**exponent)
+            tolerance = get_tolerance(expected[variable])
+            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=tolerance)
     
     def test_bin_average_interpolate_surface(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
@@ -470,8 +470,8 @@ class TestBinAverage:
             surface_bin_value = 0.5,
         )
         for variable in expected.columns:
-            exponent = -1 * get_decimal_length(expected[variable])
-            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=10**exponent)
+            tolerance = get_tolerance(expected[variable])
+            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=tolerance)
 
     def test_bin_average_downcast(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
@@ -485,8 +485,8 @@ class TestBinAverage:
             cast_type = p.CastType.DOWNCAST
         )
         for variable in expected.columns:
-            exponent = -1 * get_decimal_length(expected[variable])
-            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=10**exponent)
+            tolerance = get_tolerance(expected[variable])
+            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=tolerance)
 
     def test_bin_average_downcast_interp(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
@@ -501,8 +501,8 @@ class TestBinAverage:
             interpolate = True,
         )
         for variable in expected.columns:
-            exponent = -1 * get_decimal_length(expected[variable])
-            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=10**exponent)
+            tolerance = get_tolerance(expected[variable])
+            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=tolerance)
 
     def test_bin_average_downcast_interp_surface(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
@@ -521,8 +521,8 @@ class TestBinAverage:
             surface_bin_value = 0.5,
         )
         for variable in expected.columns:
-            exponent = -1 * get_decimal_length(expected[variable])
-            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=10**exponent)
+            tolerance = get_tolerance(expected[variable])
+            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=tolerance)
 
     def test_bin_average_upcast(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
@@ -536,8 +536,8 @@ class TestBinAverage:
             cast_type = p.CastType.UPCAST
         )
         for variable in expected.columns:
-            exponent = -1 * get_decimal_length(expected[variable])
-            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=10**exponent)
+            tolerance = get_tolerance(expected[variable])
+            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=tolerance)
 
     def test_bin_average_upcast_interp(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
@@ -552,8 +552,8 @@ class TestBinAverage:
             interpolate = True,
         )
         for variable in expected.columns:
-            exponent = -1 * get_decimal_length(expected[variable])
-            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=10**exponent)
+            tolerance = get_tolerance(expected[variable])
+            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=tolerance)
 
     def test_bin_average_upcast_interp_surface(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
@@ -572,8 +572,8 @@ class TestBinAverage:
             surface_bin_value = 0.5,
         )
         for variable in expected.columns:
-            exponent = -1 * get_decimal_length(expected[variable])
-            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=10**exponent)
+            tolerance = get_tolerance(expected[variable])
+            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=tolerance)
 
     def test_bin_average_exclude_flags(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_loopedit_wildedit.cnv"
@@ -586,8 +586,8 @@ class TestBinAverage:
             bin_size = 2,
         )
         for variable in expected.columns:
-            exponent = -1 * get_decimal_length(expected[variable])
-            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=10**exponent)
+            tolerance = get_tolerance(expected[variable])
+            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=tolerance)
 
     def test_bin_average_include_flags(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_loopedit_wildedit.cnv"
@@ -601,8 +601,8 @@ class TestBinAverage:
             exclude_bad_scans = False
         )
         for variable in expected.columns:
-            exponent = -1 * get_decimal_length(expected[variable])
-            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=10**exponent)
+            tolerance = get_tolerance(expected[variable])
+            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=tolerance)
 
     def test_bin_average_include_flags_interp(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_loopedit_wildedit.cnv"
@@ -617,8 +617,8 @@ class TestBinAverage:
             exclude_bad_scans = False,
         )
         for variable in expected.columns:
-            exponent = -1 * get_decimal_length(expected[variable])
-            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=10**exponent)
+            tolerance = get_tolerance(expected[variable])
+            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=tolerance)
 
     def test_bin_average_exclude_flags_interp(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_loopedit_wildedit.cnv"
@@ -632,8 +632,8 @@ class TestBinAverage:
             interpolate = True,
         )
         for variable in expected.columns:
-            exponent = -1 * get_decimal_length(expected[variable])
-            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=10**exponent)
+            tolerance = get_tolerance(expected[variable])
+            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=tolerance)
 
     def test_bin_average_time(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
@@ -647,8 +647,8 @@ class TestBinAverage:
             cast_type = p.CastType.NA
         )
         for variable in expected.columns:
-            exponent = -1 * get_decimal_length(expected[variable])
-            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=10**exponent)
+            tolerance = get_tolerance(expected[variable])
+            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=tolerance)
 
     # fmt: on
 
@@ -978,3 +978,37 @@ class TestNitrate:
         )
         request.node.return_value = nitrate.tolist()
         assert np.allclose(expected_mgnl, nitrate, atol=0.000001)
+
+
+class TestSplit:
+    def test_split(self, request):
+        source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
+        source_down = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_downcast.cnv"
+        source_up = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_upcast.cnv"
+        data = idata.cnv_to_instrument_data(source_in)._to_dataframe()
+        expected_down = idata.cnv_to_instrument_data(source_down)._to_dataframe()
+        expected_up = idata.cnv_to_instrument_data(source_up)._to_dataframe()
+
+        down, up = p.split(data, "prdM")
+
+        for variable in expected_down.columns:
+            tolerance = get_tolerance(expected_down[variable])
+            assert np.allclose(expected_down[variable], down[variable], rtol=0, atol=10**tolerance)
+            assert np.allclose(expected_up[variable], up[variable], rtol=0, atol=10**tolerance)
+
+    def test_split_with_flags(self, request):
+        source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_loopedit.cnv"
+        source_down = (
+            test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_loopedit_downcast.cnv"
+        )
+        source_up = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_loopedit_upcast.cnv"
+        data = idata.cnv_to_instrument_data(source_in)._to_dataframe()
+        expected_down = idata.cnv_to_instrument_data(source_down)._to_dataframe()
+        expected_up = idata.cnv_to_instrument_data(source_up)._to_dataframe()
+
+        down, up = p.split(data, "prdM", exclude_bad_scans=True)
+
+        for variable in expected_down.columns:
+            tolerance = get_tolerance(expected_down[variable])
+            assert np.allclose(expected_down[variable], down[variable], rtol=0, atol=10**tolerance)
+            assert np.allclose(expected_up[variable], up[variable], rtol=0, atol=10**tolerance)
