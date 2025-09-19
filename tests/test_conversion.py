@@ -14,7 +14,7 @@ import pytest
 import seabirdscientific.conversion as dc
 import seabirdscientific.instrument_data as id
 
-import tests.test_coefficients as ec
+import test_coefficients as ec
 
 test_data = Path("./tests/resources/test-data")
 
@@ -718,6 +718,6 @@ class TestAltimeter:
         altimeter_raw = np.array([3.1893, 1.1807, 2.3797])
         expected = np.array([63.79, 23.61, 47.59])  ## meters, from SBE data processing
 
-        height = dc.convert_altimeter(altimeter_raw, ec.altimeter_coefs_sn46604)
+        height = dc.convert_altimeter(altimeter_raw, ec.altimeter_coefs)
 
         assert np.allclose(expected, height, atol=1e-2)

@@ -235,3 +235,5 @@ ph_seafet_external_coefs = PHSeaFETExternalCoefficients(
     f5=0,
     f6=0,
 )
+
+altimeter_coefs = AltimeterCoefficients(slope=15, offset=0)
