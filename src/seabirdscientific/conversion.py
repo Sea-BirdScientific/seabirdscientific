@@ -48,7 +48,7 @@ from scipy import stats
 # Sea-Bird imports
 
 # Internal imports
-from .cal_coefficients import (
+from seabirdscientific.cal_coefficients import (
     ConductivityCoefficients,
     Oxygen43Coefficients,
     Oxygen63Coefficients,

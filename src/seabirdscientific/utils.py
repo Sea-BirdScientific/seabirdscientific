@@ -18,7 +18,7 @@ import numpy as np
 # Sea-Bird imports
 
 # Internal imports
-from .processing import FLAG_VALUE
+from seabirdscientific.processing import FLAG_VALUE
 
 
 def close_enough(
@@ -92,10 +92,10 @@ def percent_match(x1: np.ndarray, x2: np.ndarray) -> str:
     return f"{100 - (x1 != x2).sum()*100 / len(x1):0.2f}% match"
 
 
-def get_decimal_length(data: np.ndarray):
-    """Checks the first 10 values of an array and returns the longest
-    decimal length to the right of the decimal. Used for unit tests so
-    a variable tolerance can be used to compare results
+def get_tolerance(data: np.ndarray):
+    """Checks the first 10 values of an array, gets the longest decimal
+    length to the right of the decimal, and returns 1/10^length. Used
+    for unit tests so results can be compared with a variable tolerance
 
     :param data: a numpy array of numbers
     :return: the number of significant digits to the right of the decimal
@@ -106,4 +106,4 @@ def get_decimal_length(data: np.ndarray):
             decimal_lengths.append(len(f"{data[n]}".split(".")[1]))
             if len(decimal_lengths) >= 10:
                 break
-    return max(decimal_lengths)
+    return 1 / 10**max(decimal_lengths)
