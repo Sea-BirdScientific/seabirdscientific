@@ -776,7 +776,7 @@ def _calculate_nernst(temperature: np.ndarray):
     :param temperature: temperature in kelvin
     :return: the nernst term (J/Coulomb; electrical potential; volts)
     """
-    nernst_term = R * temperature / F * np.log(10)
+    nernst_term = R * temperature * np.log(10) / F
     return nernst_term
 
 
