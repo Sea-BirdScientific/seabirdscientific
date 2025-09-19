@@ -774,7 +774,25 @@ def convert_spar_linear(
 
     :return: converted surface PAR in µmol photons/m2*s
     """
-    spar = coefs.im * coefs.a0 * (volts - coefs.a0) * coefs.conversion_factor
+    spar = coefs.im * coefs.a1 * (volts - coefs.a0) * coefs.conversion_factor
+
+    return spar
+
+
+def convert_spar_biospherical(
+    volts: np.ndarray,
+    coefs: SPARCoefficients,
+):
+    """Converts a raw voltage value for biospherical surface PAR.
+
+    All equation information comes from application note 11S
+
+    :param volts: raw output voltage from SPAR sensor
+    :param coefs: coefficients for the SPAR sensors
+
+    :return: converted surface PAR in µmol photons/m2*s
+    """
+    spar = volts * coefs.conversion_factor
 
     return spar
 

@@ -14,7 +14,7 @@ import pytest
 import seabirdscientific.conversion as dc
 import seabirdscientific.instrument_data as id
 
-import example_coefficients as ec
+import tests.test_coefficients as ec
 
 test_data = Path("./tests/resources/test-data")
 
@@ -623,7 +623,7 @@ class TestSeaFETPH:
         internal_ph = dc.convert_internal_seafet_ph(
             ph_counts=self.internal_ph_counts,
             temperature=self.ph_temperature,
-            coefs=ec.ph_seafet_internal_coeffs,
+            coefs=ec.ph_seafet_internal_coefs,
         )
         request.node.return_value = internal_ph.tolist()
         assert np.allclose(internal_ph, self.expected_internal_ph, atol=1e-6)
@@ -634,7 +634,7 @@ class TestSeaFETPH:
             temperature=self.ph_temperature,
             salinity=35,
             pressure=0,
-            coefs=ec.ph_seafet_external_coeffs,
+            coefs=ec.ph_seafet_external_coefs,
         )
         request.node.return_value = external_ph.tolist()
         assert np.allclose(external_ph, self.expected_external_ph, atol=1e-6)
@@ -695,3 +695,29 @@ class TestConvertSBE63Oxygen:
 
         request.node.return_value = thermistor_temperature.tolist()
         assert np.allclose(expected, thermistor_temperature, atol=1e-6)
+
+
+class TestSPAR:
+    def test_surface_par(self, request):
+        spar_raw = np.array([0.03296703296703297])
+        expected_spar_biospherical = np.array([51.41538])  # from SBE data processing
+        expected_spar_linear = np.array([-6636])  # from SBE data processing
+        expected_spar_logarithmic = np.array([1127.0])  # from SBE data processing
+
+        spar_biospherical = dc.convert_spar_biospherical(spar_raw, ec.spar_coefs)
+        spar_linear = dc.convert_spar_linear(spar_raw, ec.spar_coefs)
+        spar_logarithmic = dc.convert_spar_logarithmic(spar_raw, ec.spar_coefs)
+
+        assert np.allclose(expected_spar_biospherical, spar_biospherical, atol=1e-5)
+        assert np.allclose(expected_spar_linear, spar_linear, atol=0)
+        assert np.allclose(expected_spar_logarithmic, spar_logarithmic, atol=1e-1)
+
+
+class TestAltimeter:
+    def test_altimeter(self, request):
+        altimeter_raw = np.array([3.1893, 1.1807, 2.3797])
+        expected = np.array([63.79, 23.61, 47.59])  ## meters, from SBE data processing
+
+        height = dc.convert_altimeter(altimeter_raw, ec.altimeter_coefs_sn46604)
+
+        assert np.allclose(expected, height, atol=1e-2)
