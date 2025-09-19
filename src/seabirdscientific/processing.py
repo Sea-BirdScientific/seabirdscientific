@@ -1109,12 +1109,12 @@ def buoyancy(
 
 
 def get_downcast(
-        dataframe: pd.DataFrame,
-        control_name: str,
-        min_value: float = -np.inf,
-        exclude_bad_scans = False,
+    dataframe: pd.DataFrame,
+    control_name: str,
+    min_value: float = -np.inf,
+    exclude_bad_scans=False,
 ) -> pd.DataFrame:
-    """    Gets the downcast from a dataframe. The min index starts at the
+    """Gets the downcast from a dataframe. The min index starts at the
     first value greater than min_value, and the max index is at the
     greatest value in the depth array. If flags are excluded those rows
     will be excluded when determining the max index, but they won't
@@ -1134,13 +1134,13 @@ def get_downcast(
     n_min = 0
     n_max = downcast[control_name].idxmax()
 
-    if exclude_bad_scans and 'flag' in dataframe.columns:
-        downcast = downcast[downcast['flag'] != FLAG_VALUE]
+    if exclude_bad_scans and "flag" in dataframe.columns:
+        downcast = downcast[downcast["flag"] != FLAG_VALUE]
         n_max = downcast[control_name].idxmax()
-    
+
     if min_value > -np.inf:
         downcast = downcast.loc[:n_max]
-        downcast = downcast[downcast[control_name].idxmin():]
+        downcast = downcast[downcast[control_name].idxmin() :]
         downcast = downcast[downcast[control_name] > min_value]
         n_min = downcast[control_name].idxmin()
 
@@ -1150,10 +1150,10 @@ def get_downcast(
 
 
 def get_upcast(
-        dataframe: pd.DataFrame,
-        control_name: str,
-        min_value: float = -np.inf,
-        exclude_bad_scans = False,
+    dataframe: pd.DataFrame,
+    control_name: str,
+    min_value: float = -np.inf,
+    exclude_bad_scans=False,
 ) -> pd.DataFrame:
     """Gets the upcast from a dataframe. The max index is at the
     greatest value of the control_name values. If flags are excluded
@@ -1175,28 +1175,27 @@ def get_upcast(
     n_min = upcast.index[-1]
     n_max = upcast[control_name].idxmax()
 
-    if exclude_bad_scans and 'flag' in dataframe.columns:
-        upcast = upcast[upcast['flag'] != FLAG_VALUE]
+    if exclude_bad_scans and "flag" in dataframe.columns:
+        upcast = upcast[upcast["flag"] != FLAG_VALUE]
         n_max = upcast[control_name].idxmax()
-    
 
     if min_value > -np.inf:
         # seasoft data processing doesn't include the max value
-        upcast = upcast.loc[n_max + 1:]
-        upcast = upcast[:upcast[control_name].idxmin()]
+        upcast = upcast.loc[n_max + 1 :]
+        upcast = upcast[: upcast[control_name].idxmin()]
         upcast = upcast[upcast[control_name] > min_value]
         n_min = upcast[control_name].idxmin()
 
-    upcast = dataframe.loc[n_max + 1:n_min].reset_index(drop=True)
+    upcast = dataframe.loc[n_max + 1 : n_min].reset_index(drop=True)
 
     return upcast
 
 
 def split(
-        dataframe: pd.DataFrame,
-        control_name: str,
-        split_mode = CastType.BOTH,
-        exclude_bad_scans = False,
+    dataframe: pd.DataFrame,
+    control_name: str,
+    split_mode=CastType.BOTH,
+    exclude_bad_scans=False,
 ) -> List[pd.DataFrame]:
     """Splits a dataframe into a list of 1 or 2 dataframes, the downcast
     and/or upcast.
@@ -1215,18 +1214,18 @@ def split(
     control = _dataframe[control_name]
 
     flag = None
-    if 'flag' in _dataframe.columns:
-        flag = _dataframe['flag']
+    if "flag" in _dataframe.columns:
+        flag = _dataframe["flag"]
         if exclude_bad_scans:
             _dataframe = _dataframe[flag != FLAG_VALUE]
 
     result = []
     if split_mode in [CastType.BOTH, CastType.DOWNCAST]:
-        downcast = get_downcast(dataframe, 'prdM', exclude_bad_scans=exclude_bad_scans)
+        downcast = get_downcast(dataframe, "prdM", exclude_bad_scans=exclude_bad_scans)
         result.append(downcast)
 
     if split_mode in [CastType.BOTH, CastType.UPCAST]:
-        upcast = get_upcast(dataframe, 'prdM', exclude_bad_scans=exclude_bad_scans)
+        upcast = get_upcast(dataframe, "prdM", exclude_bad_scans=exclude_bad_scans)
         result.append(upcast)
 
     return result
