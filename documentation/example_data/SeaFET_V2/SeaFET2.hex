@@ -1,0 +1,96 @@
+* Sea-Bird SeaFET2 Data File:
+* FileName = C:\Downloads/SeaFET2_0002110_2025_09_15.hex
+* Software version Fathom 3.0.4
+* pH reference SN = 16 isFET SN = 95339 Temperature SN = 95339
+* Humidity SN = undefined
+* System UpLoad Time = 2025-Sep-15 21:40:09 +00:00
+* sample interval = 10 seconds
+* <ApplicationData>
+*   <Fathom>
+*     <SoftwareVersion>3.0.4</SoftwareVersion>
+*     <BuildDate>11-Sep-2025</BuildDate>
+*   </Fathom>
+* </ApplicationData>
+* <InstrumentState>
+* <HardwareData DeviceType="SeaFET2" SerialNumber="0002110">
+*   <Manufacturer>Sea-Bird Scientific</Manufacturer>
+*   <FirmwareVersion build="30014">6.1.4</FirmwareVersion>
+*   <FirmwareDate>Jun 08 2018, 10:10:57</FirmwareDate>
+*   <CommandSetVersion>1.0</CommandSetVersion>
+*   <PCBAssembly PCBSerialNum="225181" AssemblyNum="42017.0D"></PCBAssembly>
+*   <PCBAssembly PCBSerialNum="224829" AssemblyNum="42018.1E"></PCBAssembly>
+*   <PCBAssembly PCBSerialNum="225182" AssemblyNum="42019.0B"></PCBAssembly>
+*   <PCBAssembly PCBSerialNum="222945" AssemblyNum="42020.0B"></PCBAssembly>
+*   <MfgDate>25/02/2020</MfgDate>
+*   <FirmwareLoader>Loader_PD007_v1.0.1</FirmwareLoader>
+*   <InternalSensors>
+*     <Sensor id="pH">
+*       <type>pH-1</type>
+*       <SerialNumber desc="reference" value="16"></SerialNumber>
+*       <SerialNumber desc="isFET" value="95339"></SerialNumber>
+*       <Sensor id="Temperature">
+*         <type>temperature-2</type>
+*         <SerialNumber>95339</SerialNumber>
+*       </Sensor>
+*     </Sensor>
+*     <Sensor id="Humidity">
+*       <type>rh-1</type>
+*     </Sensor>
+*   </InternalSensors>
+* </HardwareData>
+* <StatusData DeviceType="SeaFET2" SerialNumber="0002110">
+*   <DateTime>2025-09-15T21:39:53</DateTime>
+*   <EventSummary numEvents="25"></EventSummary>
+*   <Power>
+*     <vSystem src="External">15.5</vSystem>
+*     <vBatt>12.42</vBatt>
+*     <vIso>5.76</vIso>
+*     <vRTCBackup>3.24</vRTCBackup>
+*   </Power>
+*   <MemorySummary>
+*     <Bytes>27</Bytes>
+*     <Samples>1</Samples>
+*     <SamplesFree>1242755</SamplesFree>
+*     <SampleLength>27</SampleLength>
+*   </MemorySummary>
+*   <AutonomousSampling>no, initialized</AutonomousSampling>
+* </StatusData>
+* <Executed></Executed>
+* <ConfigurationData DeviceType="SeaFET2" SerialNumber="0002110">
+*   <ReferenceSalinity>20.0</ReferenceSalinity>
+*   <TxRealTime>false</TxRealTime>
+*   <SampleInterval>10</SampleInterval>
+*   <OutputFormat>1</OutputFormat>
+*   <FrameSync>SEAFET</FrameSync>
+*   <TemperatureUnits>Celsius</TemperatureUnits>
+*   <PressureUnits>Decibar</PressureUnits>
+*   <UseExternalPump>false</UseExternalPump>
+* </ConfigurationData>
+* <CalibrationCoefficients DeviceType="SeaFET2" SerialNumber="0002110">
+*   <Calibration format="PH1" id="pH">
+*     <SerialNumFET>95339</SerialNumFET>
+*     <SerialNumREF>16</SerialNumREF>
+*     <CalDate>01-Feb-22</CalDate>
+*     <K0>-1.434936</K0>
+*     <K2>-0.00112523</K2>
+*     <KDF0>-1.443428</KDF0>
+*     <KDF2>-0.001223405</KDF2>
+*   </Calibration>
+*   <Calibration format="TEMP2" id="Temperature">
+*     <SerialNum>95339</SerialNum>
+*     <CalDate>01-feb-25</CalDate>
+*     <TDFA0>-0.001542604</TDFA0>
+*     <TDFA1>0.0005451845</TDFA1>
+*     <TDFA2>-0.00001988318</TDFA2>
+*     <TDFA3>4.501564e-7</TDFA3>
+*   </Calibration>
+* </CalibrationCoefficients>
+* <EventCounters DeviceType="SeaFET2" SerialNumber="0002110">
+*   <EventSummary numEvents="25"></EventSummary>
+*   <Event type="PowerOnReset" count="21"></Event>
+*   <Event type="AlarmTooShort" count="4"></Event>
+* </EventCounters>
+* </InstrumentState>
+* 
+*END*
+4DEA054DC3540F4CB75AF2607FE5D87FF01D44E65A305B43340000

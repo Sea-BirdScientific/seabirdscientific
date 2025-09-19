@@ -1,10 +1,8 @@
 name: Black Formatter
 
 on:
-  push:
-    branches: [main]
   pull_request:
-    branches: [main]
+    branches: ["**"]
 
 jobs:
   black:

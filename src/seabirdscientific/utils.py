@@ -106,4 +106,4 @@ def get_tolerance(data: np.ndarray):
             decimal_lengths.append(len(f"{data[n]}".split(".")[1]))
             if len(decimal_lengths) >= 10:
                 break
-    return 1 / 10**max(decimal_lengths)
+    return 1 / 10 ** max(decimal_lengths)
