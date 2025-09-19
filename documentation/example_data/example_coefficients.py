@@ -33,6 +33,28 @@ temperature_coefs_sn5109 = TemperatureFrequencyCoefficients(
     g=4.39126107e-003, h=6.42119447e-004, i=2.28636318e-005, j=2.17029078e-006, f0=1000.000
 )
 
+temperature_coefs_sn03906502 = TemperatureCoefficients(
+    a0=-0.0008170231,
+    a1=0.0003358073,
+    a2=-0.000006115756,
+    a3=2.096198e-7,
+)
+
+pressure_coefs_sn03906502 = PressureCoefficients(
+    pa0=0.5459716,
+    pa1=0.0009598281,
+    pa2=-2.781709e-12,
+    ptca0=2018.425,
+    ptca1=87.51056,
+    ptca2=-2.633389,
+    ptcb0=25.02572,
+    ptcb1=0.0003508772,
+    ptcb2=0,
+    ptempa0=685.9287,
+    ptempa1=0.005264199,
+    ptempa2=-0.000001318757,
+)
+
 pressure_coefs_sn6130 = PressureCoefficients(
     pa0=6.51546669e-002,
     pa1=1.54424116e-003,
