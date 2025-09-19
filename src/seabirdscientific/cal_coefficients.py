@@ -268,13 +268,28 @@ class PARCoefficients:
     :param im: immersion coefficient
     :param a0: calibration slope
     :param a1: calibration offset
-    :param multiplier: 1.0 for units of μEinsteins/m2 sec
+    :param multiplier: 1.0 for units of μmol photons/m2*s
     """
 
     im: float
     a0: float
     a1: float
     multiplier: float
+
+
+@dataclass
+class SPARCoefficients:
+    """
+    :param im: immersion coefficient
+    :param a0: calibration slope
+    :param a1: calibration offset
+    :param conversion_factor: 1.0 for units of μmol photons/m2*s
+    """
+
+    im: float
+    a0: float
+    a1: float
+    conversion_factor: float
 
 
 class PHSeaFETInternalCoefficients:
@@ -348,3 +363,14 @@ class PHSeaFETExternalCoefficients:
             self.ext_k2 = ext_k2
             self.k2 = ext_k2
             warnings.warn("int_k2 is deprecated, use k2", DeprecationWarning)
+
+
+@dataclass
+class AltimeterCoefficients:
+    """
+    :param slope: coefficient
+    :param offset: coefficient
+    """
+
+    slope: float
+    offset: float
