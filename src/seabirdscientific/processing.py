@@ -634,7 +634,7 @@ def bin_average(
         _surface_bin_min = max(surface_bin_min, 0)
 
         if not surface_bin_min <= surface_bin_max <= bin_min:
-            logger.warning(f"Surface bin max set to {_surface_bin_max}")
+            logger.warning(f"Surface bin max set to {surface_bin_max}")
         _surface_bin_max = max(surface_bin_min, min(surface_bin_max, bin_min))
 
         bins = (_surface_bin_min, _surface_bin_max)
