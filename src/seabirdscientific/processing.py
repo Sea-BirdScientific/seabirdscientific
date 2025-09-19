@@ -38,6 +38,7 @@ data.
 import math
 from enum import Enum
 from logging import getLogger
+from typing import List, Tuple
 
 # Third-party imports
 import gsw
@@ -48,8 +49,8 @@ from scipy import signal, stats
 # Sea-Bird imports
 
 # Internal imports
-from .conversion import depth_from_pressure
-from . import eos80_processing as eos80
+from seabirdscientific.conversion import depth_from_pressure
+from seabirdscientific import eos80_processing as eos80
 
 
 logger = getLogger(__name__)
@@ -1103,5 +1104,129 @@ def buoyancy(
             result.at[i, "N"] = np.nan
         result.at[i, "E"] = n2 / gravity
         result.at[i, "E10^-8"] = result.at[i, "E"] * 1e8
+
+    return result
+
+
+def get_downcast(
+        dataframe: pd.DataFrame,
+        control_name: str,
+        min_value: float = -np.inf,
+        exclude_bad_scans = False,
+) -> pd.DataFrame:
+    """    Gets the downcast from a dataframe. The min index starts at the
+    first value greater than min_value, and the max index is at the
+    greatest value in the depth array. If flags are excluded those rows
+    will be excluded when determining the max index, but they won't
+    be removed them from the dataframe
+
+    :param dataframe: The dataframe to select the downcast from
+    :param control_name: The control variable, typically pressure or
+        depth
+    :param min_value: Exclude values greater than this from the result,
+        defaults to -np.inf
+    :param exclude_bad_scans: If True, these rows wil be skipped when
+        determining the index of the max value, defaults to False
+    :return: The downcast portion of the input dataframe
+    """
+
+    downcast = dataframe.copy()
+    n_min = 0
+    n_max = downcast[control_name].idxmax()
+
+    if exclude_bad_scans and 'flag' in dataframe.columns:
+        downcast = downcast[downcast['flag'] != FLAG_VALUE]
+        n_max = downcast[control_name].idxmax()
+    
+    if min_value > -np.inf:
+        downcast = downcast.loc[:n_max]
+        downcast = downcast[downcast[control_name].idxmin():]
+        downcast = downcast[downcast[control_name] > min_value]
+        n_min = downcast[control_name].idxmin()
+
+    downcast = dataframe.loc[n_min:n_max].reset_index(drop=True)
+
+    return downcast
+
+
+def get_upcast(
+        dataframe: pd.DataFrame,
+        control_name: str,
+        min_value: float = -np.inf,
+        exclude_bad_scans = False,
+) -> pd.DataFrame:
+    """Gets the upcast from a dataframe. The max index is at the
+    greatest value of the control_name values. If flags are excluded
+    those rows will be excluded when determining the max index, but they
+    won't be removed them from the dataframe. The min index is at the
+    last value greater than min_value
+
+    :param dataframe: The dataframe to select the upcast from
+    :param control_name: The control variable, typically pressure or
+        depth
+    :param min_value: Exclude values greater than this from the result,
+        defaults to -np.inf
+    :param exclude_bad_scans: If True, these rows wil be skipped when
+        determining the index of the max value, defaults to False
+    :return: The upcast portion of the input dataframe
+    """
+
+    upcast = dataframe.copy()
+    n_min = upcast.index[-1]
+    n_max = upcast[control_name].idxmax()
+
+    if exclude_bad_scans and 'flag' in dataframe.columns:
+        upcast = upcast[upcast['flag'] != FLAG_VALUE]
+        n_max = upcast[control_name].idxmax()
+    
+
+    if min_value > -np.inf:
+        # seasoft data processing doesn't include the max value
+        upcast = upcast.loc[n_max + 1:]
+        upcast = upcast[:upcast[control_name].idxmin()]
+        upcast = upcast[upcast[control_name] > min_value]
+        n_min = upcast[control_name].idxmin()
+
+    upcast = dataframe.loc[n_max + 1:n_min].reset_index(drop=True)
+
+    return upcast
+
+
+def split(
+        dataframe: pd.DataFrame,
+        control_name: str,
+        split_mode = CastType.BOTH,
+        exclude_bad_scans = False,
+) -> List[pd.DataFrame]:
+    """Splits a dataframe into a list of 1 or 2 dataframes, the downcast
+    and/or upcast.
+
+    :param dataframe: The dataframe to split
+    :param control_name: The variable to determine where to split,
+        typically pressure or depth
+    :param split_mode: Determines which casts to include in teh result,
+        defaults to CastType.BOTH
+    :param exclude_bad_scans: If True, rows with bad flags will be
+        excluded when determining the max depth or pressure. Defaults
+        to False
+    :return: A list of the downcast and/or upcast dataframes
+    """
+    _dataframe = dataframe.copy()
+    control = _dataframe[control_name]
+
+    flag = None
+    if 'flag' in _dataframe.columns:
+        flag = _dataframe['flag']
+        if exclude_bad_scans:
+            _dataframe = _dataframe[flag != FLAG_VALUE]
+
+    result = []
+    if split_mode in [CastType.BOTH, CastType.DOWNCAST]:
+        downcast = get_downcast(dataframe, 'prdM', exclude_bad_scans=exclude_bad_scans)
+        result.append(downcast)
+
+    if split_mode in [CastType.BOTH, CastType.UPCAST]:
+        upcast = get_upcast(dataframe, 'prdM', exclude_bad_scans=exclude_bad_scans)
+        result.append(upcast)
 
     return result
