@@ -164,6 +164,24 @@ thermistor_63_coefs_sn2568 = Thermistor63Coefficients(
     ta3=9.756123e-8,
 )
 
+oxygen_63_coefs_sn11459 = Oxygen63Coefficients(
+    a0=1.0513,
+    a1=-1.5e-3,
+    a2=4.149243e-1,
+    b0=-2.449207e-1,
+    b1=1.643613,
+    c0=1.036735e-1,
+    c1=4.416997e-3,
+    c2=6.092370e-5,
+    e=1.1e-2,
+)
+
+thermistor_63_coefs_sn11459 = Thermistor63Coefficients(
+    ta0=7.082572e-4,
+    ta1=2.496316e-4,
+    ta2=8.447513e-7,
+    ta3=9.333618e-8,
+)
 
 # cal coefficients for SN3287
 oxygen_43_coefs_sn3287 = Oxygen43Coefficients(
