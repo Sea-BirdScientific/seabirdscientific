@@ -217,7 +217,7 @@ class Sensors(Enum):
     ExtVolt4 = "ExtVolt4"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
     ExtVolt5 = "ExtVolt5"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
     ExtVolt6 = "ExtVolt6"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
-    ExtVolt7 = "ExtVolt7"
+    ExtVolt7 = "ExtVolt7"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
     WETLABS = "WETLABS"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
     GTD = "GTD"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
     DualGTD = "DualGTD"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
@@ -227,8 +227,8 @@ class Sensors(Enum):
     SeaFET = "SeaFET"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
     SPAR = "SPAR"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
     # nmea devices
-    nmeaLatitude = (  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
-        "nmeaLatitude"
+    nmeaLatitude = (
+        "nmeaLatitude"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
     )
     nmeaLongitude = (  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
         "nmeaLongitude"
@@ -404,6 +404,8 @@ def read_hex_file(
     enabled_sensors: List[Sensors],
     moored_mode=False,
     is_shallow=True,
+    frequency_channels_suppressed=0,
+    voltage_words_suppressed=0,
 ) -> pd.DataFrame:
     """Reads a .hex file
 
@@ -439,7 +441,15 @@ def read_hex_file(
                 data = preallocate_dataframe(
                     instrument_type, line, enabled_sensors, moored_mode, data_length
                 )
-            hex_data = read_hex(instrument_type, line, enabled_sensors, moored_mode, is_shallow)
+            hex_data = read_hex(
+                instrument_type,
+                line,
+                enabled_sensors,
+                moored_mode,
+                is_shallow,
+                frequency_channels_suppressed,
+                voltage_words_suppressed,
+            )
             for key, value in hex_data.items():
                 data.loc[data_count, key] = value
             data_count += 1
@@ -488,8 +498,8 @@ def read_hex(
     enabled_sensors: List[Sensors] | None = None,
     moored_mode=False,
     is_shallow=True,
-    frequency_channels_supressed=0,
-    voltage_words_supressed=0,
+    frequency_channels_suppressed=0,
+    voltage_words_suppressed=0,
     hex=hex,  # pylint: disable=redefined-builtin
 ) -> dict:
     """Converts an instrument data hex string into engineering units.
@@ -536,7 +546,10 @@ def read_hex(
             return read_seafet_format_0(hex_segment, instrument_type, is_shallow)
         case InstrumentType.SBE911Plus:
             return read_SBE911plus_format_0(
-                hex_segment, enabled_sensors, frequency_channels_supressed, voltage_words_supressed
+                hex_segment,
+                enabled_sensors,
+                frequency_channels_suppressed,
+                voltage_words_suppressed,
             )
 
         case _:
@@ -595,8 +608,8 @@ def read_SBE39plus_format_0(
 
 
 def read_seafet_format_0(
-    hex_segment: str = "",
-    instrument_type: InstrumentType = None,
+    hex_segment: str,
+    instrument_type: InstrumentType,
     is_shallow: bool = True,
     hex=builtins.hex,
 ) -> Dict[str, Union[int, float, datetime]]:

@@ -63,6 +63,8 @@ from seabirdscientific.cal_coefficients import (
     TemperatureFrequencyCoefficients,
     Thermistor63Coefficients,
     ECOCoefficients,
+    AltimeterCoefficients,
+    SPARCoefficients,
 )
 
 
@@ -103,7 +105,7 @@ def convert_temperature(
     :param use_mv_r: true to perform extra conversion steps required by
         some instruments (check the cal sheet to see if this is required)
 
-    :return: temperature val converted to ITS-90 degrees C
+    :return: temperature val converted to ITS-90 or IPTS68 in degrees C or F
     """
 
     if use_mv_r:
@@ -155,9 +157,9 @@ def convert_pressure(
     pressure_count: np.ndarray,
     compensation_voltage: np.ndarray,
     coefs: PressureCoefficients,
-    units: Literal["dbar", "psia"] = "psia",
+    units: Literal["dbar", "psia", "psig"] = "psig",
 ):
-    """Converts pressure counts to PSIA (pounds per square inch, abolute).
+    """Converts pressure counts to sea pressure (psig and dbar) and absolute pressure (psia)
 
     pressure_count and compensation_voltage are expected to be raw data
     from an instrument in A/D counts
@@ -166,10 +168,10 @@ def convert_pressure(
     :param compensation_voltage: pressure temperature compensation
         voltage, in counts or volts depending on the instrument
     :param coefs: calibration coefficients for the pressure sensor
-    :param units: whether or not to use psia or dbar as the returned
+    :param units: whether or not to use psig or dbar as the returned
         unit type
 
-    :return: pressure val in PSIA
+    :return: sea pressure val in dbar or PSIG
     """
     sea_level_pressure = 14.7
 
@@ -180,7 +182,10 @@ def convert_pressure(
     )
     x = pressure_count - coefs.ptca0 - coefs.ptca1 * t - coefs.ptca2 * t**2
     n = x * coefs.ptcb0 / (coefs.ptcb0 + coefs.ptcb1 * t + coefs.ptcb2 * t**2)
-    pressure = coefs.pa0 + coefs.pa1 * n + coefs.pa2 * n**2 - sea_level_pressure
+    pressure = coefs.pa0 + coefs.pa1 * n + coefs.pa2 * n**2
+
+    if units == "dbar" or units == "psig":
+        pressure -= sea_level_pressure
 
     if units == "dbar":
         pressure *= PSI_TO_DBAR
@@ -426,7 +431,7 @@ def convert_sbe63_oxygen(
     salinity: np.ndarray,
     coefs: Oxygen63Coefficients,
     thermistor_coefs: Thermistor63Coefficients,
-    thermistor_units: Literal["volts", "C"] = "volts",
+    thermistor_units: Literal["volts", "C"] = "volts",  # Is this volts or frequency?
 ):
     """Returns the data after converting it to ml/l.
 
@@ -442,6 +447,9 @@ def convert_sbe63_oxygen(
         practical salinity PSU
     :param coefs (Oxygen63Coefficients): calibration coefficients for
         the SBE63 sensor
+    :param thermistor_coefs (Thermistor63Coefficients): calibration coefficients for
+        the SBE63 thermistor sensor
+    :param thermistor_units: units of thermistor_temp input
 
     :return: converted Oxygen value, in ml/l
     """
@@ -717,21 +725,83 @@ def convert_sbe18_ph(
 
 
 def convert_par_logarithmic(
-    raw_par: np.ndarray,
+    volts: np.ndarray,
     coefs: PARCoefficients,
 ):
-    """Converts a raw voltage value for PAR to µmol photons/m2*s.
+    """Converts a raw voltage value for underwater PAR.
 
     All equation information comes from application note 96
+
+    conversion_factor = 1.0 for units of μmol photons/m2*s
 
     :param raw_par: raw output voltage from PAR sensor
     :param coefs: calibration coefficients for the PAR sensor
 
     :return: converted PAR in µmol photons/m2*s
     """
-    par = coefs.multiplier * coefs.im * 10 ** ((raw_par - coefs.a0) / coefs.a1)
+    exponent = (volts - coefs.a0) / coefs.a1
+    par = coefs.multiplier * coefs.im * 10**exponent
 
     return par
+
+
+def convert_spar_logarithmic(
+    volts: np.ndarray,
+    coefs: SPARCoefficients,
+):
+    """Converts a raw voltage value for logarithmic surface PAR.
+
+    All equation information comes from application note 96
+
+    conversion_factor = 1.0 for units of μmol photons/m2*s
+
+    :param volts: raw output voltage from SPAR sensor
+    :param coefs: coefficients for the SPAR sensors
+
+    :return: converted surface PAR in µmol photons/m2*s
+    """
+    exponent = (volts - coefs.a0) / coefs.a1
+    spar = coefs.conversion_factor * coefs.im * 10**exponent
+
+    return spar
+
+
+def convert_spar_linear(
+    volts: np.ndarray,
+    coefs: SPARCoefficients,
+):
+    """Converts a raw voltage value for linear surface PAR.
+
+    All equation information comes from application note 96
+
+    conversion_factor = 1.0 for units of μmol photons/m2*s
+
+    :param volts: raw output voltage from SPAR sensor
+    :param coefs: coefficients for the SPAR sensors
+
+    :return: converted surface PAR in µmol photons/m2*s
+    """
+    spar = coefs.im * coefs.a1 * (volts - coefs.a0) * coefs.conversion_factor
+
+    return spar
+
+
+def convert_spar_biospherical(
+    volts: np.ndarray,
+    coefs: SPARCoefficients,
+):
+    """Converts a raw voltage value for biospherical surface PAR.
+
+    All equation information comes from application note 11S
+
+    :param volts: raw output voltage from SPAR sensor
+    :param coefs: coefficients for the SPAR sensors
+
+    :return: converted surface PAR in µmol photons/m2*s
+    """
+    spar = volts * coefs.conversion_factor
+
+    return spar
 
 
 def convert_nitrate(
@@ -1369,3 +1439,23 @@ def convert_seafet_relative_humidity(humidity_counts: np.ndarray, temperature: n
     np.clip(relative_humidity, a_min=0, a_max=100)
 
     return relative_humidity
+
+
+def convert_altimeter(
+    volts: np.ndarray,
+    coefs: AltimeterCoefficients,
+):
+    """Converts a raw voltage value for altimeter.
+
+    All equation information comes from application note 95
+
+    :param volts: raw output voltage from altimeter sensor
+    :param coefs: slope and offset for the altimeter sensors
+
+    :return: converted height in meters
+    """
+    ALTIMETER_SCALAR = 300
+
+    height = ALTIMETER_SCALAR * volts / coefs.slope - coefs.offset
+
+    return height

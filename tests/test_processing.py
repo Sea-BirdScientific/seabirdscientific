@@ -988,23 +988,25 @@ class TestSplit:
         data = idata.cnv_to_instrument_data(source_in)._to_dataframe()
         expected_down = idata.cnv_to_instrument_data(source_down)._to_dataframe()
         expected_up = idata.cnv_to_instrument_data(source_up)._to_dataframe()
-        
-        down, up = p.split(data, 'prdM')
+
+        down, up = p.split(data, "prdM")
 
         for variable in expected_down.columns:
             tolerance = get_tolerance(expected_down[variable])
             assert np.allclose(expected_down[variable], down[variable], rtol=0, atol=10**tolerance)
             assert np.allclose(expected_up[variable], up[variable], rtol=0, atol=10**tolerance)
-    
+
     def test_split_with_flags(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_loopedit.cnv"
-        source_down = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_loopedit_downcast.cnv"
+        source_down = (
+            test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_loopedit_downcast.cnv"
+        )
         source_up = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_loopedit_upcast.cnv"
         data = idata.cnv_to_instrument_data(source_in)._to_dataframe()
         expected_down = idata.cnv_to_instrument_data(source_down)._to_dataframe()
         expected_up = idata.cnv_to_instrument_data(source_up)._to_dataframe()
-        
-        down, up = p.split(data, 'prdM', exclude_bad_scans=True)
+
+        down, up = p.split(data, "prdM", exclude_bad_scans=True)
 
         for variable in expected_down.columns:
             tolerance = get_tolerance(expected_down[variable])
