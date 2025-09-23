@@ -398,7 +398,25 @@ class TestConvertOxygen:
             tc.thermistor_63_coefs_sn2568,
         )
         request.node.return_value = result.tolist()
-        assert np.allclose(expected, result, rtol=0, atol=1e-2)
+        assert np.allclose(expected, result, rtol=0, atol=1e-3)
+
+    def test_convert_sbe63_oxygen_from_hex(self, request):
+        raw_oxygen = np.array([16.774, 16.775, 16.779, 16.778, 16.774, 16.779])
+        pressure = np.array([-0.057, -0.062, -0.057, -0.056, -0.068, -0.056])
+        raw_temperature = np.array([0.581763, 0.581758, 0.581753, 0.581737, 0.581725, 0.581717])
+        salinity = np.array([0.0115, 0.0115, 0.0115, 0.0115, 0.0115, 0.0115])
+        expected = np.array([5.872, 5.872, 5.868, 5.869, 5.872, 5.868])
+
+        result = dc.convert_sbe63_oxygen(
+            raw_oxygen,
+            raw_temperature,
+            pressure,
+            salinity,
+            ec.oxygen_63_coefs_sn11459,
+            ec.thermistor_63_coefs_sn11459,
+        )
+        request.node.return_value = result.tolist()
+        assert np.allclose(expected, result, rtol=0, atol=1e-3)
 
     def test_convert_sbe43_oxygen(self, request):
         # From O3287.pdf in the shared calibration folder
