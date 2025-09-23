@@ -39,6 +39,7 @@
 # Native imports
 from math import e, floor
 from typing import Literal
+import warnings
 
 # Third-party imports
 import gsw
@@ -76,9 +77,9 @@ OXYGEN_MLPERL_TO_UMOLPERKG = 44660
 ITS90_TO_IPTS68 = 1.00024
 # micro moles of nitrate to milligrams of nitrogen per liter
 UMNO3_TO_MGNL = 0.014007
-# [J K^{-1} mol^{-1}] Gas constant, NIST Reference on Constants retrieved 10-05-2015
+# [J K^{-1} mol^{-1}] Gas constant from SBS application note 99
 R = 8.3144621
-# [Coulombs mol^{-1}] Faraday constant, NIST Reference on Constants retrieved 10-05-2015
+# [Coulombs mol^{-1}] Faraday constant from SBS application note 99
 F = 96485.365
 
 
@@ -823,6 +824,8 @@ def convert_external_seafet_ph(
     :param pressure: sample pressure in dbar
     """
 
+    warnings.warn("Deprecated, use convert_external_shallow_ph", DeprecationWarning)
+    
     ts_cr = 0.14  # relative concentration of sulfate in SW
     ts_mm = 96.062  # [g/mol] molar mass of sulfate
     cl_cr = 0.99889  # relative concentration of chloride in SW
@@ -1074,6 +1077,84 @@ def convert_external_seafet_ph(
     total_ph = free_scale_ph - np.log10(1 + tso4 / kso4)
 
     return total_ph
+
+
+
+def _total_chloride_in_seawater(salinity: np.ndarray):
+    # 0.99889  relative concentration of chloride in SW
+    # 35.453  [g/mol] molar mass of chloride
+    # 1.80655  [ppt, 10^{-3}] Chlorinity to Salinity
+    factor_1 = 0.99889 / 35.453
+    factor_2 = salinity / 1.80655
+    factor_3 = 1000 / (1000 - 1.005 * salinity)
+    total_chloride = factor_1 * factor_2 * factor_3
+    return total_chloride
+
+
+def _sample_ionic_strength(salinity: np.ndarray):
+    ionic_strength = 19.924 * salinity / (1000 - 1.005 * salinity)
+    return ionic_strength
+
+
+def _debye_huckel_constant_for_hcl_activity(temperature: np.ndarray):
+    activity = 3.4286e-6 * temperature ** 2 + 6.7524e-4 * temperature + 0.49172143
+    return activity
+
+
+def _log_of_hcl_activity_coefficient(salinity: np.ndarray, temperature: np.ndarray):
+    i = _sample_ionic_strength(salinity)
+    a_dh = _debye_huckel_constant_for_hcl_activity(temperature)
+    term_1 = -a_dh * np.sqrt(i) / (1 + 1.394 * np.sqrt(i))
+    term_2 = (0.08885 - 1.11e-4 * temperature) * i
+    log_y_hcl = term_1 + term_2
+    return log_y_hcl
+
+
+def _total_sulfate_in_seawater(salinity: np.ndarray):
+    # 0.14  relative concentration of sulfate in SW
+    # 96.062  [g/mol] molar mass of sulfate
+    # 1.80655  [ppt, 10^{-3}] Chlorinity to Salinity
+    total_sulfate = 0.14 / 96.062 * salinity / 1.80655
+    return total_sulfate
+
+
+def _acid_dissociation_constant_of_hso4(salinity: np.ndarray, temperature: np.ndarray):
+    i = _sample_ionic_strength(salinity)
+    t_kelvin = temperature + KELVIN_OFFSET_0C
+    term_1 = -4276.1 / t_kelvin + 141.328 - 23.093 * np.log(t_kelvin)
+    term_2 = (-13856 / t_kelvin + 324.57 - 47.986 * np.log(t_kelvin)) * np.sqrt(i)
+    term_3 = (35474 / t_kelvin - 771.54 + 114.723 * np.log(t_kelvin)) * i
+    term_4 = (2698 / t_kelvin) * i ** 1.5
+    term_5 = (1776 / t_kelvin) * i ** 2
+    k_s = (1 - 1.005e-3 * salinity) * np.exp(term_1 + term_2 + term_3 - term_4 + term_5)
+    return k_s
+
+
+def convert_external_shallow_ph(
+    raw_ph: np.ndarray,
+    temperature: np.ndarray,
+    salinity: np.ndarray,
+    coefs: PHSeaFETExternalCoefficients,
+    ph_units: Literal['counts', 'volts'] = 'counts'
+):
+    if ph_units == 'counts':
+        ph_volts = convert_ph_voltage_counts(raw_ph)
+    else: # if ph_units == 'volts':
+        ph_volts = raw_ph
+    
+    t_kelvin = temperature + KELVIN_OFFSET_0C
+    s_t = _total_sulfate_in_seawater(salinity)
+    k_s = _acid_dissociation_constant_of_hso4(salinity, temperature)
+    nernst = _calculate_nernst(t_kelvin)
+
+    term_1 = (ph_volts - coefs.k0 - coefs.k2 * temperature) / nernst
+    term_2 = np.log(_total_chloride_in_seawater(salinity))
+    term_3 = 2 * _log_of_hcl_activity_coefficient(salinity, temperature)
+    term_4 = np.log(1 + s_t / k_s)
+    term_5 = np.log(1 - 1.005e-3 * salinity)
+
+    ph = term_1 + term_2 + term_3 - term_4 - term_5
+    return ph
 
 
 def convert_internal_seafet_temperature(temperature_counts: np.ndarray):
