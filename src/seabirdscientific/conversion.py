@@ -1274,7 +1274,7 @@ def convert_external_shallow_ph(
 
 def _pressure_response(pressure: np.ndarray, coefs: PHSeaFETExternalCoefficients):
     """The sensor pressure response function from SBS application note
-    99. 
+    99.
 
     :param pressure: Pressure in bar
     :param coefs: External pH coefficients
