@@ -1,0 +1,170 @@
+* Sea-Bird HydroCAT-ODO-SDI12 Data File:
+* FileName = C:\Users\randerson\Downloads/HydroCAT-ODO_03727856_2025_09_19.hex
+* Software version Fathom 3.0.4
+* Temperature SN = 03727856
+* Conductivity SN = 03727856
+* Pressure SN = 13300398
+* Oxygen SN = 4133
+* System UpLoad Time = 2025-Sep-19 20:13:34 +00:00
+* sample interval = 10 seconds
+* <ApplicationData>
+*   <Fathom>
+*     <SoftwareVersion>3.0.4</SoftwareVersion>
+*     <BuildDate>11-Sep-2025</BuildDate>
+*   </Fathom>
+* </ApplicationData>
+* <InstrumentState>
+* <HardwareData DeviceType="HydroCAT-ODO-SDI12" SerialNumber="03727856">
+*   <Manufacturer>Sea-Bird Scientific</Manufacturer>
+*   <FirmwareVersion>6.3.1</FirmwareVersion>
+*   <FirmwareDate>Sep 29 2020 23:55:53</FirmwareDate>
+*   <CommandSetVersion>1.3</CommandSetVersion>
+*   <PCBAssembly SerialNum="307564" AssemblyNum="41661F"></PCBAssembly>
+*   <PCBAssembly SerialNum="307574" AssemblyNum="41783.1S"></PCBAssembly>
+*   <PCBAssembly SerialNum="307569" AssemblyNum="41785E"></PCBAssembly>
+*   <PCBAssembly SerialNum="307512" AssemblyNum="41787G"></PCBAssembly>
+*   <MfgDate>29Jul2025</MfgDate>
+*   <FirmwareLoader>SBE 37-232-V3 FirmwareLoader V 1.0</FirmwareLoader>
+*   <InternalSensors>
+*     <Sensor id="Temperature">
+*       <type>temperature-1</type>
+*       <SerialNumber>03727856</SerialNumber>
+*     </Sensor>
+*     <Sensor id="Conductivity">
+*       <type>conductivity-1</type>
+*       <SerialNumber>03727856</SerialNumber>
+*     </Sensor>
+*     <Sensor id="Pressure">
+*       <type>strain-0</type>
+*       <SerialNumber>13300398</SerialNumber>
+*     </Sensor>
+*     <Sensor id="Oxygen">
+*       <type>oxygen-1</type>
+*       <SerialNumber>4133</SerialNumber>
+*     </Sensor>
+*   </InternalSensors>
+* </HardwareData>
+* <StatusData DeviceType="HydroCAT-ODO-SDI12" SerialNumber="03727856">
+*   <DateTime>2025-09-19T20:13:17</DateTime>
+*   <EventSummary numEvents="2"></EventSummary>
+*   <Power>
+*     <vMain>9.48</vMain>
+*     <vLith>3.16</vLith>
+*   </Power>
+*   <MemorySummary>
+*     <Bytes>357</Bytes>
+*     <Samples>17</Samples>
+*     <SamplesFree>399440</SamplesFree>
+*     <SampleLength>21</SampleLength>
+*   </MemorySummary>
+*   <AutonomousSampling>no, stop command</AutonomousSampling>
+* </StatusData>
+* <Executed></Executed>
+* <ConfigurationData DeviceType="HydroCAT-ODO-SDI12" SerialNumber="03727856">
+*   <PressureInstalled>true</PressureInstalled>
+*   <OutputFormat>1</OutputFormat>
+*   <FrameSync>HCAT</FrameSync>
+*   <TemperatureUnits>Celsius</TemperatureUnits>
+*   <ConductivityUnits>S/m</ConductivityUnits>
+*   <PressureUnits>Decibar</PressureUnits>
+*   <OxygenUnits>ml/L</OxygenUnits>
+*   <OutputTemperature>true</OutputTemperature>
+*   <OutputConductivity>true</OutputConductivity>
+*   <OutputPressure>true</OutputPressure>
+*   <OutputOxygen>true</OutputOxygen>
+*   <OutputSalinity>true</OutputSalinity>
+*   <OutputSV>true</OutputSV>
+*   <OutputSC>true</OutputSC>
+*   <SCCoeff>0.0200</SCCoeff>
+*   <TxSampleNumber>true</TxSampleNumber>
+*   <SampleInterval>10</SampleInterval>
+*   <TxRealTime>true</TxRealTime>
+*   <MinCondFreq>4000.0</MinCondFreq>
+*   <AdaptivePumpControl>true</AdaptivePumpControl>
+*   <NTau>7.0</NTau>
+*   <SDI12Address>0</SDI12Address>
+*   <SDI12Flag>+9999999</SDI12Flag>
+*   <LegacyMode>false</LegacyMode>
+*   <CompatibleMode>false</CompatibleMode>
+* </ConfigurationData>
+* <CalibrationCoefficients DeviceType="HydroCAT-ODO-SDI12" SerialNumber="03727856">
+*   <Calibration format="TEMP1" id="Temperature">
+*     <SerialNum>03727856</SerialNum>
+*     <CalDate>03-Aug-25</CalDate>
+*     <A0>-0.0001367044</A0>
+*     <A1>0.0003061535</A1>
+*     <A2>-0.000004148458</A2>
+*     <A3>1.95543e-7</A3>
+*   </Calibration>
+*   <Calibration format="WBCOND0" id="Conductivity">
+*     <SerialNum>03727856</SerialNum>
+*     <CalDate>03-Aug-25</CalDate>
+*     <G>-1.001092</G>
+*     <H>0.1461717</H>
+*     <I>-0.0003631198</I>
+*     <J>0.00004760601</J>
+*     <PCOR>-9.57e-8</PCOR>
+*     <TCOR>0.00000325</TCOR>
+*     <WBOTC>0</WBOTC>
+*   </Calibration>
+*   <Calibration format="STRAIN0" id="Pressure">
+*     <SerialNum>13300398</SerialNum>
+*     <CalDate>31-Jul-25</CalDate>
+*     <PA0>0.0611649</PA0>
+*     <PA1>0.0004983102</PA1>
+*     <PA2>-4.694498e-12</PA2>
+*     <PTCA0>524774.9</PTCA0>
+*     <PTCA1>8.287606</PTCA1>
+*     <PTCA2>-0.1166535</PTCA2>
+*     <PTCB0>25.0145</PTCB0>
+*     <PTCB1>0.00009975062</PTCB1>
+*     <PTCB2>0</PTCB2>
+*     <PTEMPA0>-81.36602</PTEMPA0>
+*     <PTEMPA1>0.0477136</PTEMPA1>
+*     <PTEMPA2>-2.086711e-7</PTEMPA2>
+*     <POFFSET>0</POFFSET>
+*     <PRANGE>160</PRANGE>
+*   </Calibration>
+*   <Calibration format="OXYGEN1" id="Oxygen">
+*     <SerialNum>4133</SerialNum>
+*     <CalDate>15-Jul-25</CalDate>
+*     <TAU20>4</TAU20>
+*     <OXA0>1.0513</OXA0>
+*     <OXA1>-0.0015</OXA1>
+*     <OXA2>0.4817141</OXA2>
+*     <OXB0>-0.2321605</OXB0>
+*     <OXB1>1.702102</OXB1>
+*     <OXC0>0.09262869</OXC0>
+*     <OXC1>0.00390124</OXC1>
+*     <OXC2>0.00005166511</OXC2>
+*     <OXTA0>0.0007047701</OXTA0>
+*     <OXTA1>0.0002513018</OXTA1>
+*     <OXTA2>6.532714e-7</OXTA2>
+*     <OXTA3>1.000212e-7</OXTA3>
+*     <OXE>0.011</OXE>
+*   </Calibration>
+* </CalibrationCoefficients>
+* <EventCounters DeviceType="HydroCAT-ODO-SDI12" SerialNumber="03727856">
+*   <EventSummary numEvents="2"></EventSummary>
+*   <Event type="PON reset" count="2"></Event>
+* </EventCounters>
+* </InstrumentState>
+* 
+*END*
+038E940A3EAC292B10185F6008738A089B3060751B
+038E7C0A3EAB292B74185F5908738C089B30607525
+038E6A0A3EAB2929E4185F4E08738B089B3060752F
+038E580A3EAB292BD8185F4E08738B089C30607539
+038E430A3EAA292980185F41087389089B30607543
+038E2B0A3EAA292AAC185F3608738B089B3060754D
+038E170A3EAB292B74185F2E08738A089C30607557
+038E010A3EAA292B74185F2A08738B089C30607561
+038DE00A3EAA292A48185F2208738B089B3060756B
+038DCD0A3EAA292A48185F1708738B089B30607575
+038DB70A3EAA292A48185F0808738A089B3060757F
+038D9A0A3EAA292AAC185EFE08738A089B30607589
+038D880A3EAA292A48185EF5087389089C30607593
+038D730A3EAA292A48185EE608738A089C3060759D
+038D540A3EAA2928B8185ED908738B089B306075A7
+038D3C0A3EAA292AAC185EC308738B089C306075B1
+038D260A3EA9292B10185EAD08738B089B306075BB

@@ -156,9 +156,9 @@ def convert_pressure(
     pressure_count: np.ndarray,
     compensation_voltage: np.ndarray,
     coefs: PressureCoefficients,
-    units: Literal["dbar", "psia"] = "psia",
+    units: Literal["dbar", "psia", "psig"] = "psig",
 ):
-    """Converts pressure counts to PSIA (pounds per square inch, abolute).
+    """Converts pressure counts to sea pressure (psig and dbar) and absolute pressure (psia)
 
     pressure_count and compensation_voltage are expected to be raw data
     from an instrument in A/D counts
@@ -167,10 +167,10 @@ def convert_pressure(
     :param compensation_voltage: pressure temperature compensation
         voltage, in counts or volts depending on the instrument
     :param coefs: calibration coefficients for the pressure sensor
-    :param units: whether or not to use psia or dbar as the returned
+    :param units: whether or not to use psig or dbar as the returned
         unit type
 
-    :return: pressure val in DBAR or PSIA
+    :return: sea pressure val in dbar or PSIG
     """
     sea_level_pressure = 14.7
 
@@ -181,7 +181,10 @@ def convert_pressure(
     )
     x = pressure_count - coefs.ptca0 - coefs.ptca1 * t - coefs.ptca2 * t**2
     n = x * coefs.ptcb0 / (coefs.ptcb0 + coefs.ptcb1 * t + coefs.ptcb2 * t**2)
-    pressure = coefs.pa0 + coefs.pa1 * n + coefs.pa2 * n**2 - sea_level_pressure
+    pressure = coefs.pa0 + coefs.pa1 * n + coefs.pa2 * n**2
+
+    if units == "dbar" or units == "psig":
+        pressure -= sea_level_pressure
 
     if units == "dbar":
         pressure *= PSI_TO_DBAR
@@ -427,7 +430,7 @@ def convert_sbe63_oxygen(
     salinity: np.ndarray,
     coefs: Oxygen63Coefficients,
     thermistor_coefs: Thermistor63Coefficients,
-    thermistor_units: Literal["volts", "C"] = "volts",
+    thermistor_units: Literal["volts", "C"] = "volts",  # Is this volts or frequency?
 ):
     """Returns the data after converting it to ml/l.
 
@@ -443,6 +446,9 @@ def convert_sbe63_oxygen(
         practical salinity PSU
     :param coefs (Oxygen63Coefficients): calibration coefficients for
         the SBE63 sensor
+    :param thermistor_coefs (Thermistor63Coefficients): calibration coefficients for
+        the SBE63 thermistor sensor
+    :param thermistor_units: units of thermistor_temp input
 
     :return: converted Oxygen value, in ml/l
     """
