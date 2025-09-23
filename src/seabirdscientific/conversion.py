@@ -895,7 +895,7 @@ def convert_external_seafet_ph(
     """
 
     warnings.warn("Deprecated, use convert_external_shallow_ph", DeprecationWarning)
-    
+
     ts_cr = 0.14  # relative concentration of sulfate in SW
     ts_mm = 96.062  # [g/mol] molar mass of sulfate
     cl_cr = 0.99889  # relative concentration of chloride in SW
@@ -1181,7 +1181,7 @@ def _debye_huckel_constant_for_hcl_activity(temperature: np.ndarray):
     :param temperature: Temperature in degrees C
     :return: Debye-Huckel constant for activity of HCl
     """
-    activity = 3.4286e-6 * temperature ** 2 + 6.7524e-4 * temperature + 0.49172143
+    activity = 3.4286e-6 * temperature**2 + 6.7524e-4 * temperature + 0.49172143
     return activity
 
 
@@ -1224,8 +1224,8 @@ def _acid_dissociation_constant_of_hso4(salinity: np.ndarray, temperature: np.nd
     term_1 = -4276.1 / temperature + 141.328 - 23.093 * np.log(temperature)
     term_2 = (-13856 / temperature + 324.57 - 47.986 * np.log(temperature)) * np.sqrt(i)
     term_3 = (35474 / temperature - 771.54 + 114.723 * np.log(temperature)) * i
-    term_4 = (2698 / temperature) * i ** 1.5
-    term_5 = (1776 / temperature) * i ** 2
+    term_4 = (2698 / temperature) * i**1.5
+    term_5 = (1776 / temperature) * i**2
     k_s = (1 - 1.005e-3 * salinity) * np.exp(term_1 + term_2 + term_3 - term_4 + term_5)
     return k_s
 
@@ -1235,12 +1235,12 @@ def convert_external_shallow_ph(
     temperature: np.ndarray,
     salinity: np.ndarray,
     coefs: PHSeaFETExternalCoefficients,
-    ph_units: Literal['counts', 'volts'] = 'counts'
+    ph_units: Literal["counts", "volts"] = "counts",
 ) -> np.ndarray:
     """Calculating pH External from the Shallow SeaFET/SeapHOx V2. The
     solid state electrochemical cell exhibits a Nernstian response to pH
     but presents the added complexity of being sensitive to the chloride
-    activity (Johnson et al. 2016). 
+    activity (Johnson et al. 2016).
 
     :param raw_ph: Raw voltage or votage counts
     :param temperature: temperature in degrees C
@@ -1249,11 +1249,11 @@ def convert_external_shallow_ph(
     :param ph_units: The units of raw_ph, defaults to 'counts'
     :return: External pH
     """
-    if ph_units == 'counts':
+    if ph_units == "counts":
         ph_volts = convert_ph_voltage_counts(raw_ph)
-    else: # if ph_units == 'volts':
+    else:  # if ph_units == 'volts':
         ph_volts = raw_ph
-    
+
     t_kelvin = temperature + KELVIN_OFFSET_0C
     s_t = _total_sulfate_in_seawater(salinity)
     k_s = _acid_dissociation_constant_of_hso4(salinity, t_kelvin)
@@ -1277,11 +1277,11 @@ def _pressure_response(pressure: np.ndarray, coefs: PHSeaFETExternalCoefficients
     :return: The pressure response
     """
     term_1 = coefs.f1 * pressure
-    term_2 = coefs.f2 * pressure ** 2
-    term_3 = coefs.f3 * pressure ** 3
-    term_4 = coefs.f4 * pressure ** 4
-    term_5 = coefs.f5 * pressure ** 5
-    term_6 = coefs.f6 * pressure ** 6
+    term_2 = coefs.f2 * pressure**2
+    term_3 = coefs.f3 * pressure**3
+    term_4 = coefs.f4 * pressure**4
+    term_5 = coefs.f5 * pressure**5
+    term_6 = coefs.f6 * pressure**6
     return term_1 + term_2 + term_3 + term_4 + term_5 + term_6
 
 
@@ -1291,7 +1291,7 @@ def _partial_molal_hcl_volume(temperature: np.ndarray):
     :param temperature: Temperature in degrees C
     :return: Partial Molal Volume of HCl
     """
-    volume = 17.85 - 0.1044 * 1.316e-3 * temperature ** 2
+    volume = 17.85 - 0.1044 * 1.316e-3 * temperature**2
     return volume
 
 
@@ -1322,7 +1322,7 @@ def _partial_molal_hso4_volume(temperature: np.ndarray) -> np.ndarray:
     :param temperature: Temperature in dgrees C
     :return: Partial Molal Volume of HSO4
     """
-    volume = -18.03 + 0.0466 * temperature + 3.16e-4 * temperature ** 2
+    volume = -18.03 + 0.0466 * temperature + 3.16e-4 * temperature**2
     return volume
 
 
@@ -1352,7 +1352,7 @@ def _acid_dissociation_constant_of_hso4_tp(
     k_s = _acid_dissociation_constant_of_hso4(salinity, t_kelvin)
     v_bar_s = _partial_molal_hso4_volume(temperature)
     k_bar_s = _hso4_compressibility(temperature)
-    exponent = (-v_bar_s * pressure + 0.5 * k_bar_s * pressure ** 2) / (R * t_kelvin * 10)
+    exponent = (-v_bar_s * pressure + 0.5 * k_bar_s * pressure**2) / (R * t_kelvin * 10)
     k_stp = k_s * np.exp(exponent)
     return k_stp
 
@@ -1363,12 +1363,12 @@ def convert_external_deep_ph(
     salinity: np.ndarray,
     pressure: np.ndarray,
     coefs: PHSeaFETExternalCoefficients,
-    ph_units: Literal['counts', 'volts'] = 'counts'
+    ph_units: Literal["counts", "volts"] = "counts",
 ):
     """External pH from the Deep SeapHOx V2 and Float. The solid state
     electrochemical cell exhibits a Nernstian response to pH but
     presents the added complexity of being sensitive to the chloride
-    activity (Johnson et al. 2016). 
+    activity (Johnson et al. 2016).
 
     :param raw_ph: raw voltage or voltage counts
     :param temperature: Temperature in degrees C
@@ -1378,11 +1378,11 @@ def convert_external_deep_ph(
     :param ph_units: The units for raw_ph, defaults to 'counts'
     :return: External pH
     """
-    if ph_units == 'counts':
+    if ph_units == "counts":
         ph_volts = convert_ph_voltage_counts(raw_ph)
-    else: # if ph_units == 'volts':
+    else:  # if ph_units == 'volts':
         ph_volts = raw_ph
-    
+
     t_kelvin = temperature + KELVIN_OFFSET_0C
     p_bar = pressure / 10
     f_p = _pressure_response(p_bar, coefs)
