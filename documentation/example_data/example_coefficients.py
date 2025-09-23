@@ -2,16 +2,15 @@ from seabirdscientific.cal_coefficients import (
     ConductivityCoefficients,
     Oxygen43Coefficients,
     Oxygen63Coefficients,
-    PARCoefficients,
     PH18Coefficients,
-    PHSeaFETInternalCoefficients,
-    PHSeaFETExternalCoefficients,
     PressureCoefficients,
     PressureDigiquartzCoefficients,
     TemperatureCoefficients,
     TemperatureFrequencyCoefficients,
     Thermistor63Coefficients,
     ECOCoefficients,
+    AltimeterCoefficients,
+    SPARCoefficients,
 )
 
 
@@ -217,41 +216,6 @@ thermistor_63_coefs_sn2568 = Thermistor63Coefficients(
 )
 
 
-# cal coefficients for SN3287
-oxygen_43_coefs_sn3287 = Oxygen43Coefficients(
-    soc=0.4792,
-    v_offset=-0.484,
-    tau_20=2.05,
-    a=-3.661e-3,
-    b=1.7812e-4,
-    c=-2.5951e-6,
-    e=0.036,
-    d0=0,
-    d1=1.92634e-4,
-    d2=-4.64803e-2,
-    h1=-3.3e-2,
-    h2=5e3,
-    h3=1.45e3,
-)
-
-
-# cal coefficients for SN431686
-oxygen_43_coefs_sn1686 = Oxygen43Coefficients(
-    soc=3.898e-1,
-    v_offset=-0.498,
-    tau_20=1.08,
-    a=-3.3982e-3,
-    b=1.5817e-4,
-    c=-2.6651e-6,
-    e=0.036,
-    d0=2.5826,
-    d1=1.92634e-4,
-    d2=-4.64803e-2,
-    h1=-3.3e-2,
-    h2=5e3,
-    h3=1.45e3,
-)
-
 # cal coefficients for SN1590
 oxygen_43_coefs_sn1590 = Oxygen43Coefficients(
     soc=5.7640e-001,
@@ -298,26 +262,6 @@ ph_coefs_sn0709 = PH18Coefficients(
     offset=2.5700,
 )
 
-# cal coefficients for SN0411
-par_coefs_sn0411 = PARCoefficients(
-    im=1.3589,
-    a0=1.372,
-    a1=0.8839,
-    multiplier=1,
-)
+altimeter_coefs_sn46604 = AltimeterCoefficients(slope=15, offset=0)
 
-ph_seafet_internal_coeffs = PHSeaFETInternalCoefficients(
-    k0=-1.354051,
-    k2=-0.001272858,
-)
-
-ph_seafet_external_coeffs = PHSeaFETExternalCoefficients(
-    k0=-1.345407,
-    k2=-0.001106957,
-    f1=0,
-    f2=0,
-    f3=0,
-    f4=0,
-    f5=0,
-    f6=0,
-)
+spar_coefs_sn20659 = SPARCoefficients(im=0, a0=0, a1=0, conversion_factor=1.4248e003)

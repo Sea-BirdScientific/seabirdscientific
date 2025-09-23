@@ -608,8 +608,8 @@ def read_SBE39plus_format_0(
 
 
 def read_seafet_format_0(
-    hex_segment: str = "",
-    instrument_type: InstrumentType = None,
+    hex_segment: str,
+    instrument_type: InstrumentType,
     is_shallow: bool = True,
     hex=builtins.hex,
 ) -> Dict[str, Union[int, float, datetime]]:

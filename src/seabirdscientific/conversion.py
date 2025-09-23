@@ -62,6 +62,8 @@ from seabirdscientific.cal_coefficients import (
     TemperatureFrequencyCoefficients,
     Thermistor63Coefficients,
     ECOCoefficients,
+    AltimeterCoefficients,
+    SPARCoefficients,
 )
 
 
@@ -719,21 +721,83 @@ def convert_sbe18_ph(
 
 
 def convert_par_logarithmic(
-    raw_par: np.ndarray,
+    volts: np.ndarray,
     coefs: PARCoefficients,
 ):
-    """Converts a raw voltage value for PAR to µmol photons/m2*s.
+    """Converts a raw voltage value for underwater PAR.
 
     All equation information comes from application note 96
+
+    conversion_factor = 1.0 for units of μmol photons/m2*s
 
     :param raw_par: raw output voltage from PAR sensor
     :param coefs: calibration coefficients for the PAR sensor
 
     :return: converted PAR in µmol photons/m2*s
     """
-    par = coefs.multiplier * coefs.im * 10 ** ((raw_par - coefs.a0) / coefs.a1)
+    exponent = (volts - coefs.a0) / coefs.a1
+    par = coefs.multiplier * coefs.im * 10**exponent
 
     return par
+
+
+def convert_spar_logarithmic(
+    volts: np.ndarray,
+    coefs: SPARCoefficients,
+):
+    """Converts a raw voltage value for logarithmic surface PAR.
+
+    All equation information comes from application note 96
+
+    conversion_factor = 1.0 for units of μmol photons/m2*s
+
+    :param volts: raw output voltage from SPAR sensor
+    :param coefs: coefficients for the SPAR sensors
+
+    :return: converted surface PAR in µmol photons/m2*s
+    """
+    exponent = (volts - coefs.a0) / coefs.a1
+    spar = coefs.conversion_factor * coefs.im * 10**exponent
+
+    return spar
+
+
+def convert_spar_linear(
+    volts: np.ndarray,
+    coefs: SPARCoefficients,
+):
+    """Converts a raw voltage value for linear surface PAR.
+
+    All equation information comes from application note 96
+
+    conversion_factor = 1.0 for units of μmol photons/m2*s
+
+    :param volts: raw output voltage from SPAR sensor
+    :param coefs: coefficients for the SPAR sensors
+
+    :return: converted surface PAR in µmol photons/m2*s
+    """
+    spar = coefs.im * coefs.a1 * (volts - coefs.a0) * coefs.conversion_factor
+
+    return spar
+
+
+def convert_spar_biospherical(
+    volts: np.ndarray,
+    coefs: SPARCoefficients,
+):
+    """Converts a raw voltage value for biospherical surface PAR.
+
+    All equation information comes from application note 11S
+
+    :param volts: raw output voltage from SPAR sensor
+    :param coefs: coefficients for the SPAR sensors
+
+    :return: converted surface PAR in µmol photons/m2*s
+    """
+    spar = volts * coefs.conversion_factor
+
+    return spar
 
 
 def convert_nitrate(
@@ -1120,3 +1184,23 @@ def convert_seafet_relative_humidity(humidity_counts: np.ndarray, temperature: n
     np.clip(relative_humidity, a_min=0, a_max=100)
 
     return relative_humidity
+
+
+def convert_altimeter(
+    volts: np.ndarray,
+    coefs: AltimeterCoefficients,
+):
+    """Converts a raw voltage value for altimeter.
+
+    All equation information comes from application note 95
+
+    :param volts: raw output voltage from altimeter sensor
+    :param coefs: slope and offset for the altimeter sensors
+
+    :return: converted height in meters
+    """
+    ALTIMETER_SCALAR = 300
+
+    height = ALTIMETER_SCALAR * volts / coefs.slope - coefs.offset
+
+    return height
