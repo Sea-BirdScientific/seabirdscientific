@@ -598,7 +598,7 @@ def bin_average(
     for column in _dataset.columns.difference(["flag"]):
         _dataset = _dataset.drop(_dataset[_dataset[column] == flag_value].index)
 
-    if (bin_variable == "nScan"  and "nScan" not in _dataset.columns):
+    if bin_variable == "nScan" and "nScan" not in _dataset.columns:
         # We want to bin by scans, ensure it's a column
         _dataset.insert(0, "nScan", range(0, len(_dataset)))
 
@@ -607,7 +607,7 @@ def bin_average(
 
     bin_min = bin_size / 2.0  # min value of first bin
 
-    if (bin_variable == "nScan"):
+    if bin_variable == "nScan":
         # when binning by scan number, start at 0
         bin_min = 0
 
