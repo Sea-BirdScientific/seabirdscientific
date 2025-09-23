@@ -56,6 +56,7 @@ from seabirdscientific.cal_coefficients import (
     PH18Coefficients,
     PHSeaFETInternalCoefficients,
     PHSeaFETExternalCoefficients,
+    TemperatureSeaFETCoefficients,
     PressureCoefficients,
     PressureDigiquartzCoefficients,
     TemperatureCoefficients,
@@ -1138,6 +1139,23 @@ def convert_external_seafet_ph(
     total_ph = free_scale_ph - np.log10(1 + tso4 / kso4)
 
     return total_ph
+
+
+def convert_seafet_temperature(raw_temp, coefs: TemperatureSeaFETCoefficients):
+    """Converts the raw SeaFET temperature value to ITS-90 Celsius.
+
+    :param raw_temp: raw temperature values
+    :return: ITS-90 Celsius.
+    """
+    temp_log = np.log(raw_temp)
+
+    temp = 1 / (
+        ((coefs.tdfa3 * temp_log + coefs.tdfa2) * temp_log + coefs.tdfa1) * temp_log + coefs.tdfa0
+    )
+
+    temp_c = temp - KELVIN_OFFSET_0C
+
+    return temp_c
 
 
 def convert_internal_seafet_temperature(temperature_counts: np.ndarray):
