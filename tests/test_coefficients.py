@@ -3,6 +3,7 @@ from seabirdscientific.cal_coefficients import (
     Oxygen43Coefficients,
     Oxygen63Coefficients,
     PARCoefficients,
+    SPARCoefficients,
     PH18Coefficients,
     PHSeaFETInternalCoefficients,
     PHSeaFETExternalCoefficients,
@@ -12,6 +13,7 @@ from seabirdscientific.cal_coefficients import (
     TemperatureFrequencyCoefficients,
     Thermistor63Coefficients,
     ECOCoefficients,
+    AltimeterCoefficients,
 )
 
 
@@ -234,12 +236,14 @@ par_coefs_sn0411 = PARCoefficients(
     multiplier=1,
 )
 
-ph_seafet_internal_coeffs = PHSeaFETInternalCoefficients(
+spar_coefs = SPARCoefficients(im=2.2, a0=1, a1=2, conversion_factor=1.5596e3)
+
+ph_seafet_internal_coefs = PHSeaFETInternalCoefficients(
     k0=-1.354051,
     k2=-0.001272858,
 )
 
-ph_seafet_external_coeffs = PHSeaFETExternalCoefficients(
+ph_seafet_external_coefs = PHSeaFETExternalCoefficients(
     k0=-1.345407,
     k2=-0.001106957,
     f1=0,
@@ -249,3 +253,5 @@ ph_seafet_external_coeffs = PHSeaFETExternalCoefficients(
     f5=0,
     f6=0,
 )
+
+altimeter_coefs = AltimeterCoefficients(slope=15, offset=0)
