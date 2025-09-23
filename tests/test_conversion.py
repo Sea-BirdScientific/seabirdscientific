@@ -13,6 +13,7 @@ import pytest
 # Internal imports
 import seabirdscientific.conversion as dc
 import seabirdscientific.instrument_data as id
+import seabirdscientific.cal_coefficients as cc
 
 import test_coefficients as tc
 
@@ -632,6 +633,13 @@ class TestSeaFETPH:
     expected_external_ph = np.array([6.2466, 6.247, 6.2466, 6.2474, 6.2469])
     ph_temperature = np.array([22.751, 22.7514, 22.752, 22.752, 22.752])
 
+    def ph_voltage_to_counts(self, voltage: np.ndarray):
+        adc_vref = 2.5
+        gain = 1
+        adc_23bit = 8388608
+        ph_counts = adc_23bit * (voltage * gain / adc_vref + 1)
+        return ph_counts
+
     def test_convert_ph_voltage_counts(self, request):
         internal_ph_volts = dc.convert_ph_voltage_counts(self.internal_ph_counts)
         request.node.return_value = internal_ph_volts.tolist()
@@ -656,6 +664,47 @@ class TestSeaFETPH:
         )
         request.node.return_value = external_ph.tolist()
         assert np.allclose(external_ph, self.expected_external_ph, atol=1e-6)
+
+    def test_internal_shallow_ph_app_note_99(self, request):
+        # from application note 99
+        ph_counts = self.ph_voltage_to_counts(-1.010404)
+        coefs = cc.PHSeaFETInternalCoefficients(k0=-1.438788, k2=-1.304895e-3)
+        internal_ph = dc.convert_internal_seafet_ph(
+            ph_counts=ph_counts,
+            temperature=15.8735,
+            coefs=coefs,
+        )
+        assert np.allclose(internal_ph, 7.8310, atol=1e-4)
+
+    def test_external_shallow_ph_app_note_99(self, request):
+        # from application note 99
+        coefs = cc.PHSeaFETExternalCoefficients(k0=-1.429278, k2=-1.42026e-3)
+        external_ph = dc.convert_external_shallow_ph(
+            raw_ph=-0.965858, temperature=15.8735, salinity=36.817, coefs=coefs, ph_units="volts"
+        )
+        assert np.allclose(external_ph, 7.8454, atol=1e-4)
+
+    def test_external_deep_ph_app_note_99(self, request):
+        # from application note 99
+        coefs = cc.PHSeaFETExternalCoefficients(
+            k0=-1.361736,
+            k2=-1.07686e-3,
+            f1=-8.31842e-6,
+            f2=-7.47152e-9,
+            f3=1.91485e-11,
+            f4=-1.39273e-14,
+            f5=4.48185e-18,
+            f6=-5.42588e-22,
+        )
+        external_ph = dc.convert_external_deep_ph(
+            raw_ph=-0.885081,
+            temperature=23.4169,
+            salinity=34.812,
+            pressure=100,
+            coefs=coefs,
+            ph_units="volts",
+        )
+        assert np.allclose(external_ph, 7.9394, atol=1e-4)
 
 
 class TestInternalSeaFETTemperature:
