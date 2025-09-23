@@ -667,25 +667,25 @@ class TestSeaFETPH:
         )
         assert np.allclose(external_ph, 7.8454, atol=1e-4)
 
-    def test_deep_seaphox_app_note_99(self, request):
+    def test_external_deep_ph_app_note_99(self, request):
         # from application note 99
-        ph_counts = self.ph_voltage_to_counts(-0.885081)
         coefs = cc.PHSeaFETExternalCoefficients(
             k0 = -1.361736,
             k2 = -1.07686e-3,
             f1 = -8.31842e-6,
-            f2 = -747152e-9,
+            f2 = -7.47152e-9,
             f3 = 1.91485e-11,
             f4 = -1.39273e-14,
             f5 = 4.48185e-18,
             f6 = -5.42588e-22
         )
-        external_ph = dc.convert_external_seafet_ph(
-            ph_counts=ph_counts,
+        external_ph = dc.convert_external_deep_ph(
+            raw_ph=-0.885081,
             temperature=23.4169,
             salinity=34.812,
             pressure=100,
             coefs=coefs,
+            ph_units='volts'
         )
         assert np.allclose(external_ph, 7.9394, atol=1e-4)
 
