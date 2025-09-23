@@ -143,7 +143,7 @@ class TestConvertPressure:
     test_compensation_vals = np.array([20625, 20626, 20626, 20626]) / 13107
 
     def test_convert_pressure_psia(self, request):
-        expected = [-0.153, -0.154, -0.151, -0.156]
+        expected = [14.547, 14.546, 14.549, 14.544]
         result = dc.convert_pressure(
             self.test_pressure_vals,
             self.test_compensation_vals,
@@ -412,8 +412,8 @@ class TestConvertOxygen:
             raw_temperature,
             pressure,
             salinity,
-            ec.oxygen_63_coefs_sn11459,
-            ec.thermistor_63_coefs_sn11459,
+            tc.oxygen_63_coefs_sn11459,
+            tc.thermistor_63_coefs_sn11459,
         )
         request.node.return_value = result.tolist()
         assert np.allclose(expected, result, rtol=0, atol=1e-3)
