@@ -156,9 +156,9 @@ def convert_pressure(
     pressure_count: np.ndarray,
     compensation_voltage: np.ndarray,
     coefs: PressureCoefficients,
-    units: Literal["dbar", "psig"] = "psig",
+    units: Literal["dbar", "psia", "psig"] = "psig",
 ):
-    """Converts pressure counts to sea pressure (absolute pressure - 14.7 psi).
+    """Converts pressure counts to sea pressure (psig and dbar) and absolute pressure (psia)
 
     pressure_count and compensation_voltage are expected to be raw data
     from an instrument in A/D counts
@@ -181,7 +181,10 @@ def convert_pressure(
     )
     x = pressure_count - coefs.ptca0 - coefs.ptca1 * t - coefs.ptca2 * t**2
     n = x * coefs.ptcb0 / (coefs.ptcb0 + coefs.ptcb1 * t + coefs.ptcb2 * t**2)
-    pressure = coefs.pa0 + coefs.pa1 * n + coefs.pa2 * n**2 - sea_level_pressure
+    pressure = coefs.pa0 + coefs.pa1 * n + coefs.pa2 * n**2
+
+    if units == "dbar" or units == "psig":
+        pressure -= sea_level_pressure
 
     if units == "dbar":
         pressure *= PSI_TO_DBAR
