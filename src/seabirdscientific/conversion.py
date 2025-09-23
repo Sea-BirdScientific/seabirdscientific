@@ -1150,7 +1150,7 @@ def convert_external_seafet_ph(
 
 
 def _total_chloride_in_seawater(salinity: np.ndarray) -> np.ndarray:
-    """Calculated as (Dickson et al. 2007)
+    """From SBS application note 99. Calculated as (Dickson et al. 2007)
 
     :param salinity: Salinity in PSU
     :return: Total chloride in seawater
@@ -1166,7 +1166,8 @@ def _total_chloride_in_seawater(salinity: np.ndarray) -> np.ndarray:
 
 
 def _sample_ionic_strength(salinity: np.ndarray) -> np.ndarray:
-    """The sample ionic strength is calculated as (Dickson et al. 2007)
+    """From SBS application note 99. The sample ionic strength is
+    calculated as (Dickson et al. 2007)
 
     :param salinity: Salinity in PSU
     :return: Sample ionic strength
@@ -1176,7 +1177,8 @@ def _sample_ionic_strength(salinity: np.ndarray) -> np.ndarray:
 
 
 def _debye_huckel_constant_for_hcl_activity(temperature: np.ndarray):
-    """This constant is calculated as (Khoo et al. 1977)
+    """From SBS application note 99. This constant is calculated as
+    (Khoo et al. 1977)
 
     :param temperature: Temperature in degrees C
     :return: Debye-Huckel constant for activity of HCl
@@ -1186,7 +1188,7 @@ def _debye_huckel_constant_for_hcl_activity(temperature: np.ndarray):
 
 
 def _log_of_hcl_activity_coefficient_of_t(salinity: np.ndarray, temperature: np.ndarray):
-    """Calculated as (Khoo et al. 1977)
+    """From SBS application note 99. Calculated as (Khoo et al. 1977)
 
     :param salinity: Salinity in PSU
     :param temperature: Temperature in degrees C
@@ -1201,7 +1203,7 @@ def _log_of_hcl_activity_coefficient_of_t(salinity: np.ndarray, temperature: np.
 
 
 def _total_sulfate_in_seawater(salinity: np.ndarray):
-    """Calculated as (Dickson et al. 2007)
+    """From SBS application note 99. Calculated as (Dickson et al. 2007)
 
     :param salinity: Salinity in PSU
     :return: Total sulfate in seawater
@@ -1214,7 +1216,7 @@ def _total_sulfate_in_seawater(salinity: np.ndarray):
 
 
 def _acid_dissociation_constant_of_hso4(salinity: np.ndarray, temperature: np.ndarray):
-    """Calculated as (Dickson et al. 2007)
+    """From SBS application note 99. Calculated as (Dickson et al. 2007)
 
     :param salinity: Salinty in PSU
     :param temperature: Temperature in Kelvin
@@ -1237,10 +1239,11 @@ def convert_external_shallow_ph(
     coefs: PHSeaFETExternalCoefficients,
     ph_units: Literal["counts", "volts"] = "counts",
 ) -> np.ndarray:
-    """Calculating pH External from the Shallow SeaFET/SeapHOx V2. The
-    solid state electrochemical cell exhibits a Nernstian response to pH
-    but presents the added complexity of being sensitive to the chloride
-    activity (Johnson et al. 2016).
+    """Calculating pH External from the Shallow SeaFET/SeapHOx V2. From
+    SBS application note 99. The solid state electrochemical cell
+    exhibits a Nernstian response to pH but presents the added
+    complexity of being sensitive to the chloride activity (Johnson et
+    al. 2016).
 
     :param raw_ph: Raw voltage or votage counts
     :param temperature: temperature in degrees C
@@ -1270,7 +1273,8 @@ def convert_external_shallow_ph(
 
 
 def _pressure_response(pressure: np.ndarray, coefs: PHSeaFETExternalCoefficients):
-    """The sensor pressure response function
+    """The sensor pressure response function from SBS application note
+    99. 
 
     :param pressure: Pressure in bar
     :param coefs: External pH coefficients
@@ -1286,7 +1290,7 @@ def _pressure_response(pressure: np.ndarray, coefs: PHSeaFETExternalCoefficients
 
 
 def _partial_molal_hcl_volume(temperature: np.ndarray):
-    """Calculated as (Millero 1983)
+    """From SBS application note 99. Calculated as (Millero 1983)
 
     :param temperature: Temperature in degrees C
     :return: Partial Molal Volume of HCl
@@ -1300,7 +1304,7 @@ def _log_of_hcl_activity_coefficient_of_tp(
     temperature: np.ndarray,
     pressure: np.ndarray,
 ):
-    """Calculated as (Johnson et al. 2017)
+    """From SBS application note 99. Calculated as (Johnson et al. 2017)
 
     :param salinity: Salinity in PSU
     :param temperature: Temperature in degrees C
@@ -1317,7 +1321,7 @@ def _log_of_hcl_activity_coefficient_of_tp(
 
 
 def _partial_molal_hso4_volume(temperature: np.ndarray) -> np.ndarray:
-    """Calculated as (Millero 1983)
+    """From SBS application note 99. Calculated as (Millero 1983)
 
     :param temperature: Temperature in dgrees C
     :return: Partial Molal Volume of HSO4
@@ -1327,7 +1331,7 @@ def _partial_molal_hso4_volume(temperature: np.ndarray) -> np.ndarray:
 
 
 def _hso4_compressibility(temperature: np.ndarray):
-    """Calculated as (Millero 1983)
+    """From SBS application note 99. Calculated as (Millero 1983)
 
     :param temperature: Temperature in degrees C
     :return: Compressibility of HSO4
@@ -1341,7 +1345,7 @@ def _acid_dissociation_constant_of_hso4_tp(
     temperature: np.ndarray,
     pressure: np.ndarray,
 ):
-    """Calculated as (Millero 1982)
+    """From SBS application note 99. Calculated as (Millero 1982)
 
     :param salinity: Salinity in PSU
     :param temperature: Temperature in degrees C
@@ -1365,10 +1369,10 @@ def convert_external_deep_ph(
     coefs: PHSeaFETExternalCoefficients,
     ph_units: Literal["counts", "volts"] = "counts",
 ):
-    """External pH from the Deep SeapHOx V2 and Float. The solid state
-    electrochemical cell exhibits a Nernstian response to pH but
-    presents the added complexity of being sensitive to the chloride
-    activity (Johnson et al. 2016).
+    """External pH from the Deep SeapHOx V2 and Float. From SBS
+    application note 99 The solid state electrochemical cell exhibits a
+    Nernstian response to pH but presents the added complexity of being
+    sensitive to the chloride activity (Johnson et al. 2016).
 
     :param raw_ph: raw voltage or voltage counts
     :param temperature: Temperature in degrees C
