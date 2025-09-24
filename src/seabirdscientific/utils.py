@@ -89,7 +89,7 @@ def percent_match(x1: np.ndarray, x2: np.ndarray) -> str:
     :return: a message with the percentage of matching elements
     """
 
-    return f"{100 - (x1 != x2).sum()*100 / len(x1):0.2f}% match"
+    return f"{100 - (x1 != x2).sum() * 100 / len(x1):0.2f}% match"
 
 
 def get_tolerance(data: np.ndarray):

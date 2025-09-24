@@ -98,19 +98,19 @@ class TestChartData:
         with pytest.raises(KeyError):
             config = self.config
             config.x_names = ["Col999"]
-            data = viz.ChartData(self.data_path, config)
+            viz.ChartData(self.data_path, config)
 
     def test_chart_data_y_error(self, caplog):
         with pytest.raises(KeyError):
             config = self.config
             config.y_names = ["Col999"]
-            data = viz.ChartData(self.data_path, config)
+            viz.ChartData(self.data_path, config)
 
     def test_chart_data_z_error(self, caplog):
         with pytest.raises(KeyError):
             config = self.config
             config.z_names = ["Col999"]
-            data = viz.ChartData(self.data_path, config)
+            viz.ChartData(self.data_path, config)
 
     def test_chart_data_slash_pass(self):
         data_path = test_resources / "example_fail_slash.csv"
@@ -126,7 +126,7 @@ class TestChartData:
         assert isinstance(data, viz.ChartData)
 
 
-class TestPlotXYChart:
+class TestPlotXYChart2:
     def test_plot_xy_chart(self):
         config = viz.ChartConfig(
             title="title",
