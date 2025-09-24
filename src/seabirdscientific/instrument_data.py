@@ -401,7 +401,7 @@ def fix_exponents(values: List[str]) -> List[str]:
 def read_hex_file(
     filepath: str,
     instrument_type: InstrumentType,
-    enabled_sensors: List[Sensors],
+    enabled_sensors: List[Sensors] = [],
     moored_mode=False,
     is_shallow=True,
     frequency_channels_suppressed=0,

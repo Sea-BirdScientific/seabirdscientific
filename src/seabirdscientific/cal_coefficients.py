@@ -292,6 +292,21 @@ class SPARCoefficients:
     conversion_factor: float
 
 
+@dataclass
+class TemperatureSeaFETCoefficients:
+    """
+    :param tdfa0: temeperature coefficient
+    :param tdfa1: temeperature coefficient
+    :param tdfa2: temeperature coefficient
+    :param tdfa3: temeperature coefficient
+    """
+
+    tdfa0: float
+    tdfa1: float
+    tdfa2: float
+    tdfa3: float
+
+
 class PHSeaFETInternalCoefficients:
     """
     :param k0: K0 coefficient
