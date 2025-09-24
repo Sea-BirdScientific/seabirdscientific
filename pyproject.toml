@@ -39,7 +39,6 @@ dev = [
   "notebook",
   "pytest",
   "pytest-cov",
-  "pylint",
   "ruff",
 ]
 
@@ -52,7 +51,6 @@ dev = [
   "pytest-cov"
 ]
 
-
 [project.urls]
 Homepage = "https://www.seabird.com/software"
 Repository = "https://github.com/Sea-BirdScientific/seabirdscientific"
@@ -63,9 +61,19 @@ requires = [
   "setuptools>=61",
 ]
 
-
 [tool.mypy]
-disable_error_code = ["import-untyped"]
+ignore_missing_imports = true
+exclude = [
+  ".git",
+  ".github",
+  ".mypy_cache",
+  ".pytest_cache",
+  ".ruff_cache",
+  ".venv",
+  ".vscode",
+  "build",
+  "dist",
+]
 
 [tool.coverage.run]
 omit = [
@@ -85,4 +93,3 @@ exclude = [
   "build",
   "dist",
 ]
-

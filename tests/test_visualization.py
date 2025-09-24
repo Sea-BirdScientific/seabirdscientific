@@ -51,7 +51,7 @@ class TestSelectSubset:
 class TestPlotXYChart:
     data_path = test_resources / "example_pass.asc"
     config = viz.ChartConfig(
-        title=data_path.name, x_names=["Col1"], y_names=[], z_names=[], chart_type=""
+        title=data_path.name, x_names=["Col1"], y_names=[], z_names=[], chart_type="overlay"
     )
     data = viz.ChartData(data_path, config)
 

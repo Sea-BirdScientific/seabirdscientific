@@ -273,7 +273,7 @@ class InstrumentData:
 
 
 # pylint: disable=too-many-branches # TODO: Fix this
-def cnv_to_instrument_data(filepath: Path) -> InstrumentData:
+def cnv_to_instrument_data(filepath: Union[Path, str]) -> InstrumentData:
     """
     Import the data from a .cnv file and put it into an InstrumentData object.
 
@@ -391,7 +391,7 @@ def fix_exponents(values: List[str]) -> List[str]:
 
 
 def read_hex_file(
-    filepath: str,
+    filepath: Union[Path, str],
     instrument_type: InstrumentType,
     enabled_sensors: List[Sensors] = [],
     moored_mode=False,

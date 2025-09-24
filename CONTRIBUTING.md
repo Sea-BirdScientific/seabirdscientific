@@ -28,9 +28,9 @@ We want your work to be readable by others; therefore, we ask you to comply with
   - Avoid single letter variable names unless their life only spans a few lines.
   - Expand acronyms. Names like `gcd()` may not be obvious but `greatest_common_divisor()` is.
   - Follow the [PEP 8 Naming Conventions](https://pep8.org/#prescriptive-naming-conventions), including, but not limited to, the following:
-    - Variable_names and function_names should be lower_case
-    - Constants should be in UPPERCASE
-    - ClassNames should be CamelCase, etc.
+    - Variable names and function names should be `snake_case`
+    - Constants should be in `UPPER_CASE`
+    - ClassNames should be `CamelCase`
 - The use of [Python type hints](https://docs.python.org/3/library/typing.html) are encouraged for function parameters and return values.
 - Use Python 3.9 or greater.
 
@@ -44,27 +44,29 @@ We want your work to be readable by others; therefore, we ask you to comply with
 
 - If possible, write tests to illustrate and verify your work. We require the use of [pytest](https://docs.pytest.org). If you have doctests in your code, convert them to pytest.
 
-### Formatting and Style Tools
+### Linting
 
-- Run [black](https://github.com/python/black) on your Python file(s) before submitting your pull request. It will make your code more readable and will automatically align it with much of [PEP 8](https://www.python.org/dev/peps/pep-0008/) formatting.
+- Use [ruff](https://github.com/astral-sh/ruff) to lint your Python files before submitting your pull request. It will help identify errors and style issues in your code.
 
-  Black can be run on individual files or directories by running `black path/to/file.py`. Running `black src` from the root directory of the toolkit folder will format all the .py files within src directory and its sub-directories.
+- Run `ruff check .` from the root directory of the toolkit folder to check all files in the project, excluding directories listed in the tool.ruff section of pyproject.toml.
 
-  The pyproject.toml file includes a setting that sets the maximum line length used by black to 99 characters.
+### Formatting
 
-  If you're using VS Code, black can be set up to run on each save in Settings > search Format On Save > format a file on save.
+- Also use [ruff](https://github.com/astral-sh/ruff) to format your Python files before submitting your pull request. It will make your code more readable and will automatically align it with much of [PEP 8](https://www.python.org/dev/peps/pep-0008/) formatting.
 
-- Run [pylint](https://github.com/pylint-dev/pylint) on your Python file(s) before submitting your pull request. It will help identify errors and style issues in your code.
+- Run `ruff format .` from the root directory of the toolkit folder to format all files in the project, excluding directories listed in the tool.ruff section of pyproject.toml.
 
-  Pylint can be used to check an individual file by running `pylint path/to/file.py`. Running `pylint src` from the root directory of the toolkit folder will check all files in the src directory.
+- The pyproject.toml file includes a setting that sets the maximum line length used by black to 99 characters.
 
-- Run [mypy](http://www.mypy-lang.org) on your Python file(s) before submitting your pull request. This will help identify errors and improve code quality.
+- If you're using VS Code, the ruff extension can be installed and set up to run on each save in Settings > search Format On Save > format a file on save.
 
-  Mypy can be used to check an individual file by running `mypy path/to/file.py`. Running `mypy src` from the root directory of the toolkit folder will check all files in the src directory.
+### Type Checking
 
-- Ensure that your code compiles before submitting by running `python -m compileall ./src` from the root directory of the toolkit folder.
+- Use [mypy](http://www.mypy-lang.org) to type check your Python files before submitting your pull request. This will help identify errors and improve code quality.
 
-## Package Use
+- Run `mypy .` from the root directory of the toolkit folder to check all files in the project, excluding directories listed in the tool.mypy section of pyproject.toml.
+
+### Third Party Packages
  
 - Use the [TEOS-10 GSW Toolkit](https://www.teos-10.org/software.htm) for derived physical oceanography algorithms rather than any predecessor packages.
 
@@ -72,21 +74,25 @@ We want your work to be readable by others; therefore, we ask you to comply with
 
 Below is the typical sequence for creating a submission. Feel free to [submit a question](https://github.com/Sea-BirdScientific/seabirdscientific/issues/new?template=question.md) if you need assistance.
 
-Environment setup:
+Environment setup with native python tools:
 1. Setup virtual environment `python -m venv .venv`
 2. Activate environment `.venv\Scripts\activate`
-3. Install all developer packages with `pip install -e ".[dev]"`
+3. Install all developer packages with `pip install -e .[dev]`
+
+Environment setup with [uv](https://docs.astral.sh/uv/):
+1. Setup virtual environment: `uv venv`
+2. Activate environment `.venv\Scripts\activate`
+3. Install all developer packages with `uv sync`
 
 Contributions:
 1. Create a fork of the seabirdscientific repository. We recommend that you only copy the main branch into your fork.
 2. Clone the fork to your computer.
 3. Create a new branch for your changes.
 4. If this is your first submission, add your name and github username to the CONTRIBUTORS.md file.
-5. Implement your changes, adhering to the [Coding Style](#coding-style) and [Documenting](#documenting) guidelines above.
-6. Run all the processes listed in the [Formatting and Style Tools](#formatting-and-style-tools) section above and ensure they are free of issues.
-7. Verify that your tests pass.
-8. Commit your local branch to the GitHub server.
-9. Create a pull request and submit it after filling out the PR template.
-10. Monitor and respond to feedback from the Sea-Bird team via comments in your pull request. We will merge your PR into the toolkit once it's passed the review process.
+5. Implement your changes, adhering to the guidelines above.
+6. Verify that your tests pass.
+7. Commit your local branch to the GitHub server.
+8. Create a pull request and submit it after filling out the PR template.
+9. Monitor and respond to feedback from the Sea-Bird team via comments in your pull request. We will merge your PR into the toolkit once it's passed the review process.
 
 More details on contributing to projects in general can be found at the GitHub [contributing to a project](https://docs.github.com/en/get-started/exploring-projects-on-github/contributing-to-a-project) page.
