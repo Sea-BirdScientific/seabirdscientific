@@ -1270,10 +1270,10 @@ def convert_external_shallow_seafet_seaphox_ph(
     nernst = _calculate_nernst(t_kelvin)
 
     term_1 = (ph_volts - coefs.k0 - coefs.k2 * temperature) / nernst
-    term_2 = np.log(_total_chloride_in_seawater(salinity))
+    term_2 = np.log10(_total_chloride_in_seawater(salinity))
     term_3 = 2 * _log_of_hcl_activity_coefficient_of_t(salinity, temperature)
-    term_4 = np.log(1 + s_t / k_s)
-    term_5 = np.log(1 - 1.005e-3 * salinity)
+    term_4 = np.log10(1 + s_t / k_s)
+    term_5 = np.log10(1 - 1.005e-3 * salinity)
 
     ph = term_1 + term_2 + term_3 - term_4 - term_5
     return ph
@@ -1298,11 +1298,12 @@ def _pressure_response(pressure: np.ndarray, coefs: PHSeaFETExternalCoefficients
 
 def _partial_molal_hcl_volume(temperature: np.ndarray):
     """From SBS application note 99. Calculated as (Millero 1983)
+    Note: AN99 has a typo and is missing temperature in the second term
 
     :param temperature: Temperature in degrees C
     :return: Partial Molal Volume of HCl
     """
-    volume = 17.85 - 0.1044 * 1.316e-3 * temperature**2
+    volume = 17.85 + 0.1044 * temperature - 1.316e-3 * temperature**2
     return volume
 
 
@@ -1396,16 +1397,16 @@ def convert_external_deep_seaphox_float_ph(
 
     t_kelvin = temperature + KELVIN_OFFSET_0C
     p_bar = pressure / 10
-    f_p = _pressure_response(p_bar, coefs)
+    f_p = _pressure_response(pressure, coefs)
     nernst = _calculate_nernst(t_kelvin)
     s_t = _total_sulfate_in_seawater(salinity)
     k_stp = _acid_dissociation_constant_of_hso4_tp(salinity, temperature, p_bar)
 
     term_1 = (ph_volts - coefs.k0 - coefs.k2 * temperature - f_p) / nernst
-    term_2 = np.log(_total_chloride_in_seawater(salinity))
+    term_2 = np.log10(_total_chloride_in_seawater(salinity))
     term_3 = 2 * _log_of_hcl_activity_coefficient_of_tp(salinity, temperature, p_bar)
-    term_4 = np.log(1 + s_t / k_stp)
-    term_5 = np.log(1 - 1.005e-3 * salinity)
+    term_4 = np.log10(1 + s_t / k_stp)
+    term_5 = np.log10(1 - 1.005e-3 * salinity)
     ph = term_1 + term_2 + term_3 - term_4 - term_5
     return ph
 
