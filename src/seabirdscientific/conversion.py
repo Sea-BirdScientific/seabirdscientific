@@ -1239,7 +1239,7 @@ def _acid_dissociation_constant_of_hso4(salinity: np.ndarray, temperature: np.nd
     return k_s
 
 
-def convert_external_shallow_ph(
+def convert_external_shallow_seafet_seaphox_ph(
     raw_ph: np.ndarray,
     temperature: np.ndarray,
     salinity: np.ndarray,
@@ -1368,7 +1368,7 @@ def _acid_dissociation_constant_of_hso4_tp(
     return k_stp
 
 
-def convert_external_deep_ph(
+def convert_external_deep_seaphox_float_ph(
     raw_ph: np.ndarray,
     temperature: np.ndarray,
     salinity: np.ndarray,
