@@ -549,8 +549,8 @@ def bin_average(
 
     :param dataset: Dataframe containing all data to group into bins
     :param bin_variable: The variable that will control binning,
-        typically pressure, depth, or time (scan number not currently
-        supported)
+        typically pressure, depth, time, or scan number. For scan number,
+        use 'nScan'.
     :param bin_size: The bin width or range of data for each bin
     :param include_scan_count: If True includes a column (nbin) in the
         returned dataframe for the number of scans in each bin. Defaults
@@ -598,10 +598,19 @@ def bin_average(
     for column in _dataset.columns.difference(["flag"]):
         _dataset = _dataset.drop(_dataset[_dataset[column] == flag_value].index)
 
+    if bin_variable == "nScan" and "nScan" not in _dataset.columns:
+        # We want to bin by scans, ensure it's a column
+        _dataset.insert(0, "nScan", range(0, len(_dataset)))
+
     # pd series containing the variable we want to bin for, converted to ndarray
     control = _dataset[bin_variable].to_numpy()
 
     bin_min = bin_size / 2.0  # min value of first bin
+
+    if bin_variable == "nScan":
+        # when binning by scan number, start at 0
+        bin_min = 0
+
     control_max = np.amax(control)
     bin_max = control_max - ((bin_min + control_max) % bin_size) + bin_size
 
