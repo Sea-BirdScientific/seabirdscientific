@@ -868,10 +868,10 @@ def convert_internal_seafet_ph(
     ph_volts = convert_ph_voltage_counts(ph_counts)
 
     # Eo(T) or temperature offset
-    temperature_offset = coefs.k2 * temperature
+    temperature_offset = coefs.kdf2 * temperature
 
     # Eo the cell reference voltage at in-situ conditions
-    cell_ref_volts = coefs.k0 + temperature_offset
+    cell_ref_volts = coefs.kdf0 + temperature_offset
     nernst_term = _calculate_nernst(temperature + KELVIN_OFFSET_0C)
     ph = (ph_volts - cell_ref_volts) / nernst_term
     return ph
