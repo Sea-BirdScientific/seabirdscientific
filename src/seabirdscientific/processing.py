@@ -38,7 +38,7 @@ data.
 import math
 from enum import Enum
 from logging import getLogger
-from typing import List, Tuple
+from typing import List
 
 # Third-party imports
 import gsw
@@ -1220,7 +1220,6 @@ def split(
     :return: A list of the downcast and/or upcast dataframes
     """
     _dataframe = dataframe.copy()
-    control = _dataframe[control_name]
 
     flag = None
     if "flag" in _dataframe.columns:

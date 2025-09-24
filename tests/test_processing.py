@@ -22,7 +22,6 @@ logger = getLogger(__name__)
 
 
 class TestLowPassFilter:
-
     def test_low_pass_filter(self, request):
         expected_path = test_data / "SBE37SM-filtered.asc"
         expected = pd.read_csv(expected_path)["Tv290C"].values
@@ -453,7 +452,7 @@ class TestBinAverage:
         for variable in expected.columns:
             tolerance = get_tolerance(expected[variable])
             assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=tolerance)
-    
+
     def test_bin_average_interpolate_surface(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
         source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_binavg_interp_surface.cnv"

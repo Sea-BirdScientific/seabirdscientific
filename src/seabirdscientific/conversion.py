@@ -35,7 +35,6 @@
 #         PHSeaFETExternalCoefficients
 #     )
 
-
 # Native imports
 from math import e, floor
 from typing import Literal
