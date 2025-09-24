@@ -649,6 +649,21 @@ class TestBinAverage:
             tolerance = get_tolerance(expected[variable])
             assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=tolerance)
 
+    def test_bin_average_scan(self, request):
+        source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
+        source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_binavg_scan.cnv"
+        data = idata.cnv_to_instrument_data(source_in)._to_dataframe()
+        expected = idata.cnv_to_instrument_data(source_out)._to_dataframe()
+        binavg = p.bin_average(
+            dataset = data,
+            bin_variable = 'nScan',
+            bin_size = 10,
+            cast_type = p.CastType.NA
+        )
+        for variable in expected.columns:
+            tolerance = get_tolerance(expected[variable])
+            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=tolerance)
+
     # fmt: on
 
 
