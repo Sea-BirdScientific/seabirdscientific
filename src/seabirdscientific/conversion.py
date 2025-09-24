@@ -35,7 +35,6 @@
 #         PHSeaFETExternalCoefficients
 #     )
 
-
 # Native imports
 from math import e, floor
 from typing import Literal
@@ -805,7 +804,10 @@ def convert_spar_biospherical(
 
 
 def convert_nitrate(
-    volts: np.ndarray, dac_min: float, dac_max: float, units: Literal["uMNO3", "mgNL"] = "uMNO3"
+    volts: np.ndarray,
+    dac_min: float,
+    dac_max: float,
+    units: Literal["uMNO3", "mgNL"] = "uMNO3",
 ):
     """Convert SUNA raw voltages to uMNO3 or mgNL
 
@@ -852,28 +854,33 @@ def _calculate_nernst(temperature: np.ndarray) -> np.ndarray:
 
 
 def convert_internal_seafet_ph(
-    ph_counts: np.ndarray,
-    temperature: np.ndarray,
-    coefs: PHSeaFETInternalCoefficients,
+    raw_ph: np.ndarray = 0,
+    temperature: np.ndarray = 0,
+    coefs: PHSeaFETInternalCoefficients = PHSeaFETInternalCoefficients(),
+    ph_units: Literal["counts", "volts"] = "counts",
+    ph_counts: np.ndarray = None,
 ):
     """Calculates the internal pH on the total scale given the
     temperature and internal FET voltage
 
-    :param ph_counts: pH voltage counts
-    :param temperature: sample temperature
+    :param raw_ph: Raw voltage or voltage counts
+    :param temperature: Sample temperature
     :param coefs: SeaFET calibration coefficients
+    :param ph_units: The units of raw_ph, defaults to 'counts'
+    :param ph_counts: Deprecated. pH voltage counts
     :return: calculated pH on the total scale for the SeaFET internal
         reference
     """
-    ph_volts = convert_ph_voltage_counts(ph_counts)
+    if ph_counts is not None:
+        warnings.warn("Deprecated, use raw_ph", DeprecationWarning)
+        ph_volts = convert_ph_voltage_counts(ph_counts)
+    elif ph_units == 'counts':
+        ph_volts = convert_ph_voltage_counts(raw_ph)
+    else:  # ph_counts == 'volts'
+        ph_volts = raw_ph
 
-    # Eo(T) or temperature offset
-    temperature_offset = coefs.k2 * temperature
-
-    # Eo the cell reference voltage at in-situ conditions
-    cell_ref_volts = coefs.k0 + temperature_offset
-    nernst_term = _calculate_nernst(temperature + KELVIN_OFFSET_0C)
-    ph = (ph_volts - cell_ref_volts) / nernst_term
+    nernst = _calculate_nernst(temperature + KELVIN_OFFSET_0C)
+    ph = (ph_volts - coefs.k0 - coefs.k2 * temperature) / nernst
     return ph
 
 
