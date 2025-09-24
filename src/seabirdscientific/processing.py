@@ -21,13 +21,13 @@ data.
 #         np.ndarray, np.ndarray, float, MinVelocityType, float, float,
 #         float, bool, float, float, bool, bool,float
 #     ) -> np.ndarray
-#     find_depth_peaks (np.ndarray, np.ndarray, bool, float, float, float) -> tuple[int, int]
-#     min_velocity_mask (np.ndarray, float, float, int, int, bool) -> np.ndarray
-#     mean_speed_percent_mask (np.ndarray, float, float, float, int, int, bool, int) -> np.ndarray
-#     flag_by_minima_maxima (np.ndarray, np.ndarray, int, int, float)
+#     _find_depth_peaks (np.ndarray, np.ndarray, bool, float, float, float) -> tuple[int, int]
+#     _min_velocity_mask (np.ndarray, float, float, int, int, bool) -> np.ndarray
+#     _mean_speed_percent_mask (np.ndarray, float, float, float, int, int, bool, int) -> np.ndarray
+#     _flag_by_minima_maxima (np.ndarray, np.ndarray, int, int, float)
 #     bin_average (pd.DataFrame, str, float, bool, int, int, bool, bool)
 #     wild_edit (np.ndarray, np.ndarray, float, float, int, float, bool,float) -> np.ndarray
-#     flag_data (np.ndarray, np.ndarray, float, float, float, bool,float) -> np.ndarray
+#     _flag_data (np.ndarray, np.ndarray, float, float, float, bool,float) -> np.ndarray
 #     window_filter (
 #         np.ndarray, np.ndarray, WindowFilterType, int, float, int, float, bool, float
 #     ) -> np.ndarray
@@ -308,21 +308,21 @@ def loop_edit_depth(
         min_soak_depth -= depth[0]
         max_soak_depth -= depth[0]
 
-    (min_depth_n, max_depth_n) = find_depth_peaks(
+    (min_depth_n, max_depth_n) = _find_depth_peaks(
         depth, flag, remove_surface_soak, flag_value, min_soak_depth, max_soak_depth
     )
 
     if min_velocity_type == MinVelocityType.FIXED:
-        downcast_mask = min_velocity_mask(
+        downcast_mask = _min_velocity_mask(
             depth, sample_interval, min_velocity, min_depth_n, max_depth_n + 1, False
         )
-        upcast_mask = min_velocity_mask(
+        upcast_mask = _min_velocity_mask(
             depth, sample_interval, min_velocity, max_depth_n, len(depth), True
         )
 
     elif min_velocity_type == MinVelocityType.PERCENT:
         diff_length = int(window_size / sample_interval)
-        downcast_mask = mean_speed_percent_mask(
+        downcast_mask = _mean_speed_percent_mask(
             depth,
             sample_interval,
             min_velocity,
@@ -332,7 +332,7 @@ def loop_edit_depth(
             False,
             diff_length,
         )
-        upcast_mask = mean_speed_percent_mask(
+        upcast_mask = _mean_speed_percent_mask(
             depth,
             sample_interval,
             min_velocity,
@@ -347,7 +347,7 @@ def loop_edit_depth(
 
     flag[~downcast_mask & ~upcast_mask] = flag_value
 
-    flag_by_minima_maxima(depth, flag, min_depth_n, max_depth_n, flag_value)
+    _flag_by_minima_maxima(depth, flag, min_depth_n, max_depth_n, flag_value)
 
     cast = np.array([0 for _ in range(len(flag))])
     cast[downcast_mask] = -1
@@ -355,7 +355,7 @@ def loop_edit_depth(
     return cast  # TODO: refactor to handle cast and flag in seperate functions
 
 
-def find_depth_peaks(
+def _find_depth_peaks(
     depth: np.ndarray,
     flag: np.ndarray,
     remove_surface_soak: bool,
@@ -412,7 +412,7 @@ def find_depth_peaks(
     return (min_depth_n, max_depth_n)
 
 
-def min_velocity_mask(
+def _min_velocity_mask(
     depth: np.ndarray,
     interval: float,
     min_velocity: float,
@@ -448,7 +448,7 @@ def min_velocity_mask(
     return mask
 
 
-def mean_speed_percent_mask(
+def _mean_speed_percent_mask(
     depth: np.ndarray,
     interval: float,
     min_velocity: float,
@@ -493,7 +493,7 @@ def mean_speed_percent_mask(
     return mask
 
 
-def flag_by_minima_maxima(
+def _flag_by_minima_maxima(
     depth: np.ndarray,
     flag: np.ndarray,
     min_depth_n: int,
@@ -795,7 +795,7 @@ def wild_edit(
     flagged_data = data.copy()
 
     while upper_index <= len(data):
-        flagged_data[lower_index:upper_index] = flag_data(
+        flagged_data[lower_index:upper_index] = _flag_data(
             data[lower_index:upper_index],
             flags,
             std_pass_1,
@@ -810,7 +810,7 @@ def wild_edit(
     if lower_index < len(data):
         lower_index = len(data) - scans_per_block
         upper_index = len(data)
-        flagged_data[len(data) - len(data) % scans_per_block :] = flag_data(
+        flagged_data[len(data) - len(data) % scans_per_block :] = _flag_data(
             data[lower_index:upper_index],
             flags,
             std_pass_1,
@@ -823,7 +823,7 @@ def wild_edit(
     return flagged_data
 
 
-def flag_data(
+def _flag_data(
     data: np.ndarray,
     flags: np.ndarray,
     std_pass_1: float,
