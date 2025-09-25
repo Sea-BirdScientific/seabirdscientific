@@ -29,6 +29,7 @@ import json
 from logging import getLogger
 from typing import Dict, List, Literal, Optional, Union
 from pathlib import Path
+import warnings
 
 # Third-party imports
 import numpy as np
@@ -242,8 +243,9 @@ def plot_xy_chart(data: ChartData, config: ChartConfig) -> go.Figure:
 
     # too many data sets
     elif len(data.x.columns) > 1 and len(data.y.columns) > 1:
-        logger.warning("Only one axis can support multiple data sets")
-        # return go.Figure()
+        message = "Only one axis can support multiple data sets"
+        logger.warning(message)
+        warnings.warn(message)
 
     # multiple data sets
     elif len(data.x.columns) > 1 or len(data.y.columns) > 1:
@@ -446,7 +448,10 @@ def apply_subplots_x_config(figure: go.Figure, config: ChartConfig):
             "title": "" if len(config.x_units) < 4 else config.x_units[3],
             "range": None if len(config.bounds["x"]) < 4 else config.bounds["x"][3],
         },
-        yaxis={"title": "" if len(config.y_units) < 1 else config.y_units[0], "range": y_range},
+        yaxis={
+            "title": "" if len(config.y_units) < 1 else config.y_units[0],
+            "range": y_range,
+        },
         yaxis2={"range": y_range},
         yaxis3={"range": y_range},
         yaxis4={"range": y_range},
@@ -470,7 +475,10 @@ def apply_subplots_y_config(figure: go.Figure, config: ChartConfig):
         xaxis={"range": x_range},
         xaxis2={"range": x_range},
         xaxis3={"range": x_range},
-        xaxis4={"title": "" if len(config.x_units) < 1 else config.x_units[0], "range": x_range},
+        xaxis4={
+            "title": "" if len(config.x_units) < 1 else config.x_units[0],
+            "range": x_range,
+        },
         yaxis={
             "title": "" if len(config.y_units) < 1 else config.y_units[0],
             "range": None if len(config.bounds["y"]) < 1 else config.bounds["y"][0],

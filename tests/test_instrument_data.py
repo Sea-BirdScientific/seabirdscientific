@@ -34,7 +34,7 @@ class TestCnvToInstrumentData:
             start_time=None,
             sample_count=None,
         )
-        assert True  # fails before assert if data fails to instantiate
+        assert data is not None  # fails before assert if data fails to instantiate
 
     def test_cnv_to_instrument_data_pass(self):
         file_path = test_data / "SBE37SM.cnv"
