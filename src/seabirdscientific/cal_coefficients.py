@@ -307,15 +307,40 @@ class TemperatureSeaFETCoefficients:
     tdfa3: float
 
 
-@dataclass
 class PHSeaFETInternalCoefficients:
     """
     :param kdf0: internal K0 coefficient
     :param kdf2: internal K2 coefficient
+
+    :param k0: Deprecated, use kdf0
+    :param k2: Deprecated, use kdf2
+    :param int_k0: Deprecated, use kdf0
+    :param int_k2: Deprecated, use kdf2
     """
 
-    kdf0: float
-    kdf2: float
+    def __init__(
+        self,
+        kdf0: float = 0,
+        kdf2: float = 0,
+        k0: Optional[float] = None,
+        k2: Optional[float] = None,
+        int_k0: Optional[float] = None,
+        int_k2: Optional[float] = None,
+    ):
+        self.kdf0 = kdf0
+        self.kdf2 = kdf2
+        if k0 is not None:
+            self.k0 = k0
+            warnings.warn("k0 is deprecated, use kdf0", DeprecationWarning)
+        if k2 is not None:
+            self.k2 = k2
+            warnings.warn("k2 is deprecated, use kdf2", DeprecationWarning)
+        if int_k0 is not None:
+            self.int_k0 = int_k0
+            warnings.warn("int_k0 is deprecated, use kdf0", DeprecationWarning)
+        if int_k2 is not None:
+            self.int_k2 = int_k2
+            warnings.warn("int_k2 is deprecated, use kdf2", DeprecationWarning)
 
 
 class PHSeaFETExternalCoefficients:
@@ -354,6 +379,8 @@ class PHSeaFETExternalCoefficients:
         f4: float = 0,
         f5: float = 0,
         f6: float = 0,
+        ext_k0: Optional[float] = None,
+        ext_k2: Optional[float] = None,
     ):
         self.k0 = k0
         self.k2 = k2
@@ -370,6 +397,15 @@ class PHSeaFETExternalCoefficients:
         self.f4 = f4
         self.f5 = f5
         self.f6 = f6
+
+        if ext_k0 is not None:
+            self.ext_k0 = ext_k0
+            self.k0 = ext_k0
+            warnings.warn("ext_k0 is deprecated, use k0", DeprecationWarning)
+        if ext_k2 is not None:
+            self.ext_k2 = ext_k2
+            self.k2 = ext_k2
+            warnings.warn("ext_k2 is deprecated, use k2", DeprecationWarning)
 
 
 @dataclass
