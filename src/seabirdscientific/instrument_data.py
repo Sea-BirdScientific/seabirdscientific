@@ -55,7 +55,7 @@ class InstrumentType(Enum):
     SBE37IM = "37-IM"
     SBE37IMP = "37-IMP"
     SBE37IMPODO = "37-IMP-ODO"
-    SBE19Plus = "19plus"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
+    SBE19Plus = "19plus"  # change enums to UPPER_CASE for TKIT-75
     SBE16Plus = "16plus"
     SBE39Plus = "39plus"
     SBE39PlusIM = "39plus-IM"
@@ -69,81 +69,81 @@ class InstrumentType(Enum):
 class HexDataTypes(Enum):
     """Possible data types in hex files"""
 
-    temperature = (  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
+    temperature = (  # change enums to UPPER_CASE for TKIT-75
         "temperature"
     )
-    secondaryTemperature = (  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
+    secondaryTemperature = (  # change enums to UPPER_CASE for TKIT-75
         "secondary temperature"
     )
-    conductivity = (  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
+    conductivity = (  # change enums to UPPER_CASE for TKIT-75
         "conductivity"
     )
-    secondaryConductivity = (  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
+    secondaryConductivity = (  # change enums to UPPER_CASE for TKIT-75
         "secondary conductivity"
     )
 
-    pressure = "pressure"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
-    digiquartzPressure = "digiquartz pressure"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
-    temperatureCompensation = "temperature compensation"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
-    ExtVolt0 = "volt 0"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
-    ExtVolt1 = "volt 1"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
-    ExtVolt2 = "volt 2"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
-    ExtVolt3 = "volt 3"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
-    ExtVolt4 = "volt 4"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
-    ExtVolt5 = "volt 5"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
+    pressure = "pressure"  # change enums to UPPER_CASE for TKIT-75
+    digiquartzPressure = "digiquartz pressure"  # change enums to UPPER_CASE for TKIT-75
+    temperatureCompensation = "temperature compensation"  # change enums to UPPER_CASE for TKIT-75
+    ExtVolt0 = "volt 0"  # change enums to UPPER_CASE for TKIT-75
+    ExtVolt1 = "volt 1"  # change enums to UPPER_CASE for TKIT-75
+    ExtVolt2 = "volt 2"  # change enums to UPPER_CASE for TKIT-75
+    ExtVolt3 = "volt 3"  # change enums to UPPER_CASE for TKIT-75
+    ExtVolt4 = "volt 4"  # change enums to UPPER_CASE for TKIT-75
+    ExtVolt5 = "volt 5"  # change enums to UPPER_CASE for TKIT-75
     ExtVolt6 = "volt 6"
     ExtVolt7 = "volt 7"
-    SBE38temperature = "SBE38 temperature"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
-    wetlabs0 = "wetlabs - channel 0"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
-    wetlabs1 = "wetlabs - channel 1"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
-    wetlabs2 = "wetlabs - channel 2"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
-    GTDpressure = (  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
+    SBE38temperature = "SBE38 temperature"  # change enums to UPPER_CASE for TKIT-75
+    wetlabs0 = "wetlabs - channel 0"  # change enums to UPPER_CASE for TKIT-75
+    wetlabs1 = "wetlabs - channel 1"  # change enums to UPPER_CASE for TKIT-75
+    wetlabs2 = "wetlabs - channel 2"  # change enums to UPPER_CASE for TKIT-75
+    GTDpressure = (  # change enums to UPPER_CASE for TKIT-75
         "GTD pressure"
     )
-    GTDtemperature = (  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
+    GTDtemperature = (  # change enums to UPPER_CASE for TKIT-75
         "GTD temperature"
     )
-    GTDpressure2 = "GTD pressure - sensor 2"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
-    GTDtemperature2 = "GTD temperature - sensor 2"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
-    optodeOxygen = (  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
+    GTDpressure2 = "GTD pressure - sensor 2"  # change enums to UPPER_CASE for TKIT-75
+    GTDtemperature2 = "GTD temperature - sensor 2"  # change enums to UPPER_CASE for TKIT-75
+    optodeOxygen = (  # change enums to UPPER_CASE for TKIT-75
         "optode oxygen"
     )
-    SBE63phase = "SBE63 oxygen phase"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
-    SBE63temperature = "SBE63 oxygen temperature"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
-    dateTime = "date time"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
+    SBE63phase = "SBE63 oxygen phase"  # change enums to UPPER_CASE for TKIT-75
+    SBE63temperature = "SBE63 oxygen temperature"  # change enums to UPPER_CASE for TKIT-75
+    dateTime = "date time"  # change enums to UPPER_CASE for TKIT-75
     # NMEA Devices
-    nmeaTime = (  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
+    nmeaTime = (  # change enums to UPPER_CASE for TKIT-75
         "NMEA Date Time"
     )
-    nmeaLatitude = (  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
+    nmeaLatitude = (  # change enums to UPPER_CASE for TKIT-75
         "NMEA Latitude"
     )
-    nmeaLongitude = (  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
+    nmeaLongitude = (  # change enums to UPPER_CASE for TKIT-75
         "NMEA Longitude"
     )
     nmeaDepth = "nmea depth"
-    statusAndSign = (  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
+    statusAndSign = (  # change enums to UPPER_CASE for TKIT-75
         "status and sign"
     )
-    vrsInternal = (  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
+    vrsInternal = (  # change enums to UPPER_CASE for TKIT-75
         "vrs internal"
     )
-    vrsExternal = (  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
+    vrsExternal = (  # change enums to UPPER_CASE for TKIT-75
         "vrs external"
     )
-    pHtemperature = (  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
+    pHtemperature = (  # change enums to UPPER_CASE for TKIT-75
         "ph temperature"
     )
-    vk = "vk"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
-    ib = "ib"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
-    ik = "ik"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
-    relativeHumidity = (  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
+    vk = "vk"  # change enums to UPPER_CASE for TKIT-75
+    ib = "ib"  # change enums to UPPER_CASE for TKIT-75
+    ik = "ik"  # change enums to UPPER_CASE for TKIT-75
+    relativeHumidity = (  # change enums to UPPER_CASE for TKIT-75
         "relative humidity"
     )
-    internalTemperature = (  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
+    internalTemperature = (  # change enums to UPPER_CASE for TKIT-75
         "internal temperature"
     )
-    errorFlag = (  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
+    errorFlag = (  # change enums to UPPER_CASE for TKIT-75
         "error flag"
     )
     surfacePAR = "surface par"
@@ -201,43 +201,43 @@ HEX_LENGTH = {
 class Sensors(Enum):
     """Available sensors to read hex data from"""
 
-    Temperature = (  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
+    Temperature = (  # change enums to UPPER_CASE for TKIT-75
         "Temperature"
     )
-    SecondaryTemperature = "SecondaryTemperature"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
-    Conductivity = (  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
+    SecondaryTemperature = "SecondaryTemperature"  # change enums to UPPER_CASE for TKIT-75
+    Conductivity = (  # change enums to UPPER_CASE for TKIT-75
         "Conductivity"
     )
-    SecondaryConductivity = "SecondaryConductivity"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
-    Pressure = "Pressure"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
-    ExtVolt0 = "ExtVolt0"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
-    ExtVolt1 = "ExtVolt1"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
-    ExtVolt2 = "ExtVolt2"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
-    ExtVolt3 = "ExtVolt3"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
-    ExtVolt4 = "ExtVolt4"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
-    ExtVolt5 = "ExtVolt5"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
-    ExtVolt6 = "ExtVolt6"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
-    ExtVolt7 = "ExtVolt7"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
-    WETLABS = "WETLABS"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
-    GTD = "GTD"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
-    DualGTD = "DualGTD"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
-    OPTODE = "OPTODE"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
-    SBE63 = "SBE63"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
-    SBE38 = "SBE38"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
-    SeaFET = "SeaFET"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
-    SPAR = "SPAR"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
+    SecondaryConductivity = "SecondaryConductivity"  # change enums to UPPER_CASE for TKIT-75
+    Pressure = "Pressure"  # change enums to UPPER_CASE for TKIT-75
+    ExtVolt0 = "ExtVolt0"  # change enums to UPPER_CASE for TKIT-75
+    ExtVolt1 = "ExtVolt1"  # change enums to UPPER_CASE for TKIT-75
+    ExtVolt2 = "ExtVolt2"  # change enums to UPPER_CASE for TKIT-75
+    ExtVolt3 = "ExtVolt3"  # change enums to UPPER_CASE for TKIT-75
+    ExtVolt4 = "ExtVolt4"  # change enums to UPPER_CASE for TKIT-75
+    ExtVolt5 = "ExtVolt5"  # change enums to UPPER_CASE for TKIT-75
+    ExtVolt6 = "ExtVolt6"  # change enums to UPPER_CASE for TKIT-75
+    ExtVolt7 = "ExtVolt7"  # change enums to UPPER_CASE for TKIT-75
+    WETLABS = "WETLABS"  # change enums to UPPER_CASE for TKIT-75
+    GTD = "GTD"  # change enums to UPPER_CASE for TKIT-75
+    DualGTD = "DualGTD"  # change enums to UPPER_CASE for TKIT-75
+    OPTODE = "OPTODE"  # change enums to UPPER_CASE for TKIT-75
+    SBE63 = "SBE63"  # change enums to UPPER_CASE for TKIT-75
+    SBE38 = "SBE38"  # change enums to UPPER_CASE for TKIT-75
+    SeaFET = "SeaFET"  # change enums to UPPER_CASE for TKIT-75
+    SPAR = "SPAR"  # change enums to UPPER_CASE for TKIT-75
     # nmea devices
-    nmeaLatitude = "nmeaLatitude"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
-    nmeaLongitude = (  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
+    nmeaLatitude = "nmeaLatitude"  # change enums to UPPER_CASE for TKIT-75
+    nmeaLongitude = (  # change enums to UPPER_CASE for TKIT-75
         "nmeaLongitude"
     )
-    statusAndSign = (  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
+    statusAndSign = (  # change enums to UPPER_CASE for TKIT-75
         "StatusAndSign"
     )
-    nmeaTime = "nmeaTime"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
-    nmeaLocation = "nmeaLocation"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
-    nmeaDepth = "nmeaDepth"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
-    SystemTime = "systemTime"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
+    nmeaTime = "nmeaTime"  # change enums to UPPER_CASE for TKIT-75
+    nmeaLocation = "nmeaLocation"  # change enums to UPPER_CASE for TKIT-75
+    nmeaDepth = "nmeaDepth"  # change enums to UPPER_CASE for TKIT-75
+    SystemTime = "systemTime"  # change enums to UPPER_CASE for TKIT-75
 
 
 @dataclass
@@ -272,7 +272,6 @@ class InstrumentData:
         return pd.DataFrame(measurements)
 
 
-# pylint: disable=too-many-branches # TODO: Fix this
 def cnv_to_instrument_data(filepath: Union[Path, str]) -> InstrumentData:
     """
     Import the data from a .cnv file and put it into an InstrumentData object.
@@ -413,7 +412,7 @@ def read_hex_file(
     is_data = False
 
     # iterating over file twice in order to preallocate arrays
-    # pylint: disable=consider-using-with # TODO: Fix this
+    # TODO: Fix this
     file = open(filepath, "r", encoding="utf-8")
     for line in file:
         if is_data and not (line == "" or line.startswith("\n") or line.startswith("\r")):
@@ -492,7 +491,7 @@ def read_hex(
     is_shallow=True,
     frequency_channels_suppressed=0,
     voltage_words_suppressed=0,
-    hex=hex,  # pylint: disable=redefined-builtin
+    hex=hex,
 ) -> dict:
     """Converts an instrument data hex string into engineering units.
 
@@ -716,7 +715,7 @@ def read_seafet_format_0(
 
 
 # TODO: change this to be snake_case for TKIT-75
-def read_SBE911plus_format_0(  # pylint: disable=invalid-name
+def read_SBE911plus_format_0(
     hex_segment: str = "",
     enabled_sensors: list["Sensors"] | None = None,
     frequency_channels_suppressed: int = 0,
@@ -897,12 +896,12 @@ def read_SBE911plus_format_0(  # pylint: disable=invalid-name
 
 
 # TODO: change the following fn name to be snake_case for TKIT-75
-# pylint: disable=invalid-name,too-many-branches,too-many-statements # TODO: Fix these
+# TODO: Fix these
 def read_SBE19plus_format_0(
     hex_segment: str = "",
     enabled_sensors: List[Sensors] | None = None,
     moored_mode=False,
-    hex=hex,  # pylint: disable=redefined-builtin
+    hex=hex,
 ) -> Dict[str, Union[float, datetime]]:
     """Converts a 19plus V2 data hex string into engineering units.
 
@@ -1068,10 +1067,10 @@ def read_SBE19plus_format_0(
 
 
 # TODO: change this to be snake_case for TKIT-75
-def read_SBE37SM_format_0(  # pylint: disable=invalid-name
+def read_SBE37SM_format_0(
     hex_segment: str = "",
     enabled_sensors: List[Sensors] | None = None,
-    hex=hex,  # pylint: disable=redefined-builtin
+    hex=hex,
 ) -> Dict[str, Union[int, float, datetime]]:
     """Converts a 37 family data hex string into engineering units.
 

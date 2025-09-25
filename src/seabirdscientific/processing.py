@@ -153,8 +153,8 @@ def align_ctd(
 
 
 def cell_thermal_mass(
-    temperature_C: np.ndarray,  # pylint: disable=invalid-name #TODO: change this to be snake_case for TKIT-75
-    conductivity_Sm: np.ndarray,  # pylint: disable=invalid-name #TODO: change this to be snake_case for TKIT-75
+    temperature_C: np.ndarray,  # TODO: change this to be snake_case for TKIT-75
+    conductivity_Sm: np.ndarray,  # TODO: change this to be snake_case for TKIT-75
     amplitude: float,
     time_constant: float,
     sample_interval: float,
@@ -898,7 +898,6 @@ def flag_data(*args, **kwargs):
     return _flag_data(*args, **kwargs)
 
 
-# pylint: disable=too-many-branches # TODO: Fix this
 def window_filter(
     data_in: np.ndarray,
     flags: np.ndarray,
