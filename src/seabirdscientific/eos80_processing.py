@@ -3,7 +3,6 @@
 
 """EOS80 functions to support legacy processing"""
 
-
 import numpy as np
 from scipy import stats
 

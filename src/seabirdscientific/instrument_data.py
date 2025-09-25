@@ -227,9 +227,7 @@ class Sensors(Enum):
     SeaFET = "SeaFET"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
     SPAR = "SPAR"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
     # nmea devices
-    nmeaLatitude = (
-        "nmeaLatitude"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
-    )
+    nmeaLatitude = "nmeaLatitude"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
     nmeaLongitude = (  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
         "nmeaLongitude"
     )
@@ -237,15 +235,9 @@ class Sensors(Enum):
         "StatusAndSign"
     )
     nmeaTime = "nmeaTime"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
-    nmeaLocation = (
-        "nmeaLocation"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
-    )
-    nmeaDepth = (
-        "nmeaDepth"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
-    )
-    SystemTime = (
-        "systemTime"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
-    )
+    nmeaLocation = "nmeaLocation"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
+    nmeaDepth = "nmeaDepth"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
+    SystemTime = "systemTime"  # pylint: disable=invalid-name # change enums to UPPER_CASE for TKIT-75
 
 
 @dataclass
@@ -281,7 +273,7 @@ class InstrumentData:
 
 
 # pylint: disable=too-many-branches # TODO: Fix this
-def cnv_to_instrument_data(filepath: Path) -> InstrumentData:
+def cnv_to_instrument_data(filepath: Union[Path, str]) -> InstrumentData:
     """
     Import the data from a .cnv file and put it into an InstrumentData object.
 
@@ -393,13 +385,13 @@ def fix_exponents(values: List[str]) -> List[str]:
 
     del_indices = [n + 1 for n, value in enumerate(values) if value.endswith("e")]
     for n in del_indices:
-        values[n - 1] = f"{values[n-1]}{values[n]}"
+        values[n - 1] = f"{values[n - 1]}{values[n]}"
     new_values = list(np.delete(values, del_indices))
     return new_values
 
 
 def read_hex_file(
-    filepath: str,
+    filepath: Union[Path, str],
     instrument_type: InstrumentType,
     enabled_sensors: List[Sensors] = [],
     moored_mode=False,
@@ -518,42 +510,43 @@ def read_hex(
     if hex is not builtins.hex:
         warnings.warn("hex is deprecated, use hex_segment", DeprecationWarning)
 
-    match instrument_type:
-        case InstrumentType.SBE19Plus:
-            return read_SBE19plus_format_0(hex_segment, enabled_sensors, moored_mode)
-        case InstrumentType.SBE16Plus:
-            return read_SBE19plus_format_0(hex_segment, enabled_sensors, True)
+    if instrument_type == InstrumentType.SBE19Plus:
+        return read_SBE19plus_format_0(hex_segment, enabled_sensors, moored_mode)
 
-        case (
-            InstrumentType.SBE37IM
-            | InstrumentType.SBE37IMP
-            | InstrumentType.SBE37IMPODO
-            | InstrumentType.SBE37IM
-            | InstrumentType.SBE37SI
-            | InstrumentType.SBE37SIP
-            | InstrumentType.SBE37SM
-            | InstrumentType.SBE37SMP
-            | InstrumentType.SBE37SMPODO
-            | InstrumentType.HydroCAT
-            | InstrumentType.HydroCATODO
-        ):
-            return read_SBE37SM_format_0(hex_segment, enabled_sensors)
+    elif instrument_type == InstrumentType.SBE16Plus:
+        return read_SBE19plus_format_0(hex_segment, enabled_sensors, True)
 
-        case InstrumentType.SBE39Plus | InstrumentType.SBE39PlusIM:
-            return read_SBE39plus_format_0(hex_segment, enabled_sensors)
+    elif instrument_type in [
+        InstrumentType.SBE37IM,
+        InstrumentType.SBE37IMP,
+        InstrumentType.SBE37IMPODO,
+        InstrumentType.SBE37IM,
+        InstrumentType.SBE37SI,
+        InstrumentType.SBE37SIP,
+        InstrumentType.SBE37SM,
+        InstrumentType.SBE37SMP,
+        InstrumentType.SBE37SMPODO,
+        InstrumentType.HydroCAT,
+        InstrumentType.HydroCATODO,
+    ]:
+        return read_SBE37SM_format_0(hex_segment, enabled_sensors)
 
-        case InstrumentType.SeaFET2 | InstrumentType.SeapHox2:
-            return read_seafet_format_0(hex_segment, instrument_type, is_shallow)
-        case InstrumentType.SBE911Plus:
-            return read_SBE911plus_format_0(
-                hex_segment,
-                enabled_sensors,
-                frequency_channels_suppressed,
-                voltage_words_suppressed,
-            )
+    elif instrument_type in [InstrumentType.SBE39Plus, InstrumentType.SBE39PlusIM]:
+        return read_SBE39plus_format_0(hex_segment, enabled_sensors)
 
-        case _:
-            raise ValueError(f"Unsupported instrument type: {instrument_type}")
+    elif instrument_type in [InstrumentType.SeaFET2, InstrumentType.SeapHox2]:
+        return read_seafet_format_0(hex_segment, instrument_type, is_shallow)
+
+    elif instrument_type == InstrumentType.SBE911Plus:
+        return read_SBE911plus_format_0(
+            hex_segment,
+            enabled_sensors,
+            frequency_channels_suppressed,
+            voltage_words_suppressed,
+        )
+
+    else:
+        raise ValueError(f"Unsupported instrument type: {instrument_type}")
 
     return {}
 
@@ -843,9 +836,10 @@ def read_SBE911plus_format_0(  # pylint: disable=invalid-name
             lon = lon_sign * (byte3 * 65536 + byte4 * 256 + byte5) / 50000
             return lat, lon
 
-        results[HexDataTypes.nmeaLatitude.value], results[HexDataTypes.nmeaLongitude.value] = (
-            get_lat_lon(hex_loc)
-        )
+        (
+            results[HexDataTypes.nmeaLatitude.value],
+            results[HexDataTypes.nmeaLongitude.value],
+        ) = get_lat_lon(hex_loc)
         n += HEX_LENGTH["nmeaLocation"]
 
     # NMEA Depth
