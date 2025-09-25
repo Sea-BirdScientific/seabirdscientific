@@ -38,7 +38,7 @@ data.
 import math
 from enum import Enum
 from logging import getLogger
-from typing import List, Tuple
+from typing import List
 import warnings
 
 # Third-party imports
