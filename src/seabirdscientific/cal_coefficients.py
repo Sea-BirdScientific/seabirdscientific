@@ -331,15 +331,19 @@ class PHSeaFETInternalCoefficients:
         self.kdf2 = kdf2
         if k0 is not None:
             self.k0 = k0
+            self.kdf0 = k0
             warnings.warn("k0 is deprecated, use kdf0", DeprecationWarning)
         if k2 is not None:
             self.k2 = k2
+            self.kdf2 = k2
             warnings.warn("k2 is deprecated, use kdf2", DeprecationWarning)
         if int_k0 is not None:
             self.int_k0 = int_k0
+            self.kdf0 = int_k0
             warnings.warn("int_k0 is deprecated, use kdf0", DeprecationWarning)
         if int_k2 is not None:
             self.int_k2 = int_k2
+            self.kdf2 = int_k2
             warnings.warn("int_k2 is deprecated, use kdf2", DeprecationWarning)
 
 
