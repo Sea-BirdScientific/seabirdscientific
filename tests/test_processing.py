@@ -22,7 +22,6 @@ logger = getLogger(__name__)
 
 
 class TestLowPassFilter:
-
     def test_low_pass_filter(self, request):
         expected_path = test_data / "SBE37SM-filtered.asc"
         expected = pd.read_csv(expected_path)["Tv290C"].values
@@ -35,6 +34,127 @@ class TestLowPassFilter:
         request.node.return_value = filtered.tolist()
 
         assert np.allclose(expected, filtered, rtol=0, atol=1e-4)
+
+
+class TestAlignCtdFathomCases:
+    # Test align CTD with same test data as Fathom
+    def test_align_ctd_basic_forward(self, request):
+        badFlagValue = -9.99e-29
+
+        align_cases = [
+            # Basic forward align cases
+            [
+                np.array([0, 15, 30, 45, 60, 75, 90, 105]),  # original
+                15,  # offset
+                15,  # sample interval
+                np.array([15, 30, 45, 60, 75, 90, 105, badFlagValue]),  # expected
+            ],
+            [
+                np.array([0, 15, 30, 45, 60, 75, 90, 105]),
+                10,
+                15,
+                np.array([10, 25, 40, 55, 70, 85, 100, badFlagValue]),
+            ],
+            [
+                np.array([0, 15, 30, 45, 60, 75, 90, 105]),
+                5,
+                15,
+                np.array([5, 20, 35, 50, 65, 80, 95, badFlagValue]),
+            ],
+            [
+                np.array([0, 15, 30, 45, 60, 75, 90, 105]),
+                0,
+                15,
+                np.array([0, 15, 30, 45, 60, 75, 90, 105]),
+            ],
+            [
+                np.array([0, 15, 30, 45, 60, 75, 90, 105]),
+                11.575,
+                15,
+                np.array([11.575, 26.575, 41.575, 56.575, 71.575, 86.575, 101.575, badFlagValue]),
+            ],
+            # Advanced forward align cases
+            [
+                np.array([0, 15, 30, 45, 60, 75, 90, 105]),
+                30,
+                15,
+                np.array([30, 45, 60, 75, 90, 105, badFlagValue, badFlagValue]),
+            ],
+            [
+                np.array([0, 15, 30, 45, 60, 75, 90, 105]),
+                20,
+                15,
+                np.array([20, 35, 50, 65, 80, 95, badFlagValue, badFlagValue]),
+            ],
+            [
+                np.array([0, 15, 30, 45, 60, 75, 90, 105]),
+                106,
+                15,
+                np.array([badFlagValue] * 8),
+            ],
+            [
+                np.array([0, 15, 30, 45, 60, 75, 90, 105]),
+                60,
+                15,
+                np.array(
+                    [60, 75, 90, 105, badFlagValue, badFlagValue, badFlagValue, badFlagValue]
+                ),
+            ],
+            [
+                np.array([0, 15, 30, 45, 60, 75, 90, 105]),
+                130,
+                15,
+                np.array([badFlagValue] * 8),
+            ],
+            # Basic backwards align cases
+            [
+                np.array([0, 15, 30, 45, 60, 75, 90, 105]),
+                -15,
+                15,
+                np.array([badFlagValue, 0, 15, 30, 45, 60, 75, 90]),
+            ],
+            [
+                np.array([0, 15, 30, 45, 60, 75, 90, 105]),
+                -10,
+                15,
+                np.array([badFlagValue, 5, 20, 35, 50, 65, 80, 95]),
+            ],
+            [
+                np.array([0, 15, 30, 45, 60, 75, 90, 105]),
+                -5,
+                15,
+                np.array([badFlagValue, 10, 25, 40, 55, 70, 85, 100]),
+            ],
+            # Advanced backwards align cases
+            [
+                np.array([0, 15, 30, 45, 60, 75, 90, 105]),
+                -30,
+                15,
+                np.array([badFlagValue, badFlagValue, 0, 15, 30, 45, 60, 75]),
+            ],
+            [
+                np.array([0, 15, 30, 45, 60, 75, 90, 105]),
+                -20,
+                15,
+                np.array([badFlagValue, badFlagValue, 10, 25, 40, 55, 70, 85]),
+            ],
+            [
+                np.array([0, 15, 30, 45, 60, 75, 90, 105]),
+                -106,
+                15,
+                np.array([badFlagValue] * 8),
+            ],
+            [
+                np.array([0, 15, 30, 45, 60, 75, 90, 105]),
+                -130,
+                15,
+                np.array([badFlagValue] * 8),
+            ],
+        ]
+
+        for case in align_cases:
+            result = p.align_ctd(case[0], case[1], case[2])
+            assert np.array_equal(case[3], result)
 
 
 class TestAlignCtd:
@@ -453,7 +573,7 @@ class TestBinAverage:
         for variable in expected.columns:
             tolerance = get_tolerance(expected[variable])
             assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=tolerance)
-    
+
     def test_bin_average_interpolate_surface(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
         source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_binavg_interp_surface.cnv"
@@ -643,6 +763,21 @@ class TestBinAverage:
         binavg = p.bin_average(
             dataset = data,
             bin_variable = 'timeS',
+            bin_size = 10,
+            cast_type = p.CastType.NA
+        )
+        for variable in expected.columns:
+            tolerance = get_tolerance(expected[variable])
+            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=tolerance)
+
+    def test_bin_average_scan(self, request):
+        source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
+        source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_binavg_scan.cnv"
+        data = idata.cnv_to_instrument_data(source_in)._to_dataframe()
+        expected = idata.cnv_to_instrument_data(source_out)._to_dataframe()
+        binavg = p.bin_average(
+            dataset = data,
+            bin_variable = 'nScan',
             bin_size = 10,
             cast_type = p.CastType.NA
         )

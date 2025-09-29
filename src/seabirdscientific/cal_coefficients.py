@@ -292,39 +292,72 @@ class SPARCoefficients:
     conversion_factor: float
 
 
+@dataclass
+class TemperatureSeaFETCoefficients:
+    """
+    :param tdfa0: temeperature coefficient
+    :param tdfa1: temeperature coefficient
+    :param tdfa2: temeperature coefficient
+    :param tdfa3: temeperature coefficient
+    """
+
+    tdfa0: float
+    tdfa1: float
+    tdfa2: float
+    tdfa3: float
+
+
 class PHSeaFETInternalCoefficients:
     """
-    :param k0: K0 coefficient
-    :param k2: K2 coefficient
-    :param int_k0: Deprecated, use k0
-    :param int_k2: Deprecated, use k2
+    :param kdf0: internal K0 coefficient
+    :param kdf2: internal K2 coefficient
+
+    :param k0: Deprecated, use kdf0
+    :param k2: Deprecated, use kdf2
+    :param int_k0: Deprecated, use kdf0
+    :param int_k2: Deprecated, use kdf2
     """
 
     def __init__(
         self,
-        k0: float = 0,
-        k2: float = 0,
+        kdf0: float = 0,
+        kdf2: float = 0,
+        k0: Optional[float] = None,
+        k2: Optional[float] = None,
         int_k0: Optional[float] = None,
         int_k2: Optional[float] = None,
     ):
-        self.k0 = k0
-        self.k2 = k2
+        self.kdf0 = kdf0
+        self.kdf2 = kdf2
+        if k0 is not None:
+            self.k0 = k0
+            self.kdf0 = k0
+            warnings.warn("k0 is deprecated, use kdf0", DeprecationWarning)
+        if k2 is not None:
+            self.k2 = k2
+            self.kdf2 = k2
+            warnings.warn("k2 is deprecated, use kdf2", DeprecationWarning)
         if int_k0 is not None:
             self.int_k0 = int_k0
-            self.k0 = int_k0
-            warnings.warn("int_k0 is deprecated, use k0", DeprecationWarning)
+            self.kdf0 = int_k0
+            warnings.warn("int_k0 is deprecated, use kdf0", DeprecationWarning)
         if int_k2 is not None:
             self.int_k2 = int_k2
-            self.k2 = int_k2
-            warnings.warn("int_k2 is deprecated, use k2", DeprecationWarning)
+            self.kdf2 = int_k2
+            warnings.warn("int_k2 is deprecated, use kdf2", DeprecationWarning)
 
 
 class PHSeaFETExternalCoefficients:
     """
-    :param k0: K0 coefficient
-    :param k2: K2 coefficient
-    :param ext_k0: Deprecated, use k0
-    :param ext_k2: Deprecated, use k2
+    :param k0: external K0 coefficient
+    :param k2: external K2 coefficient
+    :param k2_poly_order: order of K2 pressure compensation calculation
+    :param k2f0: f(P) coefficient
+    :param k2f1: f(P) coefficient
+    :param k2f2: f(P) coefficient
+    :param k2f3: f(P) coefficient
+    :param fp_poly_order: order of pressure compensation calculation
+    :param f0: f(P) coefficient
     :param f1: f(P) coefficient
     :param f2: f(P) coefficient
     :param f3: f(P) coefficient
@@ -337,6 +370,13 @@ class PHSeaFETExternalCoefficients:
         self,
         k0: float = 0,
         k2: float = 0,
+        k2_poly_order=0,
+        k2f0: float = 0,
+        k2f1: float = 0,
+        k2f2: float = 0,
+        k2f3: float = 0,
+        fp_poly_order: float = 0,
+        f0: float = 0,
         f1: float = 0,
         f2: float = 0,
         f3: float = 0,
@@ -348,6 +388,13 @@ class PHSeaFETExternalCoefficients:
     ):
         self.k0 = k0
         self.k2 = k2
+        self.k2_poly_order = k2_poly_order
+        self.k2f0 = k2f0
+        self.k2f1 = k2f1
+        self.k2f2 = k2f2
+        self.k2f3 = k2f3
+        self.fp_poly_order = fp_poly_order
+        self.f0 = f0
         self.f1 = f1
         self.f2 = f2
         self.f3 = f3
@@ -358,11 +405,11 @@ class PHSeaFETExternalCoefficients:
         if ext_k0 is not None:
             self.ext_k0 = ext_k0
             self.k0 = ext_k0
-            warnings.warn("int_k0 is deprecated, use k0", DeprecationWarning)
+            warnings.warn("ext_k0 is deprecated, use k0", DeprecationWarning)
         if ext_k2 is not None:
             self.ext_k2 = ext_k2
             self.k2 = ext_k2
-            warnings.warn("int_k2 is deprecated, use k2", DeprecationWarning)
+            warnings.warn("ext_k2 is deprecated, use k2", DeprecationWarning)
 
 
 @dataclass

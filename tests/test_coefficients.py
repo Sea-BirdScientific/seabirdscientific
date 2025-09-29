@@ -239,8 +239,8 @@ par_coefs_sn0411 = PARCoefficients(
 spar_coefs = SPARCoefficients(im=2.2, a0=1, a1=2, conversion_factor=1.5596e3)
 
 ph_seafet_internal_coefs = PHSeaFETInternalCoefficients(
-    k0=-1.354051,
-    k2=-0.001272858,
+    kdf0=-1.354051,
+    kdf2=-0.001272858,
 )
 
 ph_seafet_external_coefs = PHSeaFETExternalCoefficients(

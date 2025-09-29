@@ -34,13 +34,12 @@ dependencies = [
 # For dev environment created with venv and pip
 [project.optional-dependencies]
 dev = [
+  "build",
   "nbformat",
   "notebook",
   "pytest",
   "pytest-cov",
-  "black==25.1.0",
-  "pylint",
-  "build"
+  "ruff",
 ]
 
 # For dev environment created with UV
@@ -52,7 +51,6 @@ dev = [
   "pytest-cov"
 ]
 
-
 [project.urls]
 Homepage = "https://www.seabird.com/software"
 Repository = "https://github.com/Sea-BirdScientific/seabirdscientific"
@@ -63,23 +61,35 @@ requires = [
   "setuptools>=61",
 ]
 
-[tool.black]
-line-length=99
-exclude = '''
-/(
-    CONTRIBUTING\.md
-  | README\.md
-  | venv
-  | \.venv
-  | build
-  | dist
-)/
-'''
-
 [tool.mypy]
-disable_error_code = ["import-untyped"]
+ignore_missing_imports = true
+exclude = [
+  ".git",
+  ".github",
+  ".mypy_cache",
+  ".pytest_cache",
+  ".ruff_cache",
+  ".venv",
+  ".vscode",
+  "build",
+  "dist",
+]
 
 [tool.coverage.run]
 omit = [
   "interpret_sbs_variable.py"
+]
+
+[tool.ruff]
+line-length=99
+exclude = [
+  ".git",
+  ".github",
+  ".mypy_cache",
+  ".pytest_cache",
+  ".ruff_cache",
+  ".venv",
+  ".vscode",
+  "build",
+  "dist",
 ]

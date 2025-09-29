@@ -3,7 +3,7 @@ import os
 from pathlib import Path
 
 
-RESULTS_PATH = Path(f"./tests/results/py_values.json")
+RESULTS_PATH = Path("./tests/results/py_values.json")
 
 
 def pytest_configure(config):
