@@ -3,37 +3,7 @@
 
 """A collection of raw data conversion functions."""
 
-# Functions:
-#     convert_temperature (np.ndarray, TemperatureCoefficients, str, str, bool)
-#     convert_pressure ( np.ndarray, np.ndarray, PressureCoefficients, str)
-#     convert_conductivity (np.ndarray, np.ndarray, np.ndarray, ConductivityCoefficients)
-#     potential_density_from_t_s_p (np.ndarray, np.ndarray, np.ndarray, float, float, float)
-#     potential_density_from_t_c_p (np.ndarray, np.ndarray, np.ndarray, float, float, float)
-#     density_from_t_s_p (np.ndarray, np.ndarray, np.ndarray, float, float)
-#     density_from_t_c_p (np.ndarray, np.ndarray, np.ndarray, float, float)
-#     depth_from_pressure (np.ndarray, float, depth_units="m", pressure_units="dbar")
-#     convert_sbe63_oxygen (
-#         np.ndarray, np.ndarray, np.ndarray, np.ndarray,
-#         Oxygen63Coefficients, Thermistor63Coefficients, str
-#     )
-#     convert_sbe63_thermistor (np.ndarray, Thermistor63Coefficients)
-#     convert_sbe43_oxygen (
-#         np.ndarray, np.ndarray, np.ndarray, np.ndarray,
-#         Oxygen43Coefficients, bool, bool, float, float
-#     )
-#     convert_oxygen_to_mg_per_l (np.ndarray)
-#     convert_oxygen_to_umol_per_kg (np.ndarray, np.ndarray)
-#     convert_eco_chlorophylla_val (float, ChlorophyllACoefficients)
-#     convert_eco_turbidity_val (float, TurbidityCoefficients)
-#     convert_sbe18_ph_val(float, float, PH18Coefficients)
-#     convert_par_logarithmic_val(float, PARCoefficients)
-#     convert_nitrate(np.ndarray, float, float, str)
-#     convert_ph_voltage_counts(np.ndarray)
-#     convert_internal_seafet_ph(np.ndarray, temperature: np.ndarray, PHSeaFETInternalCoefficients)
-#     convert_external_seafet_ph(
-#         np.ndarray, np.ndarray, np.ndarray, np.ndarray,
-#         PHSeaFETExternalCoefficients
-#     )
+
 
 # Native imports
 from math import e, floor
@@ -49,24 +19,7 @@ from scipy import stats
 # Sea-Bird imports
 
 # Internal imports
-from seabirdscientific.cal_coefficients import (
-    ConductivityCoefficients,
-    Oxygen43Coefficients,
-    Oxygen63Coefficients,
-    PARCoefficients,
-    PH18Coefficients,
-    PHSeaFETInternalCoefficients,
-    PHSeaFETExternalCoefficients,
-    TemperatureSeaFETCoefficients,
-    PressureCoefficients,
-    PressureDigiquartzCoefficients,
-    TemperatureCoefficients,
-    TemperatureFrequencyCoefficients,
-    Thermistor63Coefficients,
-    ECOCoefficients,
-    AltimeterCoefficients,
-    SPARCoefficients,
-)
+import seabirdscientific.cal_coefficients as cc
 
 
 DBAR_TO_PSI = 1.450377
@@ -88,7 +41,7 @@ F = 96485.365
 
 def convert_temperature(
     temperature_counts_in: np.ndarray,
-    coefs: TemperatureCoefficients,
+    coefs: cc.TemperatureCoefficients,
     standard: Literal["ITS90", "IPTS68"] = "ITS90",
     units: Literal["C", "F"] = "C",
     use_mv_r: bool = False,
@@ -131,7 +84,7 @@ def convert_temperature(
 
 def convert_temperature_frequency(
     frequency: np.ndarray,
-    coefs: TemperatureFrequencyCoefficients,
+    coefs: cc.TemperatureFrequencyCoefficients,
     standard: Literal["ITS90", "IPTS68"] = "ITS90",
     units: Literal["C", "F"] = "C",
 ):
@@ -157,7 +110,7 @@ def convert_temperature_frequency(
 def convert_pressure(
     pressure_count: np.ndarray,
     compensation_voltage: np.ndarray,
-    coefs: PressureCoefficients,
+    coefs: cc.PressureCoefficients,
     units: Literal["dbar", "psia", "psig"] = "psig",
 ):
     """Converts pressure counts to sea pressure (psig and dbar) and absolute pressure (psia)
@@ -197,7 +150,7 @@ def convert_pressure(
 def convert_pressure_digiquartz(
     pressure_count: np.ndarray,
     compensation_voltage: np.ndarray,
-    coefs: PressureDigiquartzCoefficients,
+    coefs: cc.PressureDigiquartzCoefficients,
     units: Literal["dbar", "psia"],
     sample_interval: float,
 ):
@@ -268,7 +221,7 @@ def convert_conductivity(
     conductivity_count: np.ndarray,
     temperature: np.ndarray,
     pressure: np.ndarray,
-    coefs: ConductivityCoefficients,
+    coefs: cc.ConductivityCoefficients,
     scalar: float = 1.0,
 ):
     """Converts raw conductivity counts to S/m.
@@ -430,8 +383,8 @@ def convert_sbe63_oxygen(
     thermistor: np.ndarray,
     pressure: np.ndarray,
     salinity: np.ndarray,
-    coefs: Oxygen63Coefficients,
-    thermistor_coefs: Thermistor63Coefficients,
+    coefs: cc.Oxygen63Coefficients,
+    thermistor_coefs: cc.Thermistor63Coefficients,
     thermistor_units: Literal["volts", "C"] = "volts",  # Is this volts or frequency?
 ):
     """Returns the data after converting it to ml/l.
@@ -446,9 +399,9 @@ def convert_sbe63_oxygen(
         dbar
     :param salinity: Converted salinity value from the attached CTD, in
         practical salinity PSU
-    :param coefs (Oxygen63Coefficients): calibration coefficients for
+    :param coefs (cc.Oxygen63Coefficients): calibration coefficients for
         the SBE63 sensor
-    :param thermistor_coefs (Thermistor63Coefficients): calibration coefficients for
+    :param thermistor_coefs (cc.Thermistor63Coefficients): calibration coefficients for
         the SBE63 thermistor sensor
     :param thermistor_units: units of thermistor_temp input
 
@@ -495,7 +448,7 @@ def convert_sbe63_oxygen(
 
 def convert_sbe63_thermistor(
     instrument_output: np.ndarray,
-    coefs: Thermistor63Coefficients,
+    coefs: cc.Thermistor63Coefficients,
 ):
     """Converts a SBE63 thermistor raw output array to temperature in
     ITS-90 deg C.
@@ -519,7 +472,7 @@ def convert_sbe43_oxygen(
     temperature: np.ndarray,
     pressure: np.ndarray,
     salinity: np.ndarray,
-    coefs: Oxygen43Coefficients,
+    coefs: cc.Oxygen43Coefficients,
     apply_tau_correction: bool = False,
     apply_hysteresis_correction: bool = False,
     window_size: float = 1,
@@ -595,7 +548,7 @@ def _convert_sbe43_oxygen(
     temperature: np.ndarray,
     pressure: np.ndarray,
     salinity: np.ndarray,
-    coefs: Oxygen43Coefficients,
+    coefs: cc.Oxygen43Coefficients,
     dvdt_value: np.ndarray,
 ):
     """Returns the data after converting it to ml/l.
@@ -689,7 +642,7 @@ def convert_oxygen_to_umol_per_kg(ox_values: np.ndarray, potential_density: np.n
 
 def convert_eco(
     raw: np.ndarray,
-    coefs: ECOCoefficients,
+    coefs: cc.ECOCoefficients,
 ):
     """Converts a raw value for any ECO measurand.
 
@@ -706,7 +659,7 @@ def convert_eco(
 def convert_sbe18_ph(
     raw_ph: np.ndarray,
     temperature: np.ndarray,
-    coefs: PH18Coefficients,
+    coefs: cc.PH18Coefficients,
 ):
     """Converts a raw voltage value for pH.
 
@@ -727,7 +680,7 @@ def convert_sbe18_ph(
 
 def convert_par_logarithmic(
     volts: np.ndarray,
-    coefs: PARCoefficients,
+    coefs: cc.PARCoefficients,
 ):
     """Converts a raw voltage value for underwater PAR.
 
@@ -748,7 +701,7 @@ def convert_par_logarithmic(
 
 def convert_spar_logarithmic(
     volts: np.ndarray,
-    coefs: SPARCoefficients,
+    coefs: cc.SPARCoefficients,
 ):
     """Converts a raw voltage value for logarithmic surface PAR.
 
@@ -769,7 +722,7 @@ def convert_spar_logarithmic(
 
 def convert_spar_linear(
     volts: np.ndarray,
-    coefs: SPARCoefficients,
+    coefs: cc.SPARCoefficients,
 ):
     """Converts a raw voltage value for linear surface PAR.
 
@@ -789,7 +742,7 @@ def convert_spar_linear(
 
 def convert_spar_biospherical(
     volts: np.ndarray,
-    coefs: SPARCoefficients,
+    coefs: cc.SPARCoefficients,
 ):
     """Converts a raw voltage value for biospherical surface PAR.
 
@@ -858,7 +811,7 @@ def _calculate_nernst(temperature: np.ndarray) -> np.ndarray:
 def convert_internal_seafet_ph(
     raw_ph: np.ndarray = 0,
     temperature: np.ndarray = 0,
-    coefs: PHSeaFETInternalCoefficients = PHSeaFETInternalCoefficients(),
+    coefs: cc.PHSeaFETInternalCoefficients = cc.PHSeaFETInternalCoefficients(),
     ph_units: Literal["counts", "volts"] = "counts",
     ph_counts: np.ndarray = None,
 ):
@@ -882,7 +835,7 @@ def convert_internal_seafet_ph(
         ph_volts = raw_ph
 
     nernst = _calculate_nernst(temperature + KELVIN_OFFSET_0C)
-    ph = (ph_volts - coefs.k0 - coefs.k2 * temperature) / nernst
+    ph = (ph_volts - coefs.kdf0 - coefs.kdf2 * temperature) / nernst
     return ph
 
 
@@ -1033,7 +986,7 @@ def _acid_dissociation_constant_of_hso4_tp(
     return k_stp
 
 
-def _pressure_response(pressure: np.ndarray, coefs: PHSeaFETExternalCoefficients):
+def _pressure_response(pressure: np.ndarray, coefs: cc.PHSeaFETExternalCoefficients):
     """The sensor pressure response function from SBS application note
     99.
 
@@ -1086,7 +1039,7 @@ def convert_external_seafet_ph(
     temperature: np.ndarray = 0,
     salinity: np.ndarray = 0,
     pressure: np.ndarray = 0,
-    coefs: PHSeaFETExternalCoefficients = PHSeaFETExternalCoefficients(),
+    coefs: cc.PHSeaFETExternalCoefficients = cc.PHSeaFETExternalCoefficients(),
     ph_units: Literal["counts", "volts"] = "counts",
     formula_version: Literal['legacy', '1.3'] = '1.3',
     ph_counts: np.ndarray = None,
@@ -1149,7 +1102,7 @@ def convert_external_seafet_ph(
     return ph
 
 
-def convert_seafet_temperature(raw_temp, coefs: TemperatureSeaFETCoefficients):
+def convert_seafet_temperature(raw_temp, coefs: cc.TemperatureSeaFETCoefficients):
     """Converts the raw SeaFET temperature value to ITS-90 Celsius.
 
     :param raw_temp: raw temperature values
@@ -1210,7 +1163,7 @@ def convert_seafet_relative_humidity(humidity_counts: np.ndarray, temperature: n
 
 def convert_altimeter(
     volts: np.ndarray,
-    coefs: AltimeterCoefficients,
+    coefs: cc.AltimeterCoefficients,
 ):
     """Converts a raw voltage value for altimeter.
 
