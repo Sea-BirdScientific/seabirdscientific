@@ -43,6 +43,7 @@ import warnings
 # Third-party imports
 import gsw
 import numpy as np
+from numpy.polynomial import Polynomial
 from scipy import stats
 
 # Sea-Bird imports
@@ -885,275 +886,26 @@ def convert_internal_seafet_ph(
     return ph
 
 
-# TODO: break this function up
-def convert_external_seafet_ph(
-    ph_counts: np.ndarray,
-    temperature: np.ndarray,
-    salinity: np.ndarray,
-    pressure: np.ndarray,
-    coefs: PHSeaFETExternalCoefficients,
-):
-    """Calculates the external pH on the total scale given temperature,
-    salinity, pressure and FET voltage counts
+def _calculate_thermal_pressure(temperature: np.ndarray, pressure: np.ndarray):
+    """ThermPress at in-situ
+    Thermpress = (-V_Cl x P + 0.5 K_Cl x P^2)/10F
+    Where,
+    P: Pressure in 'bar'
+    V_Cl: Chloride partial molal volume (in cm^3 mol^-1)
+    K_Cl: Chloride partial molal compressibility
+    (in cm^3 mol^-1 bar^-1) (can be neglected [4, pg. 876])
 
-    :param ph_counts: ISFET external voltage counts
-    :param temperature: sample temperature in Celsius
-    :param salinity: sample salinity in psu
-    :param pressure: sample pressure in dbar
+    :param temperature: temperature in C
+    :param pressure: pressure in bar
+    :return: thermal pressure
     """
+    # // Partial molal volume and compressibility change for HCl from Millero
+    delta_vhcl = _partial_molal_hcl_volume(temperature)
 
-    warnings.warn("Deprecated, use convert_external_shallow_ph", DeprecationWarning)
+    # // Thermpress term
+    thermal_pressure = -delta_vhcl * 0.0242 / (23061 * 1.01) * pressure
 
-    ts_cr = 0.14  # relative concentration of sulfate in SW
-    ts_mm = 96.062  # [g/mol] molar mass of sulfate
-    cl_cr = 0.99889  # relative concentration of chloride in SW
-    cl_mm = 35.453  # [g/mol] molar mass of chloride
-    cl_to_s = 1.80655  # [ppt, 10^{-3}] Chlorinity to Salinity
-
-    def _molar_concentration(concentration: float, molar_mass: float, salinity: np.ndarray):
-        """
-        An estimate of constituent concentration in seawater is made
-        from salinity on the basis of contancy of composition.
-
-        :param concentration: Relative concentration of constituent
-        :param molar_mass: Molar mass of constituent
-        :param salinity: Salinity in PSU
-        :return: molar concentration
-        """
-        return (concentration / molar_mass) * (salinity / cl_to_s)
-
-    def _molar_conc_chloride(salinity: np.ndarray):
-        """Calculates the molar concentration of chloride
-
-        :param salinity: Salinity in PSU
-        :return: molar concentration of chloride
-        """
-        return _molar_concentration(cl_cr, cl_mm, salinity) * 1000 / (1000 - 1.005 * salinity)
-
-    def _molar_conc_sulfate(salinity: np.ndarray):
-        """Calculates the molar concentration of total sulfate
-
-        :param salinity: Salinity in PSU
-        :return: molar concentration of sulfate
-        """
-        return _molar_concentration(ts_cr, ts_mm, salinity)
-
-    def _calculate_ionic_strength(salinity: np.ndarray):
-        """Compute Salinity Ionic strength
-        Ionic Strength (mol/kg H2O) from Dickson "Guide to Best
-        Practices for Ocean CO2 Measurements", 2007, Chapter 5, page 11
-
-        :param salinity: Salinity in PSU
-        :return: Salinity ionic strength
-        """
-        c0 = 19.924
-        c1 = 1000
-        c2 = 1.005
-
-        # 19.924*(S) / (1000 - 1.005*(S))
-        ionic_strength = c0 * salinity / (c1 - c2 * salinity)
-        return ionic_strength
-
-    def _calculate_ks(
-        temperature: np.ndarray,
-        ionic_strength: np.ndarray,
-        salinity: np.ndarray,
-        pressure: np.ndarray,
-    ):
-        """Dissociation constant of sulfuric acid in seawater
-        Dickson, A. G., J. Chemical Thermodynamics, 22:113-127, 1990
-        The goodness of fit is .021.
-        It was given in mol/kg-H2O. I convert it to mol/kg-SW.
-        TYPO on p. 121: the constant e9 should be e8.
-        This is from eqs 22 and 23 on p. 123, and Table 4 on p 121:
-
-        :param temperature: Temperature in kelvin
-        :param ionic_strength: Ionic strength
-        :param salinity: Salinity in PSU
-        :param pressure: Pressure in dbar
-        :return: Dissociation constant of sulfuric acid in seawater
-        """
-
-        # *********** this should be re-tested
-        c0 = -4276.1
-        c1 = 141.328
-        c2 = -23.093
-        c3 = -13856
-        c4 = 324.57
-        c5 = -47.986
-        c6 = 35474
-        c7 = -771.54
-        c8 = 114.723
-        c9 = -2698
-        c10 = 1776
-
-        ln_ks = (
-            c0 / temperature
-            + c1
-            + c2 * np.log(temperature)
-            + (c3 / temperature + c4 + c5 * np.log(temperature)) * np.sqrt(ionic_strength)
-            + (c6 / temperature + c7 + c8 * np.log(temperature)) * ionic_strength
-            + (c9 / temperature) * np.sqrt(ionic_strength) * ionic_strength
-            + (c10 / temperature) * np.pow(ionic_strength, 2)
-        )
-
-        # this is on the free pH scale in mol/kg-H2O
-        khso4 = np.exp(ln_ks) * (1 - 0.001005 * salinity)  # convert to mol/kg-SW
-
-        # UCI has two calculateKS functions. The first returns khso4 here,
-        # but in practice the second is always used which adds the following
-
-        temperature_c = temperature - KELVIN_OFFSET_0C
-        # Partial molal volume and compressibility change for HSO4
-        delta_vhso4 = -18.03 + 0.0466 * temperature_c + 0.000316 * temperature_c**2
-        kappa_hso4 = (-4.53 + 0.09 * temperature_c) / 1000
-
-        #  per Yui Press changed from dbar to bar here by / 10
-        ln_khso4_fac = (
-            (-delta_vhso4 + 0.5 * kappa_hso4 * (pressure / 10))
-            * (pressure / 10)
-            / (R * 10 * temperature)
-        )
-
-        #  bisulfate association constant at T, S, P
-        khso4_tps = khso4 * np.exp(ln_khso4_fac)
-
-        return khso4_tps
-
-    def _calculate_adh(temperature):
-        """Calculates the Debeye-Huckel constant (temperature [Celsius]
-        dependence only)
-
-        :param temperature: temperature in C
-        :return: Debeye-Huckel constant
-        """
-        # This fit was made by Ken Johnson from data presented by:
-        # Khoo et al. (Anal. Chem., 49, 29-34, 1977).
-        c0 = 0.49172143
-        c1 = 0.00067524
-        # Modified from 0.00000343 to 0.0000034286,
-        # email from Ken with newest version of MBARI code by Charles Branham 3/9/16
-        c2 = 0.0000034286
-
-        # 0.00000343*(t)*(t) + 0.00067524*(t) + 0.49172143
-        adh = c0 + c1 * temperature + c2 * temperature**2
-
-        return adh
-
-    def _calculate_log_gamma_hcl(
-        adh: np.ndarray, ionic_strength: np.ndarray, temperature: np.ndarray
-    ):
-        """
-        Khoo et al. (Anal. Chem., 49, 29-34, 1977).
-        log γ±(HCl) = -A·√I / (1 + ρ·√I) + (B₀ + B₁·T)·I
-        As implemented in the calibration .xls
-
-        :param adh: Debeye-Huckel constant
-        :param ionic_strength: ionic strength
-        :param temperature: Temperatur in C
-        :return: Log Gamma HCL
-        """
-        # NOTE: There is a disagreement between Ken Johnson and Yui Takeshita
-        # as to whether in-situ pressure correction is needed or already taken care of
-        # by the ThermPress term being added to E0. In email correspondence
-        # with Dave Murphy, Ken Johnson finally stated that no pressure correction
-        # should be applied to Gamma_HCl
-
-        rho = 1.394
-        b0 = 0.08885
-        b1 = 0.000111
-
-        # As per instructions of KJ, should consider the data in
-        # Dickson (J. Chem. Thermodynamics, 22, 113-127, 1990)
-        log_gamma_hcl = (
-            -1 * adh * np.sqrt(ionic_strength) / (1 + rho * np.sqrt(ionic_strength))
-            + (b0 - b1 * temperature) * ionic_strength
-        )
-
-        return log_gamma_hcl
-
-    def _calculate_thermal_pressure(temperature: np.ndarray, pressure: np.ndarray):
-        """ThermPress at in-situ
-        Thermpress = (-V_Cl x P + 0.5 K_Cl x P^2)/10F
-        Where,
-        P: Pressure in 'bar'
-        V_Cl: Chloride partial molal volume (in cm^3 mol^-1)
-        K_Cl: Chloride partial molal compressibility
-        (in cm^3 mol^-1 bar^-1) (can be neglected [4, pg. 876])
-
-        :param temperature: temperature in C
-        :param pressure: pressure in dbar
-        :return: thermal pressure
-        """
-        # // Partial molal volume and compressibility change for HCl from Millero
-        delta_vhcl = 17.85 + 0.1044 * temperature - 0.001316 * temperature**2
-
-        # // Pressure is in 'dbar' and need to divide by 10 to convert to 'bar'
-        pressure_bar = pressure / 10
-
-        # // Thermpress term
-        thermal_pressure = -delta_vhcl * 0.0242 / (23061 * 1.01) * pressure_bar
-
-        return thermal_pressure
-
-    # Intermediate terms
-    # tempK;   # Sample Temperature (K)
-    temperature_k = temperature + KELVIN_OFFSET_0C
-    # ST;        # Nernst Term
-    st = _calculate_nernst(temperature=temperature_k)
-    # mCl;       # Molar concentration of chloride
-    mcl = _molar_conc_chloride(salinity=salinity)
-    # TSO4;      # Molar concentration of total sulfate
-    tso4 = _molar_conc_sulfate(salinity=salinity)
-    # IonS;      # Salinity Ionic strength
-    ionic_strength = _calculate_ionic_strength(salinity=salinity)
-
-    adh = _calculate_adh(temperature=temperature)
-
-    log_gamma_hcl = _calculate_log_gamma_hcl(
-        adh=adh, ionic_strength=ionic_strength, temperature=temperature
-    )
-
-    thermal_pressure = _calculate_thermal_pressure(temperature=temperature, pressure=pressure)
-
-    # // Dissociation constant of sulfuric acid in seawater
-    # KSO4;      # Dissociation constant of sulfuric acid in seawater
-    # this.KSO4 = calculateKS(this.tempK, this.IonS, salinity, tempC, pressure);
-    kso4 = _calculate_ks(
-        temperature=temperature_k,
-        ionic_strength=ionic_strength,
-        salinity=salinity,
-        pressure=pressure,
-    )
-
-    ph_volts = convert_ph_voltage_counts(ph_counts)
-
-    # Eo(T) or temperature offset
-    eot = coefs.k2 * temperature
-
-    # Eo(P) or pressure offset
-    eop = (
-        coefs.f1 * pressure
-        + coefs.f2 * pressure**2
-        + coefs.f3 * pressure**3
-        + coefs.f4 * pressure**4
-        + coefs.f5 * pressure**5
-        + coefs.f6 * pressure**6
-    )
-
-    # Calculate the External pH in Free Scale, firmware applies 2 factor here.
-    # Convert pHfree(mol/kg H2O) to pHfree(mol/kg sln) per KSJ by using the
-    # ratio (1000 - 1.005 * Salinity)/1000
-    free_scale_ph = (
-        (ph_volts - eot - eop - thermal_pressure - coefs.k0) / st
-        + np.log10(mcl)
-        + (2 * log_gamma_hcl)
-        - np.log10((1000 - 1.005 * salinity) / 1000)
-    )
-
-    total_ph = free_scale_ph - np.log10(1 + tso4 / kso4)
-
-    return total_ph
+    return thermal_pressure
 
 
 def _total_chloride_in_seawater(salinity: np.ndarray) -> np.ndarray:
@@ -1167,9 +919,22 @@ def _total_chloride_in_seawater(salinity: np.ndarray) -> np.ndarray:
     # 1.80655  [ppt, 10^{-3}] Chlorinity to Salinity
     factor_1 = 0.99889 / 35.453
     factor_2 = salinity / 1.80655
-    factor_3 = 1000 / (1000 - 1.005 * salinity)
+    factor_3 = 1 / (1 - 1.005e-3 * salinity)
     total_chloride = factor_1 * factor_2 * factor_3
     return total_chloride
+
+
+def _total_sulfate_in_seawater(salinity: np.ndarray):
+    """From SBS application note 99. Calculated as (Dickson et al. 2007)
+
+    :param salinity: Salinity in PSU
+    :return: Total sulfate in seawater
+    """
+    # 0.14  relative concentration of sulfate in SW
+    # 96.062  [g/mol] molar mass of sulfate
+    # 1.80655  [ppt, 10^{-3}] Chlorinity to Salinity
+    total_sulfate = (0.14 / 96.062) * (salinity / 1.80655)
+    return total_sulfate
 
 
 def _sample_ionic_strength(salinity: np.ndarray) -> np.ndarray:
@@ -1209,17 +974,25 @@ def _log_of_hcl_activity_coefficient_of_t(salinity: np.ndarray, temperature: np.
     return log_y_hcl
 
 
-def _total_sulfate_in_seawater(salinity: np.ndarray):
-    """From SBS application note 99. Calculated as (Dickson et al. 2007)
+def _log_of_hcl_activity_coefficient_of_tp(
+    salinity: np.ndarray,
+    temperature: np.ndarray,
+    pressure: np.ndarray,
+):
+    """From SBS application note 99. Calculated as (Johnson et al. 2017)
 
     :param salinity: Salinity in PSU
-    :return: Total sulfate in seawater
+    :param temperature: Temperature in degrees C
+    :param pressure: Pressure in bar
+    :return: Logarithm of HCl activity coefficient as a function of
+        temperature and pressure
     """
-    # 0.14  relative concentration of sulfate in SW
-    # 96.062  [g/mol] molar mass of sulfate
-    # 1.80655  [ppt, 10^{-3}] Chlorinity to Salinity
-    total_sulfate = (0.14 / 96.062) * (salinity / 1.80655)
-    return total_sulfate
+    log_y_hcl = _log_of_hcl_activity_coefficient_of_t(salinity, temperature)
+    v_hcl = _partial_molal_hcl_volume(temperature)
+    t_kelvin = temperature + KELVIN_OFFSET_0C
+    term_2 = (v_hcl * pressure) / (np.log(10) * R * t_kelvin * 10) / 2
+    log_y_hcl_tp = log_y_hcl + term_2
+    return log_y_hcl_tp
 
 
 def _acid_dissociation_constant_of_hso4(salinity: np.ndarray, temperature: np.ndarray):
@@ -1239,44 +1012,25 @@ def _acid_dissociation_constant_of_hso4(salinity: np.ndarray, temperature: np.nd
     return k_s
 
 
-def convert_external_shallow_seafet_seaphox_ph(
-    raw_ph: np.ndarray,
-    temperature: np.ndarray,
+def _acid_dissociation_constant_of_hso4_tp(
     salinity: np.ndarray,
-    coefs: PHSeaFETExternalCoefficients,
-    ph_units: Literal["counts", "volts"] = "counts",
-) -> np.ndarray:
-    """Calculating pH External from the Shallow SeaFET/SeapHOx V2. From
-    SBS application note 99. The solid state electrochemical cell
-    exhibits a Nernstian response to pH but presents the added
-    complexity of being sensitive to the chloride activity (Johnson et
-    al. 2016).
+    temperature: np.ndarray,
+    pressure: np.ndarray,
+):
+    """From SBS application note 99. Calculated as (Millero 1982)
 
-    :param raw_ph: Raw voltage or votage counts
-    :param temperature: temperature in degrees C
-    :param salinity: Salinty in PSU
-    :param coefs: External pH coefficients
-    :param ph_units: The units of raw_ph, defaults to 'counts'
-    :return: External pH
+    :param salinity: Salinity in PSU
+    :param temperature: Temperature in degrees C
+    :param pressure: Pressure in bar
+    :return: Acid dissociation constant of HSO4
     """
-    if ph_units == "counts":
-        ph_volts = convert_ph_voltage_counts(raw_ph)
-    else:  # if ph_units == 'volts':
-        ph_volts = raw_ph
-
     t_kelvin = temperature + KELVIN_OFFSET_0C
-    s_t = _total_sulfate_in_seawater(salinity)
     k_s = _acid_dissociation_constant_of_hso4(salinity, t_kelvin)
-    nernst = _calculate_nernst(t_kelvin)
-
-    term_1 = (ph_volts - coefs.k0 - coefs.k2 * temperature) / nernst
-    term_2 = np.log10(_total_chloride_in_seawater(salinity))
-    term_3 = 2 * _log_of_hcl_activity_coefficient_of_t(salinity, temperature)
-    term_4 = np.log10(1 + s_t / k_s)
-    term_5 = np.log10(1 - 1.005e-3 * salinity)
-
-    ph = term_1 + term_2 + term_3 - term_4 - term_5
-    return ph
+    v_bar_s = _partial_molal_hso4_volume(temperature)
+    k_bar_s = _hso4_compressibility(temperature)
+    exponent = (-v_bar_s * pressure + 0.5 * k_bar_s * pressure**2) / (R * t_kelvin * 10)
+    k_stp = k_s * np.exp(exponent)
+    return k_stp
 
 
 def _pressure_response(pressure: np.ndarray, coefs: PHSeaFETExternalCoefficients):
@@ -1307,27 +1061,6 @@ def _partial_molal_hcl_volume(temperature: np.ndarray):
     return volume
 
 
-def _log_of_hcl_activity_coefficient_of_tp(
-    salinity: np.ndarray,
-    temperature: np.ndarray,
-    pressure: np.ndarray,
-):
-    """From SBS application note 99. Calculated as (Johnson et al. 2017)
-
-    :param salinity: Salinity in PSU
-    :param temperature: Temperature in degrees C
-    :param pressure: Pressure in bar
-    :return: Logarithm of HCl activity coefficient as a function of
-        temperature and pressure
-    """
-    log_y_hcl = _log_of_hcl_activity_coefficient_of_t(salinity, temperature)
-    v_hcl = _partial_molal_hcl_volume(temperature)
-    t_kelvin = temperature + KELVIN_OFFSET_0C
-    term_2 = (v_hcl * pressure) / (np.log(10) * R * t_kelvin * 10) / 2
-    log_y_hcl_tp = log_y_hcl + term_2
-    return log_y_hcl_tp
-
-
 def _partial_molal_hso4_volume(temperature: np.ndarray) -> np.ndarray:
     """From SBS application note 99. Calculated as (Millero 1983)
 
@@ -1348,51 +1081,41 @@ def _hso4_compressibility(temperature: np.ndarray):
     return compressibility
 
 
-def _acid_dissociation_constant_of_hso4_tp(
-    salinity: np.ndarray,
-    temperature: np.ndarray,
-    pressure: np.ndarray,
-):
-    """From SBS application note 99. Calculated as (Millero 1982)
-
-    :param salinity: Salinity in PSU
-    :param temperature: Temperature in degrees C
-    :param pressure: Pressure in bar
-    :return: Acid dissociation constant of HSO4
-    """
-    t_kelvin = temperature + KELVIN_OFFSET_0C
-    k_s = _acid_dissociation_constant_of_hso4(salinity, t_kelvin)
-    v_bar_s = _partial_molal_hso4_volume(temperature)
-    k_bar_s = _hso4_compressibility(temperature)
-    exponent = (-v_bar_s * pressure + 0.5 * k_bar_s * pressure**2) / (R * t_kelvin * 10)
-    k_stp = k_s * np.exp(exponent)
-    return k_stp
-
-
-def convert_external_deep_seaphox_float_ph(
-    raw_ph: np.ndarray,
-    temperature: np.ndarray,
-    salinity: np.ndarray,
-    pressure: np.ndarray,
-    coefs: PHSeaFETExternalCoefficients,
+def convert_external_seafet_ph(
+    raw_ph: np.ndarray = 0,
+    temperature: np.ndarray = 0,
+    salinity: np.ndarray = 0,
+    pressure: np.ndarray = 0,
+    coefs: PHSeaFETExternalCoefficients = PHSeaFETExternalCoefficients(),
     ph_units: Literal["counts", "volts"] = "counts",
+    formula_version: Literal['legacy', '1.3'] = '1.3',
+    ph_counts: np.ndarray = None,
 ):
-    """External pH from the Deep SeapHOx V2 and Float. From SBS
-    application note 99 The solid state electrochemical cell exhibits a
-    Nernstian response to pH but presents the added complexity of being
-    sensitive to the chloride activity (Johnson et al. 2016).
+    """External pH for the SeaFET, SeapHOx, and Float. From SBS
+    Application Note 99 and "Processing BGC-Argo pH data at the DAC
+    level"
+    
+    https://www.seabird.com/asset-get.download.jsa?id=69833850609
+    https://archimer.ifremer.fr/doc/00460/57195/
 
     :param raw_ph: raw voltage or voltage counts
     :param temperature: Temperature in degrees C
     :param salinity: Salinity in PSU
     :param pressure: Pressure in dbar
     :param coefs: External pH coefficients
-    :param ph_units: The units for raw_ph, defaults to 'counts'
-    :return: External pH
+    :param ph_units: The units for raw_ph, defaults to "counts"
+    :param formula_version: The version of the pH formula, where
+        "legacy" refers to the formula used by Fathom v3.0.4 and UCI
+        v4.0.x, and "1.3" refers to the version of the Argo pH doc in
+        the description
+    :return: Total external pH
     """
-    if ph_units == "counts":
+    if ph_counts is not None:
+        warnings.warn("Deprecated, use raw_ph", DeprecationWarning)
+        ph_volts = convert_ph_voltage_counts(ph_counts)
+    elif ph_units == 'counts':
         ph_volts = convert_ph_voltage_counts(raw_ph)
-    else:  # if ph_units == 'volts':
+    else:  # ph_counts == 'volts'
         ph_volts = raw_ph
 
     t_kelvin = temperature + KELVIN_OFFSET_0C
@@ -1402,11 +1125,26 @@ def convert_external_deep_seaphox_float_ph(
     s_t = _total_sulfate_in_seawater(salinity)
     k_stp = _acid_dissociation_constant_of_hso4_tp(salinity, temperature, p_bar)
 
-    term_1 = (ph_volts - coefs.k0 - coefs.k2 * temperature - f_p) / nernst
     term_2 = np.log10(_total_chloride_in_seawater(salinity))
-    term_3 = 2 * _log_of_hcl_activity_coefficient_of_tp(salinity, temperature, p_bar)
-    term_4 = np.log10(1 + s_t / k_stp)
-    term_5 = np.log10(1 - 1.005e-3 * salinity)
+    term_4 = np.log10(1 - 1.005e-3 * salinity)
+    term_5 = np.log10(1 + s_t / k_stp)
+
+    if coefs.k2_poly_order == 0:
+        k2_poly = Polynomial([coefs.k2])
+    else:
+        k2_poly = Polynomial([coefs.k2f0, coefs.k2f1, coefs.k2f2, coefs.k2f3])
+    
+    eot = k2_poly(pressure) * temperature
+
+    if formula_version == 'legacy':
+        thermal_pressure = _calculate_thermal_pressure(temperature, p_bar)
+        term_1 = (ph_volts - coefs.k0 - eot - f_p - thermal_pressure) / nernst
+        term_3 = 2 * _log_of_hcl_activity_coefficient_of_t(salinity, temperature)
+
+    elif formula_version == '1.3':
+        term_1 = (ph_volts - coefs.k0 - eot - f_p) / nernst
+        term_3 = 2 * _log_of_hcl_activity_coefficient_of_tp(salinity, temperature, p_bar)
+
     ph = term_1 + term_2 + term_3 - term_4 - term_5
     return ph
 
