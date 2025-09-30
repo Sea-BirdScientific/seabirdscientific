@@ -13,7 +13,6 @@ import pytest
 # Internal imports
 import seabirdscientific.conversion as dc
 import seabirdscientific.instrument_data as id
-import seabirdscientific.cal_coefficients as cc
 
 import test_coefficients as tc
 
@@ -687,7 +686,7 @@ class TestSeaFETPH:
             temperature=15.8735,
             salinity=36.817,
             coefs=tc.external_shallow_ph_coefs,
-            ph_units="volts"
+            ph_units="volts",
         )
         assert np.allclose(external_ph, 7.9224, atol=1e-4)
 
@@ -702,8 +701,7 @@ class TestSeaFETPH:
             ph_units="volts",
         )
         assert np.allclose(external_ph, 7.9394, atol=1e-4)
-    
-    
+
     def test_convert_external_seafet_ph_legacy(self, request):
         # from application note 99
         external_ph = dc.convert_external_seafet_ph(

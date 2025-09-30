@@ -3,8 +3,6 @@
 
 """A collection of raw data conversion functions."""
 
-
-
 # Native imports
 from math import e, floor
 from typing import Literal
@@ -829,7 +827,7 @@ def convert_internal_seafet_ph(
     if ph_counts is not None:
         warnings.warn("Deprecated, use raw_ph", DeprecationWarning)
         ph_volts = convert_ph_voltage_counts(ph_counts)
-    elif ph_units == 'counts':
+    elif ph_units == "counts":
         ph_volts = convert_ph_voltage_counts(raw_ph)
     else:  # ph_counts == 'volts'
         ph_volts = raw_ph
@@ -1041,13 +1039,13 @@ def convert_external_seafet_ph(
     pressure: np.ndarray = 0,
     coefs: cc.PHSeaFETExternalCoefficients = cc.PHSeaFETExternalCoefficients(),
     ph_units: Literal["counts", "volts"] = "counts",
-    formula_version: Literal['legacy', '1.3'] = '1.3',
+    formula_version: Literal["legacy", "1.3"] = "1.3",
     ph_counts: np.ndarray = None,
 ):
     """External pH for the SeaFET, SeapHOx, and Float. From SBS
     Application Note 99 and "Processing BGC-Argo pH data at the DAC
     level"
-    
+
     https://www.seabird.com/asset-get.download.jsa?id=69833850609
     https://archimer.ifremer.fr/doc/00460/57195/
 
@@ -1066,7 +1064,7 @@ def convert_external_seafet_ph(
     if ph_counts is not None:
         warnings.warn("Deprecated, use raw_ph", DeprecationWarning)
         ph_volts = convert_ph_voltage_counts(ph_counts)
-    elif ph_units == 'counts':
+    elif ph_units == "counts":
         ph_volts = convert_ph_voltage_counts(raw_ph)
     else:  # ph_counts == 'volts'
         ph_volts = raw_ph
@@ -1086,15 +1084,15 @@ def convert_external_seafet_ph(
         k2_poly = Polynomial([coefs.k2])
     else:
         k2_poly = Polynomial([coefs.k2f0, coefs.k2f1, coefs.k2f2, coefs.k2f3])
-    
+
     eot = k2_poly(pressure) * temperature
 
-    if formula_version == 'legacy':
+    if formula_version == "legacy":
         thermal_pressure = _calculate_thermal_pressure(temperature, p_bar)
         term_1 = (ph_volts - coefs.k0 - eot - f_p - thermal_pressure) / nernst
         term_3 = 2 * _log_of_hcl_activity_coefficient_of_t(salinity, temperature)
 
-    elif formula_version == '1.3':
+    elif formula_version == "1.3":
         term_1 = (ph_volts - coefs.k0 - eot - f_p) / nernst
         term_3 = 2 * _log_of_hcl_activity_coefficient_of_tp(salinity, temperature, p_bar)
 
