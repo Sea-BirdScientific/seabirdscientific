@@ -713,7 +713,6 @@ class TestSeaFETPH:
             formula_version="legacy",
         )
         assert np.allclose(external_ph, 7.939415, atol=1e-6)
-        print(f"expected 7.939415, got {external_ph}")
 
     def test_convert_external_seafet_ph_legacy_volts(self, request):
         # from application note 99
@@ -727,7 +726,6 @@ class TestSeaFETPH:
             formula_version="legacy",
         )
         assert np.allclose(external_ph, 7.939415, atol=1e-6)
-        print(f"expected 7.939415, got {external_ph}")
 
     def test_convert_external_seafet_ph_v1p3(self, request):
         # from application note 99
@@ -740,7 +738,19 @@ class TestSeaFETPH:
             ph_units="volts",
         )
         assert np.allclose(external_ph, 7.939406, atol=1e-6)
-        print(f"expected 7.939406, got {external_ph}")
+
+
+    def test_convert_external_seafet_ph_v1p3_shallow(self, request):
+        # from application note 99
+        external_ph = dc.convert_external_seafet_ph(
+            raw_ph=-0.900081,
+            temperature=23.4169,
+            salinity=34.812,
+            pressure=0,
+            coefs=tc.external_ph_coefs,
+            ph_units="volts",
+        )
+        assert np.allclose(external_ph, 7.6653, atol=1e-4)
 
     def test_convert_external_seafet_ph_argo_example(self, request):
         # from Processing BGC-Argo pH data at the DAC level
@@ -756,8 +766,6 @@ class TestSeaFETPH:
             formula_version="1.3",
         )
         assert np.allclose(external_ph, expected_ph, atol=1e-4)
-        for n in range(len(expected_ph)):
-            print(f"{n} expected {expected_ph[n]}, got {external_ph[n]}")
 
 
 class TestInternalSeaFETTemperature:
