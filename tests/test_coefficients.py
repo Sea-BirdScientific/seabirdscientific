@@ -1,37 +1,19 @@
-from seabirdscientific.cal_coefficients import (
-    ConductivityCoefficients,
-    Oxygen43Coefficients,
-    Oxygen63Coefficients,
-    PARCoefficients,
-    SPARCoefficients,
-    PH18Coefficients,
-    PHSeaFETInternalCoefficients,
-    PHSeaFETExternalCoefficients,
-    PressureCoefficients,
-    PressureDigiquartzCoefficients,
-    TemperatureCoefficients,
-    TemperatureFrequencyCoefficients,
-    Thermistor63Coefficients,
-    ECOCoefficients,
-    AltimeterCoefficients,
-)
+import seabirdscientific.cal_coefficients as cc
 
 
-# @dataclass
-# class SN6130:  # cal coefficients for example 19pV2 data
-# temperature
-temperature_coefs_sn6130 = TemperatureCoefficients(
+# cal coefficients for example 19pV2 data SN6130
+temperature_coefs_sn6130 = cc.TemperatureCoefficients(
     a0=1.28015621e-003,
     a1=2.58367774e-004,
     a2=-1.39527596e-008,
     a3=1.39024630e-007,
 )
 
-temperature_frequency_coefs_sn5102 = TemperatureFrequencyCoefficients(
+temperature_frequency_coefs_sn5102 = cc.TemperatureFrequencyCoefficients(
     g=4.39377604e-003, h=6.43356818e-004, i=2.23495143e-005, j=2.02840480e-006, f0=1000.0
 )
 
-pressure_coefs_sn6130 = PressureCoefficients(
+pressure_coefs_sn6130 = cc.PressureCoefficients(
     pa0=6.51546669e-002,
     pa1=1.54424116e-003,
     pa2=6.13653149e-012,
@@ -46,7 +28,7 @@ pressure_coefs_sn6130 = PressureCoefficients(
     ptempa2=-2.96026659e-001,
 )
 
-pressure_digiquartz_coefs_sn5102 = PressureDigiquartzCoefficients(
+pressure_digiquartz_coefs_sn5102 = cc.PressureDigiquartzCoefficients(
     c1=-4.164639e004,
     c2=-5.769818e-001,
     c3=1.259640e-002,
@@ -61,7 +43,7 @@ pressure_digiquartz_coefs_sn5102 = PressureDigiquartzCoefficients(
     AD590B=-9.348340e000,
 )
 
-conductivity_coefs_sn6130 = ConductivityCoefficients(
+conductivity_coefs_sn6130 = cc.ConductivityCoefficients(
     g=-1.02365730e00,
     h=1.49306223e-01,
     i=-5.63206187e-04,
@@ -71,21 +53,21 @@ conductivity_coefs_sn6130 = ConductivityCoefficients(
     wbotc=0.00000000e000,
 )
 
-chlorophyll_a_coefs_sn6130 = ECOCoefficients(
+chlorophyll_a_coefs_sn6130 = cc.ECOCoefficients(
     slope=10,
     offset=0.0680,
 )
 
 
 # cal coefficients for SBE37SM-6385
-temperature_coefs_sn6385 = TemperatureCoefficients(
+temperature_coefs_sn6385 = cc.TemperatureCoefficients(
     a0=1.62680600e-004,
     a1=2.45695900e-004,
     a2=-2.34056800e-007,
     a3=9.32450300e-008,
 )
 
-pressure_coefs_sn6385 = PressureCoefficients(
+pressure_coefs_sn6385 = cc.PressureCoefficients(
     pa0=6.60137700e-001,
     pa1=9.63297700e-003,
     pa2=-1.65805500e-010,
@@ -100,7 +82,7 @@ pressure_coefs_sn6385 = PressureCoefficients(
     ptempa2=-6.69832900e-007,
 )
 
-conductivity_coefs_sn6385 = ConductivityCoefficients(
+conductivity_coefs_sn6385 = cc.ConductivityCoefficients(
     g=-9.99850800e-001,
     h=1.26606700e-001,
     i=-2.89934500e-004,
@@ -110,17 +92,15 @@ conductivity_coefs_sn6385 = ConductivityCoefficients(
     wbotc=1.47950000e-006,
 )
 
-
-# @dataclass
 # cal coefficients for SN03716125:
-temperature_coefs_sn16125 = TemperatureCoefficients(
+temperature_coefs_sn16125 = cc.TemperatureCoefficients(
     a0=-1.89840900e-004,
     a1=3.13608700e-004,
     a2=-4.46184800e-006,
     a3=2.01978100e-007,
 )
 
-conductivity_coefs_sn16125 = ConductivityCoefficients(
+conductivity_coefs_sn16125 = cc.ConductivityCoefficients(
     g=-1.00193200e000,
     h=1.28425000e-001,
     i=-9.96045200e-005,
@@ -130,7 +110,7 @@ conductivity_coefs_sn16125 = ConductivityCoefficients(
     wbotc=-1.49105000e-007,
 )
 
-pressure_coefs_sn16125 = PressureCoefficients(
+pressure_coefs_sn16125 = cc.PressureCoefficients(
     pa0=1.05494900e-003,
     pa1=4.85370000e-004,
     pa2=-2.07071300e-012,
@@ -145,9 +125,8 @@ pressure_coefs_sn16125 = PressureCoefficients(
     ptempa2=-2.89409800e-007,
 )
 
-
 # cal coefficients for SN06302568
-oxygen_63_coefs_sn2568 = Oxygen63Coefficients(
+oxygen_63_coefs_sn2568 = cc.Oxygen63Coefficients(
     a0=1.0513,
     a1=-1.5e-3,
     a2=4.1907e-1,
@@ -159,14 +138,14 @@ oxygen_63_coefs_sn2568 = Oxygen63Coefficients(
     e=1.1e-2,
 )
 
-thermistor_63_coefs_sn2568 = Thermistor63Coefficients(
+thermistor_63_coefs_sn2568 = cc.Thermistor63Coefficients(
     ta0=7.059180e-4,
     ta1=2.504670e-4,
     ta2=7.402389e-7,
     ta3=9.756123e-8,
 )
 
-oxygen_63_coefs_sn11459 = Oxygen63Coefficients(
+oxygen_63_coefs_sn11459 = cc.Oxygen63Coefficients(
     a0=1.0513,
     a1=-1.5e-3,
     a2=4.149243e-1,
@@ -178,7 +157,7 @@ oxygen_63_coefs_sn11459 = Oxygen63Coefficients(
     e=1.1e-2,
 )
 
-thermistor_63_coefs_sn11459 = Thermistor63Coefficients(
+thermistor_63_coefs_sn11459 = cc.Thermistor63Coefficients(
     ta0=7.082572e-4,
     ta1=2.496316e-4,
     ta2=8.447513e-7,
@@ -186,7 +165,7 @@ thermistor_63_coefs_sn11459 = Thermistor63Coefficients(
 )
 
 # cal coefficients for SN3287
-oxygen_43_coefs_sn3287 = Oxygen43Coefficients(
+oxygen_43_coefs_sn3287 = cc.Oxygen43Coefficients(
     soc=0.4792,
     v_offset=-0.484,
     tau_20=2.05,
@@ -202,9 +181,8 @@ oxygen_43_coefs_sn3287 = Oxygen43Coefficients(
     h3=1.45e3,
 )
 
-
 # cal coefficients for SN431686
-oxygen_43_coefs_sn1686 = Oxygen43Coefficients(
+oxygen_43_coefs_sn1686 = cc.Oxygen43Coefficients(
     soc=3.898e-1,
     v_offset=-0.498,
     tau_20=1.08,
@@ -220,38 +198,72 @@ oxygen_43_coefs_sn1686 = Oxygen43Coefficients(
     h3=1.45e3,
 )
 
-
 # cal coefficients for SN180726
-ph_coefs_sn0762 = PH18Coefficients(
+ph_coefs_sn0762 = cc.PH18Coefficients(
     slope=4.6067,
     offset=2.5157,
 )
 
-
 # cal coefficients for SN0411
-par_coefs_sn0411 = PARCoefficients(
+par_coefs_sn0411 = cc.PARCoefficients(
     im=1.3589,
     a0=1.372,
     a1=0.8839,
     multiplier=1,
 )
 
-spar_coefs = SPARCoefficients(im=2.2, a0=1, a1=2, conversion_factor=1.5596e3)
+spar_coefs = cc.SPARCoefficients(im=2.2, a0=1, a1=2, conversion_factor=1.5596e3)
 
-ph_seafet_internal_coefs = PHSeaFETInternalCoefficients(
+ph_seafet_internal_coefs = cc.PHSeaFETInternalCoefficients(
     kdf0=-1.354051,
     kdf2=-0.001272858,
 )
 
-ph_seafet_external_coefs = PHSeaFETExternalCoefficients(
+ph_seafet_external_coefs = cc.PHSeaFETExternalCoefficients(
     k0=-1.345407,
     k2=-0.001106957,
-    f1=0,
-    f2=0,
-    f3=0,
-    f4=0,
-    f5=0,
-    f6=0,
 )
 
-altimeter_coefs = AltimeterCoefficients(slope=15, offset=0)
+# from application note 99
+internal_ph_coefs = cc.PHSeaFETInternalCoefficients(
+    kdf0=-1.438788,
+    kdf2=-1.304895e-3,
+)
+
+# from application note 99
+external_shallow_ph_coefs = cc.PHSeaFETExternalCoefficients(
+    k0=-1.429278,
+    k2=-1.42026e-3,
+)
+
+# from application note 99
+external_ph_coefs = cc.PHSeaFETExternalCoefficients(
+    k0=-1.361736,
+    k2=-1.07686e-3,
+    fp_poly_order=6,
+    f1=-8.31842e-6,
+    f2=-7.47152e-9,
+    f3=1.91485e-11,
+    f4=-1.39273e-14,
+    f5=4.48185e-18,
+    f6=-5.42588e-22,
+)
+
+# from Processing BGC-Argo pH data at the DAC level
+external_ph_k2_poly_coefs = cc.PHSeaFETExternalCoefficients(
+    k0=-1.321959,
+    k2_poly_order=3,
+    k2f0=-0.8682e-3,
+    k2f1=1.6881e-8,
+    k2f2=-2.9158e-11,
+    k2f3=8.6709e-15,
+    fp_poly_order=6,
+    f1=-8.453e-6,
+    f2=6.5885e-8,
+    f3=-1.1179e-10,
+    f4=8.713e-14,
+    f5=-3.2423e-17,
+    f6=4.6608e-21,
+)
+
+altimeter_coefs = cc.AltimeterCoefficients(slope=15, offset=0)

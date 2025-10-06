@@ -632,6 +632,13 @@ class TestSeaFETPH:
     expected_external_ph = np.array([6.2466, 6.247, 6.2466, 6.2474, 6.2469])
     ph_temperature = np.array([22.751, 22.7514, 22.752, 22.752, 22.752])
 
+    def ph_voltage_to_counts(self, voltage: np.ndarray):
+        adc_vref = 2.5
+        gain = 1
+        adc_23bit = 8388608
+        ph_counts = adc_23bit * (voltage * gain / adc_vref + 1)
+        return ph_counts
+
     def test_convert_ph_voltage_counts(self, request):
         internal_ph_volts = dc.convert_ph_voltage_counts(self.internal_ph_counts)
         request.node.return_value = internal_ph_volts.tolist()
@@ -639,7 +646,7 @@ class TestSeaFETPH:
 
     def test_convert_internal_seafet_ph(self, request):
         internal_ph = dc.convert_internal_seafet_ph(
-            ph_counts=self.internal_ph_counts,
+            raw_ph=self.internal_ph_counts,
             temperature=self.ph_temperature,
             coefs=tc.ph_seafet_internal_coefs,
         )
@@ -656,6 +663,109 @@ class TestSeaFETPH:
         )
         request.node.return_value = external_ph.tolist()
         assert np.allclose(external_ph, self.expected_external_ph, atol=1e-6)
+
+    def test_internal_shallow_ph_app_note_99(self, request):
+        # from application note 99
+        ph_counts = self.ph_voltage_to_counts(-1.010404)
+        # coefs = cc.PHSeaFETInternalCoefficients(k0=-1.438788, k2=-1.304895e-3)
+        internal_ph = dc.convert_internal_seafet_ph(
+            raw_ph=ph_counts,
+            temperature=15.8735,
+            coefs=tc.internal_ph_coefs,
+        )
+        assert np.allclose(internal_ph, 7.8310, atol=1e-4)
+
+    def test_external_shallow_seafet_seaphox_ph_app_note_99(self, request):
+        # from application note 99
+        # Shallow pH is effectively the same as deep pH with pressure
+        # set to 0. Since the deep pH example in app note 99 is valid,
+        # there must be a typo in the shellow pH example. This test uses
+        # the same inputs as the shallow example and fixes the result
+        external_ph = dc.convert_external_seafet_ph(
+            raw_ph=-0.965858,
+            temperature=15.8735,
+            salinity=36.817,
+            coefs=tc.external_shallow_ph_coefs,
+            ph_units="volts",
+        )
+        assert np.allclose(external_ph, 7.9224, atol=1e-4)
+
+    def test_external_deep_seaphox_float_ph_app_note_99(self, request):
+        # from application note 99
+        external_ph = dc.convert_external_seafet_ph(
+            raw_ph=-0.885081,
+            temperature=23.4169,
+            salinity=34.812,
+            pressure=100,
+            coefs=tc.external_ph_coefs,
+            ph_units="volts",
+        )
+        assert np.allclose(external_ph, 7.9394, atol=1e-4)
+
+    def test_convert_external_seafet_ph_legacy(self, request):
+        # from application note 99
+        external_ph = dc.convert_external_seafet_ph(
+            ph_counts=self.ph_voltage_to_counts(-0.885081),
+            temperature=23.4169,
+            salinity=34.812,
+            pressure=100,
+            coefs=tc.external_ph_coefs,
+            formula_version="legacy",
+        )
+        assert np.allclose(external_ph, 7.939415, atol=1e-6)
+
+    def test_convert_external_seafet_ph_legacy_volts(self, request):
+        # from application note 99
+        external_ph = dc.convert_external_seafet_ph(
+            raw_ph=-0.885081,
+            temperature=23.4169,
+            salinity=34.812,
+            pressure=100,
+            coefs=tc.external_ph_coefs,
+            ph_units="volts",
+            formula_version="legacy",
+        )
+        assert np.allclose(external_ph, 7.939415, atol=1e-6)
+
+    def test_convert_external_seafet_ph_v1p3(self, request):
+        # from application note 99
+        external_ph = dc.convert_external_seafet_ph(
+            raw_ph=-0.885081,
+            temperature=23.4169,
+            salinity=34.812,
+            pressure=100,
+            coefs=tc.external_ph_coefs,
+            ph_units="volts",
+        )
+        assert np.allclose(external_ph, 7.939406, atol=1e-6)
+
+
+    def test_convert_external_seafet_ph_v1p3_shallow(self, request):
+        # from application note 99
+        external_ph = dc.convert_external_seafet_ph(
+            raw_ph=-0.900081,
+            temperature=23.4169,
+            salinity=34.812,
+            pressure=0,
+            coefs=tc.external_ph_coefs,
+            ph_units="volts",
+        )
+        assert np.allclose(external_ph, 7.6653, atol=1e-4)
+
+    def test_convert_external_seafet_ph_argo_example(self, request):
+        # from Processing BGC-Argo pH data at the DAC level
+        # https://archimer.ifremer.fr/doc/00460/57195/
+        expected_ph = [7.9870, 7.9788, 7.9105, 7.7846, 7.7326, 7.7307]
+        external_ph = dc.convert_external_seafet_ph(
+            raw_ph=np.array([-0.82966, -0.83049, -0.83921, -0.85150, -0.85968, -0.86191]),
+            temperature=np.array([29.545, 29.607, 25.741, 21.094, 15.725, 13.407]),
+            salinity=np.array([34.637, 34.767, 35.104, 35.080, 34.886, 34.890]),
+            pressure=np.array([2.2, 42, 82, 122, 162, 202]),
+            coefs=tc.external_ph_k2_poly_coefs,
+            ph_units="volts",
+            formula_version="1.3",
+        )
+        assert np.allclose(external_ph, expected_ph, atol=1e-4)
 
 
 class TestInternalSeaFETTemperature:
