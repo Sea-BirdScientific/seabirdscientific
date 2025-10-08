@@ -21,13 +21,13 @@ data.
 #         np.ndarray, np.ndarray, float, MinVelocityType, float, float,
 #         float, bool, float, float, bool, bool,float
 #     ) -> np.ndarray
-#     find_depth_peaks (np.ndarray, np.ndarray, bool, float, float, float) -> tuple[int, int]
-#     min_velocity_mask (np.ndarray, float, float, int, int, bool) -> np.ndarray
-#     mean_speed_percent_mask (np.ndarray, float, float, float, int, int, bool, int) -> np.ndarray
-#     flag_by_minima_maxima (np.ndarray, np.ndarray, int, int, float)
+#     _find_depth_peaks (np.ndarray, np.ndarray, bool, float, float, float) -> tuple[int, int]
+#     _min_velocity_mask (np.ndarray, float, float, int, int, bool) -> np.ndarray
+#     _mean_speed_percent_mask (np.ndarray, float, float, float, int, int, bool, int) -> np.ndarray
+#     _flag_by_minima_maxima (np.ndarray, np.ndarray, int, int, float)
 #     bin_average (pd.DataFrame, str, float, bool, int, int, bool, bool)
 #     wild_edit (np.ndarray, np.ndarray, float, float, int, float, bool,float) -> np.ndarray
-#     flag_data (np.ndarray, np.ndarray, float, float, float, bool,float) -> np.ndarray
+#     _flag_data (np.ndarray, np.ndarray, float, float, float, bool,float) -> np.ndarray
 #     window_filter (
 #         np.ndarray, np.ndarray, WindowFilterType, int, float, int, float, bool, float
 #     ) -> np.ndarray
@@ -38,6 +38,8 @@ data.
 import math
 from enum import Enum
 from logging import getLogger
+from typing import List
+import warnings
 
 # Third-party imports
 import gsw
@@ -48,8 +50,8 @@ from scipy import signal, stats
 # Sea-Bird imports
 
 # Internal imports
-from .conversion import depth_from_pressure
-from . import eos80_processing as eos80
+from seabirdscientific.conversion import depth_from_pressure
+from seabirdscientific import eos80_processing as eos80
 
 
 logger = getLogger(__name__)
@@ -151,8 +153,8 @@ def align_ctd(
 
 
 def cell_thermal_mass(
-    temperature_C: np.ndarray,  # pylint: disable=invalid-name #TODO: change this to be snake_case for TKIT-75
-    conductivity_Sm: np.ndarray,  # pylint: disable=invalid-name #TODO: change this to be snake_case for TKIT-75
+    temperature_C: np.ndarray,  # TODO: change this to be snake_case for TKIT-75
+    conductivity_Sm: np.ndarray,  # TODO: change this to be snake_case for TKIT-75
     amplitude: float,
     time_constant: float,
     sample_interval: float,
@@ -307,21 +309,21 @@ def loop_edit_depth(
         min_soak_depth -= depth[0]
         max_soak_depth -= depth[0]
 
-    (min_depth_n, max_depth_n) = find_depth_peaks(
+    (min_depth_n, max_depth_n) = _find_depth_peaks(
         depth, flag, remove_surface_soak, flag_value, min_soak_depth, max_soak_depth
     )
 
     if min_velocity_type == MinVelocityType.FIXED:
-        downcast_mask = min_velocity_mask(
+        downcast_mask = _min_velocity_mask(
             depth, sample_interval, min_velocity, min_depth_n, max_depth_n + 1, False
         )
-        upcast_mask = min_velocity_mask(
+        upcast_mask = _min_velocity_mask(
             depth, sample_interval, min_velocity, max_depth_n, len(depth), True
         )
 
     elif min_velocity_type == MinVelocityType.PERCENT:
         diff_length = int(window_size / sample_interval)
-        downcast_mask = mean_speed_percent_mask(
+        downcast_mask = _mean_speed_percent_mask(
             depth,
             sample_interval,
             min_velocity,
@@ -331,7 +333,7 @@ def loop_edit_depth(
             False,
             diff_length,
         )
-        upcast_mask = mean_speed_percent_mask(
+        upcast_mask = _mean_speed_percent_mask(
             depth,
             sample_interval,
             min_velocity,
@@ -346,7 +348,7 @@ def loop_edit_depth(
 
     flag[~downcast_mask & ~upcast_mask] = flag_value
 
-    flag_by_minima_maxima(depth, flag, min_depth_n, max_depth_n, flag_value)
+    _flag_by_minima_maxima(depth, flag, min_depth_n, max_depth_n, flag_value)
 
     cast = np.array([0 for _ in range(len(flag))])
     cast[downcast_mask] = -1
@@ -354,7 +356,7 @@ def loop_edit_depth(
     return cast  # TODO: refactor to handle cast and flag in seperate functions
 
 
-def find_depth_peaks(
+def _find_depth_peaks(
     depth: np.ndarray,
     flag: np.ndarray,
     remove_surface_soak: bool,
@@ -411,7 +413,12 @@ def find_depth_peaks(
     return (min_depth_n, max_depth_n)
 
 
-def min_velocity_mask(
+def find_depth_peaks(*args, **kwargs):
+    warnings.warn("Deprecated, use _find_depth_peaks", DeprecationWarning)
+    return _find_depth_peaks(*args, **kwargs)
+
+
+def _min_velocity_mask(
     depth: np.ndarray,
     interval: float,
     min_velocity: float,
@@ -447,7 +454,12 @@ def min_velocity_mask(
     return mask
 
 
-def mean_speed_percent_mask(
+def min_velocity_mask(*args, **kwargs):
+    warnings.warn("Deprecated, use _min_velocity_mask", DeprecationWarning)
+    return _min_velocity_mask(*args, **kwargs)
+
+
+def _mean_speed_percent_mask(
     depth: np.ndarray,
     interval: float,
     min_velocity: float,
@@ -492,7 +504,12 @@ def mean_speed_percent_mask(
     return mask
 
 
-def flag_by_minima_maxima(
+def mean_speed_percent_mask(*args, **kwargs):
+    warnings.warn("Deprecated, use _mean_speed_percent_mask", DeprecationWarning)
+    return _mean_speed_percent_mask(*args, **kwargs)
+
+
+def _flag_by_minima_maxima(
     depth: np.ndarray,
     flag: np.ndarray,
     min_depth_n: int,
@@ -525,6 +542,11 @@ def flag_by_minima_maxima(
             flag[n] = flag_value
 
 
+def flag_by_minima_maxima(*args, **kwargs):
+    warnings.warn("Deprecated, use _flag_by_minima_maxima", DeprecationWarning)
+    return _flag_by_minima_maxima(*args, **kwargs)
+
+
 def bin_average(
     dataset: pd.DataFrame,
     bin_variable: str,
@@ -548,8 +570,8 @@ def bin_average(
 
     :param dataset: Dataframe containing all data to group into bins
     :param bin_variable: The variable that will control binning,
-        typically pressure, depth, or time (scan number not currently
-        supported)
+        typically pressure, depth, time, or scan number. For scan number,
+        use 'nScan'.
     :param bin_size: The bin width or range of data for each bin
     :param include_scan_count: If True includes a column (nbin) in the
         returned dataframe for the number of scans in each bin. Defaults
@@ -597,10 +619,19 @@ def bin_average(
     for column in _dataset.columns.difference(["flag"]):
         _dataset = _dataset.drop(_dataset[_dataset[column] == flag_value].index)
 
+    if bin_variable == "nScan" and "nScan" not in _dataset.columns:
+        # We want to bin by scans, ensure it's a column
+        _dataset.insert(0, "nScan", range(0, len(_dataset)))
+
     # pd series containing the variable we want to bin for, converted to ndarray
     control = _dataset[bin_variable].to_numpy()
 
     bin_min = bin_size / 2.0  # min value of first bin
+
+    if bin_variable == "nScan":
+        # when binning by scan number, start at 0
+        bin_min = 0
+
     control_max = np.amax(control)
     bin_max = control_max - ((bin_min + control_max) % bin_size) + bin_size
 
@@ -633,7 +664,7 @@ def bin_average(
         _surface_bin_min = max(surface_bin_min, 0)
 
         if not surface_bin_min <= surface_bin_max <= bin_min:
-            logger.warning(f"Surface bin max set to {_surface_bin_max}")
+            logger.warning(f"Surface bin max set to {surface_bin_max}")
         _surface_bin_max = max(surface_bin_min, min(surface_bin_max, bin_min))
 
         bins = (_surface_bin_min, _surface_bin_max)
@@ -785,7 +816,7 @@ def wild_edit(
     flagged_data = data.copy()
 
     while upper_index <= len(data):
-        flagged_data[lower_index:upper_index] = flag_data(
+        flagged_data[lower_index:upper_index] = _flag_data(
             data[lower_index:upper_index],
             flags,
             std_pass_1,
@@ -800,7 +831,7 @@ def wild_edit(
     if lower_index < len(data):
         lower_index = len(data) - scans_per_block
         upper_index = len(data)
-        flagged_data[len(data) - len(data) % scans_per_block :] = flag_data(
+        flagged_data[len(data) - len(data) % scans_per_block :] = _flag_data(
             data[lower_index:upper_index],
             flags,
             std_pass_1,
@@ -813,7 +844,7 @@ def wild_edit(
     return flagged_data
 
 
-def flag_data(
+def _flag_data(
     data: np.ndarray,
     flags: np.ndarray,
     std_pass_1: float,
@@ -862,7 +893,11 @@ def flag_data(
     return flagged_data
 
 
-# pylint: disable=too-many-branches # TODO: Fix this
+def flag_data(*args, **kwargs):
+    warnings.warn("Deprecated, use _flag_data", DeprecationWarning)
+    return _flag_data(*args, **kwargs)
+
+
 def window_filter(
     data_in: np.ndarray,
     flags: np.ndarray,
@@ -1103,5 +1138,127 @@ def buoyancy(
             result.at[i, "N"] = np.nan
         result.at[i, "E"] = n2 / gravity
         result.at[i, "E10^-8"] = result.at[i, "E"] * 1e8
+
+    return result
+
+
+def get_downcast(
+    dataframe: pd.DataFrame,
+    control_name: str,
+    min_value: float = -np.inf,
+    exclude_bad_scans=False,
+) -> pd.DataFrame:
+    """Gets the downcast from a dataframe. The min index starts at the
+    first value greater than min_value, and the max index is at the
+    greatest value in the depth array. If flags are excluded those rows
+    will be excluded when determining the max index, but they won't
+    be removed them from the dataframe
+
+    :param dataframe: The dataframe to select the downcast from
+    :param control_name: The control variable, typically pressure or
+        depth
+    :param min_value: Exclude values greater than this from the result,
+        defaults to -np.inf
+    :param exclude_bad_scans: If True, these rows wil be skipped when
+        determining the index of the max value, defaults to False
+    :return: The downcast portion of the input dataframe
+    """
+
+    downcast = dataframe.copy()
+    n_min = 0
+    n_max = downcast[control_name].idxmax()
+
+    if exclude_bad_scans and "flag" in dataframe.columns:
+        downcast = downcast[downcast["flag"] != FLAG_VALUE]
+        n_max = downcast[control_name].idxmax()
+
+    if min_value > -np.inf:
+        downcast = downcast.loc[:n_max]
+        downcast = downcast[downcast[control_name].idxmin() :]
+        downcast = downcast[downcast[control_name] > min_value]
+        n_min = downcast[control_name].idxmin()
+
+    downcast = dataframe.loc[n_min:n_max].reset_index(drop=True)
+
+    return downcast
+
+
+def get_upcast(
+    dataframe: pd.DataFrame,
+    control_name: str,
+    min_value: float = -np.inf,
+    exclude_bad_scans=False,
+) -> pd.DataFrame:
+    """Gets the upcast from a dataframe. The max index is at the
+    greatest value of the control_name values. If flags are excluded
+    those rows will be excluded when determining the max index, but they
+    won't be removed them from the dataframe. The min index is at the
+    last value greater than min_value
+
+    :param dataframe: The dataframe to select the upcast from
+    :param control_name: The control variable, typically pressure or
+        depth
+    :param min_value: Exclude values greater than this from the result,
+        defaults to -np.inf
+    :param exclude_bad_scans: If True, these rows wil be skipped when
+        determining the index of the max value, defaults to False
+    :return: The upcast portion of the input dataframe
+    """
+
+    upcast = dataframe.copy()
+    n_min = upcast.index[-1]
+    n_max = upcast[control_name].idxmax()
+
+    if exclude_bad_scans and "flag" in dataframe.columns:
+        upcast = upcast[upcast["flag"] != FLAG_VALUE]
+        n_max = upcast[control_name].idxmax()
+
+    if min_value > -np.inf:
+        # seasoft data processing doesn't include the max value
+        upcast = upcast.loc[n_max + 1 :]
+        upcast = upcast[: upcast[control_name].idxmin()]
+        upcast = upcast[upcast[control_name] > min_value]
+        n_min = upcast[control_name].idxmin()
+
+    upcast = dataframe.loc[n_max + 1 : n_min].reset_index(drop=True)
+
+    return upcast
+
+
+def split(
+    dataframe: pd.DataFrame,
+    control_name: str,
+    split_mode=CastType.BOTH,
+    exclude_bad_scans=False,
+) -> List[pd.DataFrame]:
+    """Splits a dataframe into a list of 1 or 2 dataframes, the downcast
+    and/or upcast.
+
+    :param dataframe: The dataframe to split
+    :param control_name: The variable to determine where to split,
+        typically pressure or depth
+    :param split_mode: Determines which casts to include in teh result,
+        defaults to CastType.BOTH
+    :param exclude_bad_scans: If True, rows with bad flags will be
+        excluded when determining the max depth or pressure. Defaults
+        to False
+    :return: A list of the downcast and/or upcast dataframes
+    """
+    _dataframe = dataframe.copy()
+
+    flag = None
+    if "flag" in _dataframe.columns:
+        flag = _dataframe["flag"]
+        if exclude_bad_scans:
+            _dataframe = _dataframe[flag != FLAG_VALUE]
+
+    result = []
+    if split_mode in [CastType.BOTH, CastType.DOWNCAST]:
+        downcast = get_downcast(dataframe, "prdM", exclude_bad_scans=exclude_bad_scans)
+        result.append(downcast)
+
+    if split_mode in [CastType.BOTH, CastType.UPCAST]:
+        upcast = get_upcast(dataframe, "prdM", exclude_bad_scans=exclude_bad_scans)
+        result.append(upcast)
 
     return result

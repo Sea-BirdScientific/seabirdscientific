@@ -3,64 +3,21 @@
 
 """A collection of raw data conversion functions."""
 
-# Functions:
-#     convert_temperature (np.ndarray, TemperatureCoefficients, str, str, bool)
-#     convert_pressure ( np.ndarray, np.ndarray, PressureCoefficients, str)
-#     convert_conductivity (np.ndarray, np.ndarray, np.ndarray, ConductivityCoefficients)
-#     potential_density_from_t_s_p (np.ndarray, np.ndarray, np.ndarray, float, float, float)
-#     potential_density_from_t_c_p (np.ndarray, np.ndarray, np.ndarray, float, float, float)
-#     density_from_t_s_p (np.ndarray, np.ndarray, np.ndarray, float, float)
-#     density_from_t_c_p (np.ndarray, np.ndarray, np.ndarray, float, float)
-#     depth_from_pressure (np.ndarray, float, depth_units="m", pressure_units="dbar")
-#     convert_sbe63_oxygen (
-#         np.ndarray, np.ndarray, np.ndarray, np.ndarray,
-#         Oxygen63Coefficients, Thermistor63Coefficients, str
-#     )
-#     convert_sbe63_thermistor (np.ndarray, Thermistor63Coefficients)
-#     convert_sbe43_oxygen (
-#         np.ndarray, np.ndarray, np.ndarray, np.ndarray,
-#         Oxygen43Coefficients, bool, bool, float, float
-#     )
-#     convert_oxygen_to_mg_per_l (np.ndarray)
-#     convert_oxygen_to_umol_per_kg (np.ndarray, np.ndarray)
-#     convert_eco_chlorophylla_val (float, ChlorophyllACoefficients)
-#     convert_eco_turbidity_val (float, TurbidityCoefficients)
-#     convert_sbe18_ph_val(float, float, PH18Coefficients)
-#     convert_par_logarithmic_val(float, PARCoefficients)
-#     convert_nitrate(np.ndarray, float, float, str)
-#     convert_ph_voltage_counts(np.ndarray)
-#     convert_internal_seafet_ph(np.ndarray, temperature: np.ndarray, PHSeaFETInternalCoefficients)
-#     convert_external_seafet_ph(
-#         np.ndarray, np.ndarray, np.ndarray, np.ndarray,
-#         PHSeaFETExternalCoefficients
-#     )
-
-
 # Native imports
 from math import e, floor
 from typing import Literal
+import warnings
 
 # Third-party imports
 import gsw
 import numpy as np
+from numpy.polynomial import Polynomial
 from scipy import stats
 
 # Sea-Bird imports
 
 # Internal imports
-from .cal_coefficients import (
-    ConductivityCoefficients,
-    Oxygen43Coefficients,
-    Oxygen63Coefficients,
-    PARCoefficients,
-    PH18Coefficients,
-    PHSeaFETInternalCoefficients,
-    PHSeaFETExternalCoefficients,
-    PressureCoefficients,
-    TemperatureCoefficients,
-    Thermistor63Coefficients,
-    ECOCoefficients,
-)
+import seabirdscientific.cal_coefficients as cc
 
 
 DBAR_TO_PSI = 1.450377
@@ -70,19 +27,19 @@ KELVIN_OFFSET_0C = 273.15
 KELVIN_OFFSET_25C = 298.15
 OXYGEN_MLPERL_TO_MGPERL = 1.42903
 OXYGEN_MLPERL_TO_UMOLPERKG = 44660
-# taken from https://blog.seabird.com/ufaqs/what-is-the-difference-in-temperature-expressions-between-ipts-68-and-its-90/ # pylint: disable=line-too-long
+# taken from https://blog.seabird.com/ufaqs/what-is-the-difference-in-temperature-expressions-between-ipts-68-and-its-90/
 ITS90_TO_IPTS68 = 1.00024
 # micro moles of nitrate to milligrams of nitrogen per liter
 UMNO3_TO_MGNL = 0.014007
-# [J K^{-1} mol^{-1}] Gas constant, NIST Reference on Constants retrieved 10-05-2015
+# [J K^{-1} mol^{-1}] Gas constant from SBS application note 99
 R = 8.3144621
-# [Coulombs mol^{-1}] Faraday constant, NIST Reference on Constants retrieved 10-05-2015
+# [Coulombs mol^{-1}] Faraday constant from SBS application note 99
 F = 96485.365
 
 
 def convert_temperature(
     temperature_counts_in: np.ndarray,
-    coefs: TemperatureCoefficients,
+    coefs: cc.TemperatureCoefficients,
     standard: Literal["ITS90", "IPTS68"] = "ITS90",
     units: Literal["C", "F"] = "C",
     use_mv_r: bool = False,
@@ -100,7 +57,7 @@ def convert_temperature(
     :param use_mv_r: true to perform extra conversion steps required by
         some instruments (check the cal sheet to see if this is required)
 
-    :return: temperature val converted to ITS-90 degrees C
+    :return: temperature val converted to ITS-90 or IPTS68 in degrees C or F
     """
 
     if use_mv_r:
@@ -123,13 +80,38 @@ def convert_temperature(
     return temperature
 
 
+def convert_temperature_frequency(
+    frequency: np.ndarray,
+    coefs: cc.TemperatureFrequencyCoefficients,
+    standard: Literal["ITS90", "IPTS68"] = "ITS90",
+    units: Literal["C", "F"] = "C",
+):
+    """Convert raw frequency to temperature in degrees Celsius or degrees Fahrenheit
+
+    :param frequency: raw frequency from the temperature sensor
+    :param coefs: calibration coefficients for the temperature sensor
+    :return: temperature in Celsius or Fahrenheit
+    """
+    fLog = np.log(coefs.f0 / frequency)
+    temperature = (
+        1 / (coefs.g + coefs.h * fLog + coefs.i * fLog**2 + coefs.j * fLog**3) - KELVIN_OFFSET_0C
+    )
+
+    if standard == "IPTS68":
+        temperature *= ITS90_TO_IPTS68
+    if units == "F":
+        temperature = temperature * 9 / 5 + 32  # Convert C to F
+
+    return temperature
+
+
 def convert_pressure(
     pressure_count: np.ndarray,
     compensation_voltage: np.ndarray,
-    coefs: PressureCoefficients,
-    units: Literal["dbar", "psia"] = "psia",
+    coefs: cc.PressureCoefficients,
+    units: Literal["dbar", "psia", "psig"] = "psig",
 ):
-    """Converts pressure counts to PSIA (pounds per square inch, abolute).
+    """Converts pressure counts to sea pressure (psig and dbar) and absolute pressure (psia)
 
     pressure_count and compensation_voltage are expected to be raw data
     from an instrument in A/D counts
@@ -138,10 +120,10 @@ def convert_pressure(
     :param compensation_voltage: pressure temperature compensation
         voltage, in counts or volts depending on the instrument
     :param coefs: calibration coefficients for the pressure sensor
-    :param units: whether or not to use psia or dbar as the returned
+    :param units: whether or not to use psig or dbar as the returned
         unit type
 
-    :return: pressure val in PSIA
+    :return: sea pressure val in dbar or PSIG
     """
     sea_level_pressure = 14.7
 
@@ -152,7 +134,10 @@ def convert_pressure(
     )
     x = pressure_count - coefs.ptca0 - coefs.ptca1 * t - coefs.ptca2 * t**2
     n = x * coefs.ptcb0 / (coefs.ptcb0 + coefs.ptcb1 * t + coefs.ptcb2 * t**2)
-    pressure = coefs.pa0 + coefs.pa1 * n + coefs.pa2 * n**2 - sea_level_pressure
+    pressure = coefs.pa0 + coefs.pa1 * n + coefs.pa2 * n**2
+
+    if units == "dbar" or units == "psig":
+        pressure -= sea_level_pressure
 
     if units == "dbar":
         pressure *= PSI_TO_DBAR
@@ -160,11 +145,82 @@ def convert_pressure(
     return pressure
 
 
+def convert_pressure_digiquartz(
+    pressure_count: np.ndarray,
+    compensation_voltage: np.ndarray,
+    coefs: cc.PressureDigiquartzCoefficients,
+    units: Literal["dbar", "psia"],
+    sample_interval: float,
+):
+    """Converts pressure counts to PSIA (pounds per square inch, abolute) or dbar for a digiquartz pressure sensor.
+
+    pressure_count and compensation_voltage are expected to be raw data
+    from an instrument in A/D counts
+
+    :param pressure_count: pressure value to convert, in A/D counts
+    :param compensation_voltage: pressure temperature compensation
+        voltage, in counts or volts depending on the instrument
+    :param coefs: calibration coefficients for the digiquartz pressure sensor
+    :param units: whether or not to use psia or dbar as the returned
+        unit type
+    :param sample_interval: sample rate of the data to be used for temperature compensation correction, in seconds
+    :return: pressure val in PSIA or dbar
+    """
+    sea_level_pressure = 14.7
+    # First, average temperature compensation over 30 seconds
+    max_scans_in_30_seconds = 720
+    scans_in_window = floor(30 / sample_interval)
+    scans_in_window = max(scans_in_window, 1)
+    scans_in_window = min(scans_in_window, max_scans_in_30_seconds)
+
+    rolling_sum = compensation_voltage[0] * scans_in_window
+    modified_compensation_voltage = compensation_voltage.copy()
+
+    for i in range(0, len(compensation_voltage)):
+        if i < scans_in_window:
+            # remove a copy of 0-index value from rolling sum
+            rolling_sum -= compensation_voltage[0]
+        else:
+            # remove oldest value from rolling sum
+            rolling_sum -= compensation_voltage[i - scans_in_window]
+
+        rolling_sum += compensation_voltage[i]
+        modified_compensation_voltage[i] = (
+            rolling_sum / scans_in_window * coefs.AD590M + coefs.AD590B
+        )
+
+    # Now, calculate pressure
+
+    t = 1 / pressure_count * 1000000  # convert to period in usec
+    c = (
+        coefs.c1
+        + coefs.c2 * modified_compensation_voltage
+        + coefs.c3 * modified_compensation_voltage**2
+    )
+    d = coefs.d1 + coefs.d2 * modified_compensation_voltage
+    t0 = (
+        coefs.t1
+        + coefs.t2 * modified_compensation_voltage
+        + coefs.t3 * modified_compensation_voltage**2
+        + coefs.t4 * modified_compensation_voltage**3
+        + coefs.t5 * modified_compensation_voltage**4
+    )
+
+    t0_squared_over_t_squared = (t0**2) / (t**2)
+    one_minus_ratio = 1 - t0_squared_over_t_squared
+    p = c * one_minus_ratio * (1 - d * one_minus_ratio)
+    abs_pressure = p - sea_level_pressure
+    if units == "dbar":
+        abs_pressure *= PSI_TO_DBAR
+    return abs_pressure
+
+
 def convert_conductivity(
     conductivity_count: np.ndarray,
     temperature: np.ndarray,
     pressure: np.ndarray,
-    coefs: ConductivityCoefficients,
+    coefs: cc.ConductivityCoefficients,
+    scalar: float = 1.0,
 ):
     """Converts raw conductivity counts to S/m.
 
@@ -175,13 +231,14 @@ def convert_conductivity(
     :param temperature: reference temperature, in degrees C
     :param pressure: reference pressure, in dbar
     :param coefs: calibration coefficient for the conductivity sensor
+    :param scalar: value to multiply by at the end. For most instruments, this is 1. For SBE911, it is 1/10
 
     :return: conductivity val converted to S/m
     """
     f = conductivity_count * np.sqrt(1 + coefs.wbotc * temperature) / 1000
     numerator = coefs.g + coefs.h * f**2 + coefs.i * f**3 + coefs.j * f**4
     denominator = 1 + coefs.ctcor * temperature + coefs.cpcor * pressure
-    return numerator / denominator
+    return numerator / denominator * scalar
 
 
 def potential_density_from_t_s_p(
@@ -324,9 +381,9 @@ def convert_sbe63_oxygen(
     thermistor: np.ndarray,
     pressure: np.ndarray,
     salinity: np.ndarray,
-    coefs: Oxygen63Coefficients,
-    thermistor_coefs: Thermistor63Coefficients,
-    thermistor_units: Literal["volts", "C"] = "volts",
+    coefs: cc.Oxygen63Coefficients,
+    thermistor_coefs: cc.Thermistor63Coefficients,
+    thermistor_units: Literal["volts", "C"] = "volts",  # Is this volts or frequency?
 ):
     """Returns the data after converting it to ml/l.
 
@@ -340,8 +397,11 @@ def convert_sbe63_oxygen(
         dbar
     :param salinity: Converted salinity value from the attached CTD, in
         practical salinity PSU
-    :param coefs (Oxygen63Coefficients): calibration coefficients for
+    :param coefs (cc.Oxygen63Coefficients): calibration coefficients for
         the SBE63 sensor
+    :param thermistor_coefs (cc.Thermistor63Coefficients): calibration coefficients for
+        the SBE63 thermistor sensor
+    :param thermistor_units: units of thermistor_temp input
 
     :return: converted Oxygen value, in ml/l
     """
@@ -386,7 +446,7 @@ def convert_sbe63_oxygen(
 
 def convert_sbe63_thermistor(
     instrument_output: np.ndarray,
-    coefs: Thermistor63Coefficients,
+    coefs: cc.Thermistor63Coefficients,
 ):
     """Converts a SBE63 thermistor raw output array to temperature in
     ITS-90 deg C.
@@ -410,7 +470,7 @@ def convert_sbe43_oxygen(
     temperature: np.ndarray,
     pressure: np.ndarray,
     salinity: np.ndarray,
-    coefs: Oxygen43Coefficients,
+    coefs: cc.Oxygen43Coefficients,
     apply_tau_correction: bool = False,
     apply_hysteresis_correction: bool = False,
     window_size: float = 1,
@@ -486,7 +546,7 @@ def _convert_sbe43_oxygen(
     temperature: np.ndarray,
     pressure: np.ndarray,
     salinity: np.ndarray,
-    coefs: Oxygen43Coefficients,
+    coefs: cc.Oxygen43Coefficients,
     dvdt_value: np.ndarray,
 ):
     """Returns the data after converting it to ml/l.
@@ -580,7 +640,7 @@ def convert_oxygen_to_umol_per_kg(ox_values: np.ndarray, potential_density: np.n
 
 def convert_eco(
     raw: np.ndarray,
-    coefs: ECOCoefficients,
+    coefs: cc.ECOCoefficients,
 ):
     """Converts a raw value for any ECO measurand.
 
@@ -597,7 +657,7 @@ def convert_eco(
 def convert_sbe18_ph(
     raw_ph: np.ndarray,
     temperature: np.ndarray,
-    coefs: PH18Coefficients,
+    coefs: cc.PH18Coefficients,
 ):
     """Converts a raw voltage value for pH.
 
@@ -617,25 +677,90 @@ def convert_sbe18_ph(
 
 
 def convert_par_logarithmic(
-    raw_par: np.ndarray,
-    coefs: PARCoefficients,
+    volts: np.ndarray,
+    coefs: cc.PARCoefficients,
 ):
-    """Converts a raw voltage value for PAR to µmol photons/m2*s.
+    """Converts a raw voltage value for underwater PAR.
 
     All equation information comes from application note 96
+
+    conversion_factor = 1.0 for units of μmol photons/m2*s
 
     :param raw_par: raw output voltage from PAR sensor
     :param coefs: calibration coefficients for the PAR sensor
 
     :return: converted PAR in µmol photons/m2*s
     """
-    par = coefs.multiplier * coefs.im * 10 ** ((raw_par - coefs.a0) / coefs.a1)
+    exponent = (volts - coefs.a0) / coefs.a1
+    par = coefs.multiplier * coefs.im * 10**exponent
 
     return par
 
 
+def convert_spar_logarithmic(
+    volts: np.ndarray,
+    coefs: cc.SPARCoefficients,
+):
+    """Converts a raw voltage value for logarithmic surface PAR.
+
+    All equation information comes from application note 96
+
+    conversion_factor = 1.0 for units of μmol photons/m2*s
+
+    :param volts: raw output voltage from SPAR sensor
+    :param coefs: coefficients for the SPAR sensors
+
+    :return: converted surface PAR in µmol photons/m2*s
+    """
+    exponent = (volts - coefs.a0) / coefs.a1
+    spar = coefs.conversion_factor * coefs.im * 10**exponent
+
+    return spar
+
+
+def convert_spar_linear(
+    volts: np.ndarray,
+    coefs: cc.SPARCoefficients,
+):
+    """Converts a raw voltage value for linear surface PAR.
+
+    All equation information comes from application note 96
+
+    conversion_factor = 1.0 for units of μmol photons/m2*s
+
+    :param volts: raw output voltage from SPAR sensor
+    :param coefs: coefficients for the SPAR sensors
+
+    :return: converted surface PAR in µmol photons/m2*s
+    """
+    spar = coefs.im * coefs.a1 * (volts - coefs.a0) * coefs.conversion_factor
+
+    return spar
+
+
+def convert_spar_biospherical(
+    volts: np.ndarray,
+    coefs: cc.SPARCoefficients,
+):
+    """Converts a raw voltage value for biospherical surface PAR.
+
+    All equation information comes from application note 11S
+
+    :param volts: raw output voltage from SPAR sensor
+    :param coefs: coefficients for the SPAR sensors
+
+    :return: converted surface PAR in µmol photons/m2*s
+    """
+    spar = volts * coefs.conversion_factor
+
+    return spar
+
+
 def convert_nitrate(
-    volts: np.ndarray, dac_min: float, dac_max: float, units: Literal["uMNO3", "mgNL"] = "uMNO3"
+    volts: np.ndarray,
+    dac_min: float,
+    dac_max: float,
+    units: Literal["uMNO3", "mgNL"] = "uMNO3",
 ):
     """Convert SUNA raw voltages to uMNO3 or mgNL
 
@@ -671,323 +796,337 @@ def convert_ph_voltage_counts(ph_counts: np.ndarray):
     return ph_volts
 
 
-def _calculate_nernst(temperature: np.ndarray):
+def _calculate_nernst(temperature: np.ndarray) -> np.ndarray:
     """Calculate the nernst term using natual log
 
     :param temperature: temperature in kelvin
     :return: the nernst term (J/Coulomb; electrical potential; volts)
     """
-    nernst_term = R * temperature / F * np.log(10)
+    nernst_term = R * temperature * np.log(10) / F
     return nernst_term
 
 
 def convert_internal_seafet_ph(
-    ph_counts: np.ndarray,
-    temperature: np.ndarray,
-    coefs: PHSeaFETInternalCoefficients,
+    raw_ph: np.ndarray = 0,
+    temperature: np.ndarray = 0,
+    coefs: cc.PHSeaFETInternalCoefficients = cc.PHSeaFETInternalCoefficients(),
+    ph_units: Literal["counts", "volts"] = "counts",
+    ph_counts: np.ndarray = None,
 ):
     """Calculates the internal pH on the total scale given the
     temperature and internal FET voltage
 
-    :param ph_counts: pH voltage counts
-    :param temperature: sample temperature
+    :param raw_ph: Raw voltage or voltage counts
+    :param temperature: Sample temperature
     :param coefs: SeaFET calibration coefficients
+    :param ph_units: The units of raw_ph, defaults to 'counts'
+    :param ph_counts: Deprecated. pH voltage counts
     :return: calculated pH on the total scale for the SeaFET internal
         reference
     """
-    ph_volts = convert_ph_voltage_counts(ph_counts)
+    if ph_counts is not None:
+        warnings.warn("Deprecated, use raw_ph", DeprecationWarning)
+        ph_volts = convert_ph_voltage_counts(ph_counts)
+    elif ph_units == "counts":
+        ph_volts = convert_ph_voltage_counts(raw_ph)
+    else:  # ph_counts == 'volts'
+        ph_volts = raw_ph
 
-    # Eo(T) or temperature offset
-    temperature_offset = coefs.k2 * temperature
-
-    # Eo the cell reference voltage at in-situ conditions
-    cell_ref_volts = coefs.k0 + temperature_offset
-    nernst_term = _calculate_nernst(temperature + KELVIN_OFFSET_0C)
-    ph = (ph_volts - cell_ref_volts) / nernst_term
+    nernst = _calculate_nernst(temperature + KELVIN_OFFSET_0C)
+    ph = (ph_volts - coefs.kdf0 - coefs.kdf2 * temperature) / nernst
     return ph
 
 
-# pylint: disable=too-many-statements #TODO: break this function up
-def convert_external_seafet_ph(
-    ph_counts: np.ndarray,
-    temperature: np.ndarray,
-    salinity: np.ndarray,
-    pressure: np.ndarray,
-    coefs: PHSeaFETExternalCoefficients,
-):
-    """Calculates the external pH on the total scale given temperature,
-    salinity, pressure and FET voltage counts
+def _calculate_thermal_pressure(temperature: np.ndarray, pressure: np.ndarray):
+    """ThermPress at in-situ
+    Thermpress = (-V_Cl x P + 0.5 K_Cl x P^2)/10F
+    Where,
+    P: Pressure in 'bar'
+    V_Cl: Chloride partial molal volume (in cm^3 mol^-1)
+    K_Cl: Chloride partial molal compressibility
+    (in cm^3 mol^-1 bar^-1) (can be neglected [4, pg. 876])
 
-    :param ph_counts: ISFET external voltage counts
-    :param temperature: sample temperature in Celsius
-    :param salinity: sample salinity in psu
-    :param pressure: sample pressure in dbar
+    :param temperature: temperature in C
+    :param pressure: pressure in bar
+    :return: thermal pressure
     """
+    # // Partial molal volume and compressibility change for HCl from Millero
+    delta_vhcl = _partial_molal_hcl_volume(temperature)
 
-    ts_cr = 0.14  # relative concentration of sulfate in SW
-    ts_mm = 96.062  # [g/mol] molar mass of sulfate
-    cl_cr = 0.99889  # relative concentration of chloride in SW
-    cl_mm = 35.453  # [g/mol] molar mass of chloride
-    cl_to_s = 1.80655  # [ppt, 10^{-3}] Chlorinity to Salinity
+    # // Thermpress term
+    thermal_pressure = -delta_vhcl * 0.0242 / (23061 * 1.01) * pressure
 
-    def _molar_concentration(concentration: float, molar_mass: float, salinity: np.ndarray):
-        """
-        An estimate of constituent concentration in seawater is made
-        from salinity on the basis of contancy of composition.
+    return thermal_pressure
 
-        :param concentration: Relative concentration of constituent
-        :param molar_mass: Molar mass of constituent
-        :param salinity: Salinity in PSU
-        :return: molar concentration
-        """
-        return (concentration / molar_mass) * (salinity / cl_to_s)
 
-    def _molar_conc_chloride(salinity: np.ndarray):
-        """Calculates the molar concentration of chloride
+def _total_chloride_in_seawater(salinity: np.ndarray) -> np.ndarray:
+    """From SBS application note 99. Calculated as (Dickson et al. 2007)
 
-        :param salinity: Salinity in PSU
-        :return: molar concentration of chloride
-        """
-        return _molar_concentration(cl_cr, cl_mm, salinity) * 1000 / (1000 - 1.005 * salinity)
+    :param salinity: Salinity in PSU
+    :return: Total chloride in seawater
+    """
+    # 0.99889  relative concentration of chloride in SW
+    # 35.453  [g/mol] molar mass of chloride
+    # 1.80655  [ppt, 10^{-3}] Chlorinity to Salinity
+    factor_1 = 0.99889 / 35.453
+    factor_2 = salinity / 1.80655
+    factor_3 = 1 / (1 - 1.005e-3 * salinity)
+    total_chloride = factor_1 * factor_2 * factor_3
+    return total_chloride
 
-    def _molar_conc_sulfate(salinity: np.ndarray):
-        """Calculates the molar concentration of total sulfate
 
-        :param salinity: Salinity in PSU
-        :return: molar concentration of sulfate
-        """
-        return _molar_concentration(ts_cr, ts_mm, salinity)
+def _total_sulfate_in_seawater(salinity: np.ndarray):
+    """From SBS application note 99. Calculated as (Dickson et al. 2007)
 
-    def _calculate_ionic_strength(salinity: np.ndarray):
-        """Compute Salinity Ionic strength
-        Ionic Strength (mol/kg H2O) from Dickson "Guide to Best
-        Practices for Ocean CO2 Measurements", 2007, Chapter 5, page 11
+    :param salinity: Salinity in PSU
+    :return: Total sulfate in seawater
+    """
+    # 0.14  relative concentration of sulfate in SW
+    # 96.062  [g/mol] molar mass of sulfate
+    # 1.80655  [ppt, 10^{-3}] Chlorinity to Salinity
+    total_sulfate = (0.14 / 96.062) * (salinity / 1.80655)
+    return total_sulfate
 
-        :param salinity: Salinity in PSU
-        :return: Salinity ionic strength
-        """
-        c0 = 19.924
-        c1 = 1000
-        c2 = 1.005
 
-        # 19.924*(S) / (1000 - 1.005*(S))
-        ionic_strength = c0 * salinity / (c1 - c2 * salinity)
-        return ionic_strength
+def _sample_ionic_strength(salinity: np.ndarray) -> np.ndarray:
+    """From SBS application note 99. The sample ionic strength is
+    calculated as (Dickson et al. 2007)
 
-    def _calculate_ks(
-        temperature: np.ndarray,
-        ionic_strength: np.ndarray,
-        salinity: np.ndarray,
-        pressure: np.ndarray,
-    ):
-        """Dissociation constant of sulfuric acid in seawater
-        Dickson, A. G., J. Chemical Thermodynamics, 22:113-127, 1990
-        The goodness of fit is .021.
-        It was given in mol/kg-H2O. I convert it to mol/kg-SW.
-        TYPO on p. 121: the constant e9 should be e8.
-        This is from eqs 22 and 23 on p. 123, and Table 4 on p 121:
+    :param salinity: Salinity in PSU
+    :return: Sample ionic strength
+    """
+    ionic_strength = (19.924 * salinity) / (1000 - 1.005 * salinity)
+    return ionic_strength
 
-        :param temperature: Temperature in kelvin
-        :param ionic_strength: Ionic strength
-        :param salinity: Salinity in PSU
-        :param pressure: Pressure in dbar
-        :return: Dissociation constant of sulfuric acid in seawater
-        """
 
-        # *********** this should be re-tested
-        c0 = -4276.1
-        c1 = 141.328
-        c2 = -23.093
-        c3 = -13856
-        c4 = 324.57
-        c5 = -47.986
-        c6 = 35474
-        c7 = -771.54
-        c8 = 114.723
-        c9 = -2698
-        c10 = 1776
+def _debye_huckel_constant_for_hcl_activity(temperature: np.ndarray):
+    """From SBS application note 99. This constant is calculated as
+    (Khoo et al. 1977)
 
-        ln_ks = (
-            c0 / temperature
-            + c1
-            + c2 * np.log(temperature)
-            + (c3 / temperature + c4 + c5 * np.log(temperature)) * np.sqrt(ionic_strength)
-            + (c6 / temperature + c7 + c8 * np.log(temperature)) * ionic_strength
-            + (c9 / temperature) * np.sqrt(ionic_strength) * ionic_strength
-            + (c10 / temperature) * np.pow(ionic_strength, 2)
-        )
+    :param temperature: Temperature in degrees C
+    :return: Debye-Huckel constant for activity of HCl
+    """
+    activity = 3.4286e-6 * temperature**2 + 6.7524e-4 * temperature + 0.49172143
+    return activity
 
-        # this is on the free pH scale in mol/kg-H2O
-        khso4 = np.exp(ln_ks) * (1 - 0.001005 * salinity)  # convert to mol/kg-SW
 
-        # UCI has two calculateKS functions. The first returns khso4 here,
-        # but in practice the second is always used which adds the following
+def _log_of_hcl_activity_coefficient_of_t(salinity: np.ndarray, temperature: np.ndarray):
+    """From SBS application note 99. Calculated as (Khoo et al. 1977)
 
-        temperature_c = temperature - KELVIN_OFFSET_0C
-        # Partial molal volume and compressibility change for HSO4
-        delta_vhso4 = -18.03 + 0.0466 * temperature_c + 0.000316 * temperature_c**2
-        kappa_hso4 = (-4.53 + 0.09 * temperature_c) / 1000
+    :param salinity: Salinity in PSU
+    :param temperature: Temperature in degrees C
+    :return: Logarithm of HCl activity coefficient as a function of temperature
+    """
+    i = _sample_ionic_strength(salinity)
+    a_dh = _debye_huckel_constant_for_hcl_activity(temperature)
+    term_1 = (-a_dh * np.sqrt(i)) / (1 + 1.394 * np.sqrt(i))
+    term_2 = (0.08885 - 1.11e-4 * temperature) * i
+    log_y_hcl = term_1 + term_2
+    return log_y_hcl
 
-        #  per Yui Press changed from dbar to bar here by / 10
-        ln_khso4_fac = (
-            (-delta_vhso4 + 0.5 * kappa_hso4 * (pressure / 10))
-            * (pressure / 10)
-            / (R * 10 * temperature)
-        )
 
-        #  bisulfate association constant at T, S, P
-        khso4_tps = khso4 * np.exp(ln_khso4_fac)
+def _log_of_hcl_activity_coefficient_of_tp(
+    salinity: np.ndarray,
+    temperature: np.ndarray,
+    pressure: np.ndarray,
+):
+    """From SBS application note 99. Calculated as (Johnson et al. 2017)
 
-        return khso4_tps
+    :param salinity: Salinity in PSU
+    :param temperature: Temperature in degrees C
+    :param pressure: Pressure in bar
+    :return: Logarithm of HCl activity coefficient as a function of
+        temperature and pressure
+    """
+    log_y_hcl = _log_of_hcl_activity_coefficient_of_t(salinity, temperature)
+    v_hcl = _partial_molal_hcl_volume(temperature)
+    t_kelvin = temperature + KELVIN_OFFSET_0C
+    term_2 = (v_hcl * pressure) / (np.log(10) * R * t_kelvin * 10) / 2
+    log_y_hcl_tp = log_y_hcl + term_2
+    return log_y_hcl_tp
 
-    def _calculate_adh(temperature):
-        """Calculates the Debeye-Huckel constant (temperature [Celcius]
-        dependence only)
 
-        :param temperature: temperature in C
-        :return: Debeye-Huckel constant
-        """
-        # This fit was made by Ken Johnson from data presented by:
-        # Khoo et al. (Anal. Chem., 49, 29-34, 1977).
-        c0 = 0.49172143
-        c1 = 0.00067524
-        # Modified from 0.00000343 to 0.0000034286,
-        # email from Ken with newest version of MBARI code by Charles Branham 3/9/16
-        c2 = 0.0000034286
+def _acid_dissociation_constant_of_hso4(salinity: np.ndarray, temperature: np.ndarray):
+    """From SBS application note 99. Calculated as (Dickson et al. 2007)
 
-        # 0.00000343*(t)*(t) + 0.00067524*(t) + 0.49172143
-        adh = c0 + c1 * temperature + c2 * temperature**2
+    :param salinity: Salinty in PSU
+    :param temperature: Temperature in Kelvin
+    :return: _description_
+    """
+    i = _sample_ionic_strength(salinity)
+    term_1 = -4276.1 / temperature + 141.328 - 23.093 * np.log(temperature)
+    term_2 = (-13856 / temperature + 324.57 - 47.986 * np.log(temperature)) * np.sqrt(i)
+    term_3 = (35474 / temperature - 771.54 + 114.723 * np.log(temperature)) * i
+    term_4 = (2698 / temperature) * i**1.5
+    term_5 = (1776 / temperature) * i**2
+    k_s = (1 - 1.005e-3 * salinity) * np.exp(term_1 + term_2 + term_3 - term_4 + term_5)
+    return k_s
 
-        return adh
 
-    def _calculate_log_gamma_hcl(
-        adh: np.ndarray, ionic_strength: np.ndarray, temperature: np.ndarray
-    ):
-        # pylint: disable=anomalous-backslash-in-string
-        """
-        Khoo et al. (Anal. Chem., 49, 29-34, 1977).
-        log γ±(HCl) = -A·√I / (1 + ρ·√I) + (B₀ + B₁·T)·I
-        As implemented in the calibration .xls
+def _acid_dissociation_constant_of_hso4_tp(
+    salinity: np.ndarray,
+    temperature: np.ndarray,
+    pressure: np.ndarray,
+):
+    """From SBS application note 99. Calculated as (Millero 1982)
 
-        :param adh: Debeye-Huckel constant
-        :param ionic_strength: ionic strength
-        :param temperature: Temperatur in C
-        :return: Log Gamma HCL
-        """
-        # NOTE: There is a disagreement between Ken Johnson and Yui Takeshita
-        # as to whether in-situ pressure correction is needed or already taken care of
-        # by the ThermPress term being added to E0. In email correspondence
-        # with Dave Murphy, Ken Johnson finally stated that no pressure correction
-        # should be applied to Gamma_HCl
+    :param salinity: Salinity in PSU
+    :param temperature: Temperature in degrees C
+    :param pressure: Pressure in bar
+    :return: Acid dissociation constant of HSO4
+    """
+    t_kelvin = temperature + KELVIN_OFFSET_0C
+    k_s = _acid_dissociation_constant_of_hso4(salinity, t_kelvin)
+    v_bar_s = _partial_molal_hso4_volume(temperature)
+    k_bar_s = _hso4_compressibility(temperature)
+    exponent = (-v_bar_s * pressure + 0.5 * k_bar_s * pressure**2) / (R * t_kelvin * 10)
+    k_stp = k_s * np.exp(exponent)
+    return k_stp
 
-        rho = 1.394
-        b0 = 0.08885
-        b1 = 0.000111
 
-        # As per instructions of KJ, should consider the data in
-        # Dickson (J. Chem. Thermodynamics, 22, 113-127, 1990)
-        log_gamma_hcl = (
-            -1 * adh * np.sqrt(ionic_strength) / (1 + rho * np.sqrt(ionic_strength))
-            + (b0 - b1 * temperature) * ionic_strength
-        )
+def _pressure_response(pressure: np.ndarray, coefs: cc.PHSeaFETExternalCoefficients):
+    """The sensor pressure response function from SBS application note
+    99.
 
-        return log_gamma_hcl
+    :param pressure: Pressure in bar
+    :param coefs: External pH coefficients
+    :return: The pressure response
+    """
+    term_1 = coefs.f1 * pressure
+    term_2 = coefs.f2 * pressure**2
+    term_3 = coefs.f3 * pressure**3
+    term_4 = coefs.f4 * pressure**4
+    term_5 = coefs.f5 * pressure**5
+    term_6 = coefs.f6 * pressure**6
+    return term_1 + term_2 + term_3 + term_4 + term_5 + term_6
 
-    def _calculate_thermal_pressure(temperature: np.ndarray, pressure: np.ndarray):
-        """ThermPress at in-situ
-        Thermpress = (-V_Cl x P + 0.5 K_Cl x P^2)/10F
-        Where,
-        P: Pressure in 'bar'
-        V_Cl: Chloride partial molal volume (in cm^3 mol^-1)
-        K_Cl: Chloride partial molal compressibility
-        (in cm^3 mol^-1 bar^-1) (can be neglected [4, pg. 876])
 
-        :param temperature: temperature in C
-        :param pressure: pressure in dbar
-        :return: thermal pressure
-        """
-        # // Partial molal volume and compressibility change for HCl from Millero
-        delta_vhcl = 17.85 + 0.1044 * temperature - 0.001316 * temperature**2
+def _partial_molal_hcl_volume(temperature: np.ndarray):
+    """From SBS application note 99. Calculated as (Millero 1983)
+    Note: AN99 has a typo and is missing temperature in the second term
 
-        # // Pressure is in 'dbar' and need to divide by 10 to convert to 'bar'
-        pressure_bar = pressure / 10
+    :param temperature: Temperature in degrees C
+    :return: Partial Molal Volume of HCl
+    """
+    volume = 17.85 + 0.1044 * temperature - 1.316e-3 * temperature**2
+    return volume
 
-        # // Thermpress term
-        thermal_pressure = -delta_vhcl * 0.0242 / (23061 * 1.01) * pressure_bar
 
-        return thermal_pressure
+def _partial_molal_hso4_volume(temperature: np.ndarray) -> np.ndarray:
+    """From SBS application note 99. Calculated as (Millero 1983)
 
-    # Intermediate terms
-    # tempK;   # Sample Temperature (K)
-    temperature_k = temperature + KELVIN_OFFSET_0C
-    # ST;        # Nernst Term
-    st = _calculate_nernst(temperature=temperature_k)
-    # mCl;       # Molar concentration of chloride
-    mcl = _molar_conc_chloride(salinity=salinity)
-    # TSO4;      # Molar concentration of total sulfate
-    tso4 = _molar_conc_sulfate(salinity=salinity)
-    # IonS;      # Salinity Ionic strength
-    ionic_strength = _calculate_ionic_strength(salinity=salinity)
+    :param temperature: Temperature in dgrees C
+    :return: Partial Molal Volume of HSO4
+    """
+    volume = -18.03 + 0.0466 * temperature + 3.16e-4 * temperature**2
+    return volume
 
-    adh = _calculate_adh(temperature=temperature)
 
-    log_gamma_hcl = _calculate_log_gamma_hcl(
-        adh=adh, ionic_strength=ionic_strength, temperature=temperature
+def _hso4_compressibility(temperature: np.ndarray):
+    """From SBS application note 99. Calculated as (Millero 1983)
+
+    :param temperature: Temperature in degrees C
+    :return: Compressibility of HSO4
+    """
+    compressibility = (-4.53 + 0.09 * temperature) / 1000
+    return compressibility
+
+
+def convert_external_seafet_ph(
+    raw_ph: np.ndarray = 0,
+    temperature: np.ndarray = 0,
+    salinity: np.ndarray = 0,
+    pressure: np.ndarray = 0,
+    coefs: cc.PHSeaFETExternalCoefficients = cc.PHSeaFETExternalCoefficients(),
+    ph_units: Literal["counts", "volts"] = "counts",
+    formula_version: Literal["legacy", "1.3"] = "1.3",
+    ph_counts: np.ndarray = None,
+):
+    """External pH for the SeaFET, SeapHOx, and Float. From SBS
+    Application Note 99 and "Processing BGC-Argo pH data at the DAC
+    level"
+
+    https://www.seabird.com/asset-get.download.jsa?id=69833850609
+    https://archimer.ifremer.fr/doc/00460/57195/
+
+    :param raw_ph: raw voltage or voltage counts
+    :param temperature: Temperature in degrees C
+    :param salinity: Salinity in PSU
+    :param pressure: Pressure in dbar
+    :param coefs: External pH coefficients
+    :param ph_units: The units for raw_ph, defaults to "counts"
+    :param formula_version: The version of the pH formula, where
+        "legacy" refers to the formula used by Fathom v3.0.4 and UCI
+        v4.0.x, and "1.3" refers to the version of the Argo pH doc in
+        the description
+    :return: Total external pH
+    """
+    if ph_counts is not None:
+        warnings.warn("Deprecated, use raw_ph", DeprecationWarning)
+        ph_volts = convert_ph_voltage_counts(ph_counts)
+    elif ph_units == "counts":
+        ph_volts = convert_ph_voltage_counts(raw_ph)
+    else:  # ph_counts == 'volts'
+        ph_volts = raw_ph
+
+    t_kelvin = temperature + KELVIN_OFFSET_0C
+    p_bar = pressure / 10
+    f_p = _pressure_response(pressure, coefs)
+    nernst = _calculate_nernst(t_kelvin)
+    s_t = _total_sulfate_in_seawater(salinity)
+    k_stp = _acid_dissociation_constant_of_hso4_tp(salinity, temperature, p_bar)
+
+    term_2 = np.log10(_total_chloride_in_seawater(salinity))
+    term_4 = np.log10(1 - 1.005e-3 * salinity)
+    term_5 = np.log10(1 + s_t / k_stp)
+
+    if coefs.k2_poly_order == 0:
+        k2_poly = Polynomial([coefs.k2])
+    else:
+        k2_poly = Polynomial([coefs.k2f0, coefs.k2f1, coefs.k2f2, coefs.k2f3])
+
+    eot = k2_poly(pressure) * temperature
+
+    if formula_version == "legacy":
+        thermal_pressure = _calculate_thermal_pressure(temperature, p_bar)
+        term_1 = (ph_volts - coefs.k0 - eot - f_p - thermal_pressure) / nernst
+        term_3 = 2 * _log_of_hcl_activity_coefficient_of_t(salinity, temperature)
+
+    elif formula_version == "1.3":
+        term_1 = (ph_volts - coefs.k0 - eot - f_p) / nernst
+        term_3 = 2 * _log_of_hcl_activity_coefficient_of_tp(salinity, temperature, p_bar)
+
+    ph = term_1 + term_2 + term_3 - term_4 - term_5
+    return ph
+
+
+def convert_seafet_temperature(raw_temp, coefs: cc.TemperatureSeaFETCoefficients):
+    """Converts the raw SeaFET temperature value to ITS-90 Celsius.
+
+    :param raw_temp: raw temperature values
+    :return: ITS-90 Celsius.
+    """
+    temp_log = np.log(raw_temp)
+
+    temp = 1 / (
+        ((coefs.tdfa3 * temp_log + coefs.tdfa2) * temp_log + coefs.tdfa1) * temp_log + coefs.tdfa0
     )
 
-    thermal_pressure = _calculate_thermal_pressure(temperature=temperature, pressure=pressure)
+    temp_c = temp - KELVIN_OFFSET_0C
 
-    # // Dissociation constant of sulfuric acid in seawater
-    # KSO4;      # Dissociation constant of sulfuric acid in seawater
-    # this.KSO4 = calculateKS(this.tempK, this.IonS, salinity, tempC, pressure);
-    kso4 = _calculate_ks(
-        temperature=temperature_k,
-        ionic_strength=ionic_strength,
-        salinity=salinity,
-        pressure=pressure,
-    )
-
-    ph_volts = convert_ph_voltage_counts(ph_counts)
-
-    # Eo(T) or temperature offset
-    eot = coefs.k2 * temperature
-
-    # Eo(P) or pressure offset
-    eop = (
-        coefs.f1 * pressure
-        + coefs.f2 * pressure**2
-        + coefs.f3 * pressure**3
-        + coefs.f4 * pressure**4
-        + coefs.f5 * pressure**5
-        + coefs.f6 * pressure**6
-    )
-
-    # Calculate the External pH in Free Scale, firmware applies 2 factor here.
-    # Convert pHfree(mol/kg H2O) to pHfree(mol/kg sln) per KSJ by using the
-    # ratio (1000 - 1.005 * Salinity)/1000
-    free_scale_ph = (
-        (ph_volts - eot - eop - thermal_pressure - coefs.k0) / st
-        + np.log10(mcl)
-        + (2 * log_gamma_hcl)
-        - np.log10((1000 - 1.005 * salinity) / 1000)
-    )
-
-    total_ph = free_scale_ph - np.log10(1 + tso4 / kso4)
-
-    return total_ph
+    return temp_c
 
 
 def convert_internal_seafet_temperature(temperature_counts: np.ndarray):
-    """Converts the raw internal temperature counts to degrees Celcius
+    """Converts the raw internal temperature counts to degrees Celsius
 
     :param temperature_counts: raw internal temperature counts
-    :return: internal temperature in Celcius
+    :return: internal temperature in Celsius
     """
     slope = 175.72
     offset = -46.85
     int_16bit = 2**16
     temperature = temperature_counts / int_16bit * slope + offset
-
     return temperature
 
 
@@ -995,7 +1134,7 @@ def convert_seafet_relative_humidity(humidity_counts: np.ndarray, temperature: n
     """Convert relative humidity counts to percent
 
     :param humidity_counts: raw relative humidity counts
-    :param temperature: converted internal temperature in Celcius
+    :param temperature: converted internal temperature in Celsius
     :return: temperature compensated relative humidity in percent
     """
     slope = 125
@@ -1018,3 +1157,23 @@ def convert_seafet_relative_humidity(humidity_counts: np.ndarray, temperature: n
     np.clip(relative_humidity, a_min=0, a_max=100)
 
     return relative_humidity
+
+
+def convert_altimeter(
+    volts: np.ndarray,
+    coefs: cc.AltimeterCoefficients,
+):
+    """Converts a raw voltage value for altimeter.
+
+    All equation information comes from application note 95
+
+    :param volts: raw output voltage from altimeter sensor
+    :param coefs: slope and offset for the altimeter sensors
+
+    :return: converted height in meters
+    """
+    ALTIMETER_SCALAR = 300
+
+    height = ALTIMETER_SCALAR * volts / coefs.slope - coefs.offset
+
+    return height

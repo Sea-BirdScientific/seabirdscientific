@@ -1,0 +1,681 @@
+* Sea-Bird SBE19plus  Data File:
+* FileName = SBE19plus_01906398_2019_07_15_0033.hex
+* Software version 2.8.0.119
+* Temperature SN = 6398
+* Conductivity SN = 6398
+* System UpLoad Time = Jul 15 2019 10:56:00
+* <ApplicationData>
+* <Seaterm232>
+* <SoftwareVersion>2.8.0.119</SoftwareVersion>
+* <BuildDate>07-Nov-2018</BuildDate>
+* </Seaterm232>
+* </ApplicationData>
+* <InstrumentState>
+* <HardwareData DeviceType='SBE19plus' SerialNumber='01906398'>
+*
+*    <Manufacturer>Sea-Bird Electronics, Inc.</Manufacturer>
+*
+*    <FirmwareVersion>2.5.2</FirmwareVersion>
+*
+*    <FirmwareDate>12 Mar 2013 11:50</FirmwareDate>
+*
+*    <CommandSetVersion>1.3</CommandSetVersion>
+*
+*    <PCBAssembly PCBSerialNum='9270' AssemblyNum='41054G'/>
+*
+*    <PCBAssembly PCBSerialNum='9117' AssemblyNum='41580B'/>
+*
+*    <PCBAssembly PCBSerialNum='11030' AssemblyNum='41606'/>
+*
+*    <PCBAssembly PCBSerialNum='10002' AssemblyNum='41059D'/>
+*
+*    <MfgDate>07  AUG   2009</MfgDate>
+*
+*    <InternalSensors>
+*
+*       <Sensor id='Main Temperature'>
+*
+*          <type>temperature0</type>
+*
+*          <SerialNumber>01906398</SerialNumber>
+*
+*       </Sensor>
+*
+*       <Sensor id='Main Conductivity'>
+*
+*          <type>conductivity-0</type>
+*
+*          <SerialNumber>01906398</SerialNumber>
+*
+*       </Sensor>
+*
+*       <Sensor id='Main Pressure'>
+*
+*          <type>strain-0</type>
+*
+*          <SerialNumber> 2945715</SerialNumber>
+*
+*       </Sensor>
+*
+*    </InternalSensors>
+*
+*    <ExternalSensors>
+*
+*       <Sensor id='volt 0'>
+*
+*          <type>SBE 43 OXY</type>
+*
+*          <SerialNumber>431686</SerialNumber>
+*
+*       </Sensor>
+*
+*       <Sensor id='volt 1'>
+*
+*          <type>not assigned</type>
+*
+*          <SerialNumber>not assigned</SerialNumber>
+*
+*       </Sensor>
+*
+*       <Sensor id='volt 2'>
+*
+*          <type>SBE 18 pH</type>
+*
+*          <SerialNumber>180726</SerialNumber>
+*
+*       </Sensor>
+*
+*       <Sensor id='volt 3'>
+*
+*          <type>not assigned</type>
+*
+*          <SerialNumber>not assigned</SerialNumber>
+*
+*       </Sensor>
+*
+*       <Sensor id='volt 4'>
+*
+*          <type>not assigned</type>
+*
+*          <SerialNumber>not assigned</SerialNumber>
+*
+*       </Sensor>
+*
+*       <Sensor id='volt 5'>
+*
+*          <type>not assigned</type>
+*
+*          <SerialNumber>not assigned</SerialNumber>
+*
+*       </Sensor>
+*
+*       <Sensor id='serial'>
+*
+*          <type>not assigned</type>
+*
+*          <SerialNumber>not assigned</SerialNumber>
+*
+*       </Sensor>
+*
+*    </ExternalSensors>
+*
+* </HardwareData>
+* <StatusData DeviceType='SBE19plus' SerialNumber='01906398'>
+*
+*    <DateTime>2019-07-15T14:55:31</DateTime>
+*
+*    <LoggingState>not logging</LoggingState>
+*
+*    <EventSummary numEvents='0'/>
+*
+*    <Power>
+*
+*       <vMain>12.9</vMain>
+*
+*       <vLith>8.1</vLith>
+*
+*       <iMain>60.9</iMain>
+*
+*       <iPump>37.8</iPump>
+*
+*       <iExt01> 5.2</iExt01>
+*
+*       <iExt2345> 7.7</iExt2345>
+*
+*    </Power>
+*
+*    <MemorySummary>
+*
+*       <Bytes>800730</Bytes>
+*
+*       <Samples>53382</Samples>
+*
+*       <SamplesFree>4333160</SamplesFree>
+*
+*       <SampleLength>15</SampleLength>
+*
+*       <Profiles>36</Profiles>
+*
+*    </MemorySummary>
+*
+* </StatusData>
+* <ConfigurationData DeviceType='SBE19plus' SerialNumber='01906398'>
+*
+*    <ProfileMode>
+*
+*       <ScansToAverage>1</ScansToAverage>
+*
+*       <MinimumCondFreq>3031</MinimumCondFreq>
+*
+*       <PumpDelay>60</PumpDelay>
+*
+*       <AutoRun>no</AutoRun>
+*
+*       <IgnoreSwitch>no</IgnoreSwitch>
+*
+*    </ProfileMode>
+*
+*    <Battery>
+*
+*       <Type>alkaline</Type>
+*
+*       <CutOff>7.5</CutOff>
+*
+*    </Battery>
+*
+*    <DataChannels>
+*
+*       <ExtVolt0>yes</ExtVolt0>
+*
+*       <ExtVolt1>no</ExtVolt1>
+*
+*       <ExtVolt2>yes</ExtVolt2>
+*
+*       <ExtVolt3>no</ExtVolt3>
+*
+*       <ExtVolt4>no</ExtVolt4>
+*
+*       <ExtVolt5>no</ExtVolt5>
+*
+*       <SBE38>no</SBE38>
+*
+*       <WETLABS>no</WETLABS>
+*
+*       <OPTODE>no</OPTODE>
+*
+*       <SBE63>no</SBE63>
+*
+*       <GTD>no</GTD>
+*
+*    </DataChannels>
+*
+*    <EchoCharacters>yes</EchoCharacters>
+*
+*    <OutputExecutedTag>yes</OutputExecutedTag>
+*
+*    <OutputFormat>raw HEX</OutputFormat>
+*
+* </ConfigurationData>
+* <CalibrationCoefficients DeviceType='SBE19plus' SerialNumber='01906398'>
+*
+*    <Calibration format='TEMP1' id='Main Temperature'>
+*
+*       <SerialNum>01906398</SerialNum>
+*
+*       <CalDate>28-Jul-18</CalDate>
+*
+*       <TA0>1.260959e-03</TA0>
+*
+*       <TA1>2.591380e-04</TA1>
+*
+*       <TA2>-1.767619e-07</TA2>
+*
+*       <TA3>1.436997e-07</TA3>
+*
+*       <TOFFSET>0.000000e+00</TOFFSET>
+*
+*    </Calibration>
+*
+*    <Calibration format='WBCOND0' id='Main Conductivity'>
+*
+*       <SerialNum>01906398</SerialNum>
+*
+*       <CalDate>28-Jul-18</CalDate>
+*
+*       <G>-1.032066e+00</G>
+*
+*       <H>1.618533e-01</H>
+*
+*       <I>-6.162699e-04</I>
+*
+*       <J>6.881150e-05</J>
+*
+*       <CPCOR>-9.570000e-08</CPCOR>
+*
+*       <CTCOR>3.250000e-06</CTCOR>
+*
+*       <CSLOPE>1.000000e+00</CSLOPE>
+*
+*    </Calibration>
+*
+*    <Calibration format='STRAIN0' id='Main Pressure'>
+*
+*       <SerialNum> 2945715</SerialNum>
+*
+*       <CalDate>26-Jul-18</CalDate>
+*
+*       <PA0>-2.384401e-01</PA0>
+*
+*       <PA1>4.878331e-04</PA1>
+*
+*       <PA2>-5.821914e-12</PA2>
+*
+*       <PTCA0>5.244422e+05</PTCA0>
+*
+*       <PTCA1>-2.996721e+01</PTCA1>
+*
+*       <PTCA2>3.563378e-01</PTCA2>
+*
+*       <PTCB0>2.500613e+01</PTCB0>
+*
+*       <PTCB1>-7.750000e-04</PTCB1>
+*
+*       <PTCB2>0.000000e+00</PTCB2>
+*
+*       <PTEMPA0>-6.743632e+01</PTEMPA0>
+*
+*       <PTEMPA1>5.322650e+01</PTEMPA1>
+*
+*       <PTEMPA2>-5.033771e-01</PTEMPA2>
+*
+*       <POFFSET>0.000000e+00</POFFSET>
+*
+*       <PRANGE>1.600000e+02</PRANGE>
+*
+*    </Calibration>
+*
+*    <Calibration format='VOLT0' id='Volt 0'>
+*
+*       <OFFSET>-4.502316e-02</OFFSET>
+*
+*       <SLOPE>1.250388e+00</SLOPE>
+*
+*    </Calibration>
+*
+*    <Calibration format='VOLT0' id='Volt 1'>
+*
+*       <OFFSET>-4.554316e-02</OFFSET>
+*
+*       <SLOPE>1.250640e+00</SLOPE>
+*
+*    </Calibration>
+*
+*    <Calibration format='VOLT0' id='Volt 2'>
+*
+*       <OFFSET>-4.476105e-02</OFFSET>
+*
+*       <SLOPE>1.250449e+00</SLOPE>
+*
+*    </Calibration>
+*
+*    <Calibration format='VOLT0' id='Volt 3'>
+*
+*       <OFFSET>-4.540210e-02</OFFSET>
+*
+*       <SLOPE>1.250253e+00</SLOPE>
+*
+*    </Calibration>
+*
+*    <Calibration format='VOLT0' id='Volt 4'>
+*
+*       <OFFSET>-4.589369e-02</OFFSET>
+*
+*       <SLOPE>1.250627e+00</SLOPE>
+*
+*    </Calibration>
+*
+*    <Calibration format='VOLT0' id='Volt 5'>
+*
+*       <OFFSET>-4.496105e-02</OFFSET>
+*
+*       <SLOPE>1.250115e+00</SLOPE>
+*
+*    </Calibration>
+*
+*    <Calibration format='FREQ0' id='external frequency channel'>
+*
+*       <EXTFREQSF>9.999961e-01</EXTFREQSF>
+*
+*    </Calibration>
+*
+* </CalibrationCoefficients>
+* <EventCounters DeviceType='SBE19plus' SerialNumber='01906398'>
+*
+*    <EventSummary numEvents='0'/>
+*
+* </EventCounters></InstrumentState>
+* <Headers>
+*
+* cast  33 02 Jul 2019 15:46:41 samples 49934 to 50915, avg = 1, stop = mag switch
+*
+# nquan = 5
+# nvalues = 188                         
+# units = specified
+# name 0 = timeS: Time, Elapsed [seconds]
+# name 1 = c0mS/cm: Conductivity [mS/cm]
+# name 2 = prdM: Pressure, Strain Gauge [db]
+# name 3 = tv290C: Temperature [ITS-90, deg C]
+# name 4 = flag:  0.000e+00
+# span 0 =    178.000,    224.750       
+# span 1 =   8.555660,  27.735988       
+# span 2 =     -0.016,     22.510       
+# span 3 =    22.9106,    26.6822       
+# span 4 =  0.0000e+00,  0.0000e+00     
+# interval = seconds: 0.25
+# start_time = Jul 02 2019 15:46:41 [Instrument's time stamp, header]
+# bad_flag = -9.990e-29
+# <Sensors count="5" >
+#   <sensor Channel="1" >
+#     <!-- Count, Temperature -->
+#     <TemperatureSensor SensorID="58" >
+#       <SerialNumber>6398</SerialNumber>
+#       <CalibrationDate>28-Jul-18</CalibrationDate>
+#       <A0>1.26095907e-03</A0>
+#       <A1>2.59137989e-04</A1>
+#       <A2>-1.76761879e-07</A2>
+#       <A3>1.43699673e-07</A3>
+#       <Slope>1.00000000</Slope>
+#       <Offset>0.0000</Offset>
+#     </TemperatureSensor>
+#   </sensor>
+#   <sensor Channel="2" >
+#     <!-- Frequency 0, Conductivity -->
+#     <ConductivitySensor SensorID="3" >
+#       <SerialNumber>6398</SerialNumber>
+#       <CalibrationDate>28-Jul-18</CalibrationDate>
+#       <UseG_J>1</UseG_J>
+#       <!-- Cell const and series R are applicable only for wide range sensors. -->
+#       <SeriesR>0.0000</SeriesR>
+#       <CellConst>2000.0000</CellConst>
+#       <ConductivityType>0</ConductivityType>
+#       <Coefficients equation="0" >
+#         <A>0.00000000e+00</A>
+#         <B>0.00000000e+00</B>
+#         <C>0.00000000e+00</C>
+#         <D>0.00000000e+00</D>
+#         <M>0.0</M>
+#         <CPcor>-9.57000000e-08</CPcor>
+#       </Coefficients>
+#       <Coefficients equation="1" >
+#         <G>-1.03206551e+00</G>
+#         <H>1.61853283e-01</H>
+#         <I>-6.16269794e-04</I>
+#         <J>6.88114987e-05</J>
+#         <CPcor>-9.57000000e-08</CPcor>
+#         <CTcor>3.2500e-06</CTcor>
+#         <!-- WBOTC not applicable unless ConductivityType = 1. -->
+#         <WBOTC>0.00000000e+00</WBOTC>
+#       </Coefficients>
+#       <Slope>1.00000000</Slope>
+#       <Offset>0.00000</Offset>
+#     </ConductivitySensor>
+#   </sensor>
+#   <sensor Channel="3" >
+#     <!-- Count, Pressure, Strain Gauge -->
+#     <PressureSensor SensorID="46" >
+#       <SerialNumber>6398</SerialNumber>
+#       <CalibrationDate>26-Jul-18</CalibrationDate>
+#       <PA0>-2.38440127e-01</PA0>
+#       <PA1>4.87833137e-04</PA1>
+#       <PA2>-5.82191388e-12</PA2>
+#       <PTEMPA0>-6.74363150e+01</PTEMPA0>
+#       <PTEMPA1>5.32265012e+01</PTEMPA1>
+#       <PTEMPA2>-5.03377089e-01</PTEMPA2>
+#       <PTCA0>5.24442060e+05</PTCA0>
+#       <PTCA1>-2.99672123e+01</PTCA1>
+#       <PTCA2>3.56337762e-01</PTCA2>
+#       <PTCB0>2.50061250e+01</PTCB0>
+#       <PTCB1>-7.75000000e-04</PTCB1>
+#       <PTCB2>0.00000000e+00</PTCB2>
+#       <Offset>0.000000</Offset>
+#     </PressureSensor>
+#   </sensor>
+#   <sensor Channel="4" >
+#     <!-- A/D voltage 0, Oxygen, SBE 43 -->
+#     <OxygenSensor SensorID="38" >
+#       <SerialNumber>431686</SerialNumber>
+#       <CalibrationDate></CalibrationDate>
+#       <Use2007Equation>1</Use2007Equation>
+#       <CalibrationCoefficients equation="0" >
+#         <!-- Coefficients for Owens-Millard equation. -->
+#         <Boc>0.0000</Boc>
+#         <Soc>0.0000e+00</Soc>
+#         <offset>0.0000</offset>
+#         <Pcor>0.00e+00</Pcor>
+#         <Tcor>0.0000</Tcor>
+#         <Tau>0.0</Tau>
+#       </CalibrationCoefficients>
+#       <CalibrationCoefficients equation="1" >
+#         <!-- Coefficients for Sea-Bird equation - SBE calibration in 2007 and later. -->
+#         <Soc>3.8980e-01</Soc>
+#         <offset>-0.4980</offset>
+#         <A>-3.3982e-03</A>
+#         <B> 1.5817e-04</B>
+#         <C>-2.6651e-06</C>
+#         <D0> 2.5826e+00</D0>
+#         <D1> 1.92634e-04</D1>
+#         <D2>-4.64803e-02</D2>
+#         <E> 3.6000e-02</E>
+#         <Tau20> 1.0800</Tau20>
+#         <H1>-3.3000e-02</H1>
+#         <H2> 5.0000e+03</H2>
+#         <H3> 1.4500e+03</H3>
+#       </CalibrationCoefficients>
+#     </OxygenSensor>
+#   </sensor>
+#   <sensor Channel="5" >
+#     <!-- A/D voltage 1, pH -->
+#     <pH_Sensor SensorID="43" >
+#       <SerialNumber>180726</SerialNumber>
+#       <CalibrationDate></CalibrationDate>
+#       <Slope>4.6067</Slope>
+#       <Offset>2.5157</Offset>
+#     </pH_Sensor>
+#   </sensor>
+# </Sensors>
+# datcnv_date = Mar 27 2023 11:21:22, 7.27.0.20 [datcnv_vars = 4]
+# datcnv_in = SBE19plus_01906398_2019_07_15_0033_cropped.hex SBE19plus_01906398_2019_07_15_0033_cropped.xmlcon
+# datcnv_skipover = 500
+# split_date = Sep 17 2025 17:23:13, 7.27.2.38
+# split_in = C:\Users\jtemplin\git\seabirdscientific\tests\resources\test-data\SBE19plus_01906398_2019_07_15_0033_cropped.cnv
+# split_excl_bad_scans = no
+# file_type = ascii
+*END*
+    178.000  27.712346     22.510    23.0620  0.0000e+00
+    178.250  27.676315     22.497    23.0620  0.0000e+00
+    178.500  27.646954     22.475    23.0608  0.0000e+00
+    178.750  27.614921     22.449    23.0581  0.0000e+00
+    179.000  27.556259     22.423    23.0537  0.0000e+00
+    179.250  27.621022     22.383    23.0525  0.0000e+00
+    179.500  27.733423     22.316    23.0539  0.0000e+00
+    179.750  27.735988     22.177    23.0572  0.0000e+00
+    180.000  27.722851     22.006    23.0616  0.0000e+00
+    180.250  27.715276     21.828    23.0661  0.0000e+00
+    180.500  27.723583     21.649    23.0699  0.0000e+00
+    180.750  27.729142     21.479    23.0708  0.0000e+00
+    181.000  27.731341     21.312    23.0697  0.0000e+00
+    181.250  27.727675     21.146    23.0675  0.0000e+00
+    181.500  27.725414     20.977    23.0663  0.0000e+00
+    181.750  27.720649     20.837    23.0654  0.0000e+00
+    182.000  27.721382     20.699    23.0643  0.0000e+00
+    182.250  27.712524     20.548    23.0634  0.0000e+00
+    182.500  27.693834     20.399    23.0628  0.0000e+00
+    182.750  27.699575     20.285    23.0623  0.0000e+00
+    183.000  27.673135     20.178    23.0616  0.0000e+00
+    183.250  27.678507     20.047    23.0611  0.0000e+00
+    183.500  27.656957     19.891    23.0606  0.0000e+00
+    183.750  27.633705     19.726    23.0606  0.0000e+00
+    184.000  27.625589     19.532    23.0603  0.0000e+00
+    184.250  27.588624     19.314    23.0601  0.0000e+00
+    184.500  27.519563     19.123    23.0599  0.0000e+00
+    184.750  27.495013     18.938    23.0588  0.0000e+00
+    185.000  27.432975     18.741    23.0572  0.0000e+00
+    185.250  27.404257     18.550    23.0546  0.0000e+00
+    185.500  27.374151     18.383    23.0506  0.0000e+00
+    185.750  27.375610     18.230    23.0469  0.0000e+00
+    186.000  27.371354     18.098    23.0435  0.0000e+00
+    186.250  27.347765     18.010    23.0417  0.0000e+00
+    186.500  27.321328     17.912    23.0389  0.0000e+00
+    186.750  27.318472     17.766    23.0343  0.0000e+00
+    187.000  27.303526     17.582    23.0306  0.0000e+00
+    187.250  27.284088     17.398    23.0280  0.0000e+00
+    187.500  27.256095     17.214    23.0249  0.0000e+00
+    187.750  27.138105     17.040    23.0228  0.0000e+00
+    188.000  27.068613     16.910    23.0152  0.0000e+00
+    188.250  27.098172     16.813    23.0045  0.0000e+00
+    188.500  26.915078     16.721    22.9960  0.0000e+00
+    188.750  26.926381     16.613    22.9853  0.0000e+00
+    189.000  26.765723     16.504    22.9754  0.0000e+00
+    189.250  26.617633     16.389    22.9657  0.0000e+00
+    189.500  26.470083     16.256    22.9563  0.0000e+00
+    189.750  26.474228     16.096    22.9474  0.0000e+00
+    190.000  26.203402     15.932    22.9435  0.0000e+00
+    190.250  26.189699     15.805    22.9397  0.0000e+00
+    190.500  26.215911     15.688    22.9364  0.0000e+00
+    190.750  26.104665     15.570    22.9339  0.0000e+00
+    191.000  26.064277     15.469    22.9324  0.0000e+00
+    191.250  25.955352     15.388    22.9319  0.0000e+00
+    191.500  25.808253     15.305    22.9315  0.0000e+00
+    191.750  25.801647     15.205    22.9311  0.0000e+00
+    192.000  25.730804     15.108    22.9314  0.0000e+00
+    192.250  25.690744     15.027    22.9314  0.0000e+00
+    192.500  25.643283     14.927    22.9319  0.0000e+00
+    192.750  25.599652     14.784    22.9321  0.0000e+00
+    193.000  25.508441     14.624    22.9322  0.0000e+00
+    193.250  25.584046     14.487    22.9305  0.0000e+00
+    193.500  25.578351     14.362    22.9290  0.0000e+00
+    193.750  25.547330     14.233    22.9300  0.0000e+00
+    194.000  25.465780     14.098    22.9309  0.0000e+00
+    194.250  25.413498     13.980    22.9296  0.0000e+00
+    194.500  25.374741     13.872    22.9267  0.0000e+00
+    194.750  25.377226     13.763    22.9235  0.0000e+00
+    195.000  25.391129     13.658    22.9216  0.0000e+00
+    195.250  25.371369     13.583    22.9216  0.0000e+00
+    195.500  25.319511     13.515    22.9219  0.0000e+00
+    195.750  25.307750     13.418    22.9219  0.0000e+00
+    196.000  25.307572     13.273    22.9218  0.0000e+00
+    196.250  25.294748     13.107    22.9229  0.0000e+00
+    196.500  25.283699     12.916    22.9250  0.0000e+00
+    196.750  25.253574     12.711    22.9274  0.0000e+00
+    197.000  25.216616     12.528    22.9296  0.0000e+00
+    197.250  25.140872     12.413    22.9301  0.0000e+00
+    197.500  25.158621     12.360    22.9279  0.0000e+00
+    197.750  25.097079     12.325    22.9247  0.0000e+00
+    198.000  25.095135     12.270    22.9204  0.0000e+00
+    198.250  25.089125     12.184    22.9159  0.0000e+00
+    198.500  25.081879     12.050    22.9127  0.0000e+00
+    198.750  25.064149     11.866    22.9107  0.0000e+00
+    199.000  25.059025     11.659    22.9106  0.0000e+00
+    199.250  24.894914     11.468    22.9118  0.0000e+00
+    199.500  24.729722     11.309    22.9194  0.0000e+00
+    199.750  24.708916     11.181    22.9376  0.0000e+00
+    200.000  24.626286     11.077    22.9565  0.0000e+00
+    200.250  24.574626     11.013    22.9765  0.0000e+00
+    200.500  24.477730     10.951    22.9969  0.0000e+00
+    200.750  24.431841     10.850    23.0183  0.0000e+00
+    201.000  24.392165     10.707    23.0430  0.0000e+00
+    201.250  24.292613     10.558    23.0646  0.0000e+00
+    201.500  24.197218     10.409    23.0936  0.0000e+00
+    201.750  24.123332     10.251    23.1249  0.0000e+00
+    202.000  23.989776     10.085    23.1509  0.0000e+00
+    202.250  23.786033      9.951    23.1788  0.0000e+00
+    202.500  23.745575      9.841    23.2074  0.0000e+00
+    202.750  23.683608      9.716    23.2328  0.0000e+00
+    203.000  23.555872      9.586    23.2516  0.0000e+00
+    203.250  23.453341      9.492    23.2657  0.0000e+00
+    203.500  23.391011      9.412    23.2787  0.0000e+00
+    203.750  23.320071      9.306    23.2900  0.0000e+00
+    204.000  23.241349      9.174    23.3004  0.0000e+00
+    204.250  23.033407      9.042    23.3095  0.0000e+00
+    204.500  23.021860      8.913    23.3201  0.0000e+00
+    204.750  22.899436      8.777    23.3301  0.0000e+00
+    205.000  22.627997      8.633    23.3394  0.0000e+00
+    205.250  22.384165      8.504    23.3542  0.0000e+00
+    205.500  22.261516      8.393    23.3771  0.0000e+00
+    205.750  21.659770      8.274    23.4025  0.0000e+00
+    206.000  20.761906      8.139    23.4500  0.0000e+00
+    206.250  20.147362      8.012    23.5439  0.0000e+00
+    206.500  19.854413      7.904    23.6627  0.0000e+00
+    206.750  19.875117      7.795    23.7644  0.0000e+00
+    207.000  19.955465      7.668    23.8327  0.0000e+00
+    207.250  18.942964      7.526    23.8766  0.0000e+00
+    207.500  18.137445      7.389    23.9580  0.0000e+00
+    207.750  18.186902      7.244    24.0874  0.0000e+00
+    208.000  17.936112      7.090    24.1934  0.0000e+00
+    208.250  17.523205      6.951    24.2666  0.0000e+00
+    208.500  17.548049      6.838    24.3406  0.0000e+00
+    208.750  17.458622      6.749    24.3994  0.0000e+00
+    209.000  17.254542      6.661    24.4402  0.0000e+00
+    209.250  17.174873      6.561    24.4827  0.0000e+00
+    209.500  17.099257      6.450    24.5189  0.0000e+00
+    209.750  17.028866      6.343    24.5492  0.0000e+00
+    210.000  17.003888      6.229    24.5726  0.0000e+00
+    210.250  16.990808      6.077    24.5904  0.0000e+00
+    210.500  16.833700      5.903    24.6020  0.0000e+00
+    210.750  16.696373      5.745    24.6195  0.0000e+00
+    211.000  16.699970      5.612    24.6402  0.0000e+00
+    211.250  16.407326      5.468    24.6568  0.0000e+00
+    211.500  15.386114      5.315    24.6797  0.0000e+00
+    211.750  14.983205      5.189    24.7490  0.0000e+00
+    212.000  15.091103      5.098    24.8463  0.0000e+00
+    212.250  14.783290      4.993    24.9231  0.0000e+00
+    212.500  14.725504      4.844    24.9783  0.0000e+00
+    212.750  14.169162      4.705    25.0242  0.0000e+00
+    213.000  14.260548      4.574    25.0852  0.0000e+00
+    213.250  13.703292      4.406    25.1378  0.0000e+00
+    213.500  13.256989      4.226    25.2015  0.0000e+00
+    213.750  12.666954      4.064    25.2941  0.0000e+00
+    214.000  12.455377      3.937    25.4212  0.0000e+00
+    214.250  12.468112      3.821    25.5492  0.0000e+00
+    214.500  12.583499      3.719    25.6394  0.0000e+00
+    214.750  12.081044      3.646    25.6849  0.0000e+00
+    215.000  11.803517      3.577    25.7601  0.0000e+00
+    215.250  11.854269      3.449    25.8834  0.0000e+00
+    215.500  11.975228      3.271    25.9800  0.0000e+00
+    215.750  11.824528      3.078    26.0202  0.0000e+00
+    216.000  11.679069      2.908    26.0529  0.0000e+00
+    216.250  11.647086      2.752    26.1127  0.0000e+00
+    216.500  11.584488      2.593    26.1820  0.0000e+00
+    216.750  11.580183      2.452    26.2488  0.0000e+00
+    217.000  11.579348      2.352    26.3036  0.0000e+00
+    217.250  11.585870      2.313    26.3436  0.0000e+00
+    217.500  11.586100      2.234    26.3751  0.0000e+00
+    217.750  11.586283      2.101    26.4047  0.0000e+00
+    218.000  11.584386      1.962    26.4243  0.0000e+00
+    218.250  11.580499      1.810    26.4339  0.0000e+00
+    218.500  11.583645      1.695    26.4415  0.0000e+00
+    218.750  11.584245      1.602    26.4572  0.0000e+00
+    219.000  11.590213      1.499    26.4735  0.0000e+00
+    219.250  11.594192      1.406    26.4857  0.0000e+00
+    219.500  11.594932      1.296    26.5001  0.0000e+00
+    219.750  11.605715      1.139    26.5122  0.0000e+00
+    220.000  11.610574      0.981    26.5315  0.0000e+00
+    220.250  11.618675      0.840    26.5536  0.0000e+00
+    220.500  11.629418      0.720    26.5727  0.0000e+00
+    220.750  11.634743      0.588    26.5967  0.0000e+00
+    221.000  11.636641      0.452    26.6183  0.0000e+00
+    221.250  11.637057      0.365    26.6379  0.0000e+00
+    221.500  11.637427      0.298    26.6522  0.0000e+00
+    221.750  11.639928      0.201    26.6611  0.0000e+00
+    222.000  11.642012      0.097    26.6692  0.0000e+00
+    222.250  11.639603      0.021    26.6768  0.0000e+00
+    222.500  11.632979     -0.016    26.6822  0.0000e+00
+    222.750  11.630200     -0.015    26.6806  0.0000e+00
+    223.000  11.619735     -0.014    26.6645  0.0000e+00
+    223.250  11.617190     -0.015    26.6426  0.0000e+00
+    223.500  11.632843     -0.015    26.6149  0.0000e+00
+    223.750  11.679231     -0.014    26.5899  0.0000e+00
+    224.000  11.707895     -0.015    26.5680  0.0000e+00
+    224.250  11.731147     -0.015    26.5446  0.0000e+00
+    224.500  11.705067     -0.015    26.5202  0.0000e+00
+    224.750   8.555660     -0.015    26.4984  0.0000e+00

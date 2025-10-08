@@ -3,13 +3,12 @@
 
 """EOS80 functions to support legacy processing"""
 
-
 import numpy as np
 from scipy import stats
 
 
 def bouyancy_frequency(
-    temp_ITS_subset: np.ndarray,  # pylint: disable=invalid-name #TODO: change this to be all lower case for TKIT-75
+    temp_ITS_subset: np.ndarray,  # TODO: change this to be all lower case for TKIT-75
     salinity_prac_subset: np.ndarray,
     pressure_dbar_subset: np.ndarray,
     gravity: float,
@@ -58,7 +57,7 @@ def bouyancy_frequency(
     return n2
 
 
-# pylint: disable=too-many-statements #TODO: break this function up
+# TODO: break this function up
 def density(s0: np.ndarray, t: np.ndarray, p0: np.ndarray) -> np.ndarray:
     """EOS-80 density calculation.
 

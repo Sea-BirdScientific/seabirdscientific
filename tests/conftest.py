@@ -3,7 +3,7 @@ import os
 from pathlib import Path
 
 
-RESULTS_PATH = Path(f"./tests/results/py_values.json")
+RESULTS_PATH = Path("./tests/results/py_values.json")
 
 
 def pytest_configure(config):
@@ -13,8 +13,19 @@ def pytest_configure(config):
         json.dump({}, f)
 
 
+def pytest_addoption(parser):
+    parser.addoption(
+        "--log-results",
+        action="store_true",
+        default=False,
+        help="Log results to a json file for comparing to Fathom",
+    )
+
+
 def pytest_runtest_teardown(item, nextitem):
-    if hasattr(item, "return_value"):
+    log_results = item.config.getoption("--log-results")
+
+    if log_results and hasattr(item, "return_value"):
         with open(RESULTS_PATH, "r+") as f:
             data = json.load(f)
             data[item.name] = item.return_value
