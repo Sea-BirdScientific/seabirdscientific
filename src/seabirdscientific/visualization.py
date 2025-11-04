@@ -108,9 +108,9 @@ class ChartConfig:
         self.z_units = [info["units"] for info in z_info]
         self.chart_type = chart_type
         self.bounds = bounds if bounds is not None else {}
-        self.x_titles = x_titles if x_titles is not None else [""]
-        self.y_titles = y_titles if y_titles is not None else [""]
-        self.z_titles = z_titles if z_titles is not None else [""]
+        self.x_titles = x_titles if x_titles is not None else x_names
+        self.y_titles = y_titles if y_titles is not None else y_names
+        self.z_titles = z_titles if z_titles is not None else z_names
         self.plot_loop_edit_flags = plot_loop_edit_flags
         self.lift_pen_over_bad_data = lift_pen_over_bad_data
         self.flag_value = flag_value
@@ -406,13 +406,13 @@ def apply_single_config(figure: go.Figure, config: ChartConfig):
 
     figure.update_layout(
         xaxis={
-            "title": "" if len(config.x_units) < 1 else config.x_units[0],
-            "domain": [max(0, 0.1 * (len(config.y_units) - 1)), 1],
+            "title": "" if len(config.x_titles) < 1 else config.x_titles[0],
+            "domain": [max(0, 0.1 * (len(config.y_titles) - 1)), 1],
             "range": None if len(config.bounds["x"]) < 1 else config.bounds["x"][0],
         },
         yaxis={
-            "title": "" if len(config.y_units) < 1 else config.y_units[0],
-            "domain": [max(0, 0.1 * (len(config.x_units) - 1)), 1],
+            "title": "" if len(config.y_titles) < 1 else config.y_titles[0],
+            "domain": [max(0, 0.1 * (len(config.x_titles) - 1)), 1],
             "range": None if len(config.bounds["y"]) < 1 else config.bounds["y"][0],
         },
     )
@@ -433,23 +433,23 @@ def apply_subplots_x_config(figure: go.Figure, config: ChartConfig):
 
     figure.update_layout(
         xaxis={
-            "title": "" if len(config.x_units) < 1 else config.x_units[0],
+            "title": "" if len(config.x_titles) < 1 else config.x_titles[0],
             "range": None if len(config.bounds["x"]) < 1 else config.bounds["x"][0],
         },
         xaxis2={
-            "title": "" if len(config.x_units) < 2 else config.x_units[1],
+            "title": "" if len(config.x_titles) < 2 else config.x_titles[1],
             "range": None if len(config.bounds["x"]) < 2 else config.bounds["x"][1],
         },
         xaxis3={
-            "title": "" if len(config.x_units) < 3 else config.x_units[2],
+            "title": "" if len(config.x_titles) < 3 else config.x_titles[2],
             "range": None if len(config.bounds["x"]) < 3 else config.bounds["x"][2],
         },
         xaxis4={
-            "title": "" if len(config.x_units) < 4 else config.x_units[3],
+            "title": "" if len(config.x_titles) < 4 else config.x_titles[3],
             "range": None if len(config.bounds["x"]) < 4 else config.bounds["x"][3],
         },
         yaxis={
-            "title": "" if len(config.y_units) < 1 else config.y_units[0],
+            "title": "" if len(config.y_titles) < 1 else config.y_titles[0],
             "range": y_range,
         },
         yaxis2={"range": y_range},
@@ -476,23 +476,23 @@ def apply_subplots_y_config(figure: go.Figure, config: ChartConfig):
         xaxis2={"range": x_range},
         xaxis3={"range": x_range},
         xaxis4={
-            "title": "" if len(config.x_units) < 1 else config.x_units[0],
+            "title": "" if len(config.x_titles) < 1 else config.x_titles[0],
             "range": x_range,
         },
         yaxis={
-            "title": "" if len(config.y_units) < 1 else config.y_units[0],
+            "title": "" if len(config.y_titles) < 1 else config.y_titles[0],
             "range": None if len(config.bounds["y"]) < 1 else config.bounds["y"][0],
         },
         yaxis2={
-            "title": "" if len(config.y_units) < 2 else config.y_units[1],
+            "title": "" if len(config.y_titles) < 2 else config.y_titles[1],
             "range": None if len(config.bounds["y"]) < 2 else config.bounds["y"][1],
         },
         yaxis3={
-            "title": "" if len(config.y_units) < 3 else config.y_units[2],
+            "title": "" if len(config.y_titles) < 3 else config.y_titles[2],
             "range": None if len(config.bounds["y"]) < 3 else config.bounds["y"][2],
         },
         yaxis4={
-            "title": "" if len(config.y_units) < 4 else config.y_units[3],
+            "title": "" if len(config.y_titles) < 4 else config.y_titles[3],
             "range": None if len(config.bounds["y"]) < 3 else config.bounds["y"][3],
         },
     )
@@ -511,51 +511,59 @@ def apply_overlay_config(figure: go.Figure, config: ChartConfig):
 
     figure.update_layout(
         xaxis={
-            "title": "" if len(config.x_units) < 1 else config.x_units[0],
-            "domain": [max(0, 0.1 * (len(config.y_units) - 1)), 1],
+            "title": "" if len(config.x_titles) < 1 else config.x_titles[0],
+            "domain": [max(0, 0.1 * (len(config.y_titles) - 1)), 1],
             "range": None if len(config.bounds["x"]) < 1 else config.bounds["x"][0],
+            "title_standoff": 5,
         },
         xaxis2={
-            "title": "" if len(config.x_units) < 2 else config.x_units[1],
+            "title": "" if len(config.x_titles) < 2 else config.x_titles[1],
             "overlaying": "x",
             "position": 0.1,
             "range": None if len(config.bounds["x"]) < 2 else config.bounds["x"][1],
+            "title_standoff": 5,
         },
         xaxis3={
-            "title": "" if len(config.x_units) < 3 else config.x_units[2],
+            "title": "" if len(config.x_titles) < 3 else config.x_titles[2],
             "overlaying": "x",
             "position": 0.2,
             "range": None if len(config.bounds["x"]) < 3 else config.bounds["x"][2],
+            "title_standoff": 5,
         },
         xaxis4={
-            "title": "" if len(config.x_units) < 4 else config.x_units[3],
+            "title": "" if len(config.x_titles) < 4 else config.x_titles[3],
             "overlaying": "x",
             "position": 0.3,
             "range": None if len(config.bounds["x"]) < 4 else config.bounds["x"][3],
+            "title_standoff": 5,
         },
         yaxis={
-            "title": "" if len(config.y_units) < 1 else config.y_units[0],
-            "domain": [0.1 * (len(config.x_units)), 1],
+            "title": "" if len(config.y_titles) < 1 else config.y_titles[0],
+            "domain": [0.1 * (len(config.x_titles)), 1],
             "position": 0,
             "range": None if len(config.bounds["y"]) < 1 else config.bounds["y"][0],
+            "title_standoff": 5,
         },
         yaxis2={
-            "title": "" if len(config.y_units) < 2 else config.y_units[1],
+            "title": "" if len(config.y_titles) < 2 else config.y_titles[1],
             "overlaying": "y",
             "position": 0.1,
             "range": None if len(config.bounds["y"]) < 2 else config.bounds["y"][1],
+            "title_standoff": 5,
         },
         yaxis3={
-            "title": "" if len(config.y_units) < 3 else config.y_units[2],
+            "title": "" if len(config.y_titles) < 3 else config.y_titles[2],
             "overlaying": "y",
             "position": 0.2,
             "range": None if len(config.bounds["y"]) < 3 else config.bounds["y"][2],
+            "title_standoff": 5,
         },
         yaxis4={
-            "title": "" if len(config.y_units) < 4 else config.y_units[3],
+            "title": "" if len(config.y_titles) < 4 else config.y_titles[3],
             "overlaying": "y",
             "position": 0.3,
             "range": None if len(config.bounds["y"]) < 3 else config.bounds["y"][3],
+            "title_standoff": 5,
         },
     )
 

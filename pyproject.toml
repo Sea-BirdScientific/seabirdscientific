@@ -35,20 +35,24 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
   "build",
+  "nbconvert[webpdf]",
   "nbformat",
   "notebook",
   "pytest",
   "pytest-cov",
   "ruff",
+  "kaleido",
 ]
 
 # For dev environment created with UV
 [dependency-groups]
 dev = [
+  "nbconvert[webpdf]",
   "nbformat",
   "notebook",
   "pytest",
-  "pytest-cov"
+  "pytest-cov",
+  "kaleido",
 ]
 
 [project.urls]
