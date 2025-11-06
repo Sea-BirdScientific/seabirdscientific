@@ -1,6 +1,6 @@
 ---
 name: Feature request
-about: Suggest an idea for this project
+about: Request a feature for the Sea-Bird Community Toolkit
 title: ''
 labels: ''
 assignees: ''
