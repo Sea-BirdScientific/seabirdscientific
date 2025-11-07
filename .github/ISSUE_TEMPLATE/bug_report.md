@@ -1,6 +1,6 @@
 ---
 name: Bug report
-about: Create a report to help us improve
+about: Report a bug related to the Sea-Bird Community Toolkit
 title: ''
 labels: ''
 assignees: ''
