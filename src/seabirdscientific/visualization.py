@@ -167,7 +167,7 @@ def parse_instrument_data(source: Union[str, Path, pd.DataFrame]) -> pd.DataFram
             if suffix in (".csv", ".asc"):
                 data = pd.read_csv(source)
             elif suffix == ".json":
-                with open(source, encoding="utf-8") as js_data:
+                with open(source, mode='r') as js_data:
                     data = pd.DataFrame.from_dict(json.load(js_data), orient="columns")
 
         elif isinstance(source, str):
