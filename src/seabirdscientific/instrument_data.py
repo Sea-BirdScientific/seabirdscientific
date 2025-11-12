@@ -298,7 +298,7 @@ def cnv_to_instrument_data(filepath: Union[Path, str]) -> InstrumentData:
 
     logger.info("Unpacking instrument data from file: %s", filepath)
 
-    with open(filepath, "r") as cnv:
+    with open(filepath, mode="r") as cnv:
         for line in cnv:
             if line.startswith("*") or line.startswith("#"):
                 if line.startswith("# nvalues = "):
@@ -413,7 +413,7 @@ def read_hex_file(
 
     # iterating over file twice in order to preallocate arrays
     # TODO: Fix this
-    file = open(filepath, "r")
+    file = open(filepath, mode="r")
     for line in file:
         if is_data and not (line == "" or line.startswith("\n") or line.startswith("\r")):
             data_count += 1
