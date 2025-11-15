@@ -381,42 +381,7 @@ class TestDepthFromPressure:
         assert np.allclose(expected_depth, result_depth, atol=0.002)
 
 
-class TestConvertOxygen:
-    def test_convert_sbe63_oxygen(self, request):
-        raw_oxygen = np.array([31.06, 31.66, 32.59, 33.92, 34.82, 35.44])
-        pressure = np.array([0, 0, 0, 0, 0, 0])
-        raw_temperature = np.array([0.6, 0.5, 0.4, 0.35, 0.3, 0.25])
-        salinity = np.array([0, 0, 0, 0, 0, 0])
-        expected = np.array([0.93, 0.688, 0.459, 0.304, 0.206, 0.137])
-
-        result = dc.convert_sbe63_oxygen(
-            raw_oxygen,
-            raw_temperature,
-            pressure,
-            salinity,
-            tc.oxygen_63_coefs_sn2568,
-            tc.thermistor_63_coefs_sn2568,
-        )
-        request.node.return_value = result.tolist()
-        assert np.allclose(expected, result, rtol=0, atol=1e-3)
-
-    def test_convert_sbe63_oxygen_from_hex(self, request):
-        raw_oxygen = np.array([16.774, 16.775, 16.779, 16.778, 16.774, 16.779])
-        pressure = np.array([-0.057, -0.062, -0.057, -0.056, -0.068, -0.056])
-        raw_temperature = np.array([0.581763, 0.581758, 0.581753, 0.581737, 0.581725, 0.581717])
-        salinity = np.array([0.0115, 0.0115, 0.0115, 0.0115, 0.0115, 0.0115])
-        expected = np.array([5.872, 5.872, 5.868, 5.869, 5.872, 5.868])
-
-        result = dc.convert_sbe63_oxygen(
-            raw_oxygen,
-            raw_temperature,
-            pressure,
-            salinity,
-            tc.oxygen_63_coefs_sn11459,
-            tc.thermistor_63_coefs_sn11459,
-        )
-        request.node.return_value = result.tolist()
-        assert np.allclose(expected, result, rtol=0, atol=1e-3)
+class TestConvertSBE43Oxygen:
 
     def test_convert_sbe43_oxygen(self, request):
         # From O3287.pdf in the shared calibration folder
@@ -823,6 +788,42 @@ class TestConvertSBE63Oxygen:
 
         request.node.return_value = thermistor_temperature.tolist()
         assert np.allclose(expected, thermistor_temperature, atol=1e-6)
+   
+    def test_convert_sbe63_oxygen_therm_volts(self, request):
+        raw_oxygen = np.array([31.06, 31.66, 32.59, 33.92, 34.82, 35.44])
+        pressure = np.array([0, 0, 0, 0, 0, 0])
+        raw_temperature = np.array([0.6, 0.5, 0.4, 0.35, 0.3, 0.25])
+        salinity = np.array([0, 0, 0, 0, 0, 0])
+        expected = np.array([0.93, 0.688, 0.459, 0.304, 0.206, 0.137])
+
+        result = dc.convert_sbe63_oxygen(
+            raw_oxygen,
+            raw_temperature,
+            pressure,
+            salinity,
+            tc.oxygen_63_coefs_sn2568,
+            tc.thermistor_63_coefs_sn2568,
+        )
+        request.node.return_value = result.tolist()
+        assert np.allclose(expected, result, rtol=0, atol=1e-3)
+
+    def test_convert_sbe63_oxygen_from_hex(self, request):
+        raw_oxygen = np.array([16.774, 16.775, 16.779, 16.778, 16.774, 16.779])
+        pressure = np.array([-0.057, -0.062, -0.057, -0.056, -0.068, -0.056])
+        raw_temperature = np.array([0.581763, 0.581758, 0.581753, 0.581737, 0.581725, 0.581717])
+        salinity = np.array([0.0115, 0.0115, 0.0115, 0.0115, 0.0115, 0.0115])
+        expected = np.array([5.872, 5.872, 5.868, 5.869, 5.872, 5.868])
+
+        result = dc.convert_sbe63_oxygen(
+            raw_oxygen,
+            raw_temperature,
+            pressure,
+            salinity,
+            tc.oxygen_63_coefs_sn11459,
+            tc.thermistor_63_coefs_sn11459,
+        )
+        request.node.return_value = result.tolist()
+        assert np.allclose(expected, result, rtol=0, atol=1e-3)
 
 
 class TestSPAR:
