@@ -480,7 +480,7 @@ def convert_sbe43_oxygen(
 
     voltage is expected to be in volts, temperature in deg c, pressure
     in dbar, and salinity in practical salinity (PSU). All equation
-    information comes from the June 2013 revision of the SBE43 manual
+    information comes from Application Note 64
 
     :param voltage: SBE43 voltage
     :param temperature: temperature value converted to deg C
@@ -553,7 +553,7 @@ def _convert_sbe43_oxygen(
 
     voltage is expected to be in volts, temperature in deg c, pressure
     in dbar, and salinity in practical salinity (PSU). All equation
-    information comes from the June 2013 revision of the SBE43 manual.
+    information comes from Application Note 64.
     Expects that hysteresis correction is already performed on the
     incoming voltage, if desired.
 
@@ -570,7 +570,7 @@ def _convert_sbe43_oxygen(
     :return: converted Oxygen value, in ml/l
     """
 
-    # Oxygen Solubility equation constants, From SBE43 Manual Appendix A
+    # Oxygen Solubility equation constants, From Application Note 64 Appendix A
     a0 = 2.00907
     a1 = 3.22014
     a2 = 4.0501
