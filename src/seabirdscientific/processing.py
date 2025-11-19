@@ -1,50 +1,16 @@
-"""A collection of functions for processing converted SBS instrument
-data.
-"""
-
-# Classes:
-
-#     MinVelocityType (Enum)
-#     WindowFilterType (Enum)
-
-# Functions:
-
-#     butterworth_filter (np.ndarray, float, float) -> np.ndarray
-#     low_pass_filter (np.ndarray, float, float) -> np.ndarray
-#     align_ctd (np.ndarray, float, float, float) -> np.ndarray
-#     cell_thermal_mass (np.ndarray, np.ndarray, float, float, float) -> np.ndarray
-#     loop_edit_pressure (
-#         np.ndarray, float, np.ndarray, float, MinVelocityType, float,
-#         float, float, bool, float, float, bool, bool,float
-#     ) -> np.ndarray
-#     loop_edit_depth (
-#         np.ndarray, np.ndarray, float, MinVelocityType, float, float,
-#         float, bool, float, float, bool, bool,float
-#     ) -> np.ndarray
-#     _find_depth_peaks (np.ndarray, np.ndarray, bool, float, float, float) -> tuple[int, int]
-#     _min_velocity_mask (np.ndarray, float, float, int, int, bool) -> np.ndarray
-#     _mean_speed_percent_mask (np.ndarray, float, float, float, int, int, bool, int) -> np.ndarray
-#     _flag_by_minima_maxima (np.ndarray, np.ndarray, int, int, float)
-#     bin_average (pd.DataFrame, str, float, bool, int, int, bool, bool)
-#     wild_edit (np.ndarray, np.ndarray, float, float, int, float, bool,float) -> np.ndarray
-#     _flag_data (np.ndarray, np.ndarray, float, float, float, bool,float) -> np.ndarray
-#     window_filter (
-#         np.ndarray, np.ndarray, WindowFilterType, int, float, int, float, bool, float
-#     ) -> np.ndarray
-#     bouyancy_frequency (np.ndarray, np.ndarray, np.ndarray, float)
-#     buoyancy (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, float, bool, float)
+"""Functions for processing converted SBS instrument data."""
 
 # Native imports
 import math
 from enum import Enum
 from logging import getLogger
-from typing import List
 import warnings
 
 # Third-party imports
 import gsw
 import numpy as np
 import pandas as pd
+import xarray as xr
 from scipy import signal, stats
 
 # Sea-Bird imports
@@ -1226,11 +1192,11 @@ def get_upcast(
 
 
 def split(
-    dataframe: pd.DataFrame,
+    dataframe: xr.Dataset,
     control_name: str,
     split_mode=CastType.BOTH,
     exclude_bad_scans=False,
-) -> List[pd.DataFrame]:
+) -> xr.Dataset:
     """Splits a dataframe into a list of 1 or 2 dataframes, the downcast
     and/or upcast.
 

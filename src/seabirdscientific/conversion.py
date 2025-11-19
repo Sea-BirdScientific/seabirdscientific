@@ -1,6 +1,3 @@
-#!/usr/bin/python3
-# -*- coding: utf-8 -*-
-
 """A collection of raw data conversion functions."""
 
 # Native imports

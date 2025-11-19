@@ -1,42 +1,23 @@
-"""A collection of classes and functions related to the processing of
-instrument data.
-"""
-
-# Classes:
-#   InstrumentType (Enum)
-#   HexDataTypes (Enum)
-#   Sensors (Enum)
-#   MeasurementSeries
-#   InstrumentData
-# Functions:
-#   cnv_to_instrument_data (Path) -> InstrumentData
-#   fix_exponents (List[str]) -> List[str]
-#   read_hex_file (str, InstrumentType, List[Sensors], bool) -> pd.DataFrame
-#   preallocate_dataframe (InstrumentType, str, List[Sensors], bool, int) -> pd.DataFrame
-#   read_hex (InstrumentType, str, List[Sensors], bool) -> dict
-#   read_SBE19plus_format_0
-#   read_SBE37SM_format_0
-#   read_SBE39plus_format_0
-#   read_seafet_format_0
-#   read_SBE911plus_format_0
+"""Functions for processing instrument data."""
 
 # Native imports
 import builtins
-from enum import Enum
-from dataclasses import dataclass
-from datetime import date, datetime, timedelta
-from logging import getLogger
-from typing import List, Dict, Optional, Union
-from pathlib import Path
 import warnings
+from enum import Enum
+from datetime import datetime, timedelta
+from logging import getLogger
+from typing import List, Dict, Union
+from pathlib import Path
 
 # Third-party imports
 import numpy as np
 import pandas as pd
+import xarray as xr
 
 # Sea-Bird imports
 
 # Internal imports
+
 
 logger = getLogger(__name__)
 
@@ -240,45 +221,10 @@ class Sensors(Enum):
     SystemTime = "systemTime"  # change enums to UPPER_CASE for TKIT-75
 
 
-@dataclass
-class MeasurementSeries:
-    """Container for measurement data."""
-
-    label: str
-    description: str
-    units: str
-    start_time: Optional[date]
-    values: np.ndarray
-
-
-@dataclass
-class InstrumentData:
-    """Container for instrument data parsed from a CNV file."""
-
-    measurements: Dict[str, MeasurementSeries]
-    """
-    Dictionary of MeasurementSeries by their label.
-
-    Note: duplicate labels can occur and cnv_to_instrument_data will numerically
-    increment the duplicate labels, e.g. the second "depSM" becomes "depSM1".
-    """
-    interval_s: Optional[float]
-    latitude: float
-    start_time: Optional[date]
-    sample_count: Optional[int]
-
-    def _to_dataframe(self):
-        measurements = {k: v.values for k, v in self.measurements.items()}
-        return pd.DataFrame(measurements)
-
-
-def cnv_to_instrument_data(filepath: Union[Path, str]) -> InstrumentData:
-    """
-    Import the data from a .cnv file and put it into an InstrumentData object.
-
-    Duplicate labels will be incremented for InstrumentData.measurements keys.
-    For example, the second "depSM" becomes "depSM1".
-    However, the MeasurementSeries.label will be the original label.
+def read_cnv_file(filepath: Union[Path, str]) -> xr.Dataset:
+    """Import the data from a .cnv file and put it into an xarray
+    Dataset. Duplicate varioable names will have a number appended. For
+    example, the second "depSM" becomes "depSM_1".
 
     :param filepath: the path to the .cnv file to be imported
 
@@ -286,107 +232,76 @@ def cnv_to_instrument_data(filepath: Union[Path, str]) -> InstrumentData:
 
     """
 
-    data = InstrumentData(
-        measurements={},
-        interval_s=None,
-        latitude=0.0,
-        start_time=None,
-        sample_count=None,
-    )
-
-    n = 0
+    dataset = xr.Dataset({}, attrs={"file_name": Path(filepath).name})
+    # n_line = 0
+    total_samples = 0
+    data_lines = []
 
     logger.info("Unpacking instrument data from file: %s", filepath)
 
     with open(filepath, mode="r") as cnv:
-        for line in cnv:
-            if line.startswith("*") or line.startswith("#"):
-                if line.startswith("# nvalues = "):
-                    data.sample_count = int(line[line.find("= ") + 2 : line.find("\n")])
-                elif line.startswith("# name "):
-                    label = line[line.find("= ") + 2 : line.find(":")]
-                    left_bracket = line.find(" [")
-                    if left_bracket > 0:
-                        description = line[line.find(": ") + 2 : left_bracket]
-                        units = line[line.find("[") + 1 : line.find("]")]
-                    else:
-                        description = line[line.find(": ") + 2 : line.find("\n")].strip()
-                        units = ""
+        for n_line, line in enumerate(cnv):
+            # if line.startswith("*") or line.startswith("#"):
+            if line.startswith("# nvalues = "):
+                total_samples = int(line[line.find("= ") + 2 : line.find("\n")])
 
-                    num_values = data.sample_count or 0  # num_values to 0 if sample_count is None
+            elif line.startswith("# name "):
+                name = line[line.find("= ") + 2 : line.find(":")]
+                left_bracket = line.find(" [")
+                if left_bracket > 0:
+                    long_name = line[line.find(": ") + 2 : left_bracket]
+                    units = line[line.find("[") + 1 : line.find("]")]
+                else:
+                    long_name = line[line.find(": ") + 2 : line.find("\n")].strip()
+                    units = ""
 
-                    key = label
-                    # check for label collision
-                    # if collision, increment until find available key
-                    i = 1
-                    while key in data.measurements:
-                        key = f"{label}_{i}"
-                        i += 1
+                safe_name = name
+                # check for label collision
+                # if collision, increment until find available key
+                n_name = 1
+                while safe_name in list(dataset.data_vars):
+                    safe_name = f"{name}_{n_name}"
+                    n_name += 1
 
-                    data.measurements[key] = MeasurementSeries(
-                        label=label,
-                        description=description,
-                        units=units,
-                        start_time=None,
-                        values=np.zeros(num_values),
-                    )
+                if safe_name != name:
+                    logger.warning(f'Duplicate measurand "{name}" will use key "{safe_name}"')
 
-                    if key != label:
-                        logger.warning(
-                            'duplicate measurement "%s" will use key "%s" in measurements dict',
-                            label,
-                            key,
-                        )
+                data_array = xr.DataArray(
+                    data=np.zeros(total_samples),
+                    dims=["sample"],
+                    attrs={
+                        "sbs_name": name,
+                        "long_name": long_name,
+                        "units": units,
+                    },
+                )
 
-                elif line.startswith("# interval = "):
-                    interval = float(
-                        line[line.find(": ") + 2 : line.find("\n")]
-                    )  # TODO: fix for minutes, hours, etc
-                    data.interval_s = interval
+                dataset[safe_name] = data_array
 
-                elif line.startswith("# start_time = "):
-                    end = min(line.find("\n"), line.find(" ["))
-                    date_string = line[line.find("= ") + 2 : end]
-                    start_time = datetime.strptime(date_string, "%b %d %Y %H:%M:%S")
-                    data.start_time = start_time
-                    for measurement in data.measurements.values():
-                        measurement.start_time = start_time
+            elif line.startswith("# interval = "):
+                interval = float(
+                    line[line.find(": ") + 2 : line.find("\n")]
+                )  # TODO: fix for minutes, hours, etc
+                dataset.attrs["sample_interval"] = interval
 
-                elif line.startswith("** Latitude: "):
-                    latitude_parts = line[line.find(": ") + 2 :].split()
-                    data.latitude = float(latitude_parts[0]) + float(latitude_parts[1]) / 60.0
-                    # TODO: add higher priority latitude to individual measurement series
-                    # where necessary
+            elif line.startswith("# start_time = "):
+                end = min(line.find("\n"), line.find(" ["))
+                date_string = line[line.find("= ") + 2 : end]
+                start_time = datetime.strptime(date_string, "%b %d %Y %H:%M:%S")
+                dataset.attrs["start_time"] = start_time
 
-            else:
-                values = fix_exponents(" -".join(line.split("-")).split())
+            elif line.startswith("*END*"):
+                data_lines = cnv.readlines()
+                break
 
-                if len(values) > 0:
-                    for value, measurement in zip(values, data.measurements.values()):
-                        measurement.values[n] = float(value)
-                    n += 1
-    return data
+    np_data = np.array(
+        [np.fromstring(dl.replace("-", " -").replace("e -", "e-"), sep=" ") for dl in data_lines]
+    )
 
+    for n, measurand in enumerate(list(dataset.data_vars)):
+        dataset[measurand].data = np_data[:, n]
 
-def fix_exponents(values: List[str]) -> List[str]:
-    """Fixes flag values and other numbers with negative exponents.
-    This is necessary because sometimes there is only a minus sign
-    separating two values in a cnv file. So we split values on the minus
-    sign which also splits negative exponents (e.g. 1e-2 becomes 1e, -2).
-    This function repairs the exponents by merging numbers that end in
-    'e' with the following number in the list (e.g. 1e, -2 becomes 1e-2),
-    then removes the extra exponent from the list.
-
-    :param values: List of strings representing numbers
-
-    :return: List of strings where eponents have been fixed
-    """
-
-    del_indices = [n + 1 for n, value in enumerate(values) if value.endswith("e")]
-    for n in del_indices:
-        values[n - 1] = f"{values[n - 1]}{values[n]}"
-    new_values = list(np.delete(values, del_indices))
-    return new_values
+    return dataset
 
 
 def read_hex_file(
@@ -397,7 +312,7 @@ def read_hex_file(
     is_shallow=True,
     frequency_channels_suppressed=0,
     voltage_words_suppressed=0,
-) -> pd.DataFrame:
+) -> xr.Dataset:
     """Reads a .hex file
 
     :param filepath: path to the .hex file
@@ -408,57 +323,53 @@ def read_hex_file(
         mode, defaults to False
     :return: a pandas DataFrame with the hex data
     """
-    data_count = 0
-    is_data = False
 
-    # iterating over file twice in order to preallocate arrays
-    # TODO: Fix this
-    file = open(filepath, mode="r")
-    for line in file:
-        if is_data and not (line == "" or line.startswith("\n") or line.startswith("\r")):
-            data_count += 1
-        if line.startswith("*END*"):
-            is_data = True
+    data_lines = []
 
-    data_length = data_count
-    file.seek(0)
-    data = pd.DataFrame()
-    data_count = 0
-    is_data = False
+    with open(filepath, mode="r") as file:
+        for line in file:
+            if line.startswith("*END*"):
+                data_lines = file.readlines()
 
-    for line in file:
-        if is_data and not (line == "" or line.startswith("\n") or line.startswith("\r")):
-            if data_count == 0:
-                data = preallocate_dataframe(
-                    instrument_type, line, enabled_sensors, moored_mode, data_length
-                )
-            hex_data = read_hex(
-                instrument_type,
-                line,
-                enabled_sensors,
-                moored_mode,
-                is_shallow,
-                frequency_channels_suppressed,
-                voltage_words_suppressed,
-            )
-            for key, value in hex_data.items():
-                data.loc[data_count, key] = value
-            data_count += 1
-        if line.startswith("*END*"):
-            is_data = True
+    dataset = xr.Dataset({}, attrs={"file_name": Path(filepath).name})
 
-    file.close()
+    hex_data = read_hex(
+        instrument_type,
+        data_lines[0],
+        enabled_sensors,
+        moored_mode,
+        is_shallow,
+        frequency_channels_suppressed,
+        voltage_words_suppressed,
+    )
+    keys = hex_data.keys()
+    dataset.update(_preallocate_dataset(hex_data, len(data_lines)))
+    np_data = np.empty((len(data_lines), len(keys)), dtype=object)
 
-    return data
+    for n, line in enumerate(data_lines):
+        hex_data = read_hex(
+            instrument_type,
+            line,
+            enabled_sensors,
+            moored_mode,
+            is_shallow,
+            frequency_channels_suppressed,
+            voltage_words_suppressed,
+        )
+
+        np_data[n] = [hex_data[k] for k in keys]
+
+    for n, measurand in enumerate(keys):
+        dtype = np.dtype(type(hex_data[measurand]))
+        dataset[measurand].data = np_data[:, n].astype(dtype)
+
+    return dataset
 
 
-def preallocate_dataframe(
-    instrument_type: InstrumentType,
-    line: str,
-    enabled_sensors: List[Sensors],
-    moored_mode: bool,
+def _preallocate_dataset(
+    hex_data: dict,
     data_length: int,
-) -> pd.DataFrame:
+) -> xr.Dataset:
     """Prefills a pandas DataFrame with zeros for the instrument data
 
     :param instrument_type: the instrument type
@@ -472,15 +383,15 @@ def preallocate_dataframe(
     :return: a dataframe fill of zeros
     """
     sensors = {}
-    hex_data = read_hex(instrument_type, line, enabled_sensors, moored_mode)
-    # hex_keys = pd.DataFrame(hex_data, index=[0]).columns
     for key, value in hex_data.items():
         if isinstance(value, datetime):
-            sensors[key] = pd.date_range(start="2000-01-01", end="2000-01-02", periods=data_length)
+            # fill with arbitrary dates converted to regular datetimes
+            date_range = pd.date_range(start="2000-01-01", end="2000-01-02", periods=data_length)
+            sensors[key] = ("sample", date_range.to_pydatetime().tolist())
         else:
-            sensors[key] = np.zeros(data_length)
+            sensors[key] = ("sample", np.zeros(data_length))
 
-    return pd.DataFrame(sensors)
+    return xr.Dataset(sensors)
 
 
 def read_hex(
@@ -908,8 +819,9 @@ def read_SBE19plus_format_0(
     :param hex_segment: one line from a hex data file
     :param enabled_sensors: array of Sensors that are enabled. For 37
         this is always temperature, conductivity, pressure. Defaults to
-        False
-    :param moored_mode: parses time for 19plus in moored mode if true
+        None
+    :param moored_mode: parses time for 19plus in moored mode if true.
+        Defautls to False
     :param hex: Deprecated, use hex_segment
 
     :return: the 19plus V2 sensor values in engineering units that were

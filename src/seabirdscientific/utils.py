@@ -1,19 +1,11 @@
-#!/usr/bin/python3
-# -*- coding: utf-8 -*-
-
-"""A collection of utility functions related to the processing of SBS
-instrument data.
-"""
-# Functions:
-#   close_enough (np.ndarray, np.ndarray, int, float) -> bool
-#   plot (np.ndarray)
-#   percent_match (np.ndarray, np.ndarray) -> str
+"""Utility functions related to processing SBS instrument data."""
 
 # Native imports
 
 # Third-party imports
 import matplotlib.pyplot as plt
 import numpy as np
+from line_profiler import LineProfiler
 
 # Sea-Bird imports
 
@@ -107,3 +99,21 @@ def get_tolerance(data: np.ndarray):
             if len(decimal_lengths) >= 10:
                 break
     return 1 / 10 ** max(decimal_lengths)
+
+
+def profile(fun):
+    """Decorator for profiling long running functions during
+    development. Add @profile above the function to be measured, then
+    call the function in a script to get a line by line report printed
+    to the console. Remove the decorator when done
+
+    :param fun: This is implicitly the function below the decorator
+    """
+    def wrapper(*args, **kwargs):
+        lp = LineProfiler()
+        lp.add_function(fun)
+        lp.runctx("result = func(*args, **kwargs)", globals(), locals())
+        lp.print_stats(output_unit=1e-6)
+        return locals()["result"]
+
+    return wrapper
