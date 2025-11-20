@@ -1,7 +1,4 @@
-#!/usr/bin/python3
-# -*- coding: utf-8 -*-
-
-"""Calibration coefficient objects for data conversion"""
+"""Calibration coefficient dataclasses for data conversion."""
 
 # Native imports
 from dataclasses import dataclass

@@ -1,6 +1,3 @@
-#!/usr/bin/python3
-# -*- coding: utf-8 -*-
-
 """Contains a class and functions to support calculation of temperature
 and salinity (TS) contours.
 """

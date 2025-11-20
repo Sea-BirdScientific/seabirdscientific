@@ -24,11 +24,13 @@ classifiers = [
 ]
 dependencies = [
   "gsw",
+  "line-profiler",
   "matplotlib",
   "numpy",
   "pandas",
   "plotly>=6.0.0",
   "scipy",
+  "xarray",
 ]
 
 # For dev environment created with venv and pip
@@ -47,12 +49,12 @@ dev = [
 # For dev environment created with UV
 [dependency-groups]
 dev = [
+  "kaleido",
   "nbconvert[webpdf]",
   "nbformat",
   "notebook",
   "pytest",
   "pytest-cov",
-  "kaleido",
 ]
 
 [project.urls]
@@ -97,3 +99,14 @@ exclude = [
   "build",
   "dist",
 ]
+
+[tool.pytest.ini_options]
+testpaths = [
+  "tests"
+]
+norecursedirs = [
+  "__pycache__",
+  "resources",
+  "results",
+]
+
