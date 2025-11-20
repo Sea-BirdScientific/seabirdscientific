@@ -268,9 +268,7 @@ def read_cnv_file(filepath: Union[Path, str]) -> xr.Dataset:
                 data_array = xr.DataArray(
                     data=np.zeros(total_samples),
                     dims=["sample"],
-                    coords={
-                        "sample": np.arange(total_samples)
-                    },
+                    coords={"sample": np.arange(total_samples)},
                     attrs={
                         "sbs_name": name,
                         "long_name": long_name,
@@ -397,9 +395,7 @@ def _preallocate_dataset(
         data_array = xr.DataArray(
             data=empty_data,
             dims=["sample"],
-            coords={
-                "sample": np.arange(len(empty_data))
-            },
+            coords={"sample": np.arange(len(empty_data))},
             attrs={
                 "sbs_name": key,
                 "long_name": "",

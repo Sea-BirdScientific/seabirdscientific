@@ -109,6 +109,7 @@ def profile(fun):
 
     :param fun: This is implicitly the function below the decorator
     """
+
     def wrapper(*args, **kwargs):
         lp = LineProfiler()
         lp.add_function(fun)

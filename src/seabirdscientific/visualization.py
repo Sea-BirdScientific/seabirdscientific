@@ -1,6 +1,5 @@
 """Functions to support data visualization."""
 
-
 # Native imports
 import json
 from logging import getLogger

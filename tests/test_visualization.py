@@ -50,7 +50,7 @@ class TestSelectSubset:
 
 class TestPlotXYChart:
     data_path = test_resources / "example_pass.asc"
-    
+
     @pytest.fixture
     def config(self):
         return sv.ChartConfig(
@@ -58,9 +58,9 @@ class TestPlotXYChart:
             x_names=["Col1"],
             y_names=[],
             z_names=[],
-            chart_type="overlay"
+            chart_type="overlay",
         )
-    
+
     @pytest.fixture
     def data(self, config):
         return sv.ChartData(self.data_path, config)
@@ -187,7 +187,8 @@ class TestPlotTSChart:
             config=config,
         )
         assert isinstance(figure, go.Figure)
-        #fmt: on
+        # fmt: on
+
     # TODO: add failing tests
 
 

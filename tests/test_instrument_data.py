@@ -49,25 +49,27 @@ class TestCnvToInstrumentData:
         file_path = test_data / "WQR086CFACLWDB.cnv"
         dataset = si.read_cnv_file(file_path)
 
-        expected_variables = set([
-            "prDM",
-            "t090C",
-            "c0S/m",
-            "scan",
-            "depSM",
-            "timeS",
-            "cpar",
-            "spar",
-            "turbWETntu0",
-            "flECO-AFL",
-            "par",
-            "t190C",
-            "c1S/m",
-            "depSM_1",  # this duplicate "depSM" was a problem, increments to "depSM_1"
-            "sal00",
-            "nbin",
-            "flag",
-        ])
+        expected_variables = set(
+            [
+                "prDM",
+                "t090C",
+                "c0S/m",
+                "scan",
+                "depSM",
+                "timeS",
+                "cpar",
+                "spar",
+                "turbWETntu0",
+                "flECO-AFL",
+                "par",
+                "t190C",
+                "c1S/m",
+                "depSM_1",  # this duplicate "depSM" was a problem, increments to "depSM_1"
+                "sal00",
+                "nbin",
+                "flag",
+            ]
+        )
 
         assert expected_variables == set(dataset.data_vars)
 
@@ -112,7 +114,7 @@ class TestReadHex19plus:
 
 class TestReadHex39plus:
     filepath = test_data / "SBE39plus.hex"
-    
+
     @pytest.fixture
     def hex_data(self):
         return si.read_hex_file(
@@ -138,7 +140,7 @@ class TestReadHex39plus:
 
 class TestReadSBE911plus:
     filepath = test_data / "911plus_trim.hex"
-    
+
     @pytest.fixture
     def hex_data(self):
         return si.read_hex_file(
@@ -189,12 +191,14 @@ class TestReadSBE911plus:
         assert int(hex_data["SBE911 confirm status"][0].item()) == 1
         assert int(hex_data["SBE911 modem status"][0].item()) == 1
         assert int(hex_data["data integrity"][0].item()) == 83
-        assert pd.to_datetime(hex_data["system time"][0].item()) == datetime(2025, 7, 28, 23, 43, 53)
+        assert pd.to_datetime(hex_data["system time"][0].item()) == datetime(
+            2025, 7, 28, 23, 43, 53
+        )
 
 
 class TestReadSeaFET2:
     filepath = test_data / "SeaFET2.hex"
-    
+
     @pytest.fixture
     def hex_data(self):
         return si.read_hex_file(self.filepath, si.InstrumentType.SeaFET2, [], False, True)
@@ -214,7 +218,7 @@ class TestReadSeaFET2:
 
 class TestReadNMEAHex:
     filepath = test_data / "19plus_V2_CTD_nmea_data.hex"
-    
+
     @pytest.fixture
     def hex_data(self):
         return si.read_hex_file(
@@ -238,5 +242,9 @@ class TestReadNMEAHex:
         assert hex_data["NMEA Latitude"][-1].item() == 48.62298000
         assert hex_data["NMEA Longitude"][0].item() == -123.50002000
         assert hex_data["NMEA Longitude"][-1].item() == -123.49994000
-        assert pd.to_datetime(hex_data["NMEA Date Time"][0].item()) == datetime(2023, 3, 18, 12, 15, 19)
-        assert pd.to_datetime(hex_data["NMEA Date Time"][-1].item()) == datetime(2023, 3, 18, 12, 36, 2)
+        assert pd.to_datetime(hex_data["NMEA Date Time"][0].item()) == datetime(
+            2023, 3, 18, 12, 15, 19
+        )
+        assert pd.to_datetime(hex_data["NMEA Date Time"][-1].item()) == datetime(
+            2023, 3, 18, 12, 36, 2
+        )
