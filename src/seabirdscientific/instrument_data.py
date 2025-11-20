@@ -233,7 +233,7 @@ def read_cnv_file(filepath: Union[Path, str]) -> xr.Dataset:
     """
 
     dataset = xr.Dataset({}, attrs={"file_name": Path(filepath).name})
-    # n_line = 0
+
     total_samples = 0
     data_lines = []
 
@@ -241,7 +241,6 @@ def read_cnv_file(filepath: Union[Path, str]) -> xr.Dataset:
 
     with open(filepath, mode="r") as cnv:
         for n_line, line in enumerate(cnv):
-            # if line.startswith("*") or line.startswith("#"):
             if line.startswith("# nvalues = "):
                 total_samples = int(line[line.find("= ") + 2 : line.find("\n")])
 
@@ -269,6 +268,9 @@ def read_cnv_file(filepath: Union[Path, str]) -> xr.Dataset:
                 data_array = xr.DataArray(
                     data=np.zeros(total_samples),
                     dims=["sample"],
+                    coords={
+                        "sample": np.arange(total_samples)
+                    },
                     attrs={
                         "sbs_name": name,
                         "long_name": long_name,
@@ -321,7 +323,12 @@ def read_hex_file(
         instrument
     :param moored_mode: whether the instrument was in moored or profiling
         mode, defaults to False
-    :return: a pandas DataFrame with the hex data
+    :param is_shallow: boolean for deep or shallow seafet,
+    :param frequency_channels_suppressed: number of SBE911 requency
+        channels supressed,
+    :param voltage_words_suppressed: number of SBE911 voltage channels
+        suppressed,
+    :return: an xarray Dataset with the hex data
     """
 
     data_lines = []
@@ -370,28 +377,38 @@ def _preallocate_dataset(
     hex_data: dict,
     data_length: int,
 ) -> xr.Dataset:
-    """Prefills a pandas DataFrame with zeros for the instrument data
+    """Creates an xarray dataset prefilled with zeros or arbitrary dates
+    to replace with instrument data
 
-    :param instrument_type: the instrument type
-    :param line: TODO: remove in TKIT-63
-    :param enabled_sensors: list of sensors that were enabled on the
-        instrument
-    :param moored_mode: whether the 19 plus was in moored or profiling
-        mode
-    :param data_length: the number of rows of data in the hex file
+    :param hex_data: a sample from a hex file converted to a dict
+    :param data_length: the number of samples in the hex file
 
-    :return: a dataframe fill of zeros
+    :return: a dataset fill of zeros or arbitrary dates
     """
-    sensors = {}
+    dataset = xr.Dataset()
     for key, value in hex_data.items():
         if isinstance(value, datetime):
             # fill with arbitrary dates converted to regular datetimes
             date_range = pd.date_range(start="2000-01-01", end="2000-01-02", periods=data_length)
-            sensors[key] = ("sample", date_range.to_pydatetime().tolist())
+            empty_data = date_range.to_pydatetime().tolist()
         else:
-            sensors[key] = ("sample", np.zeros(data_length))
+            empty_data = np.zeros(data_length)
 
-    return xr.Dataset(sensors)
+        data_array = xr.DataArray(
+            data=empty_data,
+            dims=["sample"],
+            coords={
+                "sample": np.arange(len(empty_data))
+            },
+            attrs={
+                "sbs_name": key,
+                "long_name": "",
+                "units": "",
+            },
+        )
+        dataset[key] = data_array
+
+    return dataset
 
 
 def read_hex(

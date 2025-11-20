@@ -230,14 +230,14 @@ class TestCellThermalMass:
         )
 
 
-class XTestLoopEdit:
+class TestLoopEdit:
     def test_loop_edit_pressure_min_velocity_pass(self, request):
         expected_data = si.read_cnv_file(test_data / "CAST0002_mod_filt_loop_min_v.cnv")
         data = si.read_cnv_file(test_data / "CAST0002_mod_filt.cnv")
 
         sp.loop_edit_pressure(
             pressure=data["prSM"].values,
-            latitude=data.latitude,
+            latitude=0,
             flag=data["flag"].values,
             sample_interval=data.attrs["sample_interval"],
             min_velocity_type=sp.MinVelocityType.FIXED,
@@ -272,7 +272,7 @@ class XTestLoopEdit:
 
         sp.loop_edit_pressure(
             pressure=data["prSM"].values,
-            latitude=data.latitude,
+            latitude=0,
             flag=data["flag"].values,
             sample_interval=data.attrs["sample_interval"],
             min_velocity_type=sp.MinVelocityType.FIXED,
@@ -305,7 +305,7 @@ class XTestLoopEdit:
 
         sp.loop_edit_pressure(
             pressure=data["prSM"].values,
-            latitude=data.latitude,
+            latitude=0,
             flag=data["flag"].values,
             sample_interval=data.attrs["sample_interval"],
             min_velocity_type=sp.MinVelocityType.FIXED,
@@ -342,7 +342,7 @@ class XTestLoopEdit:
 
         sp.loop_edit_pressure(
             pressure=data["prSM"].values,
-            latitude=data.latitude,
+            latitude=0,
             flag=data["flag"].values,
             sample_interval=data.attrs["sample_interval"],
             min_velocity_type=sp.MinVelocityType.FIXED,
@@ -377,7 +377,7 @@ class XTestLoopEdit:
 
         sp.loop_edit_pressure(
             pressure=data["prSM"].values,
-            latitude=data.latitude,
+            latitude=0,
             flag=data["flag"].values,
             sample_interval=data.attrs["sample_interval"],
             min_velocity_type=sp.MinVelocityType.PERCENT,
@@ -411,7 +411,7 @@ class XTestLoopEdit:
 
         sp.loop_edit_pressure(
             pressure=data["prSM"].values,
-            latitude=data.latitude,
+            latitude=0,
             flag=data["flag"].values,
             sample_interval=data.attrs["sample_interval"],
             min_velocity_type=sp.MinVelocityType.PERCENT,
@@ -447,7 +447,7 @@ class XTestLoopEdit:
 
         sp.loop_edit_pressure(
             pressure=data["prdM"].values,
-            latitude=data.latitude,
+            latitude=0,
             flag=data["flag"].values,
             sample_interval=data.attrs["sample_interval"],
             min_velocity_type=sp.MinVelocityType.FIXED,
@@ -478,7 +478,7 @@ class XTestLoopEdit:
         assert mismatches / len(result_flags) < 0.02
 
 
-class XTestBinAverage:
+class TestBinAverage:
     # fmt: off
     # I think the extra wide lines here are less annoying than the
     # extra tall lines formatted by black. Feel free to enable black
@@ -487,44 +487,44 @@ class XTestBinAverage:
     def test_bin_average_interp_bin_3(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
         source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_binavg_interp_bin3.cnv"
-        data = si.read_cnv_file(source_in)._to_dataframe()
-        expected = si.read_cnv_file(source_out)._to_dataframe()
+        result = si.read_cnv_file(source_in)
+        expected = si.read_cnv_file(source_out)
         binavg = sp.bin_average(
-            dataset=data,
+            dataset=result,
             bin_variable='prdM',
             bin_size=3,
             interpolate=True
             )
-        for variable in expected.columns:
-            tolerance = get_tolerance(expected[variable])
-            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=tolerance)
+        for variable in list(expected.data_vars):
+            tolerance = get_tolerance(expected[variable].values)
+            assert np.allclose(expected[variable].values, binavg[variable].values, rtol=0, atol=tolerance)
 
     def test_bin_average_interp_bin_5(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
         source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_binavg_interp_bin5.cnv"
-        data = si.read_cnv_file(source_in)._to_dataframe()
-        expected = si.read_cnv_file(source_out)._to_dataframe()
+        result = si.read_cnv_file(source_in)
+        expected = si.read_cnv_file(source_out)
         binavg = sp.bin_average(
-            dataset=data,
+            dataset=result,
             bin_variable='prdM',
             bin_size=5,
             interpolate=True
         )
-        for variable in expected.columns:
-            tolerance = get_tolerance(expected[variable])
-            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=tolerance)
+        for variable in list(expected.data_vars):
+            tolerance = get_tolerance(expected[variable].values)
+            assert np.allclose(expected[variable].values, binavg[variable].values, rtol=0, atol=tolerance)
 
     def test_bin_average_default(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
         source_in2 = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped2.cnv"
         source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_binavg.cnv"
         source_out2 = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped2_binavg.cnv"
-        data = si.read_cnv_file(source_in)._to_dataframe()
-        data2 = si.read_cnv_file(source_in2)._to_dataframe()
-        expected = si.read_cnv_file(source_out)._to_dataframe()
-        expected2 = si.read_cnv_file(source_out2)._to_dataframe()
+        result = si.read_cnv_file(source_in)
+        data2 = si.read_cnv_file(source_in2)
+        expected = si.read_cnv_file(source_out)
+        expected2 = si.read_cnv_file(source_out2)
         binavg = sp.bin_average(
-            dataset = data,
+            dataset = result,
             bin_variable = 'prdM',
             bin_size = 2,
         )
@@ -533,50 +533,50 @@ class XTestBinAverage:
             bin_variable = 'prdM',
             bin_size = 2,
         )
-        for variable in expected.columns:
-            tolerance = get_tolerance(expected[variable])
-            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=tolerance)
+        for variable in list(expected.data_vars):
+            tolerance = get_tolerance(expected[variable].values)
+            assert np.allclose(expected[variable].values, binavg[variable].values, rtol=0, atol=tolerance)
             assert np.allclose(expected2[variable], binavg2[variable], rtol=0, atol=tolerance)
 
     def test_bin_average_include_surface(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
         source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_binavg_surface.cnv"
-        data = si.read_cnv_file(source_in)._to_dataframe()
-        expected = si.read_cnv_file(source_out)._to_dataframe()
+        result = si.read_cnv_file(source_in)
+        expected = si.read_cnv_file(source_out)
         binavg = sp.bin_average(
-            dataset = data,
+            dataset = result,
             bin_variable = 'prdM',
             bin_size = 2,
             include_surface_bin = True,
             surface_bin_min = 0,
             surface_bin_max = 1,
         )
-        for variable in expected.columns:
-            tolerance = get_tolerance(expected[variable])
-            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=tolerance)
+        for variable in list(expected.data_vars):
+            tolerance = get_tolerance(expected[variable].values)
+            assert np.allclose(expected[variable].values, binavg[variable].values, rtol=0, atol=tolerance)
 
     def test_bin_average_interpolate(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
         source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_binavg_interp.cnv"
-        data = si.read_cnv_file(source_in)._to_dataframe()
-        expected = si.read_cnv_file(source_out)._to_dataframe()
+        result = si.read_cnv_file(source_in)
+        expected = si.read_cnv_file(source_out)
         binavg = sp.bin_average(
-            dataset = data,
+            dataset = result,
             bin_variable = 'prdM',
             bin_size = 2,
             interpolate = True,
         )
-        for variable in expected.columns:
-            tolerance = get_tolerance(expected[variable])
-            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=tolerance)
+        for variable in list(expected.data_vars):
+            tolerance = get_tolerance(expected[variable].values)
+            assert np.allclose(expected[variable].values, binavg[variable].values, rtol=0, atol=tolerance)
 
     def test_bin_average_interpolate_surface(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
         source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_binavg_interp_surface.cnv"
-        data = si.read_cnv_file(source_in)._to_dataframe()
-        expected = si.read_cnv_file(source_out)._to_dataframe()
+        result = si.read_cnv_file(source_in)
+        expected = si.read_cnv_file(source_out)
         binavg = sp.bin_average(
-            dataset = data,
+            dataset = result,
             bin_variable = 'prdM',
             bin_size = 2,
             interpolate = True,
@@ -585,48 +585,48 @@ class XTestBinAverage:
             surface_bin_max = 1,
             surface_bin_value = 0.5,
         )
-        for variable in expected.columns:
-            tolerance = get_tolerance(expected[variable])
-            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=tolerance)
+        for variable in list(expected.data_vars):
+            tolerance = get_tolerance(expected[variable].values)
+            assert np.allclose(expected[variable].values, binavg[variable].values, rtol=0, atol=tolerance)
 
     def test_bin_average_downcast(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
         source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_binavg_downcast.cnv"
-        data = si.read_cnv_file(source_in)._to_dataframe()
-        expected = si.read_cnv_file(source_out)._to_dataframe()
+        result = si.read_cnv_file(source_in)
+        expected = si.read_cnv_file(source_out)
         binavg = sp.bin_average(
-            dataset = data,
+            dataset = result,
             bin_variable = 'prdM',
             bin_size = 2,
             cast_type = sp.CastType.DOWNCAST
         )
-        for variable in expected.columns:
-            tolerance = get_tolerance(expected[variable])
-            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=tolerance)
+        for variable in list(expected.data_vars):
+            tolerance = get_tolerance(expected[variable].values)
+            assert np.allclose(expected[variable].values, binavg[variable].values, rtol=0, atol=tolerance)
 
     def test_bin_average_downcast_interp(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
         source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_binavg_downcast_interp.cnv"
-        data = si.read_cnv_file(source_in)._to_dataframe()
-        expected = si.read_cnv_file(source_out)._to_dataframe()
+        result = si.read_cnv_file(source_in)
+        expected = si.read_cnv_file(source_out)
         binavg = sp.bin_average(
-            dataset = data,
+            dataset = result,
             bin_variable = 'prdM',
             bin_size = 2,
             cast_type = sp.CastType.DOWNCAST,
             interpolate = True,
         )
-        for variable in expected.columns:
-            tolerance = get_tolerance(expected[variable])
-            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=tolerance)
+        for variable in list(expected.data_vars):
+            tolerance = get_tolerance(expected[variable].values)
+            assert np.allclose(expected[variable].values, binavg[variable].values, rtol=0, atol=tolerance)
 
     def test_bin_average_downcast_interp_surface(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
         source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_binavg_downcast_interp_surface.cnv"
-        data = si.read_cnv_file(source_in)._to_dataframe()
-        expected = si.read_cnv_file(source_out)._to_dataframe()
+        result = si.read_cnv_file(source_in)
+        expected = si.read_cnv_file(source_out)
         binavg = sp.bin_average(
-            dataset = data,
+            dataset = result,
             bin_variable = 'prdM',
             bin_size = 2,
             cast_type = sp.CastType.DOWNCAST,
@@ -636,48 +636,48 @@ class XTestBinAverage:
             surface_bin_max = 1,
             surface_bin_value = 0.5,
         )
-        for variable in expected.columns:
-            tolerance = get_tolerance(expected[variable])
-            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=tolerance)
+        for variable in list(expected.data_vars):
+            tolerance = get_tolerance(expected[variable].values)
+            assert np.allclose(expected[variable].values, binavg[variable].values, rtol=0, atol=tolerance)
 
     def test_bin_average_upcast(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
         source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_binavg_upcast.cnv"
-        data = si.read_cnv_file(source_in)._to_dataframe()
-        expected = si.read_cnv_file(source_out)._to_dataframe()
+        result = si.read_cnv_file(source_in)
+        expected = si.read_cnv_file(source_out)
         binavg = sp.bin_average(
-            dataset = data,
+            dataset = result,
             bin_variable = 'prdM',
             bin_size = 2,
             cast_type = sp.CastType.UPCAST
         )
-        for variable in expected.columns:
-            tolerance = get_tolerance(expected[variable])
-            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=tolerance)
+        for variable in list(expected.data_vars):
+            tolerance = get_tolerance(expected[variable].values)
+            assert np.allclose(expected[variable].values, binavg[variable].values, rtol=0, atol=tolerance)
 
     def test_bin_average_upcast_interp(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
         source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_binavg_upcast_interp.cnv"
-        data = si.read_cnv_file(source_in)._to_dataframe()
-        expected = si.read_cnv_file(source_out)._to_dataframe()
+        result = si.read_cnv_file(source_in)
+        expected = si.read_cnv_file(source_out)
         binavg = sp.bin_average(
-            dataset = data,
+            dataset = result,
             bin_variable = 'prdM',
             bin_size = 2,
             cast_type = sp.CastType.UPCAST,
             interpolate = True,
         )
-        for variable in expected.columns:
-            tolerance = get_tolerance(expected[variable])
-            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=tolerance)
+        for variable in list(expected.data_vars):
+            tolerance = get_tolerance(expected[variable].values)
+            assert np.allclose(expected[variable].values, binavg[variable].values, rtol=0, atol=tolerance)
 
     def test_bin_average_upcast_interp_surface(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
         source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_binavg_upcast_interp_surface.cnv"
-        data = si.read_cnv_file(source_in)._to_dataframe()
-        expected = si.read_cnv_file(source_out)._to_dataframe()
+        result = si.read_cnv_file(source_in)
+        expected = si.read_cnv_file(source_out)
         binavg = sp.bin_average(
-            dataset = data,
+            dataset = result,
             bin_variable = 'prdM',
             bin_size = 2,
             cast_type = sp.CastType.UPCAST,
@@ -687,99 +687,99 @@ class XTestBinAverage:
             surface_bin_max = 1,
             surface_bin_value = 0.5,
         )
-        for variable in expected.columns:
-            tolerance = get_tolerance(expected[variable])
-            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=tolerance)
+        for variable in list(expected.data_vars):
+            tolerance = get_tolerance(expected[variable].values)
+            assert np.allclose(expected[variable].values, binavg[variable].values, rtol=0, atol=tolerance)
 
     def test_bin_average_exclude_flags(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_loopedit_wildedit.cnv"
         source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_loopedit_wildedit_binavg_exclude.cnv"
-        data = si.read_cnv_file(source_in)._to_dataframe()
-        expected = si.read_cnv_file(source_out)._to_dataframe()
+        result = si.read_cnv_file(source_in)
+        expected = si.read_cnv_file(source_out)
         binavg = sp.bin_average(
-            dataset = data,
+            dataset = result,
             bin_variable = 'prdM',
             bin_size = 2,
         )
-        for variable in expected.columns:
-            tolerance = get_tolerance(expected[variable])
-            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=tolerance)
+        for variable in list(expected.data_vars):
+            tolerance = get_tolerance(expected[variable].values)
+            assert np.allclose(expected[variable].values, binavg[variable].values, rtol=0, atol=tolerance)
 
     def test_bin_average_include_flags(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_loopedit_wildedit.cnv"
         source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_loopedit_wildedit_binavg_include.cnv"
-        data = si.read_cnv_file(source_in)._to_dataframe()
-        expected = si.read_cnv_file(source_out)._to_dataframe()
+        result = si.read_cnv_file(source_in)
+        expected = si.read_cnv_file(source_out)
         binavg = sp.bin_average(
-            dataset = data,
+            dataset = result,
             bin_variable = 'prdM',
             bin_size = 2,
             exclude_bad_scans = False
         )
-        for variable in expected.columns:
-            tolerance = get_tolerance(expected[variable])
-            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=tolerance)
+        for variable in list(expected.data_vars):
+            tolerance = get_tolerance(expected[variable].values)
+            assert np.allclose(expected[variable].values, binavg[variable].values, rtol=0, atol=tolerance)
 
     def test_bin_average_include_flags_interp(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_loopedit_wildedit.cnv"
         source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_loopedit_wildedit_binavg_include_interp.cnv"
-        data = si.read_cnv_file(source_in)._to_dataframe()
-        expected = si.read_cnv_file(source_out)._to_dataframe()
+        result = si.read_cnv_file(source_in)
+        expected = si.read_cnv_file(source_out)
         binavg = sp.bin_average(
-            dataset = data,
+            dataset = result,
             bin_variable = 'prdM',
             bin_size = 2,
             interpolate = True,
             exclude_bad_scans = False,
         )
-        for variable in expected.columns:
-            tolerance = get_tolerance(expected[variable])
-            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=tolerance)
+        for variable in list(expected.data_vars):
+            tolerance = get_tolerance(expected[variable].values)
+            assert np.allclose(expected[variable].values, binavg[variable].values, rtol=0, atol=tolerance)
 
     def test_bin_average_exclude_flags_interp(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_loopedit_wildedit.cnv"
         source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_loopedit_wildedit_binavg_exclude_interp.cnv"
-        data = si.read_cnv_file(source_in)._to_dataframe()
-        expected = si.read_cnv_file(source_out)._to_dataframe()
+        result = si.read_cnv_file(source_in)
+        expected = si.read_cnv_file(source_out)
         binavg = sp.bin_average(
-            dataset = data,
+            dataset = result,
             bin_variable = 'prdM',
             bin_size = 2,
             interpolate = True,
         )
-        for variable in expected.columns:
-            tolerance = get_tolerance(expected[variable])
-            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=tolerance)
+        for variable in list(expected.data_vars):
+            tolerance = get_tolerance(expected[variable].values)
+            assert np.allclose(expected[variable].values, binavg[variable].values, rtol=0, atol=tolerance)
 
     def test_bin_average_time(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
         source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_binavg_time.cnv"
-        data = si.read_cnv_file(source_in)._to_dataframe()
-        expected = si.read_cnv_file(source_out)._to_dataframe()
+        result = si.read_cnv_file(source_in)
+        expected = si.read_cnv_file(source_out)
         binavg = sp.bin_average(
-            dataset = data,
+            dataset = result,
             bin_variable = 'timeS',
             bin_size = 10,
-            cast_type = sp.CastType.NA
+            cast_type = sp.CastType.NONE
         )
-        for variable in expected.columns:
-            tolerance = get_tolerance(expected[variable])
-            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=tolerance)
+        for variable in list(expected.data_vars):
+            tolerance = get_tolerance(expected[variable].values)
+            assert np.allclose(expected[variable].values, binavg[variable].values, rtol=0, atol=tolerance)
 
     def test_bin_average_scan(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
         source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_binavg_scan.cnv"
-        data = si.read_cnv_file(source_in)._to_dataframe()
-        expected = si.read_cnv_file(source_out)._to_dataframe()
+        result = si.read_cnv_file(source_in)
+        expected = si.read_cnv_file(source_out)
         binavg = sp.bin_average(
-            dataset = data,
+            dataset = result,
             bin_variable = 'nScan',
             bin_size = 10,
-            cast_type = sp.CastType.NA
+            cast_type = sp.CastType.NONE
         )
-        for variable in expected.columns:
-            tolerance = get_tolerance(expected[variable])
-            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=tolerance)
+        for variable in list(expected.data_vars):
+            tolerance = get_tolerance(expected[variable].values)
+            assert np.allclose(expected[variable].values, binavg[variable].values, rtol=0, atol=tolerance)
 
     # fmt: on
 
@@ -1106,34 +1106,47 @@ class TestNitrate:
 
 
 class TestSplit:
-    def test_split(self, request):
-        source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
-        source_down = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_downcast.cnv"
-        source_up = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_upcast.cnv"
-        data = si.read_cnv_file(source_in)._to_dataframe()
-        expected_down = si.read_cnv_file(source_down)._to_dataframe()
-        expected_up = si.read_cnv_file(source_up)._to_dataframe()
+    @pytest.mark.parametrize(
+        "source_path, cast_type",
+        [
+            ("SBE19plus_01906398_2019_07_15_0033_cropped_upcast.cnv", sp.CastType.UPCAST),
+            ("SBE19plus_01906398_2019_07_15_0033_cropped_downcast.cnv", sp.CastType.DOWNCAST),
+        ],
+    )
+    def test_split(self, source_path, cast_type, request):
+        expected_source = test_data / source_path
+        expected = si.read_cnv_file(expected_source)
 
-        down, up = sp.split(data, "prdM")
+        source = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
+        result = si.read_cnv_file(source)
+        result = sp.split(result, "prdM", cast_type=cast_type, drop=True)
 
-        for variable in expected_down.columns:
-            tolerance = get_tolerance(expected_down[variable])
-            assert np.allclose(expected_down[variable], down[variable], rtol=0, atol=10**tolerance)
-            assert np.allclose(expected_up[variable], up[variable], rtol=0, atol=10**tolerance)
+        for variable in list(expected.data_vars):
+            tolerance = get_tolerance(expected[variable].values)
+            assert np.allclose(
+                expected[variable].values, result[variable].values, rtol=0, atol=10**tolerance
+            )
 
-    def test_split_with_flags(self, request):
-        source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_loopedit.cnv"
-        source_down = (
-            test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_loopedit_downcast.cnv"
-        )
-        source_up = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_loopedit_upcast.cnv"
-        data = si.read_cnv_file(source_in)._to_dataframe()
-        expected_down = si.read_cnv_file(source_down)._to_dataframe()
-        expected_up = si.read_cnv_file(source_up)._to_dataframe()
+    @pytest.mark.parametrize(
+        "source_path, cast_type",
+        [
+            ("SBE19plus_01906398_2019_07_15_0033_cropped_loopedit_upcast.cnv", sp.CastType.UPCAST),
+            (
+                "SBE19plus_01906398_2019_07_15_0033_cropped_loopedit_downcast.cnv",
+                sp.CastType.DOWNCAST,
+            ),
+        ],
+    )
+    def test_split_with_flags(self, source_path, cast_type, request):
+        expected_source = test_data / source_path
+        expected = si.read_cnv_file(expected_source)
 
-        down, up = sp.split(data, "prdM", exclude_bad_scans=True)
+        source = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_loopedit.cnv"
+        result = si.read_cnv_file(source)
+        result = sp.split(result, "prdM", exclude_bad_scans=True, cast_type=cast_type, drop=True)
 
-        for variable in expected_down.columns:
-            tolerance = get_tolerance(expected_down[variable])
-            assert np.allclose(expected_down[variable], down[variable], rtol=0, atol=10**tolerance)
-            assert np.allclose(expected_up[variable], up[variable], rtol=0, atol=10**tolerance)
+        for variable in list(expected.data_vars):
+            tolerance = get_tolerance(expected[variable].values)
+            assert np.allclose(
+                expected[variable].values, result[variable].values, rtol=0, atol=10**tolerance
+            )
