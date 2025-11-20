@@ -126,7 +126,7 @@ class TestChartData:
             config.z_names = ["Col999"]
             sv.ChartData(self.data_path, config)
 
-    def test_chart_data_slash_pass(self, data):
+    def test_chart_data_slash_pass(self):
         data_path = test_resources / "example_fail_slash.csv"
         config = sv.ChartConfig(
             title=data_path,
@@ -135,6 +135,7 @@ class TestChartData:
             z_names=["Col-3"],
             chart_type="",
         )
+        data = sv.ChartData(data_path, config)
 
         assert isinstance(data, sv.ChartData)
 
