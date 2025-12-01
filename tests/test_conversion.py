@@ -194,7 +194,7 @@ class TestConductivity19plus:
     hex_path = test_data / "19plus_V2.hex"
 
     def test_convert_conductivity(self, request):
-        # expected_data = id.cnv_to_instrument_data(self.cnv_path)
+        # expected_data = id.read_cnv_file(self.cnv_path)
 
         raw = id.read_hex_file(
             self.hex_path,
@@ -244,7 +244,7 @@ class TestConductivity37SM:
     hex_path = test_data / "SBE37SM-RS232_03716125_2017_11_16.hex"
 
     def test_convert_conductivity(self, request):
-        # expected_data = id.cnv_to_instrument_data(self.cnv_path)
+        # expected_data = id.read_cnv_file(self.cnv_path)
 
         raw = id.read_hex_file(
             self.hex_path,
@@ -257,23 +257,22 @@ class TestConductivity37SM:
         )
 
         temperature = dc.convert_temperature(
-            raw["temperature"][0:6],
+            raw["temperature"][0:6].values,
             tc.temperature_coefs_sn6130,
             "IPTS68",
             "C",
             True,
         )
 
-        # test_press_data = np.array([-0.105, -0.106, -0.104, -0.107, -0.105, -0.104])
         pressure = dc.convert_pressure(
-            raw["pressure"][0:6],
-            raw["temperature compensation"][0:6],
+            raw["pressure"][0:6].values,
+            raw["temperature compensation"][0:6].values,
             tc.pressure_coefs_sn16125,
             "psia",
         )
         expected = [2.711842, 2.715786, 2.715857, 2.715846, 2.715846, 2.715857]
         result = dc.convert_conductivity(
-            raw["conductivity"][0:6],
+            raw["conductivity"][0:6].values,
             temperature,
             pressure,
             tc.conductivity_coefs_sn16125,
@@ -284,7 +283,10 @@ class TestConductivity37SM:
 
 class TestDeriveDensity:
     data_path = test_data / "SBE37SM-derived.asc"
-    data = pd.read_csv(data_path)
+
+    @pytest.fixture
+    def data(self):
+        return pd.read_csv(self.data_path)
 
     @pytest.mark.parametrize(
         "reference_pressure, expected_column",
@@ -297,12 +299,12 @@ class TestDeriveDensity:
         ],
     )
     def test_derive_potential_density_from_t_s_p_pass(
-        self, request, reference_pressure, expected_column
+        self, data, request, reference_pressure, expected_column
     ):
-        temperature = self.data["t090C"].values
-        salinity = self.data["sal00"].values
-        pressure = self.data["prM"].values
-        expected = self.data[expected_column].values
+        temperature = data["t090C"].values
+        salinity = data["sal00"].values
+        pressure = data["prM"].values
+        expected = data[expected_column].values
         result = dc.potential_density_from_t_s_p(
             temperature,
             salinity,
@@ -313,11 +315,11 @@ class TestDeriveDensity:
         # TODO: improve passing condition for all instances of allclose
         assert np.allclose(result, expected, atol=0.1)
 
-    def test_derive_density_from_t_s_p_pass(self, request):
-        temperature = self.data["t090C"].values
-        salinity = self.data["sal00"].values
-        pressure = self.data["prM"].values
-        expected = self.data["gsw_densityA0"].values
+    def test_derive_density_from_t_s_p_pass(self, data, request):
+        temperature = data["t090C"].values
+        salinity = data["sal00"].values
+        pressure = data["prM"].values
+        expected = data["gsw_densityA0"].values
         result = dc.density_from_t_s_p(temperature, salinity, pressure)
 
         request.node.return_value = result.tolist()
@@ -334,12 +336,12 @@ class TestDeriveDensity:
         ],
     )
     def test_derive_potential_density_from_t_c_p_pass(
-        self, request, reference_pressure, expected_column
+        self, data, request, reference_pressure, expected_column
     ):
-        temperature = self.data["t090C"].values
-        conductivity = self.data["c0S/m"].values * 10.0
-        pressure = self.data["prM"].values
-        expected = self.data[expected_column].values
+        temperature = data["t090C"].values
+        conductivity = data["c0S/m"].values * 10.0
+        pressure = data["prM"].values
+        expected = data[expected_column].values
         result = dc.potential_density_from_t_c_p(
             temperature,
             conductivity,
@@ -349,11 +351,11 @@ class TestDeriveDensity:
         request.node.return_value = result.tolist()
         assert np.allclose(result, expected, atol=0.1)
 
-    def test_derive_density_from_t_c_p_pass(self, request):
-        temperature = self.data["t090C"].values
-        conductivity = self.data["c0S/m"].values * 10.0
-        pressure = self.data["prM"].values
-        expected = self.data["gsw_densityA0"].values
+    def test_derive_density_from_t_c_p_pass(self, data, request):
+        temperature = data["t090C"].values
+        conductivity = data["c0S/m"].values * 10.0
+        pressure = data["prM"].values
+        expected = data["gsw_densityA0"].values
         result = dc.density_from_t_c_p(temperature, conductivity, pressure)
 
         request.node.return_value = result.tolist()
@@ -362,7 +364,10 @@ class TestDeriveDensity:
 
 class TestDepthFromPressure:
     data_path = test_data / "SBE37SM.asc"
-    data = pd.read_csv(data_path).loc[6:10]
+
+    @pytest.fixture
+    def data(self):
+        return pd.read_csv(self.data_path).loc[6:10]
 
     @pytest.mark.parametrize(
         "pressure, pressure_units, depth, depth_units",
@@ -373,51 +378,17 @@ class TestDepthFromPressure:
             ("prdE", "psi", "depSF", "ft"),
         ],
     )
-    def test_depth_from_pressure_pass(self, request, pressure, pressure_units, depth, depth_units):
-        expected_depth = self.data[depth].values
-        pressure = self.data[pressure].values
+    def test_depth_from_pressure_pass(
+        self, data, request, pressure, pressure_units, depth, depth_units
+    ):
+        expected_depth = data[depth].values
+        pressure = data[pressure].values
         result_depth = dc.depth_from_pressure(pressure, 0, depth_units, pressure_units)
         request.node.return_value = result_depth.tolist()
         assert np.allclose(expected_depth, result_depth, atol=0.002)
 
 
-class TestConvertOxygen:
-    def test_convert_sbe63_oxygen(self, request):
-        raw_oxygen = np.array([31.06, 31.66, 32.59, 33.92, 34.82, 35.44])
-        pressure = np.array([0, 0, 0, 0, 0, 0])
-        raw_temperature = np.array([0.6, 0.5, 0.4, 0.35, 0.3, 0.25])
-        salinity = np.array([0, 0, 0, 0, 0, 0])
-        expected = np.array([0.93, 0.688, 0.459, 0.304, 0.206, 0.137])
-
-        result = dc.convert_sbe63_oxygen(
-            raw_oxygen,
-            raw_temperature,
-            pressure,
-            salinity,
-            tc.oxygen_63_coefs_sn2568,
-            tc.thermistor_63_coefs_sn2568,
-        )
-        request.node.return_value = result.tolist()
-        assert np.allclose(expected, result, rtol=0, atol=1e-3)
-
-    def test_convert_sbe63_oxygen_from_hex(self, request):
-        raw_oxygen = np.array([16.774, 16.775, 16.779, 16.778, 16.774, 16.779])
-        pressure = np.array([-0.057, -0.062, -0.057, -0.056, -0.068, -0.056])
-        raw_temperature = np.array([0.581763, 0.581758, 0.581753, 0.581737, 0.581725, 0.581717])
-        salinity = np.array([0.0115, 0.0115, 0.0115, 0.0115, 0.0115, 0.0115])
-        expected = np.array([5.872, 5.872, 5.868, 5.869, 5.872, 5.868])
-
-        result = dc.convert_sbe63_oxygen(
-            raw_oxygen,
-            raw_temperature,
-            pressure,
-            salinity,
-            tc.oxygen_63_coefs_sn11459,
-            tc.thermistor_63_coefs_sn11459,
-        )
-        request.node.return_value = result.tolist()
-        assert np.allclose(expected, result, rtol=0, atol=1e-3)
-
+class TestConvertSBE43Oxygen:
     def test_convert_sbe43_oxygen(self, request):
         # From O3287.pdf in the shared calibration folder
         raw_oxygen = np.array([0.725, 0.756, 0.803, 0.874, 0.925, 0.96, 1.332, 1.435, 1.595, 1.81])
@@ -611,9 +582,11 @@ class TestPARlogarithmic:
 # class TestContourFromTSP:
 #     # Note: this class doesn't actually test anything and is only for debug
 #     data_path = test_data / 'SBE37SM-RS232_03711722_2015_11_18_subset_derived.asc'
-#     data = pd.read_csv(data_path)
+#     @pytest.fixture
+#     def data(self):
+#         return pd.read_csv(self.data_path)
 
-#     def test_contour_from_t_s_p_pass(self, request):
+#     def test_contour_from_t_s_p_pass(self, data, request):
 #         temperature = self.data['t090C'].values
 #         salinity = self.data['sal00'].values
 #         pressure = self.data['prM'].values
@@ -822,6 +795,42 @@ class TestConvertSBE63Oxygen:
 
         request.node.return_value = thermistor_temperature.tolist()
         assert np.allclose(expected, thermistor_temperature, atol=1e-6)
+
+    def test_convert_sbe63_oxygen_therm_volts(self, request):
+        raw_oxygen = np.array([31.06, 31.66, 32.59, 33.92, 34.82, 35.44])
+        pressure = np.array([0, 0, 0, 0, 0, 0])
+        raw_temperature = np.array([0.6, 0.5, 0.4, 0.35, 0.3, 0.25])
+        salinity = np.array([0, 0, 0, 0, 0, 0])
+        expected = np.array([0.93, 0.688, 0.459, 0.304, 0.206, 0.137])
+
+        result = dc.convert_sbe63_oxygen(
+            raw_oxygen,
+            raw_temperature,
+            pressure,
+            salinity,
+            tc.oxygen_63_coefs_sn2568,
+            tc.thermistor_63_coefs_sn2568,
+        )
+        request.node.return_value = result.tolist()
+        assert np.allclose(expected, result, rtol=0, atol=1e-3)
+
+    def test_convert_sbe63_oxygen_from_hex(self, request):
+        raw_oxygen = np.array([16.774, 16.775, 16.779, 16.778, 16.774, 16.779])
+        pressure = np.array([-0.057, -0.062, -0.057, -0.056, -0.068, -0.056])
+        raw_temperature = np.array([0.581763, 0.581758, 0.581753, 0.581737, 0.581725, 0.581717])
+        salinity = np.array([0.0115, 0.0115, 0.0115, 0.0115, 0.0115, 0.0115])
+        expected = np.array([5.872, 5.872, 5.868, 5.869, 5.872, 5.868])
+
+        result = dc.convert_sbe63_oxygen(
+            raw_oxygen,
+            raw_temperature,
+            pressure,
+            salinity,
+            tc.oxygen_63_coefs_sn11459,
+            tc.thermistor_63_coefs_sn11459,
+        )
+        request.node.return_value = result.tolist()
+        assert np.allclose(expected, result, rtol=0, atol=1e-3)
 
 
 class TestSPAR:

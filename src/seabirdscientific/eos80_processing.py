@@ -1,6 +1,3 @@
-#!/usr/bin/python3
-# -*- coding: utf-8 -*-
-
 """EOS80 functions to support legacy processing"""
 
 import numpy as np
@@ -57,7 +54,6 @@ def bouyancy_frequency(
     return n2
 
 
-# TODO: break this function up
 def density(s0: np.ndarray, t: np.ndarray, p0: np.ndarray) -> np.ndarray:
     """EOS-80 density calculation.
 
