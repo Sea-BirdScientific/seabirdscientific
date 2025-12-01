@@ -113,7 +113,7 @@ def profile(fun):
     def wrapper(*args, **kwargs):
         lp = LineProfiler()
         lp.add_function(fun)
-        lp.runctx("result = func(*args, **kwargs)", globals(), locals())
+        lp.runctx("result = fun(*args, **kwargs)", globals(), locals())
         lp.print_stats(output_unit=1e-6)
         return locals()["result"]
 
