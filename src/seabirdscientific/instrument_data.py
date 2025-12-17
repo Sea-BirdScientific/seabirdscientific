@@ -410,7 +410,7 @@ def _preallocate_dataset(
 def read_hex(
     instrument_type: InstrumentType,
     hex_segment: str = "",
-    enabled_sensors: List[Sensors] | None = None,
+    enabled_sensors: Union[List[Sensors], None] = None,
     moored_mode=False,
     is_shallow=True,
     frequency_channels_suppressed=0,
@@ -476,7 +476,7 @@ def read_hex(
 
 def read_SBE39plus_format_0(
     hex_segment: str = "",
-    enabled_sensors: List[Sensors] | None = None,
+    enabled_sensors: Union[List[Sensors], None] = None,
     hex=builtins.hex,
 ) -> Dict[str, Union[int, float, datetime]]:
     """Converts a 39plus data hex string into engineering units.
@@ -641,7 +641,7 @@ def read_seafet_format_0(
 # TODO: change this to be snake_case for TKIT-75
 def read_SBE911plus_format_0(
     hex_segment: str = "",
-    enabled_sensors: list["Sensors"] | None = None,
+    enabled_sensors: Union[List[Sensors], None] = None,
     frequency_channels_suppressed: int = 0,
     voltage_words_suppressed: int = 0,
 ) -> dict[str, Union[int, float, datetime]]:
@@ -823,7 +823,7 @@ def read_SBE911plus_format_0(
 # TODO: Fix these
 def read_SBE19plus_format_0(
     hex_segment: str = "",
-    enabled_sensors: List[Sensors] | None = None,
+    enabled_sensors: Union[List[Sensors], None] = None,
     moored_mode=False,
     hex=hex,
 ) -> Dict[str, Union[float, datetime]]:
@@ -994,7 +994,7 @@ def read_SBE19plus_format_0(
 # TODO: change this to be snake_case for TKIT-75
 def read_SBE37SM_format_0(
     hex_segment: str = "",
-    enabled_sensors: List[Sensors] | None = None,
+    enabled_sensors: Union[List[Sensors], None] = None,
     hex=hex,
 ) -> Dict[str, Union[int, float, datetime]]:
     """Converts a 37 family data hex string into engineering units.
