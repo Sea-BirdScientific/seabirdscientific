@@ -4,7 +4,6 @@
 import math
 from enum import Enum
 from logging import getLogger
-import warnings
 
 # Third-party imports
 import gsw
@@ -379,11 +378,6 @@ def _find_depth_peaks(
     return (min_depth_n, max_depth_n)
 
 
-def find_depth_peaks(*args, **kwargs):
-    warnings.warn("Deprecated, use _find_depth_peaks", DeprecationWarning)
-    return _find_depth_peaks(*args, **kwargs)
-
-
 def _min_velocity_mask(
     depth: np.ndarray,
     interval: float,
@@ -418,11 +412,6 @@ def _min_velocity_mask(
     mask[domain_end:] = False
 
     return mask
-
-
-def min_velocity_mask(*args, **kwargs):
-    warnings.warn("Deprecated, use _min_velocity_mask", DeprecationWarning)
-    return _min_velocity_mask(*args, **kwargs)
 
 
 def _mean_speed_percent_mask(
@@ -470,11 +459,6 @@ def _mean_speed_percent_mask(
     return mask
 
 
-def mean_speed_percent_mask(*args, **kwargs):
-    warnings.warn("Deprecated, use _mean_speed_percent_mask", DeprecationWarning)
-    return _mean_speed_percent_mask(*args, **kwargs)
-
-
 def _flag_by_minima_maxima(
     depth: np.ndarray,
     flag: np.ndarray,
@@ -506,11 +490,6 @@ def _flag_by_minima_maxima(
             local_max = d
         else:
             flag[n] = flag_value
-
-
-def flag_by_minima_maxima(*args, **kwargs):
-    warnings.warn("Deprecated, use _flag_by_minima_maxima", DeprecationWarning)
-    return _flag_by_minima_maxima(*args, **kwargs)
 
 
 def bin_average(
@@ -859,11 +838,6 @@ def _flag_data(
             flagged_data[n] = flag_value
 
     return flagged_data
-
-
-def flag_data(*args, **kwargs):
-    warnings.warn("Deprecated, use _flag_data", DeprecationWarning)
-    return _flag_data(*args, **kwargs)
 
 
 def window_filter(
