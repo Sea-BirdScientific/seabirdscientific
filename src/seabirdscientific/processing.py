@@ -143,7 +143,6 @@ def cell_thermal_mass(
     :return: the corrected conductivity in S/m
     """
 
-    
     if temperature_C is not None:
         warnings.warn("Deprecated, use temperature", DeprecationWarning)
         temperature = temperature_C
@@ -971,15 +970,14 @@ def bouyancy_frequency(
     :return: A single N^2 [Brunt-Väisälä (buoyancy) frequency]
     """
 
-        
     if temp_conservative_subset is not None:
         warnings.warn("Deprecated, use temperature", DeprecationWarning)
         temperature = temp_conservative_subset
-    
+
     if salinity_abs_subset is not None:
         warnings.warn("Deprecated, use temperature", DeprecationWarning)
         salinity = salinity_abs_subset
-    
+
     if pressure_dbar_subset is not None:
         warnings.warn("Deprecated, use temperature", DeprecationWarning)
         pressure = pressure_dbar_subset
@@ -1020,9 +1018,9 @@ def buoyancy(
     window_size: float = 11,
     use_modern_formula=True,
     flag_value=FLAG_VALUE,
-    temperature_c: np.ndarray = None ,  # Deprecated
-    salinity_prac: np.ndarray = None ,  # Deprecated
-    pressure_dbar: np.ndarray = None ,  # Deprecated
+    temperature_c: np.ndarray = None,  # Deprecated
+    salinity_prac: np.ndarray = None,  # Deprecated
+    pressure_dbar: np.ndarray = None,  # Deprecated
 ):
     """Calculates the 4 buoyancy values based off the incoming data.
 
@@ -1052,15 +1050,14 @@ def buoyancy(
         variable. The columns are as follows:
     """
 
-        
     if temperature_c is not None:
         warnings.warn("Deprecated, use temperature", DeprecationWarning)
         temperature = temperature_c
-    
+
     if salinity_prac is not None:
         warnings.warn("Deprecated, use temperature", DeprecationWarning)
         salinity = salinity_prac
-    
+
     if pressure_dbar is not None:
         warnings.warn("Deprecated, use temperature", DeprecationWarning)
         pressure = pressure_dbar
