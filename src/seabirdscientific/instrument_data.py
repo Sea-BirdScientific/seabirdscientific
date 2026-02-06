@@ -14,6 +14,7 @@ import xarray as xr
 
 # Sea-Bird imports
 from seabirdscientific.utils import WarnAllMembersMeta
+from seabirdscientific.utils import WarnAllMembersMeta
 
 
 logger = getLogger(__name__)
