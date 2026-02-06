@@ -1,6 +1,8 @@
 """Utility functions related to processing SBS instrument data."""
 
 # Native imports
+import warnings
+from enum import EnumMeta
 
 # Third-party imports
 import matplotlib.pyplot as plt
@@ -8,8 +10,6 @@ import numpy as np
 from line_profiler import LineProfiler
 
 # Sea-Bird imports
-
-# Internal imports
 from seabirdscientific.processing import FLAG_VALUE
 
 
@@ -118,3 +118,11 @@ def profile(fun):
         return locals()["result"]
 
     return wrapper
+
+
+class WarnAllMembersMeta(EnumMeta):
+    def __getattribute__(cls, name):
+        obj = super().__getattribute__(name)
+        if isinstance(obj, cls):
+            warnings.warn(f"{cls.__name__}.{name} is deprecated", DeprecationWarning, stacklevel=2)
+        return obj
