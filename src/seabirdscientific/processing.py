@@ -354,27 +354,28 @@ def _find_depth_peaks(
         min_soak_depth_n = min(
             n
             for n, d in enumerate(depth)
-            if flag[n] != flag_value and min_soak_depth < d < max_soak_depth
+            if flag[n] != flag_value and min_soak_depth < d < max_soak_depth and d != flag_value
         )
     else:
         min_soak_depth_n = 0
 
     max_soak_depth_n = min(
-        n for n, d in enumerate(depth) if flag[n] != flag_value and d > max_soak_depth
+        n for n, d in enumerate(depth) if flag_value not in [d, flag[n]] and d > max_soak_depth
     )
 
-    # beginning of possible downcast domain
-    min_depth_n = min(
-        (d, n)
-        for n, d in enumerate(depth)
-        if flag[n] != flag_value and min_soak_depth_n <= n < max_soak_depth_n
-    )[1]
-
     # beginning of possible upcast domain
-    if min_depth_n == len(depth) - 1:
-        max_depth_n = -1
-    else:
-        max_depth_n = [n for n, d in enumerate(depth) if d == max(depth) and n > min_depth_n][0]
+    max_depth = max([d for n, d in enumerate(depth) if flag_value not in [d, flag[n]]])
+    max_depth_n = np.where(depth == max_depth)[0][0]
+
+    # beginning of possible downcast domain
+    min_depth = min(
+        [
+            d
+            for n, d in enumerate(depth)
+            if flag_value not in [d, flag[n]] and min_soak_depth_n < n < max_soak_depth_n
+        ]
+    )
+    min_depth_n = np.where(depth == min_depth)[0][0]
 
     return (min_depth_n, max_depth_n)
 
