@@ -372,7 +372,7 @@ def _find_depth_peaks(
         [
             d
             for n, d in enumerate(depth)
-            if flag_value not in [d, flag[n]] and min_soak_depth_n < n < max_soak_depth_n
+            if flag_value not in [d, flag[n]] and min_soak_depth_n < n < max_depth_n
         ]
     )
     min_depth_n = np.where(depth == min_depth)[0][0]
