@@ -359,10 +359,6 @@ def _find_depth_peaks(
     else:
         min_soak_depth_n = 0
 
-    max_soak_depth_n = min(
-        n for n, d in enumerate(depth) if flag_value not in [d, flag[n]] and d > max_soak_depth
-    )
-
     # beginning of possible upcast domain
     max_depth = max([d for n, d in enumerate(depth) if flag_value not in [d, flag[n]]])
     max_depth_n = np.where(depth == max_depth)[0][0]
