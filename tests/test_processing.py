@@ -496,7 +496,7 @@ class TestBinAverage:
             interpolate=True
             )
         for variable in list(expected.data_vars):
-            tolerance = get_tolerance(expected[variable].values)
+            tolerance = get_tolerance(expected[variable].values, flag_value=sp.FLAG_VALUE)
             assert np.allclose(expected[variable].values, binavg[variable].values, rtol=0, atol=tolerance)
 
     def test_bin_average_interp_bin_5(self, request):
@@ -511,7 +511,7 @@ class TestBinAverage:
             interpolate=True
         )
         for variable in list(expected.data_vars):
-            tolerance = get_tolerance(expected[variable].values)
+            tolerance = get_tolerance(expected[variable].values, flag_value=sp.FLAG_VALUE)
             assert np.allclose(expected[variable].values, binavg[variable].values, rtol=0, atol=tolerance)
 
     def test_bin_average_default(self, request):
@@ -534,7 +534,7 @@ class TestBinAverage:
             bin_size = 2,
         )
         for variable in list(expected.data_vars):
-            tolerance = get_tolerance(expected[variable].values)
+            tolerance = get_tolerance(expected[variable].values, flag_value=sp.FLAG_VALUE)
             assert np.allclose(expected[variable].values, binavg[variable].values, rtol=0, atol=tolerance)
             assert np.allclose(expected2[variable], binavg2[variable], rtol=0, atol=tolerance)
 
@@ -552,7 +552,7 @@ class TestBinAverage:
             surface_bin_max = 1,
         )
         for variable in list(expected.data_vars):
-            tolerance = get_tolerance(expected[variable].values)
+            tolerance = get_tolerance(expected[variable].values, flag_value=sp.FLAG_VALUE)
             assert np.allclose(expected[variable].values, binavg[variable].values, rtol=0, atol=tolerance)
 
     def test_bin_average_interpolate(self, request):
@@ -567,7 +567,7 @@ class TestBinAverage:
             interpolate = True,
         )
         for variable in list(expected.data_vars):
-            tolerance = get_tolerance(expected[variable].values)
+            tolerance = get_tolerance(expected[variable].values, flag_value=sp.FLAG_VALUE)
             assert np.allclose(expected[variable].values, binavg[variable].values, rtol=0, atol=tolerance)
 
     def test_bin_average_interpolate_surface(self, request):
@@ -586,7 +586,7 @@ class TestBinAverage:
             surface_bin_value = 0.5,
         )
         for variable in list(expected.data_vars):
-            tolerance = get_tolerance(expected[variable].values)
+            tolerance = get_tolerance(expected[variable].values, flag_value=sp.FLAG_VALUE)
             assert np.allclose(expected[variable].values, binavg[variable].values, rtol=0, atol=tolerance)
 
     def test_bin_average_downcast(self, request):
@@ -601,7 +601,7 @@ class TestBinAverage:
             cast_type = sp.CastType.DOWNCAST
         )
         for variable in list(expected.data_vars):
-            tolerance = get_tolerance(expected[variable].values)
+            tolerance = get_tolerance(expected[variable].values, flag_value=sp.FLAG_VALUE)
             assert np.allclose(expected[variable].values, binavg[variable].values, rtol=0, atol=tolerance)
 
     def test_bin_average_downcast_interp(self, request):
@@ -617,7 +617,7 @@ class TestBinAverage:
             interpolate = True,
         )
         for variable in list(expected.data_vars):
-            tolerance = get_tolerance(expected[variable].values)
+            tolerance = get_tolerance(expected[variable].values, flag_value=sp.FLAG_VALUE)
             assert np.allclose(expected[variable].values, binavg[variable].values, rtol=0, atol=tolerance)
 
     def test_bin_average_downcast_interp_surface(self, request):
@@ -637,7 +637,7 @@ class TestBinAverage:
             surface_bin_value = 0.5,
         )
         for variable in list(expected.data_vars):
-            tolerance = get_tolerance(expected[variable].values)
+            tolerance = get_tolerance(expected[variable].values, flag_value=sp.FLAG_VALUE)
             assert np.allclose(expected[variable].values, binavg[variable].values, rtol=0, atol=tolerance)
 
     def test_bin_average_upcast(self, request):
@@ -652,7 +652,7 @@ class TestBinAverage:
             cast_type = sp.CastType.UPCAST
         )
         for variable in list(expected.data_vars):
-            tolerance = get_tolerance(expected[variable].values)
+            tolerance = get_tolerance(expected[variable].values, flag_value=sp.FLAG_VALUE)
             assert np.allclose(expected[variable].values, binavg[variable].values, rtol=0, atol=tolerance)
 
     def test_bin_average_upcast_interp(self, request):
@@ -668,7 +668,7 @@ class TestBinAverage:
             interpolate = True,
         )
         for variable in list(expected.data_vars):
-            tolerance = get_tolerance(expected[variable].values)
+            tolerance = get_tolerance(expected[variable].values, flag_value=sp.FLAG_VALUE)
             assert np.allclose(expected[variable].values, binavg[variable].values, rtol=0, atol=tolerance)
 
     def test_bin_average_upcast_interp_surface(self, request):
@@ -688,7 +688,7 @@ class TestBinAverage:
             surface_bin_value = 0.5,
         )
         for variable in list(expected.data_vars):
-            tolerance = get_tolerance(expected[variable].values)
+            tolerance = get_tolerance(expected[variable].values, flag_value=sp.FLAG_VALUE)
             assert np.allclose(expected[variable].values, binavg[variable].values, rtol=0, atol=tolerance)
 
     def test_bin_average_exclude_flags(self, request):
@@ -702,7 +702,7 @@ class TestBinAverage:
             bin_size = 2,
         )
         for variable in list(expected.data_vars):
-            tolerance = get_tolerance(expected[variable].values)
+            tolerance = get_tolerance(expected[variable].values, flag_value=sp.FLAG_VALUE)
             assert np.allclose(expected[variable].values, binavg[variable].values, rtol=0, atol=tolerance)
 
     def test_bin_average_include_flags(self, request):
@@ -717,7 +717,7 @@ class TestBinAverage:
             exclude_bad_scans = False
         )
         for variable in list(expected.data_vars):
-            tolerance = get_tolerance(expected[variable].values)
+            tolerance = get_tolerance(expected[variable].values, flag_value=sp.FLAG_VALUE)
             assert np.allclose(expected[variable].values, binavg[variable].values, rtol=0, atol=tolerance)
 
     def test_bin_average_include_flags_interp(self, request):
@@ -733,7 +733,7 @@ class TestBinAverage:
             exclude_bad_scans = False,
         )
         for variable in list(expected.data_vars):
-            tolerance = get_tolerance(expected[variable].values)
+            tolerance = get_tolerance(expected[variable].values, flag_value=sp.FLAG_VALUE)
             assert np.allclose(expected[variable].values, binavg[variable].values, rtol=0, atol=tolerance)
 
     def test_bin_average_exclude_flags_interp(self, request):
@@ -748,7 +748,7 @@ class TestBinAverage:
             interpolate = True,
         )
         for variable in list(expected.data_vars):
-            tolerance = get_tolerance(expected[variable].values)
+            tolerance = get_tolerance(expected[variable].values, flag_value=sp.FLAG_VALUE)
             assert np.allclose(expected[variable].values, binavg[variable].values, rtol=0, atol=tolerance)
 
     def test_bin_average_time(self, request):
@@ -763,7 +763,7 @@ class TestBinAverage:
             cast_type = sp.CastType.NONE
         )
         for variable in list(expected.data_vars):
-            tolerance = get_tolerance(expected[variable].values)
+            tolerance = get_tolerance(expected[variable].values, flag_value=sp.FLAG_VALUE)
             assert np.allclose(expected[variable].values, binavg[variable].values, rtol=0, atol=tolerance)
 
     def test_bin_average_scan(self, request):
@@ -778,7 +778,7 @@ class TestBinAverage:
             cast_type = sp.CastType.NONE
         )
         for variable in list(expected.data_vars):
-            tolerance = get_tolerance(expected[variable].values)
+            tolerance = get_tolerance(expected[variable].values, flag_value=sp.FLAG_VALUE)
             assert np.allclose(expected[variable].values, binavg[variable].values, rtol=0, atol=tolerance)
 
     # fmt: on
@@ -1122,7 +1122,7 @@ class TestSplit:
         result = sp.split(result, "prdM", cast_type=cast_type, drop=True)
 
         for variable in list(expected.data_vars):
-            tolerance = get_tolerance(expected[variable].values)
+            tolerance = get_tolerance(expected[variable].values, flag_value=sp.FLAG_VALUE)
             assert np.allclose(
                 expected[variable].values, result[variable].values, rtol=0, atol=10**tolerance
             )
@@ -1146,7 +1146,7 @@ class TestSplit:
         result = sp.split(result, "prdM", exclude_bad_scans=True, cast_type=cast_type, drop=True)
 
         for variable in list(expected.data_vars):
-            tolerance = get_tolerance(expected[variable].values)
+            tolerance = get_tolerance(expected[variable].values, flag_value=sp.FLAG_VALUE)
             assert np.allclose(
                 expected[variable].values, result[variable].values, rtol=0, atol=10**tolerance
             )
