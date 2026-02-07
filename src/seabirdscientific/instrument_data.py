@@ -719,7 +719,9 @@ def read_SBE911plus_format_0(
     # Surface PAR
     if Sensors.SPAR in enabled_sensors:
         n += 3  # unused bits
-        results[HEX_TYPE_SURFACE_PAR] = int(hex_segment[n : n + HEX_LEN_SBE911_SURFACE_PAR], 16) / 819
+        results[HEX_TYPE_SURFACE_PAR] = (
+            int(hex_segment[n : n + HEX_LEN_SBE911_SURFACE_PAR], 16) / 819
+        )
         n += HEX_LEN_SBE911_SURFACE_PAR
 
     # NMEA Location
@@ -1031,7 +1033,7 @@ def read_SBE37SM_format_0(
     if enabled_sensors and Sensors.Pressure in enabled_sensors:
         results[HEX_TYPE_PRESSURE] = int(hex_segment[n : n + HEX_LEN_PRESSURE], 16)
         n += HEX_LEN_PRESSURE
-        
+
         result = int(hex_segment[n : n + HEX_LEN_TEMPERATURE_COMPENSATION], 16)
         results[HEX_TYPE_TEMPERATURE_COMPENSATION] = result
         n += HEX_LEN_TEMPERATURE_COMPENSATION
