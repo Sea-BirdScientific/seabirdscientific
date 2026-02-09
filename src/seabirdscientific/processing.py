@@ -5,6 +5,7 @@ import math
 import warnings
 from enum import Enum
 from logging import getLogger
+from typing import Literal
 
 # Third-party imports
 import gsw
@@ -27,7 +28,8 @@ FLAG_VALUE = -9.99e-29
 
 
 class MinVelocityType(Enum):
-    """The minimum velocity type used with loop edit"""
+    """The minimum velocity type used with loop edit
+    DEPRECATED. Use Literal defined in loop_edit"""
 
     FIXED = 0
     PERCENT = 1
@@ -36,6 +38,7 @@ class MinVelocityType(Enum):
 class WindowFilterType(Enum):
     """The window filter type. See CDT Processing in the docs for
     details.
+    DEPRECATED. Use literals defined in windowd_filter
     """
 
     BOXCAR = "boxcar"
@@ -233,7 +236,7 @@ def loop_edit_depth(
     depth: np.ndarray,
     flag: np.ndarray,
     sample_interval: float,
-    min_velocity_type: MinVelocityType,
+    min_velocity_type: Literal["fixed", "percent"],
     min_velocity: float,
     window_size: float,
     mean_speed_percent: float,
@@ -278,6 +281,9 @@ def loop_edit_depth(
         np.ndarray: the input data with updated flags
     """
 
+    if isinstance(min_velocity_type, MinVelocityType):
+        warnings.warn("MinVelocityType Enum is deprecated, use Literals", DeprecationWarning)
+
     if not exclude_flags:
         flag[:] = 0.0
 
@@ -289,7 +295,7 @@ def loop_edit_depth(
         depth, flag, remove_surface_soak, flag_value, min_soak_depth, max_soak_depth
     )
 
-    if min_velocity_type == MinVelocityType.FIXED:
+    if min_velocity_type in ["fixed", MinVelocityType.FIXED]:
         downcast_mask = _min_velocity_mask(
             depth, sample_interval, min_velocity, min_depth_n, max_depth_n + 1, False
         )
@@ -297,7 +303,7 @@ def loop_edit_depth(
             depth, sample_interval, min_velocity, max_depth_n, len(depth), True
         )
 
-    elif min_velocity_type == MinVelocityType.PERCENT:
+    elif min_velocity_type in ["percent", MinVelocityType.PERCENT]:
         diff_length = int(window_size / sample_interval)
         downcast_mask = _mean_speed_percent_mask(
             depth,
@@ -851,7 +857,7 @@ def _flag_data(
 def window_filter(
     data_in: np.ndarray,
     flags: np.ndarray,
-    window_type: WindowFilterType,
+    window_type: Literal["boxcar", "cosine", "gaussian", "median", "triangle"],
     window_width: int,
     sample_interval: float,
     half_width=1,
@@ -883,6 +889,9 @@ def window_filter(
     :return: the convolution of data_in and the window filter
     """
 
+    if isinstance(window_type, WindowFilterType):
+        warnings.warn("WindowFilterType Enum is deprecated, use Literals", DeprecationWarning)
+
     # convert flags to nan for processing
     data = [d if d != flag_value else np.nan for d in data_in]
 
@@ -895,17 +904,17 @@ def window_filter(
     window = np.array([])
 
     # define the window filter
-    if window_type == WindowFilterType.BOXCAR:
+    if window_type in ["boxcar", WindowFilterType.BOXCAR]:
         window = signal.windows.boxcar(window_width)
 
-    elif window_type == WindowFilterType.COSINE:
+    elif window_type in ["cosine", WindowFilterType.COSINE]:
         for n in range(window_start, window_end):
             window = np.append(window, np.cos((n * np.pi) / (window_width + 1)))
 
-    elif window_type == WindowFilterType.TRIANGLE:
+    elif window_type in ["triangle", WindowFilterType.TRIANGLE]:
         window = signal.windows.triang(window_width)
 
-    elif window_type == WindowFilterType.GAUSSIAN:
+    elif window_type in ["gaussian", WindowFilterType.GAUSSIAN]:
         phase = offset / sample_interval
         # the manual defines scale with sample rate, but seasoft uses sample interval
         scale = np.log(2) * (2 * sample_interval / half_width) ** 2
@@ -922,7 +931,7 @@ def window_filter(
         if data_start <= n < data_end:
             value = 0
 
-            if window_type == WindowFilterType.MEDIAN:
+            if window_type in ["median", WindowFilterType.MEDIAN]:
                 window = np.array(data[n + window_start : n + window_end])
                 value = np.nanmedian(window)
             else:
