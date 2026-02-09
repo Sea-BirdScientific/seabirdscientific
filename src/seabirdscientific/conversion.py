@@ -3,7 +3,6 @@
 # Native imports
 from math import e, floor
 from typing import Literal
-import warnings
 
 # Third-party imports
 import gsw
@@ -808,7 +807,6 @@ def convert_internal_seafet_ph(
     temperature: np.ndarray = 0,
     coefs: cc.PHSeaFETInternalCoefficients = cc.PHSeaFETInternalCoefficients(),
     ph_units: Literal["counts", "volts"] = "counts",
-    ph_counts: np.ndarray = None,
 ):
     """Calculates the internal pH on the total scale given the
     temperature and internal FET voltage
@@ -817,14 +815,10 @@ def convert_internal_seafet_ph(
     :param temperature: Sample temperature
     :param coefs: SeaFET calibration coefficients
     :param ph_units: The units of raw_ph, defaults to 'counts'
-    :param ph_counts: Deprecated. pH voltage counts
     :return: calculated pH on the total scale for the SeaFET internal
         reference
     """
-    if ph_counts is not None:
-        warnings.warn("Deprecated, use raw_ph", DeprecationWarning)
-        ph_volts = convert_ph_voltage_counts(ph_counts)
-    elif ph_units == "counts":
+    if ph_units == "counts":
         ph_volts = convert_ph_voltage_counts(raw_ph)
     else:  # ph_counts == 'volts'
         ph_volts = raw_ph
@@ -1037,7 +1031,6 @@ def convert_external_seafet_ph(
     coefs: cc.PHSeaFETExternalCoefficients = cc.PHSeaFETExternalCoefficients(),
     ph_units: Literal["counts", "volts"] = "counts",
     formula_version: Literal["legacy", "1.3"] = "1.3",
-    ph_counts: np.ndarray = None,
 ):
     """External pH for the SeaFET, SeapHOx, and Float. From SBS
     Application Note 99 and "Processing BGC-Argo pH data at the DAC
@@ -1058,10 +1051,7 @@ def convert_external_seafet_ph(
         the description
     :return: Total external pH
     """
-    if ph_counts is not None:
-        warnings.warn("Deprecated, use raw_ph", DeprecationWarning)
-        ph_volts = convert_ph_voltage_counts(ph_counts)
-    elif ph_units == "counts":
+    if ph_units == "counts":
         ph_volts = convert_ph_voltage_counts(raw_ph)
     else:  # ph_counts == 'volts'
         ph_volts = raw_ph
