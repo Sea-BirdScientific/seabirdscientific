@@ -55,6 +55,9 @@ dev = [
   "notebook",
   "pytest",
   "pytest-cov",
+  'sbsfuro==0.0.2a1',
+  'sphinx',
+  'sphinx-mdinclude',
 ]
 
 [project.urls]
