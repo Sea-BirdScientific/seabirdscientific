@@ -280,7 +280,7 @@ def loop_edit_depth(
     Returns:
         np.ndarray: the input data with updated flags
     """
-    
+
     if isinstance(min_velocity_type, MinVelocityType):
         warnings.warn("MinVelocityType Enum is deprecated, use Literals", DeprecationWarning)
 
@@ -857,7 +857,7 @@ def _flag_data(
 def window_filter(
     data_in: np.ndarray,
     flags: np.ndarray,
-    window_type: Literal["boxcar","cosine","gaussian","median","triangle"],
+    window_type: Literal["boxcar", "cosine", "gaussian", "median", "triangle"],
     window_width: int,
     sample_interval: float,
     half_width=1,
