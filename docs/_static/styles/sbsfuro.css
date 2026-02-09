@@ -1,0 +1,254 @@
+@import 'furo.css';
+/* These are all of the variables used by the furo theme. Most are left as
+the furo default. Any changes will include the original value commented
+out to the right. The dark theme is repeated to satisfy media queries. */
+body {
+  --font-stack: "Verdana", sans-serif;
+  --font-stack--monospace: "SFMono-Regular", Menlo, Consolas, Monaco, Liberation Mono, Lucida Console, monospace;
+  --font-stack--headings: var(--font-stack);
+  --font-size--normal: 100%;
+  --font-size--small: 87.5%;
+  --font-size--small--2: 81.25%;
+  --font-size--small--3: 75%;
+  --font-size--small--4: 62.5%;
+  --sidebar-caption-font-size: var(--font-size--small--2);
+  --sidebar-item-font-size: var(--font-size--small);
+  --sidebar-search-input-font-size: var(--font-size--small);
+  --toc-font-size: var(--font-size--small--3);
+  --toc-font-size--mobile: var(--font-size--normal);
+  --toc-title-font-size: var(--font-size--small--4);
+  --admonition-font-size: 0.8125rem;
+  --admonition-title-font-size: 0.8125rem;
+  --code-font-size: var(--font-size--small--2);
+  --api-font-size: 100%;
+  --header-height: calc(var(--sidebar-item-line-height) + var(--sidebar-item-spacing-vertical)*4);
+  --header-padding: 0.5rem;
+  --sidebar-tree-space-above: 1.5rem;
+  --sidebar-caption-space-above: 1rem;
+  --sidebar-item-line-height: 1rem;
+  --sidebar-item-spacing-vertical: 0.5rem;
+  --sidebar-item-spacing-horizontal: 1rem;
+  --sidebar-item-height: calc(var(--sidebar-item-line-height) + var(--sidebar-item-spacing-vertical)*2);
+  --sidebar-expander-width: var(--sidebar-item-height);
+  --sidebar-search-space-above: 0.5rem;
+  --sidebar-search-input-spacing-vertical: 0.5rem;
+  --sidebar-search-input-spacing-horizontal: 0.5rem;
+  --sidebar-search-input-height: 1rem;
+  --sidebar-search-icon-size: var(--sidebar-search-input-height);
+  --toc-title-padding: 0.25rem 0;
+  --toc-spacing-vertical: 1.5rem;
+  --toc-spacing-horizontal: 1.5rem;
+  --toc-item-spacing-vertical: 0.4rem;
+  --toc-item-spacing-horizontal: 1rem;
+  --icon-search: url('data:image/svg+xml;charset=utf-8, <svg xmlns="http: //www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="10" cy="10" r="7"/><path d="m21 21-6-6"/></svg>');
+  --icon-pencil: url('data:image/svg+xml;charset=utf-8, <svg xmlns="http: //www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75z"/></svg>');
+  --icon-abstract: url('data:image/svg+xml;charset=utf-8, <svg xmlns="http: //www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 5h16v2H4zm0 4h16v2H4zm0 4h16v2H4zm0 4h10v2H4z"/></svg>');
+  --icon-info: url('data:image/svg+xml;charset=utf-8, <svg xmlns="http: //www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 9h-2V7h2m0 10h-2v-6h2m-1-9A10 10 0 0 0 2 12a10 10 0 0 0 10 10 10 10 0 0 0 10-10A10 10 0 0 0 12 2"/></svg>');
+  --icon-flame: url('data:image/svg+xml;charset=utf-8, <svg xmlns="http: //www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.55 11.2c-.23-.3-.5-.56-.76-.82-.65-.6-1.4-1.03-2.03-1.66C13.3 7.26 13 4.85 13.91 3c-.91.23-1.75.75-2.45 1.32-2.54 2.08-3.54 5.75-2.34 8.9.04.1.08.2.08.33 0 .22-.15.42-.35.5-.22.1-.46.04-.64-.12a.8.8 0 0 1-.15-.17c-1.1-1.43-1.28-3.48-.53-5.12C5.89 10 5 12.3 5.14 14.47c.04.5.1 1 .27 1.5.14.6.4 1.2.72 1.73 1.04 1.73 2.87 2.97 4.84 3.22 2.1.27 4.35-.12 5.96-1.6 1.8-1.66 2.45-4.32 1.5-6.6l-.13-.26c-.2-.46-.47-.87-.8-1.25zm-3.1 6.3c-.28.24-.73.5-1.08.6-1.1.4-2.2-.16-2.87-.82 1.19-.28 1.89-1.16 2.09-2.05.17-.8-.14-1.46-.27-2.23-.12-.74-.1-1.37.18-2.06.17.38.37.76.6 1.06.76 1 1.95 1.44 2.2 2.8.04.14.06.28.06.43.03.82-.32 1.72-.92 2.27z"/></svg>');
+  --icon-question: url('data:image/svg+xml;charset=utf-8, <svg xmlns="http: //www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m15.07 11.25-.9.92C13.45 12.89 13 13.5 13 15h-2v-.5c0-1.11.45-2.11 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41a2 2 0 0 0-2-2 2 2 0 0 0-2 2H8a4 4 0 0 1 4-4 4 4 0 0 1 4 4 3.2 3.2 0 0 1-.93 2.25M13 19h-2v-2h2M12 2A10 10 0 0 0 2 12a10 10 0 0 0 10 10 10 10 0 0 0 10-10c0-5.53-4.5-10-10-10"/></svg>');
+  --icon-warning: url('data:image/svg+xml;charset=utf-8, <svg xmlns="http: //www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14h-2v-4h2m0 8h-2v-2h2M1 21h22L12 2z"/></svg>');
+  --icon-failure: url('data:image/svg+xml;charset=utf-8, <svg xmlns="http: //www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2c5.53 0 10 4.47 10 10s-4.47 10-10 10S2 17.53 2 12 6.47 2 12 2m3.59 5L12 10.59 8.41 7 7 8.41 10.59 12 7 15.59 8.41 17 12 13.41 15.59 17 17 15.59 13.41 12 17 8.41z"/></svg>');
+  --icon-spark: url('data:image/svg+xml;charset=utf-8, <svg xmlns="http: //www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m11.5 20 4.86-9.73H13V4l-5 9.73h3.5zM12 2c2.75 0 5.1 1 7.05 2.95S22 9.25 22 12s-1 5.1-2.95 7.05S14.75 22 12 22s-5.1-1-7.05-2.95S2 14.75 2 12s1-5.1 2.95-7.05S9.25 2 12 2"/></svg>');
+  --color-admonition-title--caution: #ff9100;
+  --color-admonition-title-background--caution: rgba(255, 145, 0, .2);
+  --color-admonition-title--warning: #ff9100;
+  --color-admonition-title-background--warning: rgba(255, 145, 0, .2);
+  --color-admonition-title--danger: #ff5252;
+  --color-admonition-title-background--danger: rgba(255, 82, 82, .2);
+  --color-admonition-title--attention: #ff5252;
+  --color-admonition-title-background--attention: rgba(255, 82, 82, .2);
+  --color-admonition-title--error: #ff5252;
+  --color-admonition-title-background--error: rgba(255, 82, 82, .2);
+  --color-admonition-title--hint: #00c852;
+  --color-admonition-title-background--hint: rgba(0, 200, 82, .2);
+  --color-admonition-title--tip: #00c852;
+  --color-admonition-title-background--tip: rgba(0, 200, 82, .2);
+  --color-admonition-title--important: #00bfa5;
+  --color-admonition-title-background--important: rgba(0, 191, 165, .2);
+  --color-admonition-title--note: #00b0ff;
+  --color-admonition-title-background--note: rgba(0, 176, 255, .2);
+  --color-admonition-title--seealso: #448aff;
+  --color-admonition-title-background--seealso: rgba(68, 138, 255, .2);
+  --color-admonition-title--admonition-todo: grey;
+  --color-admonition-title-background--admonition-todo: hsla(0, 0%, 50%, .2);
+  --color-admonition-title: #651fff;
+  --color-admonition-title-background: rgba(101, 31, 255, .2);
+  --icon-admonition-default: var(--icon-abstract);
+  --color-topic-title: #14b8a6;
+  --color-topic-title-background: rgba(20, 184, 166, .2);
+  --icon-topic-default: var(--icon-pencil);
+  --color-problematic: #3bbfc0;
+  --color-foreground-primary: #000;
+  --color-foreground-secondary: #5a5c63;
+  --color-foreground-muted: #6b6f76;
+  --color-foreground-border: #878787;
+  --color-background-primary: #fff;
+  --color-background-secondary: #f8f9fb;
+  --color-background-hover: #efeff4;
+  --color-background-hover--transparent: #efeff400;
+  --color-background-border: #eeebee;
+  --color-background-item: #ccc;
+  --color-announcement-background: #000000dd;
+  --color-announcement-text: #eeebee;
+  --color-brand-primary: #0599d9;
+  --color-brand-content: #0599d9;
+  --color-brand-visited: #0599d9;
+  --color-api-background: var(--color-background-hover--transparent);
+  --color-api-background-hover: var(--color-background-hover);
+  --color-api-overall: var(--color-foreground-secondary);
+  --color-api-name: var(--color-problematic);
+  --color-api-pre-name: var(--color-problematic);
+  --color-api-paren: var(--color-foreground-secondary);
+  --color-api-keyword: var(--color-foreground-primary);
+  --color-api-added: #21632c;
+  --color-api-added-border: #38a84d;
+  --color-api-changed: #046172;
+  --color-api-changed-border: #06a1bc;
+  --color-api-deprecated: #605706;
+  --color-api-deprecated-border: #f0d90f;
+  --color-api-removed: #b30000;
+  --color-api-removed-border: #ff5c5c;
+  --color-highlight-on-target: #ffc;
+  --color-inline-code-background: var(--color-background-secondary);
+  --color-highlighted-background: #def;
+  --color-highlighted-text: var(--color-foreground-primary);
+  --color-guilabel-background: #ddeeff80;
+  --color-guilabel-border: #bedaf580;
+  --color-guilabel-text: var(--color-foreground-primary);
+  --color-admonition-background: transparent;
+  --color-table-header-background: var(--color-background-secondary);
+  --color-table-border: var(--color-background-border);
+  --color-card-border: var(--color-background-secondary);
+  --color-card-background: transparent;
+  --color-card-marginals-background: var(--color-background-secondary);
+  --color-header-background: var(--color-background-primary);
+  --color-header-border: var(--color-background-border);
+  --color-header-text: var(--color-foreground-primary);
+  --color-sidebar-background: var(--color-background-secondary);
+  --color-sidebar-background-border: var(--color-background-border);
+  --color-sidebar-brand-text: var(--color-foreground-primary);
+  --color-sidebar-caption-text: var(--color-foreground-muted);
+  --color-sidebar-link-text: var(--color-foreground-secondary);
+  --color-sidebar-link-text--top-level: var(--color-brand-primary);
+  --color-sidebar-item-background: var(--color-sidebar-background);
+  --color-sidebar-item-background--current: var( --color-sidebar-item-background );
+  --color-sidebar-item-background--hover: linear-gradient(90deg, var(--color-background-hover--transparent) 0%, var(--color-background-hover) var(--sidebar-item-spacing-horizontal), var(--color-background-hover) 100%);
+  --color-sidebar-item-expander-background: transparent;
+  --color-sidebar-item-expander-background--hover: var( --color-background-hover );
+  --color-sidebar-search-text: var(--color-foreground-primary);
+  --color-sidebar-search-background: var(--color-background-secondary);
+  --color-sidebar-search-background--focus: var(--color-background-primary);
+  --color-sidebar-search-border: var(--color-background-border);
+  --color-sidebar-search-icon: var(--color-foreground-muted);
+  --color-toc-background: var(--color-background-primary);
+  --color-toc-title-text: var(--color-foreground-muted);
+  --color-toc-item-text: var(--color-foreground-secondary);
+  --color-toc-item-text--hover: var(--color-foreground-primary);
+  --color-toc-item-text--active: var(--color-brand-primary);
+  --color-content-foreground: var(--color-foreground-primary);
+  --color-content-background: transparent;
+  --color-link: var(--color-brand-content);
+  --color-link-underline: var(--color-background-border);
+  --color-link--hover: #ca6400;
+  --color-link-underline--hover: var(--color-foreground-border);
+  --color-link--visited: var(--color-brand-visited);
+  --color-link-underline--visited: var(--color-background-border);
+  --color-link--visited--hover: #ca6400;
+  --color-link-underline--visited--hover: var(--color-foreground-border);
+}
+
+@media not print {
+  body[data-theme=dark] {
+    --color-problematic: #3bbfc0;
+    --color-foreground-primary: #cfd0d0;
+    --color-foreground-secondary: #9ca0a5;
+    --color-foreground-muted: #81868d;
+    --color-foreground-border: #666;
+    --color-background-primary: #131416;
+    --color-background-secondary: #1a1c1e;
+    --color-background-hover: #1e2124;
+    --color-background-hover--transparent: #1e212400;
+    --color-background-border: #303335;
+    --color-background-item: #444;
+    --color-announcement-background: #000000dd;
+    --color-announcement-text: #eeebee;
+    --color-brand-primary: #00afdb;
+    --color-brand-content: #00afdb;
+    --color-brand-visited: #00afdb;
+    --color-highlighted-background: #083563;
+    --color-guilabel-background: #08356380;
+    --color-guilabel-border: #13395f80;
+    --color-api-keyword: var(--color-foreground-secondary);
+    --color-highlight-on-target: #330;
+    --color-api-added: #3db854;
+    --color-api-added-border: #267334;
+    --color-api-changed: #09b0ce;
+    --color-api-changed-border: #056d80;
+    --color-api-deprecated: #b1a10b;
+    --color-api-deprecated-border: #6e6407;
+    --color-api-removed: #ff7575;
+    --color-api-removed-border: #b03b3b;
+    --color-admonition-background: #18181a;
+    --color-card-border: var(--color-background-secondary);
+    --color-card-background: #18181a;
+    --color-card-marginals-background: var(--color-background-hover);
+    --color-link--hover: #f4b553;
+    --color-link--visited--hover: #f4b553;
+  }
+}
+@media (prefers-color-scheme: dark) {
+  body:not([data-theme=light]) {
+    --color-problematic: #3bbfc0;
+    --color-foreground-primary: #cfd0d0;
+    --color-foreground-secondary: #9ca0a5;
+    --color-foreground-muted: #81868d;
+    --color-foreground-border: #666;
+    --color-background-primary: #131416;
+    --color-background-secondary: #1a1c1e;
+    --color-background-hover: #1e2124;
+    --color-background-hover--transparent: #1e212400;
+    --color-background-border: #303335;
+    --color-background-item: #444;
+    --color-announcement-background: #000000dd;
+    --color-announcement-text: #eeebee;
+    --color-brand-primary: #00afdb;
+    --color-brand-content: #00afdb;
+    --color-brand-visited: #00afdb;
+    --color-highlighted-background: #083563;
+    --color-guilabel-background: #08356380;
+    --color-guilabel-border: #13395f80;
+    --color-api-keyword: var(--color-foreground-secondary);
+    --color-highlight-on-target: #330;
+    --color-api-added: #3db854;
+    --color-api-added-border: #267334;
+    --color-api-changed: #09b0ce;
+    --color-api-changed-border: #056d80;
+    --color-api-deprecated: #b1a10b;
+    --color-api-deprecated-border: #6e6407;
+    --color-api-removed: #ff7575;
+    --color-api-removed-border: #b03b3b;
+    --color-admonition-background: #18181a;
+    --color-card-border: var(--color-background-secondary);
+    --color-card-background: #18181a;
+    --color-card-marginals-background: var(--color-background-hover);
+    --color-link--hover: #f4b553;
+    --color-link--visited--hover: #f4b553;
+  }
+}
+.sidebar-logo .only-light {
+  content: url("../images/seabird-logo.png");
+}
+
+.sidebar-logo .only-dark {
+  content: url("../images/seabird-logo-white.png");
+}
+
+dl.py {
+  margin-top: 3rem;
+}
+
+a {
+  text-decoration: none;
+}
+
+/*# sourceMappingURL=sbsfuro.css.map */
