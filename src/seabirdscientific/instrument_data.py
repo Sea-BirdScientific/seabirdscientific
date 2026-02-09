@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 from logging import getLogger
 from typing import List, Dict, Union
 from pathlib import Path
+import warnings
 
 # Third-party imports
 import numpy as np
@@ -425,10 +426,10 @@ def read_hex(
     """
 
     if instrument_type == InstrumentType.SBE19Plus:
-        return read_SBE19plus_format_0(hex_segment, enabled_sensors, moored_mode)
+        return read_sbe19plus_format_0(hex_segment, enabled_sensors, moored_mode)
 
     elif instrument_type == InstrumentType.SBE16Plus:
-        return read_SBE19plus_format_0(hex_segment, enabled_sensors, True)
+        return read_sbe19plus_format_0(hex_segment, enabled_sensors, True)
 
     elif instrument_type in [
         InstrumentType.SBE37IM,
@@ -443,16 +444,16 @@ def read_hex(
         InstrumentType.HydroCAT,
         InstrumentType.HydroCATODO,
     ]:
-        return read_SBE37SM_format_0(hex_segment, enabled_sensors)
+        return read_sbe37sm_format_0(hex_segment, enabled_sensors)
 
     elif instrument_type in [InstrumentType.SBE39Plus, InstrumentType.SBE39PlusIM]:
-        return read_SBE39plus_format_0(hex_segment, enabled_sensors)
+        return read_sbe39plus_format_0(hex_segment, enabled_sensors)
 
     elif instrument_type in [InstrumentType.SeaFET2, InstrumentType.SeapHox2]:
         return read_seafet_format_0(hex_segment, instrument_type, is_shallow)
 
     elif instrument_type == InstrumentType.SBE911Plus:
-        return read_SBE911plus_format_0(
+        return read_sbe911plus_format_0(
             hex_segment,
             enabled_sensors,
             frequency_channels_suppressed,
@@ -465,7 +466,7 @@ def read_hex(
     return {}
 
 
-def read_SBE39plus_format_0(
+def read_sbe39plus_format_0(
     hex_segment: str = "",
     enabled_sensors: Union[List[Sensors], None] = None,
 ) -> Dict[str, Union[int, float, datetime]]:
@@ -506,6 +507,11 @@ def read_SBE39plus_format_0(
         raise ValueError("Hex string length does not match expectation based on enabled sensors")
 
     return results
+
+
+def read_SBE39plus_format_0(*args, **kwargs):
+    warnings.warn("Deprecated, use read_sbe39plus_format_0", DeprecationWarning)
+    return read_sbe39plus_format_0(*args, **kwargs)
 
 
 def read_seafet_format_0(
@@ -607,8 +613,7 @@ def read_seafet_format_0(
     return results
 
 
-# TODO: change this to be snake_case for TKIT-75
-def read_SBE911plus_format_0(
+def read_sbe911plus_format_0(
     hex_segment: str = "",
     enabled_sensors: Union[List[Sensors], None] = None,
     frequency_channels_suppressed: int = 0,
@@ -778,9 +783,12 @@ def read_SBE911plus_format_0(
     return results
 
 
-# TODO: change the following fn name to be snake_case for TKIT-75
-# TODO: Fix these
-def read_SBE19plus_format_0(
+def read_SBE911plus_format_0(*args, **kwargs):
+    warnings.warn("Deprecated, use read_sbe911plus_format_0", DeprecationWarning)
+    return read_sbe911plus_format_0(*args, **kwargs)
+
+
+def read_sbe19plus_format_0(
     hex_segment: str = "",
     enabled_sensors: Union[List[Sensors], None] = None,
     moored_mode=False,
@@ -973,8 +981,12 @@ def read_SBE19plus_format_0(
     return results
 
 
-# TODO: change this to be snake_case for TKIT-75
-def read_SBE37SM_format_0(
+def read_SBE19plus_format_0(*args, **kwargs):
+    warnings.warn("Deprecated, use read_sbe19plus_format_0", DeprecationWarning)
+    return read_sbe19plus_format_0(*args, **kwargs)
+
+
+def read_sbe37sm_format_0(
     hex_segment: str = "",
     enabled_sensors: Union[List[Sensors], None] = None,
 ) -> Dict[str, Union[int, float, datetime]]:
@@ -1027,6 +1039,11 @@ def read_SBE37SM_format_0(
         raise ValueError("Hex string length does not match expectation based on enabled sensors")
 
     return results
+
+
+def read_SBE37SM_format_0(*args, **kwargs):
+    warnings.warn("Deprecated, use read_sbe37sm_format_0", DeprecationWarning)
+    return read_sbe37sm_format_0(*args, **kwargs)
 
 
 def read_nmea_coordinates(hex_segment: str):
