@@ -1,13 +1,12 @@
 """Functions for processing instrument data."""
 
 # Native imports
-import builtins
-import warnings
 from enum import Enum
 from datetime import datetime, timedelta
 from logging import getLogger
 from typing import List, Dict, Union
 from pathlib import Path
+import warnings
 
 # Third-party imports
 import numpy as np
@@ -412,7 +411,6 @@ def read_hex(
     is_shallow=True,
     frequency_channels_suppressed=0,
     voltage_words_suppressed=0,
-    hex=hex,
 ) -> dict:
     """Converts an instrument data hex string into engineering units.
 
@@ -422,19 +420,16 @@ def read_hex(
         mode if true
     :param moored_mode: array of Sensors that are enabled. For 37 this
         is always temperature, conductivity, pressure. Defaults to False
-    :param hex: Deprecated, use hex_segment
 
     :return: the sensor values in engineering units that were extracted
         from the input hex string
     """
-    if hex is not builtins.hex:
-        warnings.warn("hex is deprecated, use hex_segment", DeprecationWarning)
 
     if instrument_type == InstrumentType.SBE19Plus:
-        return read_SBE19plus_format_0(hex_segment, enabled_sensors, moored_mode)
+        return read_sbe19plus_format_0(hex_segment, enabled_sensors, moored_mode)
 
     elif instrument_type == InstrumentType.SBE16Plus:
-        return read_SBE19plus_format_0(hex_segment, enabled_sensors, True)
+        return read_sbe19plus_format_0(hex_segment, enabled_sensors, True)
 
     elif instrument_type in [
         InstrumentType.SBE37IM,
@@ -449,16 +444,16 @@ def read_hex(
         InstrumentType.HydroCAT,
         InstrumentType.HydroCATODO,
     ]:
-        return read_SBE37SM_format_0(hex_segment, enabled_sensors)
+        return read_sbe37sm_format_0(hex_segment, enabled_sensors)
 
     elif instrument_type in [InstrumentType.SBE39Plus, InstrumentType.SBE39PlusIM]:
-        return read_SBE39plus_format_0(hex_segment, enabled_sensors)
+        return read_sbe39plus_format_0(hex_segment, enabled_sensors)
 
     elif instrument_type in [InstrumentType.SeaFET2, InstrumentType.SeapHox2]:
         return read_seafet_format_0(hex_segment, instrument_type, is_shallow)
 
     elif instrument_type == InstrumentType.SBE911Plus:
-        return read_SBE911plus_format_0(
+        return read_sbe911plus_format_0(
             hex_segment,
             enabled_sensors,
             frequency_channels_suppressed,
@@ -471,22 +466,18 @@ def read_hex(
     return {}
 
 
-def read_SBE39plus_format_0(
+def read_sbe39plus_format_0(
     hex_segment: str = "",
     enabled_sensors: Union[List[Sensors], None] = None,
-    hex=builtins.hex,
 ) -> Dict[str, Union[int, float, datetime]]:
     """Converts a 39plus data hex string into engineering units.
 
     :param hex_segment: one line from a hex data file
     :param enabled_sensors: array of Sensors that are enabled
-    :param hex: Deprecated, use hex_segment
 
     :return: the 39plus sensor values in engineering units that were
         extracted from the input hex string
     """
-    if hex is not builtins.hex:
-        warnings.warn("hex is deprecated, use hex_segment", DeprecationWarning)
 
     results: Dict[str, Union[int, float, datetime]] = {}
     n = 0
@@ -518,23 +509,24 @@ def read_SBE39plus_format_0(
     return results
 
 
+def read_SBE39plus_format_0(*args, **kwargs):
+    warnings.warn("Deprecated, use read_sbe39plus_format_0", DeprecationWarning)
+    return read_sbe39plus_format_0(*args, **kwargs)
+
+
 def read_seafet_format_0(
     hex_segment: str,
     instrument_type: InstrumentType,
     is_shallow: bool = True,
-    hex=builtins.hex,
 ) -> Dict[str, Union[int, float, datetime]]:
     """Converts a SeaFET2 or SeapHox2 hex string into engineering units.
 
     :param hex_segment: one line from a hex data file
     :param instrument_type: InstrumentType.SeaFET2 or InstrumentType.SeapHox2
     :param is_shallow: if True, include internal pH and pH reference temperature
-    :param hex: Deprecated, use hex_segment
 
     :return: sensor values in engineering units extracted from the hex string
     """
-    if hex is not builtins.hex:
-        warnings.warn("hex is deprecated, use hex_segment", DeprecationWarning)
 
     if instrument_type not in (InstrumentType.SeaFET2, InstrumentType.SeapHox2):
         raise ValueError(
@@ -621,8 +613,7 @@ def read_seafet_format_0(
     return results
 
 
-# TODO: change this to be snake_case for TKIT-75
-def read_SBE911plus_format_0(
+def read_sbe911plus_format_0(
     hex_segment: str = "",
     enabled_sensors: Union[List[Sensors], None] = None,
     frequency_channels_suppressed: int = 0,
@@ -792,13 +783,15 @@ def read_SBE911plus_format_0(
     return results
 
 
-# TODO: change the following fn name to be snake_case for TKIT-75
-# TODO: Fix these
-def read_SBE19plus_format_0(
+def read_SBE911plus_format_0(*args, **kwargs):
+    warnings.warn("Deprecated, use read_sbe911plus_format_0", DeprecationWarning)
+    return read_sbe911plus_format_0(*args, **kwargs)
+
+
+def read_sbe19plus_format_0(
     hex_segment: str = "",
     enabled_sensors: Union[List[Sensors], None] = None,
     moored_mode=False,
-    hex=hex,
 ) -> Dict[str, Union[float, datetime]]:
     """Converts a 19plus V2 data hex string into engineering units.
 
@@ -808,7 +801,6 @@ def read_SBE19plus_format_0(
         None
     :param moored_mode: parses time for 19plus in moored mode if true.
         Defautls to False
-    :param hex: Deprecated, use hex_segment
 
     :return: the 19plus V2 sensor values in engineering units that were
             extracted from the input hex string
@@ -816,8 +808,6 @@ def read_SBE19plus_format_0(
     :raises RuntimeWarning: if the hex string length does not match the
         expected length
     """
-    if hex is not builtins.hex:
-        warnings.warn("hex is deprecated, use hex_segment", DeprecationWarning)
 
     results: Dict[str, Union[int, float, datetime]] = {}
     n = 0
@@ -991,11 +981,14 @@ def read_SBE19plus_format_0(
     return results
 
 
-# TODO: change this to be snake_case for TKIT-75
-def read_SBE37SM_format_0(
+def read_SBE19plus_format_0(*args, **kwargs):
+    warnings.warn("Deprecated, use read_sbe19plus_format_0", DeprecationWarning)
+    return read_sbe19plus_format_0(*args, **kwargs)
+
+
+def read_sbe37sm_format_0(
     hex_segment: str = "",
     enabled_sensors: Union[List[Sensors], None] = None,
-    hex=hex,
 ) -> Dict[str, Union[int, float, datetime]]:
     """Converts a 37 family data hex string into engineering units.
 
@@ -1003,13 +996,10 @@ def read_SBE37SM_format_0(
     :param enabled_sensors: array of Sensors that are enabled. For 37
         this is always temperature, conductivity, pressure. Defaults to
         False
-    :param hex: Deprecated, use hex_segment
 
     :return: the 37 family sensor values in engineering units that were
         extracted from the input hex string
     """
-    if hex is not builtins.hex:
-        warnings.warn("hex is deprecated, use hex_segment", DeprecationWarning)
 
     results: Dict[str, Union[int, float, datetime]] = {}
     n = 0
@@ -1049,6 +1039,11 @@ def read_SBE37SM_format_0(
         raise ValueError("Hex string length does not match expectation based on enabled sensors")
 
     return results
+
+
+def read_SBE37SM_format_0(*args, **kwargs):
+    warnings.warn("Deprecated, use read_sbe37sm_format_0", DeprecationWarning)
+    return read_sbe37sm_format_0(*args, **kwargs)
 
 
 def read_nmea_coordinates(hex_segment: str):

@@ -1,14 +1,18 @@
 """EOS80 functions to support legacy processing"""
 
+import warnings
 import numpy as np
 from scipy import stats
 
 
 def bouyancy_frequency(
-    temp_ITS_subset: np.ndarray,  # TODO: change this to be all lower case for TKIT-75
-    salinity_prac_subset: np.ndarray,
-    pressure_dbar_subset: np.ndarray,
+    temperature: np.ndarray,
+    salinity: np.ndarray,
+    pressure: np.ndarray,
     gravity: float,
+    temp_ITS_subset: np.ndarray = None,  # Deprecated
+    salinity_prac_subset: np.ndarray = None,  # Deprecated
+    pressure_dbar_subset: np.ndarray = None,  # Deprecated
 ):
     """Calculates an N^2 value (buoyancy frequency) for the given window
     of temperature, salinity, and pressure, at the given latitude.
@@ -18,35 +22,43 @@ def bouyancy_frequency(
     calculation following the SBE Data Processing formula using E0S-80
     calculations for potential temp and density
 
-    :param temp_ITS_subset: ITS-90 temperature values for the given
-        window
-    :param salinity_prac_subset: practical salinity values for the given
-        window
-    :param pressure_dbar_subset: pressure values for the given window
+    :param temperature: ITS-90 temperature values for the given window
+    :param salinity: practical salinity values for the given window
+    :param pressure: pressure values for the given window
     :param gravity: gravity value
 
     :return: A single N^2 [Brunt-Väisälä (buoyancy) frequency]
     """
 
+    if temp_ITS_subset is not None:
+        warnings.warn("Deprecated, use temperature", DeprecationWarning)
+        temperature = temp_ITS_subset
+
+    if salinity_prac_subset is not None:
+        warnings.warn("Deprecated, use temperature", DeprecationWarning)
+        salinity = salinity_prac_subset
+
+    if pressure_dbar_subset is not None:
+        warnings.warn("Deprecated, use temperature", DeprecationWarning)
+        pressure = pressure_dbar_subset
+
     db_to_pa = 1e4
 
     # Wrap these as a length-1 array so that GSW accepts them
-    pressure_bar = np.array([np.mean(pressure_dbar_subset)])
-    temperature_bar = np.array([np.mean(temp_ITS_subset)])
-    salinity_bar = np.array([np.mean(salinity_prac_subset)])
+    pressure_bar = np.array([np.mean(pressure)])
+    temperature_bar = np.array([np.mean(temperature)])
+    salinity_bar = np.array([np.mean(salinity)])
 
     # Compute average density over the window
     # rho_bar0 = gsw.rho(salinity_bar, temperature_bar, pressure_bar)[0]
     rho_bar = density(salinity_bar, temperature_bar, pressure_bar)[0]
 
     # Use SBE DP (EOS-80) formulas for potential temp and density
-    theta = potential_temperature(
-        salinity_prac_subset, temp_ITS_subset, pressure_dbar_subset, pressure_bar
-    )
-    v_vals = 1.0 / density(salinity_prac_subset, theta, pressure_bar)
+    theta = potential_temperature(salinity, temperature, pressure, pressure_bar)
+    v_vals = 1.0 / density(salinity, theta, pressure_bar)
 
     # Estimate vertical gradient of specific volume
-    dvdp_result = stats.linregress(pressure_dbar_subset, v_vals)
+    dvdp_result = stats.linregress(pressure, v_vals)
 
     # Compute EOS-80 N2 combining computed average density and vertical gradient
     # we index into v_bar, alpha_bar, and beta_bar as they are all arrays of len 1
@@ -54,17 +66,36 @@ def bouyancy_frequency(
     return n2
 
 
-def density(s0: np.ndarray, t: np.ndarray, p0: np.ndarray) -> np.ndarray:
+def density(
+    salinity: np.ndarray,
+    temperature: np.ndarray,
+    pressure: np.ndarray,
+    s0: np.ndarray = None,  #  Deprecated
+    t: np.ndarray = None,  #  Deprecated
+    p0: np.ndarray = None,  #  Deprecated
+) -> np.ndarray:
     """EOS-80 density calculation.
 
     This was ported from CSharedCalc::Density()
 
-    :param s0: salinity data
-    :param t: temperature data
-    :param p0: pressure data
+    :param salinity: salinity data
+    :param temperature: temperature data
+    :param pressure: pressure data
 
     :return: resulting density data
     """
+
+    if t is not None:
+        warnings.warn("Deprecated, use temperature", DeprecationWarning)
+        temperature = t
+
+    if s0 is not None:
+        warnings.warn("Deprecated, use temperature", DeprecationWarning)
+        salinity = s0
+
+    if p0 is not None:
+        warnings.warn("Deprecated, use temperature", DeprecationWarning)
+        pressure = p0
 
     b0 = 8.24493e-1
     b1 = -4.0899e-3
@@ -119,7 +150,7 @@ def density(s0: np.ndarray, t: np.ndarray, p0: np.ndarray) -> np.ndarray:
     k1 = -6.12293e-6
     k2 = 5.2787e-8
 
-    s0, t, p0 = np.broadcast_arrays(s0, t, p0)
+    s0, t, p0 = np.broadcast_arrays(salinity, temperature, pressure)
     p = p0.copy()
     s = s0.copy()
 
