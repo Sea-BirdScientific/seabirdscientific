@@ -2,9 +2,10 @@
 
 # Native imports
 import math
+import warnings
 from enum import Enum
 from logging import getLogger
-import warnings
+from typing import Literal
 
 # Third-party imports
 import gsw
@@ -27,7 +28,8 @@ FLAG_VALUE = -9.99e-29
 
 
 class MinVelocityType(Enum):
-    """The minimum velocity type used with loop edit"""
+    """The minimum velocity type used with loop edit
+    DEPRECATED. Use Literal defined in loop_edit"""
 
     FIXED = 0
     PERCENT = 1
@@ -36,6 +38,7 @@ class MinVelocityType(Enum):
 class WindowFilterType(Enum):
     """The window filter type. See CDT Processing in the docs for
     details.
+    DEPRECATED. Use literals defined in windowd_filter
     """
 
     BOXCAR = "boxcar"
@@ -119,11 +122,13 @@ def align_ctd(
 
 
 def cell_thermal_mass(
-    temperature_C: np.ndarray,  # TODO: change this to be snake_case for TKIT-75
-    conductivity_Sm: np.ndarray,  # TODO: change this to be snake_case for TKIT-75
-    amplitude: float,
-    time_constant: float,
-    sample_interval: float,
+    temperature: np.ndarray = [],
+    conductivity: np.ndarray = [],
+    amplitude: float = 1,
+    time_constant: float = 1,
+    sample_interval: float = 1,
+    temperature_C: np.ndarray = None,  # Deprecated
+    conductivity_Sm: np.ndarray = None,  # Deprecated
 ) -> np.ndarray:
     """Removes conductivity cell thermal mass effects from measured
     conductivity.
@@ -141,14 +146,22 @@ def cell_thermal_mass(
     :return: the corrected conductivity in S/m
     """
 
+    if temperature_C is not None:
+        warnings.warn("Deprecated, use temperature", DeprecationWarning)
+        temperature = temperature_C
+
+    if conductivity_Sm is not None:
+        warnings.warn("Deprecated, use salinity", DeprecationWarning)
+        conductivity = conductivity_Sm
+
     a = 2 * amplitude / (sample_interval / time_constant + 2)
     b = 1 - (2 * a / amplitude)
-    ctm = np.zeros(len(temperature_C))  # cell thermal mass
-    corrected_conductivity = conductivity_Sm.copy()
+    ctm = np.zeros(len(temperature))  # cell thermal mass
+    corrected_conductivity = conductivity.copy()
 
     for n in range(1, len(ctm)):
-        dc_dt = 0.1 * (1.0 + 0.006 * (temperature_C[n] - 20.0))
-        dt = temperature_C[n] - temperature_C[n - 1]
+        dc_dt = 0.1 * (1.0 + 0.006 * (temperature[n] - 20.0))
+        dt = temperature[n] - temperature[n - 1]
         ctm[n] = -1.0 * b * ctm[n - 1] + a * dc_dt * dt
         corrected_conductivity[n] += ctm[n]
 
@@ -223,7 +236,7 @@ def loop_edit_depth(
     depth: np.ndarray,
     flag: np.ndarray,
     sample_interval: float,
-    min_velocity_type: MinVelocityType,
+    min_velocity_type: Literal["fixed", "percent"],
     min_velocity: float,
     window_size: float,
     mean_speed_percent: float,
@@ -268,6 +281,9 @@ def loop_edit_depth(
         np.ndarray: the input data with updated flags
     """
 
+    if isinstance(min_velocity_type, MinVelocityType):
+        warnings.warn("MinVelocityType Enum is deprecated, use Literals", DeprecationWarning)
+
     if not exclude_flags:
         flag[:] = 0.0
 
@@ -279,7 +295,7 @@ def loop_edit_depth(
         depth, flag, remove_surface_soak, flag_value, min_soak_depth, max_soak_depth
     )
 
-    if min_velocity_type == MinVelocityType.FIXED:
+    if min_velocity_type in ["fixed", MinVelocityType.FIXED]:
         downcast_mask = _min_velocity_mask(
             depth, sample_interval, min_velocity, min_depth_n, max_depth_n + 1, False
         )
@@ -287,7 +303,7 @@ def loop_edit_depth(
             depth, sample_interval, min_velocity, max_depth_n, len(depth), True
         )
 
-    elif min_velocity_type == MinVelocityType.PERCENT:
+    elif min_velocity_type in ["percent", MinVelocityType.PERCENT]:
         diff_length = int(window_size / sample_interval)
         downcast_mask = _mean_speed_percent_mask(
             depth,
@@ -354,34 +370,26 @@ def _find_depth_peaks(
         min_soak_depth_n = min(
             n
             for n, d in enumerate(depth)
-            if flag[n] != flag_value and min_soak_depth < d < max_soak_depth
+            if flag[n] != flag_value and min_soak_depth < d < max_soak_depth and d != flag_value
         )
     else:
         min_soak_depth_n = 0
 
-    max_soak_depth_n = min(
-        n for n, d in enumerate(depth) if flag[n] != flag_value and d > max_soak_depth
-    )
+    # beginning of possible upcast domain
+    max_depth = max([d for n, d in enumerate(depth) if flag_value not in [d, flag[n]]])
+    max_depth_n = np.where(depth == max_depth)[0][0]
 
     # beginning of possible downcast domain
-    min_depth_n = min(
-        (d, n)
-        for n, d in enumerate(depth)
-        if flag[n] != flag_value and min_soak_depth_n <= n < max_soak_depth_n
-    )[1]
-
-    # beginning of possible upcast domain
-    if min_depth_n == len(depth) - 1:
-        max_depth_n = -1
-    else:
-        max_depth_n = [n for n, d in enumerate(depth) if d == max(depth) and n > min_depth_n][0]
+    min_depth = min(
+        [
+            d
+            for n, d in enumerate(depth)
+            if flag_value not in [d, flag[n]] and min_soak_depth_n < n < max_depth_n
+        ]
+    )
+    min_depth_n = np.where(depth == min_depth)[0][0]
 
     return (min_depth_n, max_depth_n)
-
-
-def find_depth_peaks(*args, **kwargs):
-    warnings.warn("Deprecated, use _find_depth_peaks", DeprecationWarning)
-    return _find_depth_peaks(*args, **kwargs)
 
 
 def _min_velocity_mask(
@@ -418,11 +426,6 @@ def _min_velocity_mask(
     mask[domain_end:] = False
 
     return mask
-
-
-def min_velocity_mask(*args, **kwargs):
-    warnings.warn("Deprecated, use _min_velocity_mask", DeprecationWarning)
-    return _min_velocity_mask(*args, **kwargs)
 
 
 def _mean_speed_percent_mask(
@@ -470,11 +473,6 @@ def _mean_speed_percent_mask(
     return mask
 
 
-def mean_speed_percent_mask(*args, **kwargs):
-    warnings.warn("Deprecated, use _mean_speed_percent_mask", DeprecationWarning)
-    return _mean_speed_percent_mask(*args, **kwargs)
-
-
 def _flag_by_minima_maxima(
     depth: np.ndarray,
     flag: np.ndarray,
@@ -506,11 +504,6 @@ def _flag_by_minima_maxima(
             local_max = d
         else:
             flag[n] = flag_value
-
-
-def flag_by_minima_maxima(*args, **kwargs):
-    warnings.warn("Deprecated, use _flag_by_minima_maxima", DeprecationWarning)
-    return _flag_by_minima_maxima(*args, **kwargs)
 
 
 def bin_average(
@@ -861,15 +854,10 @@ def _flag_data(
     return flagged_data
 
 
-def flag_data(*args, **kwargs):
-    warnings.warn("Deprecated, use _flag_data", DeprecationWarning)
-    return _flag_data(*args, **kwargs)
-
-
 def window_filter(
     data_in: np.ndarray,
     flags: np.ndarray,
-    window_type: WindowFilterType,
+    window_type: Literal["boxcar", "cosine", "gaussian", "median", "triangle"],
     window_width: int,
     sample_interval: float,
     half_width=1,
@@ -901,6 +889,9 @@ def window_filter(
     :return: the convolution of data_in and the window filter
     """
 
+    if isinstance(window_type, WindowFilterType):
+        warnings.warn("WindowFilterType Enum is deprecated, use Literals", DeprecationWarning)
+
     # convert flags to nan for processing
     data = [d if d != flag_value else np.nan for d in data_in]
 
@@ -913,17 +904,17 @@ def window_filter(
     window = np.array([])
 
     # define the window filter
-    if window_type == WindowFilterType.BOXCAR:
+    if window_type in ["boxcar", WindowFilterType.BOXCAR]:
         window = signal.windows.boxcar(window_width)
 
-    elif window_type == WindowFilterType.COSINE:
+    elif window_type in ["cosine", WindowFilterType.COSINE]:
         for n in range(window_start, window_end):
             window = np.append(window, np.cos((n * np.pi) / (window_width + 1)))
 
-    elif window_type == WindowFilterType.TRIANGLE:
+    elif window_type in ["triangle", WindowFilterType.TRIANGLE]:
         window = signal.windows.triang(window_width)
 
-    elif window_type == WindowFilterType.GAUSSIAN:
+    elif window_type in ["gaussian", WindowFilterType.GAUSSIAN]:
         phase = offset / sample_interval
         # the manual defines scale with sample rate, but seasoft uses sample interval
         scale = np.log(2) * (2 * sample_interval / half_width) ** 2
@@ -940,7 +931,7 @@ def window_filter(
         if data_start <= n < data_end:
             value = 0
 
-            if window_type == WindowFilterType.MEDIAN:
+            if window_type in ["median", WindowFilterType.MEDIAN]:
                 window = np.array(data[n + window_start : n + window_end])
                 value = np.nanmedian(window)
             else:
@@ -962,10 +953,13 @@ def window_filter(
 
 
 def bouyancy_frequency(
-    temp_conservative_subset: np.ndarray,
-    salinity_abs_subset: np.ndarray,
-    pressure_dbar_subset: np.ndarray,
+    temperature: np.ndarray,
+    salinity: np.ndarray,
+    pressure: np.ndarray,
     gravity: float,
+    temp_conservative_subset: np.ndarray = None,  # Deprecated
+    salinity_abs_subset: np.ndarray = None,  # Deprecated
+    pressure_dbar_subset: np.ndarray = None,  # Deprecated
 ):
     """Calculates an N^2 value (buoyancy frequency) for the given window
     of temperature, salinity, and pressure, at the given latitude.
@@ -974,20 +968,31 @@ def bouyancy_frequency(
     salinity, and pressure as dbar, all of the same length. Performs the
     calculation using TEOS-10 and specific volume.
 
-    :param temp_conservative_subset: temperature values for the given
-        window
-    :param salinity_abs_subset: salinity values for the given window
-    :param pressure_dbar_subset: pressure values for the given window
+    :param temperature: temperature values for the given window
+    :param salinity: salinity values for the given window
+    :param pressure: pressure values for the given window
     :param gravity: gravity value
 
     :return: A single N^2 [Brunt-Väisälä (buoyancy) frequency]
     """
 
+    if temp_conservative_subset is not None:
+        warnings.warn("Deprecated, use temperature", DeprecationWarning)
+        temperature = temp_conservative_subset
+
+    if salinity_abs_subset is not None:
+        warnings.warn("Deprecated, use temperature", DeprecationWarning)
+        salinity = salinity_abs_subset
+
+    if pressure_dbar_subset is not None:
+        warnings.warn("Deprecated, use temperature", DeprecationWarning)
+        pressure = pressure_dbar_subset
+
     db_to_pa = 1e4
     # Wrap these as a length-1 array so that GSW accepts them
-    pressure_bar = [np.mean(pressure_dbar_subset)]
-    temperature_bar = [np.mean(temp_conservative_subset)]
-    salinity_bar = [np.mean(salinity_abs_subset)]
+    pressure_bar = [np.mean(pressure)]
+    temperature_bar = [np.mean(temperature)]
+    salinity_bar = [np.mean(salinity)]
 
     # Compute average specific volume, temp expansion ceoff,
     # and saline contraction coeff over window
@@ -996,11 +1001,11 @@ def bouyancy_frequency(
     )
 
     # Estimate vertical gradient of conservative temp
-    dct_dp = stats.linregress(pressure_dbar_subset, temp_conservative_subset)
+    dct_dp = stats.linregress(pressure, temperature)
     # TODO: error handling with r, p, std_error
 
     # Estimate vertical gradient of absolute salinity
-    dsa_dp = stats.linregress(pressure_dbar_subset, salinity_abs_subset)
+    dsa_dp = stats.linregress(pressure, salinity)
     # TODO: error handling with r, p, std_error
 
     # Compute N2 combining computed ceofficients and vertical gradients.
@@ -1011,14 +1016,17 @@ def bouyancy_frequency(
 
 
 def buoyancy(
-    temperature_c: np.ndarray,
-    salinity_prac: np.ndarray,
-    pressure_dbar: np.ndarray,
-    latitude: np.ndarray,
-    longitude: np.ndarray,
-    window_size: float,
+    temperature: np.ndarray = [],
+    salinity: np.ndarray = [],
+    pressure: np.ndarray = [],
+    latitude: np.ndarray = 0,
+    longitude: np.ndarray = 0,
+    window_size: float = 11,
     use_modern_formula=True,
     flag_value=FLAG_VALUE,
+    temperature_c: np.ndarray = None,  # Deprecated
+    salinity_prac: np.ndarray = None,  # Deprecated
+    pressure_dbar: np.ndarray = None,  # Deprecated
 ):
     """Calculates the 4 buoyancy values based off the incoming data.
 
@@ -1048,30 +1056,42 @@ def buoyancy(
         variable. The columns are as follows:
     """
 
-    salinity_prac, temperature_c, pressure_dbar, latitude, longitude = np.broadcast_arrays(
-        salinity_prac, temperature_c, pressure_dbar, latitude, longitude
+    if temperature_c is not None:
+        warnings.warn("Deprecated, use temperature", DeprecationWarning)
+        temperature = temperature_c
+
+    if salinity_prac is not None:
+        warnings.warn("Deprecated, use temperature", DeprecationWarning)
+        salinity = salinity_prac
+
+    if pressure_dbar is not None:
+        warnings.warn("Deprecated, use temperature", DeprecationWarning)
+        pressure = pressure_dbar
+
+    _salinity, _temperature, _pressure, _latitude, _longitude = np.broadcast_arrays(
+        salinity, temperature, pressure, latitude, longitude
     )
-    pressure_dbar = pressure_dbar.astype(np.double)
+    _pressure = _pressure.astype(np.double)
 
     # Get the original bin size that we're working with, using the
     # second and third bin so we don't have to worry about the surface
     # bin
-    original_bin_size = abs(pressure_dbar[2] - pressure_dbar[1])
+    original_bin_size = abs(_pressure[2] - _pressure[1])
 
     # Calculates how many scans to have on either side of our median
     # point, but need at least 1 (for a total of 3 scans)
     scans_per_side = max(math.floor(window_size / original_bin_size / 2), 1)
 
-    salinity_abs = gsw.SA_from_SP(salinity_prac, pressure_dbar, longitude, latitude)
-    temperature_conservative = gsw.CT_from_t(salinity_abs, temperature_c, pressure_dbar)
+    salinity_abs = gsw.SA_from_SP(_salinity, _pressure, _longitude, _latitude)
+    temperature_conservative = gsw.CT_from_t(salinity_abs, _temperature, _pressure)
 
     result = pd.DataFrame()
 
     # create our result np.ndarrays with the flag value as default
-    result["N2"] = np.full(len(temperature_c), flag_value)
-    result["N"] = np.full(len(temperature_c), flag_value)
-    result["E"] = np.full(len(temperature_c), flag_value)
-    result["E10^-8"] = np.full(len(temperature_c), flag_value)
+    result["N2"] = np.full(len(_temperature), flag_value)
+    result["N"] = np.full(len(_temperature), flag_value)
+    result["E"] = np.full(len(_temperature), flag_value)
+    result["E10^-8"] = np.full(len(_temperature), flag_value)
 
     # start loop at scans_per_side
     for i in range(scans_per_side, len(temperature_conservative) - scans_per_side):
@@ -1080,13 +1100,13 @@ def buoyancy(
             i + scans_per_side + 1
         )  # add + 1 because slicing does not include the max_index
 
-        pressure_subset = pressure_dbar[min_index:max_index]
+        pressure_subset = _pressure[min_index:max_index]
         temperature_cons_subset = temperature_conservative[min_index:max_index]
-        temperature_its_subset = temperature_c[min_index:max_index]
+        temperature_its_subset = _temperature[min_index:max_index]
         salinity_subset = salinity_abs[min_index:max_index]
 
         pressure_bar = [np.mean(pressure_subset)]
-        gravity = gsw.grav([latitude[i]], pressure_bar)[0]
+        gravity = gsw.grav([_latitude[i]], pressure_bar)[0]
 
         if use_modern_formula:
             salinity_subset = salinity_abs[min_index:max_index]
@@ -1094,7 +1114,7 @@ def buoyancy(
                 temperature_cons_subset, salinity_subset, pressure_subset, gravity
             )
         else:
-            salinity_subset = salinity_prac[min_index:max_index]
+            salinity_subset = _salinity[min_index:max_index]
             n2 = eos80.bouyancy_frequency(
                 temperature_its_subset, salinity_subset, pressure_subset, gravity
             )

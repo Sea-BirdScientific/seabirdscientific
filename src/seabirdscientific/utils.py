@@ -10,7 +10,6 @@ import numpy as np
 from line_profiler import LineProfiler
 
 # Sea-Bird imports
-from seabirdscientific.processing import FLAG_VALUE
 
 
 def close_enough(
@@ -84,7 +83,7 @@ def percent_match(x1: np.ndarray, x2: np.ndarray) -> str:
     return f"{100 - (x1 != x2).sum() * 100 / len(x1):0.2f}% match"
 
 
-def get_tolerance(data: np.ndarray):
+def get_tolerance(data: np.ndarray, flag_value=-9.99e-29):
     """Checks the first 10 values of an array, gets the longest decimal
     length to the right of the decimal, and returns 1/10^length. Used
     for unit tests so results can be compared with a variable tolerance
@@ -94,7 +93,7 @@ def get_tolerance(data: np.ndarray):
     """
     decimal_lengths = [0]
     for n in range(len(data)):
-        if not np.isnan(data[n]) and data[n] != FLAG_VALUE:
+        if not np.isnan(data[n]) and data[n] != flag_value:
             decimal_lengths.append(len(f"{data[n]}".split(".")[1]))
             if len(decimal_lengths) >= 10:
                 break
