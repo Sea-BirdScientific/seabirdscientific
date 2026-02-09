@@ -628,11 +628,12 @@ class TestSeaFETPH:
 
     def test_convert_external_seafet_ph(self, request):
         external_ph = dc.convert_external_seafet_ph(
-            ph_counts=self.external_ph_counts,
+            raw_ph=self.external_ph_counts,
             temperature=self.ph_temperature,
             salinity=35,
             pressure=0,
             coefs=tc.ph_seafet_external_coefs,
+            ph_units="counts",
         )
         request.node.return_value = external_ph.tolist()
         assert np.allclose(external_ph, self.expected_external_ph, atol=1e-6)
@@ -678,11 +679,12 @@ class TestSeaFETPH:
     def test_convert_external_seafet_ph_legacy(self, request):
         # from application note 99
         external_ph = dc.convert_external_seafet_ph(
-            ph_counts=self.ph_voltage_to_counts(-0.885081),
+            raw_ph=self.ph_voltage_to_counts(-0.885081),
             temperature=23.4169,
             salinity=34.812,
             pressure=100,
             coefs=tc.external_ph_coefs,
+            ph_units="counts",
             formula_version="legacy",
         )
         assert np.allclose(external_ph, 7.939415, atol=1e-6)
