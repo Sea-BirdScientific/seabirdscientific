@@ -4,7 +4,6 @@
 import math
 from enum import Enum
 from logging import getLogger
-import warnings
 
 # Third-party imports
 import gsw
