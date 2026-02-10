@@ -8,7 +8,7 @@
         <link rel="prefetch" href="_static/images/seabird-logo-white.png" as="image">
 
     <!-- Generated with Sphinx 7.4.7 and Furo 2025.12.19 -->
-        <title>eos80_processing.py - Community Toolkit 2.7.3</title>
+        <title>eos80_processing.py - Community Toolkit 3.0.0a1</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="_static/styles/sbsfuro.css?v=3d7447bb" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
@@ -163,7 +163,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">Community Toolkit 2.7.3</div></a>
+      <a href="index.html"><div class="brand">Community Toolkit 3.0.0a1</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
     <img class="sidebar-logo only-dark" src="_static/images/seabird-logo-white.png" alt="Dark Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">Community Toolkit 2.7.3</span>
+  <span class="sidebar-brand-text">Community Toolkit 3.0.0a1</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -278,7 +278,7 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="seabirdscientific.eos80_processing.bouyancy_frequency">
-<span class="sig-prename descclassname"><span class="pre">seabirdscientific.eos80_processing.</span></span><span class="sig-name descname"><span class="pre">bouyancy_frequency</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">temp_ITS_subset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">salinity_prac_subset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pressure_dbar_subset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gravity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seabirdscientific.eos80_processing.bouyancy_frequency" title="Link to this definition"><span>#</span></a></dt>
+<span class="sig-prename descclassname"><span class="pre">seabirdscientific.eos80_processing.</span></span><span class="sig-name descname"><span class="pre">bouyancy_frequency</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">temperature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">salinity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pressure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gravity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temp_ITS_subset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">salinity_prac_subset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pressure_dbar_subset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seabirdscientific.eos80_processing.bouyancy_frequency" title="Link to this definition"><span>#</span></a></dt>
 <dd><p>Calculates an N^2 value (buoyancy frequency) for the given window
 of temperature, salinity, and pressure, at the given latitude.</p>
 <p>Expects temperature as ITS-90 temperature, salinity as practical
@@ -288,11 +288,9 @@ calculations for potential temp and density</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>temp_ITS_subset</strong> – ITS-90 temperature values for the given
-window</p></li>
-<li><p><strong>salinity_prac_subset</strong> – practical salinity values for the given
-window</p></li>
-<li><p><strong>pressure_dbar_subset</strong> – pressure values for the given window</p></li>
+<li><p><strong>temperature</strong> – ITS-90 temperature values for the given window</p></li>
+<li><p><strong>salinity</strong> – practical salinity values for the given window</p></li>
+<li><p><strong>pressure</strong> – pressure values for the given window</p></li>
 <li><p><strong>gravity</strong> – gravity value</p></li>
 </ul>
 </dd>
@@ -304,15 +302,15 @@ window</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="seabirdscientific.eos80_processing.density">
-<span class="sig-prename descclassname"><span class="pre">seabirdscientific.eos80_processing.</span></span><span class="sig-name descname"><span class="pre">density</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s0</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p0</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#seabirdscientific.eos80_processing.density" title="Link to this definition"><span>#</span></a></dt>
+<span class="sig-prename descclassname"><span class="pre">seabirdscientific.eos80_processing.</span></span><span class="sig-name descname"><span class="pre">density</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">salinity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pressure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s0</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p0</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#seabirdscientific.eos80_processing.density" title="Link to this definition"><span>#</span></a></dt>
 <dd><p>EOS-80 density calculation.</p>
 <p>This was ported from CSharedCalc::Density()</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>s0</strong> – salinity data</p></li>
-<li><p><strong>t</strong> – temperature data</p></li>
-<li><p><strong>p0</strong> – pressure data</p></li>
+<li><p><strong>salinity</strong> – salinity data</p></li>
+<li><p><strong>temperature</strong> – temperature data</p></li>
+<li><p><strong>pressure</strong> – pressure data</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -414,7 +412,7 @@ window</p></li>
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=e8140b17"></script>
+</div><script src="_static/documentation_options.js?v=840a91ac"></script>
     <script src="_static/doctools.js?v=9a2dae69"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>
