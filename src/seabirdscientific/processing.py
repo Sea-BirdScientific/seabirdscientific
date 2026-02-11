@@ -279,15 +279,17 @@ def loop_edit_depth(
     if isinstance(min_velocity_type, MinVelocityType):
         warnings.warn("MinVelocityType Enum is deprecated, use Literals", DeprecationWarning)
 
+    _flag = flag.copy()
+
     if not exclude_flags:
-        flag[:] = 0.0
+        _flag[:] = 0.0
 
     if use_deck_pressure_offset:
         min_soak_depth -= depth[0]
         max_soak_depth -= depth[0]
 
     (min_depth_n, max_depth_n) = _find_depth_peaks(
-        depth, flag, remove_surface_soak, flag_value, min_soak_depth, max_soak_depth
+        depth, _flag, remove_surface_soak, flag_value, min_soak_depth, max_soak_depth
     )
 
     if min_velocity_type in ["fixed", MinVelocityType.FIXED]:
@@ -323,14 +325,11 @@ def loop_edit_depth(
     else:
         raise ValueError
 
-    flag[~downcast_mask & ~upcast_mask] = flag_value
+    _flag[~downcast_mask & ~upcast_mask] = flag_value
 
-    _flag_by_minima_maxima(depth, flag, min_depth_n, max_depth_n, flag_value)
+    _flag_by_minima_maxima(depth, _flag, min_depth_n, max_depth_n, flag_value)
 
-    cast = np.array([0 for _ in range(len(flag))])
-    cast[downcast_mask] = -1
-    cast[upcast_mask] = 1
-    return cast  # TODO: refactor to handle cast and flag in seperate functions
+    return _flag
 
 
 def _find_depth_peaks(
