@@ -235,9 +235,8 @@ class TestLoopEdit:
         expected_data = si.read_cnv_file(test_data / "CAST0002_mod_filt_loop_min_v.cnv")
         data = si.read_cnv_file(test_data / "CAST0002_mod_filt.cnv")
 
-        result_flags = sp.loop_edit_pressure(
-            pressure=data["prSM"].values,
-            latitude=0,
+        result_flags = sp.loop_edit(
+            measurand=data["prSM"].values,
             flag=data["flag"].values,
             sample_interval=data.attrs["sample_interval"],
             min_velocity_type="fixed",
@@ -249,6 +248,8 @@ class TestLoopEdit:
             max_soak_depth=20,
             use_deck_pressure_offset=False,
             exclude_flags=False,
+            latitude=0,
+            units="pressure",
         )
 
         expected_flags = expected_data["flag"].values
@@ -260,9 +261,8 @@ class TestLoopEdit:
         )
         data = si.read_cnv_file(test_data / "CAST0002_mod_filt.cnv")
 
-        result_flags = sp.loop_edit_pressure(
-            pressure=data["prSM"].values,
-            latitude=0,
+        result_flags = sp.loop_edit(
+            measurand=data["prSM"].values,
             flag=data["flag"].values,
             sample_interval=data.attrs["sample_interval"],
             min_velocity_type="fixed",
@@ -274,6 +274,8 @@ class TestLoopEdit:
             max_soak_depth=20,
             use_deck_pressure_offset=False,
             exclude_flags=False,
+            latitude=0,
+            units="pressure",
         )
 
         expected_flags = expected_data["flag"].values
@@ -283,9 +285,8 @@ class TestLoopEdit:
         expected_data = si.read_cnv_file(test_data / "CAST0002_mod_filt_loop_min_v.cnv")
         data = si.read_cnv_file(test_data / "CAST0002_mod_filt_loop_min_v_remove_soak.cnv")
 
-        result_flags = sp.loop_edit_pressure(
-            pressure=data["prSM"].values,
-            latitude=0,
+        result_flags = sp.loop_edit(
+            measurand=data["prSM"].values,
             flag=data["flag"].values,
             sample_interval=data.attrs["sample_interval"],
             min_velocity_type="fixed",
@@ -297,6 +298,8 @@ class TestLoopEdit:
             max_soak_depth=20,
             use_deck_pressure_offset=False,
             exclude_flags=False,
+            latitude=0,
+            units="pressure",
         )
 
         expected_flags = expected_data["flag"].values
@@ -310,9 +313,8 @@ class TestLoopEdit:
             test_data / "CAST0002_mod_filt_loop_min_v_exclude_flags_from_remove_soak.cnv"
         )
 
-        result_flags = sp.loop_edit_pressure(
-            pressure=data["prSM"].values,
-            latitude=0,
+        result_flags = sp.loop_edit(
+            measurand=data["prSM"].values,
             flag=data["flag"].values,
             sample_interval=data.attrs["sample_interval"],
             min_velocity_type="fixed",
@@ -324,6 +326,8 @@ class TestLoopEdit:
             max_soak_depth=20,
             use_deck_pressure_offset=False,
             exclude_flags=True,
+            latitude=0,
+            units="pressure",
         )
 
         expected_flags = expected_data["flag"].values
@@ -336,9 +340,8 @@ class TestLoopEdit:
         )
         data = si.read_cnv_file(test_data / "CAST0002_mod_filt.cnv")
 
-        result_flags = sp.loop_edit_pressure(
-            pressure=data["prSM"].values,
-            latitude=0,
+        result_flags = sp.loop_edit(
+            measurand=data["prSM"].values,
             flag=data["flag"].values,
             sample_interval=data.attrs["sample_interval"],
             min_velocity_type="percent",
@@ -350,6 +353,8 @@ class TestLoopEdit:
             max_soak_depth=20,
             use_deck_pressure_offset=False,
             exclude_flags=False,
+            latitude=0,
+            units="pressure",
         )
 
         expected_flags = expected_data["flag"].values
@@ -361,9 +366,8 @@ class TestLoopEdit:
         expected_data = si.read_cnv_file(test_data / "CAST0002_mod_filt_loop_percent.cnv")
         data = si.read_cnv_file(test_data / "CAST0002_mod_filt.cnv")
 
-        result_flags = sp.loop_edit_pressure(
-            pressure=data["prSM"].values,
-            latitude=0,
+        result_flags = sp.loop_edit(
+            measurand=data["prSM"].values,
             flag=data["flag"].values,
             sample_interval=data.attrs["sample_interval"],
             min_velocity_type="percent",
@@ -375,6 +379,8 @@ class TestLoopEdit:
             max_soak_depth=20,
             use_deck_pressure_offset=False,
             exclude_flags=False,
+            latitude=0,
+            units="pressure",
         )[100:]
 
         # SeaSoft is including earliest samples as local maxima during the first
@@ -388,9 +394,8 @@ class TestLoopEdit:
         expected_data = si.read_cnv_file(test_data / "SBE19plus_loop_edit.cnv")
         data = si.read_cnv_file(test_data / "SBE19plus.cnv")
 
-        result_flags = sp.loop_edit_pressure(
-            pressure=data["prdM"].values,
-            latitude=0,
+        result_flags = sp.loop_edit(
+            measurand=data["prdM"].values,
             flag=data["flag"].values,
             sample_interval=data.attrs["sample_interval"],
             min_velocity_type="fixed",
@@ -402,6 +407,8 @@ class TestLoopEdit:
             max_soak_depth=20,
             use_deck_pressure_offset=True,
             exclude_flags=True,
+            latitude=0,
+            units="pressure",
         )[100:]
 
         # SeaSoft is including earliest samples as local maxima during the first
