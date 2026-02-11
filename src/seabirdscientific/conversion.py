@@ -1,19 +1,20 @@
 """A collection of raw data conversion functions."""
 
 # Native imports
-from math import e, floor
+import math
 from typing import Literal
 
 # Third-party imports
 import gsw
 import numpy as np
+import xarray as xr
 from numpy.polynomial import Polynomial
 from scipy import stats
 
 # Sea-Bird imports
-
-# Internal imports
 import seabirdscientific.cal_coefficients as cc
+from seabirdscientific.processing import FLAG_VALUE
+from seabirdscientific import eos80_conversion as eos80
 
 
 DBAR_TO_PSI = 1.450377
@@ -165,7 +166,7 @@ def convert_pressure_digiquartz(
     sea_level_pressure = 14.7
     # First, average temperature compensation over 30 seconds
     max_scans_in_30_seconds = 720
-    scans_in_window = floor(30 / sample_interval)
+    scans_in_window = math.floor(30 / sample_interval)
     scans_in_window = max(scans_in_window, 1)
     scans_in_window = min(scans_in_window, max_scans_in_30_seconds)
 
@@ -423,12 +424,12 @@ def convert_sbe63_oxygen(
     s_corr_exp = (
         salinity * (sol_b0 + sol_b1 * ts + sol_b2 * ts**2 + sol_b3 * ts**3) + sol_c0 * salinity**2
     )
-    s_corr = e**s_corr_exp
+    s_corr = math.e**s_corr_exp
 
     # temperature in Kelvin
     temperature_k = temperature + KELVIN_OFFSET_0C
     p_corr_exp = (coefs.e * pressure) / temperature_k
-    p_corr = e**p_corr_exp
+    p_corr = math.e**p_corr_exp
 
     # fmt: off
     ox_val = (
@@ -500,7 +501,7 @@ def convert_sbe43_oxygen(
     if apply_tau_correction:
         # Calculates how many scans to have on either side of our median
         # point, accounting for going out of index bounds
-        scans_per_side = floor(window_size / 2 / sample_interval)
+        scans_per_side = math.floor(window_size / 2 / sample_interval)
         for i in range(scans_per_side, len(voltage) - scans_per_side):
             ox_subset = voltage[i - scans_per_side : i + scans_per_side + 1]
 
@@ -1164,3 +1165,149 @@ def convert_altimeter(
     height = ALTIMETER_SCALAR * volts / coefs.slope - coefs.offset
 
     return height
+
+
+def buoyancy_frequency(
+    temperature: np.ndarray,
+    salinity: np.ndarray,
+    pressure: np.ndarray,
+    gravity: float,
+):
+    """Calculates an N^2 value (buoyancy frequency) for the given window
+    of temperature, salinity, and pressure, at the given latitude.
+
+    Expect temperature as conservative temperature, salinity as abslute
+    salinity, and pressure as dbar, all of the same length. Performs the
+    calculation using TEOS-10 and specific volume.
+
+    :param temperature: temperature values for the given window
+    :param salinity: salinity values for the given window
+    :param pressure: pressure values for the given window
+    :param gravity: gravity value
+
+    :return: A single N^2 [Brunt-Väisälä (buoyancy) frequency]
+    """
+
+    db_to_pa = 1e4
+    # Wrap these as a length-1 array so that GSW accepts them
+    mean_pressure = [np.mean(pressure)]
+    mean_temperature = [np.mean(temperature)]
+    mean_salinity = [np.mean(salinity)]
+
+    # Compute average specific volume, temp expansion ceoff,
+    # and saline contraction coeff over window
+    (specific_volume, alpha, beta) = gsw.specvol_alpha_beta(
+        mean_salinity, mean_temperature, mean_pressure
+    )
+
+    # Estimate vertical gradient of conservative temp
+    dct_dp = stats.linregress(pressure, temperature)
+    # TODO: error handling with r, p, std_error
+
+    # Estimate vertical gradient of absolute salinity
+    dsa_dp = stats.linregress(pressure, salinity)
+    # TODO: error handling with r, p, std_error
+
+    # Compute N2 combining computed ceofficients and vertical gradients.
+    # we index into specific_volume, alpha, and beta as they are all arrays of len 1
+    n2 = gravity**2 / (specific_volume[0] * db_to_pa)
+    n2 *= beta[0] * dsa_dp.slope - alpha[0] * dct_dp.slope
+    return n2
+
+
+def buoyancy(
+    temperature: np.ndarray,
+    salinity: np.ndarray,
+    pressure: np.ndarray,
+    latitude: np.ndarray,
+    longitude: np.ndarray,
+    window_size: float,
+    use_modern_formula=True,
+    flag_value=FLAG_VALUE,
+) -> xr.Dataset:
+    """Calculates the 4 buoyancy values based off the incoming data.
+
+    Data is expected to have already been binned via Bin_Average using
+    decibar pressure bins. All arrays are expected to be the same
+    length, except for latitude and longitude, which can be length 1.
+    Optionally can use the former calculation for buoyancy frequency
+    from the SBE Data Processing Manual, but defaults to a newer formula
+    using TEOS-10.
+
+    :param temperature_c: Temperature in ITS-90 degrees C
+    :param salinity_prac: Practical salinity in PSU
+    :param pressure_dbar: Pressure in dbar
+    :param latitude: latitude values. If length 1, gets applied to all
+        values.
+    :param longitude: longitude values. If length 1, gets applied to all
+        values.
+    :param window_size: window size to use. If this number is smaller
+        than the binned window size, round up to a minium of 3 scans.
+        I.E. uses the center scan and one scan on each side of it at the
+        very least
+    :param use_modern_formula: Whether to use a modern formula for
+        calculating buoyancy frequency. Defaults to true.
+    :param flag_value: Bad Flag value to use for marking bad scans.
+        Defaults to -9.99e-29
+
+    :return: a tuple of ndarrays including: buoyancy frequency squared,
+        buoyancy frequency, stability, and scaled stability
+    """
+
+    _salinity, _temperature, _pressure, _latitude, _longitude = np.broadcast_arrays(
+        salinity, temperature, pressure, latitude, longitude
+    )
+
+    # Get the original bin size that we're working with, using the
+    # second and third bin so we don't have to worry about the surface
+    # bin
+    original_bin_size = abs(_pressure[2] - _pressure[1])
+
+    # Calculates how many scans to have on either side of our median
+    # point, but need at least 1 (for a total of 3 scans)
+    scans_per_side = max(math.floor(window_size / original_bin_size / 2), 1)
+
+    salinity_abs = gsw.SA_from_SP(_salinity, _pressure, _longitude, _latitude)
+    temperature_conservative = gsw.CT_from_t(salinity_abs, _temperature, _pressure)
+
+    # create our result np.ndarrays with the flag value as default
+    buoyancy_freq_squared = np.full(len(_temperature), flag_value)
+    buoyancy_freq = np.full(len(_temperature), flag_value)
+    stability = np.full(len(_temperature), flag_value)
+    scaled_stability = np.full(len(_temperature), flag_value)
+
+    # start loop at scans_per_side
+    for i in range(scans_per_side, len(temperature_conservative) - scans_per_side):
+        min_index = i - scans_per_side
+        max_index = (
+            i + scans_per_side + 1
+        )  # add + 1 because slicing does not include the max_index
+
+        pressure_subset = _pressure[min_index:max_index]
+        temperature_cons_subset = temperature_conservative[min_index:max_index]
+        temperature_its_subset = _temperature[min_index:max_index]
+        salinity_subset = salinity_abs[min_index:max_index]
+
+        mean_pressure = [np.mean(pressure_subset)]
+        gravity = gsw.grav([_latitude[i]], mean_pressure)[0]
+
+        if use_modern_formula:
+            salinity_subset = salinity_abs[min_index:max_index]
+            n2 = buoyancy_frequency(
+                temperature_cons_subset, salinity_subset, pressure_subset, gravity
+            )
+        else:
+            salinity_subset = _salinity[min_index:max_index]
+            n2 = eos80.bouyancy_frequency(
+                temperature_its_subset, salinity_subset, pressure_subset, gravity
+            )
+
+        buoyancy_freq_squared[i] = n2
+        if n2 >= 0:
+            buoyancy_freq[i] = math.sqrt(n2) * 3600 / (2 * np.pi)
+        else:
+            buoyancy_freq[i] = np.nan
+        stability[i] = n2 / gravity
+        scaled_stability[i] = stability[i] * 1e8
+
+    return (buoyancy_freq_squared, buoyancy_freq, stability, scaled_stability)
