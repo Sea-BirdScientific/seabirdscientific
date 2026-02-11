@@ -886,8 +886,8 @@ class TestBuoyancy:
     )
     # fmt: on
 
-    def test_buoyancy(self, request):
-        output_dataframe = dc.buoyancy(
+    def test_buoyancy(self):
+        (buoyancy_freq_squared, buoyancy_freq, stability, scaled_stability) = dc.buoyancy(
             self.temperature,
             self.salinity,
             self.pressure,
@@ -897,30 +897,16 @@ class TestBuoyancy:
             True,
         )
 
-        request.node.return_value = {
-            "N2": output_dataframe["N2"].to_list(),
-            "N": output_dataframe["N"].to_list(),
-            "E": output_dataframe["E"].to_list(),
-            "E10^-8": output_dataframe["E10^-8"].to_list(),
-        }
         # Comparing EOS-80 to TEOS-10 buoyancy calculations.
         # We do not expect them to agree better than +/-1.5% due to differences in the algorithms
         rel_tol = 0.015  # 1.5%
-        assert output_dataframe["N2"].to_numpy() == pytest.approx(
-            self.expected_N2_win30, rel=rel_tol
-        )
-        assert output_dataframe["N"].to_numpy() == pytest.approx(
-            self.expected_N_win30, rel=rel_tol
-        )
-        assert output_dataframe["E"].to_numpy() == pytest.approx(
-            self.expected_E_win30, rel=rel_tol
-        )
-        assert output_dataframe["E10^-8"].to_numpy() == pytest.approx(
-            self.expected_E_pow_8_win30, rel=rel_tol
-        )
+        assert buoyancy_freq_squared == pytest.approx(self.expected_N2_win30, rel=rel_tol)
+        assert buoyancy_freq == pytest.approx(self.expected_N_win30, rel=rel_tol)
+        assert stability == pytest.approx(self.expected_E_win30, rel=rel_tol)
+        assert scaled_stability == pytest.approx(self.expected_E_pow_8_win30, rel=rel_tol)
 
-    def test_buoyancy_eos80(self, request):
-        output_dataframe = dc.buoyancy(
+    def test_buoyancy_eos80(self):
+        (buoyancy_freq_squared, buoyancy_freq, stability, scaled_stability) = dc.buoyancy(
             self.temperature,
             self.salinity,
             self.pressure,
@@ -930,24 +916,10 @@ class TestBuoyancy:
             False,
         )
 
-        request.node.return_value = {
-            "N2": output_dataframe["N2"].to_list(),
-            "N": output_dataframe["N"].to_list(),
-            "E": output_dataframe["E"].to_list(),
-            "E10^-8": output_dataframe["E10^-8"].to_list(),
-        }
         # Comparing SBE Data Processing C++ to local Python results using the same EOS-80 calculations.
         # We expect very very close agreement: << 1% differnce
         rel_tol = 0.0026  # 0.26%
-        assert output_dataframe["N2"].to_numpy() == pytest.approx(
-            self.expected_N2_win30, rel=rel_tol
-        )
-        assert output_dataframe["N"].to_numpy() == pytest.approx(
-            self.expected_N_win30, rel=rel_tol
-        )
-        assert output_dataframe["E"].to_numpy() == pytest.approx(
-            self.expected_E_win30, rel=rel_tol
-        )
-        assert output_dataframe["E10^-8"].to_numpy() == pytest.approx(
-            self.expected_E_pow_8_win30, rel=rel_tol
-        )
+        assert buoyancy_freq_squared == pytest.approx(self.expected_N2_win30, rel=rel_tol)
+        assert buoyancy_freq == pytest.approx(self.expected_N_win30, rel=rel_tol)
+        assert stability == pytest.approx(self.expected_E_win30, rel=rel_tol)
+        assert scaled_stability == pytest.approx(self.expected_E_pow_8_win30, rel=rel_tol)
