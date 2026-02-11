@@ -7,7 +7,6 @@ from typing import Literal
 # Third-party imports
 import gsw
 import numpy as np
-import pandas as pd
 import xarray as xr
 from numpy.polynomial import Polynomial
 from scipy import stats
@@ -1191,14 +1190,14 @@ def buoyancy_frequency(
 
     db_to_pa = 1e4
     # Wrap these as a length-1 array so that GSW accepts them
-    pressure_bar = [np.mean(pressure)]
-    temperature_bar = [np.mean(temperature)]
-    salinity_bar = [np.mean(salinity)]
+    mean_pressure = [np.mean(pressure)]
+    mean_temperature = [np.mean(temperature)]
+    mean_salinity = [np.mean(salinity)]
 
     # Compute average specific volume, temp expansion ceoff,
     # and saline contraction coeff over window
-    (v_bar, alpha_bar, beta_bar) = gsw.specvol_alpha_beta(
-        salinity_bar, temperature_bar, pressure_bar
+    (specific_volume, alpha, beta) = gsw.specvol_alpha_beta(
+        mean_salinity, mean_temperature, mean_pressure
     )
 
     # Estimate vertical gradient of conservative temp
@@ -1210,19 +1209,19 @@ def buoyancy_frequency(
     # TODO: error handling with r, p, std_error
 
     # Compute N2 combining computed ceofficients and vertical gradients.
-    # we index into v_bar, alpha_bar, and beta_bar as they are all arrays of len 1
-    n2 = gravity**2 / (v_bar[0] * db_to_pa)
-    n2 *= beta_bar[0] * dsa_dp.slope - alpha_bar[0] * dct_dp.slope
+    # we index into specific_volume, alpha, and beta as they are all arrays of len 1
+    n2 = gravity**2 / (specific_volume[0] * db_to_pa)
+    n2 *= beta[0] * dsa_dp.slope - alpha[0] * dct_dp.slope
     return n2
 
 
 def buoyancy(
-    temperature: np.ndarray = [],
-    salinity: np.ndarray = [],
-    pressure: np.ndarray = [],
-    latitude: np.ndarray = 0,
-    longitude: np.ndarray = 0,
-    window_size: float = 11,
+    temperature: np.ndarray,
+    salinity: np.ndarray,
+    pressure: np.ndarray,
+    latitude: np.ndarray,
+    longitude: np.ndarray,
+    window_size: float,
     use_modern_formula=True,
     flag_value=FLAG_VALUE,
 ) -> xr.Dataset:
@@ -1231,8 +1230,9 @@ def buoyancy(
     Data is expected to have already been binned via Bin_Average using
     decibar pressure bins. All arrays are expected to be the same
     length, except for latitude and longitude, which can be length 1.
-    Optionally can use the former calculation for N^2 from the SBE Data
-    Processing Manual, but defaults to a newer formula using TEOS-10.
+    Optionally can use the former calculation for buoyancy frequency
+    from the SBE Data Processing Manual, but defaults to a newer formula
+    using TEOS-10.
 
     :param temperature_c: Temperature in ITS-90 degrees C
     :param salinity_prac: Practical salinity in PSU
@@ -1246,16 +1246,12 @@ def buoyancy(
         I.E. uses the center scan and one scan on each side of it at the
         very least
     :param use_modern_formula: Whether to use a modern formula for
-        calculating N^2. Defaults to true.
+        calculating buoyancy frequency. Defaults to true.
     :param flag_value: Bad Flag value to use for marking bad scans.
         Defaults to -9.99e-29
 
-    :return: dataframe with 4 columns, one with each calculated
-        variable. The columns are as follows:
-            N2: buoyancy frequency squared,
-            N: buoyancy frequency,
-            E: stability,
-            E10^-8: scaled stability,
+    :return: a tuple of ndarrays including: buoyancy frequency squared,
+        buoyancy frequency, stability, and scaled stability
     """
 
     _salinity, _temperature, _pressure, _latitude, _longitude = np.broadcast_arrays(
@@ -1274,13 +1270,11 @@ def buoyancy(
     salinity_abs = gsw.SA_from_SP(_salinity, _pressure, _longitude, _latitude)
     temperature_conservative = gsw.CT_from_t(salinity_abs, _temperature, _pressure)
 
-    result = pd.DataFrame()
-
     # create our result np.ndarrays with the flag value as default
-    result["N2"] = np.full(len(_temperature), flag_value)
-    result["N"] = np.full(len(_temperature), flag_value)
-    result["E"] = np.full(len(_temperature), flag_value)
-    result["E10^-8"] = np.full(len(_temperature), flag_value)
+    buoyancy_freq_squared = np.full(len(_temperature), flag_value)
+    buoyancy_freq = np.full(len(_temperature), flag_value)
+    stability = np.full(len(_temperature), flag_value)
+    scaled_stability = np.full(len(_temperature), flag_value)
 
     # start loop at scans_per_side
     for i in range(scans_per_side, len(temperature_conservative) - scans_per_side):
@@ -1294,8 +1288,8 @@ def buoyancy(
         temperature_its_subset = _temperature[min_index:max_index]
         salinity_subset = salinity_abs[min_index:max_index]
 
-        pressure_bar = [np.mean(pressure_subset)]
-        gravity = gsw.grav([_latitude[i]], pressure_bar)[0]
+        mean_pressure = [np.mean(pressure_subset)]
+        gravity = gsw.grav([_latitude[i]], mean_pressure)[0]
 
         if use_modern_formula:
             salinity_subset = salinity_abs[min_index:max_index]
@@ -1308,12 +1302,12 @@ def buoyancy(
                 temperature_its_subset, salinity_subset, pressure_subset, gravity
             )
 
-        result.at[i, "N2"] = n2
+        buoyancy_freq_squared[i] = n2
         if n2 >= 0:
-            result.at[i, "N"] = math.sqrt(n2) * 3600 / (2 * np.pi)
+            buoyancy_freq[i] = math.sqrt(n2) * 3600 / (2 * np.pi)
         else:
-            result.at[i, "N"] = np.nan
-        result.at[i, "E"] = n2 / gravity
-        result.at[i, "E10^-8"] = result.at[i, "E"] * 1e8
+            buoyancy_freq[i] = np.nan
+        stability[i] = n2 / gravity
+        scaled_stability[i] = stability[i] * 1e8
 
-    return result
+    return (buoyancy_freq_squared, buoyancy_freq, stability, scaled_stability)
