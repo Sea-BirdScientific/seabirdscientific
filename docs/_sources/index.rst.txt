@@ -65,6 +65,7 @@ Theory
 ======
 
 :ref:`ctd_processing`: In depth descriptions of some of the algorithms used in processing.py.
+`CTD Processing (PDF) <_static/processing.pdf>`__
 
 .. Sidebar content
 
@@ -95,6 +96,4 @@ Theory
    Github <https://github.com/Sea-BirdScientific/seabirdscientific>
    PyPI <https://pypi.org/project/seabirdscientific>
 
-- `CTD Processing (PDF) <_static/processing.pdf>`__
-- :download:`Download <_static/processing.pdf>`
 
