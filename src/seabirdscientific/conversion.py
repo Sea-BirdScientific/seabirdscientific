@@ -1252,12 +1252,15 @@ def buoyancy(
 
     :return: dataframe with 4 columns, one with each calculated
         variable. The columns are as follows:
+            N2: buoyancy frequency squared,
+            N: buoyancy frequency,
+            E: stability,
+            E10^-8: scaled stability,
     """
 
     _salinity, _temperature, _pressure, _latitude, _longitude = np.broadcast_arrays(
         salinity, temperature, pressure, latitude, longitude
     )
-    # _pressure = _pressure.astype(np.double)
 
     # Get the original bin size that we're working with, using the
     # second and third bin so we don't have to worry about the surface
