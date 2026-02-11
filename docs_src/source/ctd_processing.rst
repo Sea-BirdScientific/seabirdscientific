@@ -3,8 +3,6 @@
 CTD Processing
 ##############
 
-:download:`Download PDF <_static/processing.pdf>`
-
 Low Pass Filter
 ***************
 
