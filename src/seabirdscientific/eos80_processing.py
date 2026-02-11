@@ -67,6 +67,8 @@ def adiabatic_temperature_gradient(
 ) -> np.ndarray:
     """Deprecated. Use eos80_conversion.adiabatic_temperature_gradient"""
 
-    warnings.warn("Deprecated. Use eos80_conversion.adiabatic_temperature_gradient", DeprecationWarning)
+    warnings.warn(
+        "Deprecated. Use eos80_conversion.adiabatic_temperature_gradient", DeprecationWarning
+    )
 
     return ec.adiabatic_temperature_gradient(s, t, p)
