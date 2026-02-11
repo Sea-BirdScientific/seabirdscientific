@@ -7,7 +7,6 @@ from typing import Literal
 # Third-party imports
 import gsw
 import numpy as np
-import pandas as pd
 import xarray as xr
 from numpy.polynomial import Polynomial
 from scipy import stats
