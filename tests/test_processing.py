@@ -231,11 +231,11 @@ class TestCellThermalMass:
 
 
 class TestLoopEdit:
-    def test_loop_edit_pressure_min_velocity_pass(self, request):
+    def test_loop_edit_pressure_min_velocity_pass(self):
         expected_data = si.read_cnv_file(test_data / "CAST0002_mod_filt_loop_min_v.cnv")
         data = si.read_cnv_file(test_data / "CAST0002_mod_filt.cnv")
 
-        sp.loop_edit_pressure(
+        result_flags = sp.loop_edit_pressure(
             pressure=data["prSM"].values,
             latitude=0,
             flag=data["flag"].values,
@@ -252,17 +252,7 @@ class TestLoopEdit:
         )
 
         expected_flags = expected_data["flag"].values
-        result_flags = data["flag"].values
-        mismatches = sum(expected_flags != result_flags)
-        comp = pd.DataFrame({"expected": expected_flags, "result": result_flags})
-        error_rows = []
-
-        for n, row in comp.iterrows():
-            if row["expected"] != row["result"]:
-                error_rows.append(n)
-
-        request.node.return_value = result_flags.tolist()
-        assert mismatches / len(result_flags) < 0.01
+        assert np.all(expected_flags == result_flags)
 
     def test_loop_edit_pressure_min_velocity_remove_soak_pass(self, request):
         expected_data = si.read_cnv_file(
@@ -270,7 +260,7 @@ class TestLoopEdit:
         )
         data = si.read_cnv_file(test_data / "CAST0002_mod_filt.cnv")
 
-        sp.loop_edit_pressure(
+        result_flags = sp.loop_edit_pressure(
             pressure=data["prSM"].values,
             latitude=0,
             flag=data["flag"].values,
@@ -287,23 +277,13 @@ class TestLoopEdit:
         )
 
         expected_flags = expected_data["flag"].values
-        result_flags = data["flag"].values
-        mismatches = sum(expected_flags != result_flags)
-        comp = pd.DataFrame({"expected": expected_flags, "result": result_flags})
-        error_rows = []
-
-        for n, row in comp.iterrows():
-            if row["expected"] != row["result"]:
-                error_rows.append(n)
-
-        request.node.return_value = result_flags.tolist()
-        assert mismatches / len(result_flags) < 0.01
+        assert np.all(expected_flags == result_flags)
 
     def test_loop_edit_pressure_min_velocity_reset_flags_pass(self, request):
         expected_data = si.read_cnv_file(test_data / "CAST0002_mod_filt_loop_min_v.cnv")
         data = si.read_cnv_file(test_data / "CAST0002_mod_filt_loop_min_v_remove_soak.cnv")
 
-        sp.loop_edit_pressure(
+        result_flags = sp.loop_edit_pressure(
             pressure=data["prSM"].values,
             latitude=0,
             flag=data["flag"].values,
@@ -320,17 +300,7 @@ class TestLoopEdit:
         )
 
         expected_flags = expected_data["flag"].values
-        result_flags = data["flag"].values
-        mismatches = sum(expected_flags != result_flags)
-        comp = pd.DataFrame({"expected": expected_flags, "result": result_flags})
-        error_rows = []
-
-        for n, row in comp.iterrows():
-            if row["expected"] != row["result"]:
-                error_rows.append(n)
-
-        request.node.return_value = result_flags.tolist()
-        assert mismatches / len(result_flags) < 0.01
+        assert np.all(expected_flags == result_flags)
 
     def test_loop_edit_pressure_min_velocity_exclude_flags_pass(self, request):
         expected_data = si.read_cnv_file(
@@ -340,7 +310,7 @@ class TestLoopEdit:
             test_data / "CAST0002_mod_filt_loop_min_v_exclude_flags_from_remove_soak.cnv"
         )
 
-        sp.loop_edit_pressure(
+        result_flags = sp.loop_edit_pressure(
             pressure=data["prSM"].values,
             latitude=0,
             flag=data["flag"].values,
@@ -357,17 +327,8 @@ class TestLoopEdit:
         )
 
         expected_flags = expected_data["flag"].values
-        result_flags = data["flag"].values
         mismatches = sum(expected_flags != result_flags)
-        comp = pd.DataFrame({"expected": expected_flags, "result": result_flags})
-        error_rows = []
-
-        for n, row in comp.iterrows():
-            if row["expected"] != row["result"]:
-                error_rows.append(n)
-
-        request.node.return_value = result_flags.tolist()
-        assert mismatches / len(result_flags) < 0.01
+        assert mismatches == 1
 
     def test_loop_edit_pressure_mean_speed_percent_remove_soak_pass(self, request):
         expected_data = si.read_cnv_file(
@@ -375,7 +336,7 @@ class TestLoopEdit:
         )
         data = si.read_cnv_file(test_data / "CAST0002_mod_filt.cnv")
 
-        sp.loop_edit_pressure(
+        result_flags = sp.loop_edit_pressure(
             pressure=data["prSM"].values,
             latitude=0,
             flag=data["flag"].values,
@@ -392,24 +353,15 @@ class TestLoopEdit:
         )
 
         expected_flags = expected_data["flag"].values
-        result_flags = data["flag"].values
         mismatches = sum(expected_flags != result_flags)
-        comp = pd.DataFrame({"expected": expected_flags, "result": result_flags})
-        error_rows = []
-
-        for n, row in comp.iterrows():
-            if row["expected"] != row["result"]:
-                error_rows.append(n)
-
-        request.node.return_value = result_flags.tolist()
         # Less than 2% mismatched flags, outliers appear to conform to spec.
-        assert mismatches / len(result_flags) < 0.02
+        assert mismatches == 8
 
     def test_loop_edit_pressure_mean_speed_percent_pass(self, request):
         expected_data = si.read_cnv_file(test_data / "CAST0002_mod_filt_loop_percent.cnv")
         data = si.read_cnv_file(test_data / "CAST0002_mod_filt.cnv")
 
-        sp.loop_edit_pressure(
+        result_flags = sp.loop_edit_pressure(
             pressure=data["prSM"].values,
             latitude=0,
             flag=data["flag"].values,
@@ -423,29 +375,20 @@ class TestLoopEdit:
             max_soak_depth=20,
             use_deck_pressure_offset=False,
             exclude_flags=False,
-        )
+        )[100:]
 
         # SeaSoft is including earliest samples as local maxima during the first
         # downcast which would be discarded when requiring a minimum soak depth
         expected_flags = expected_data["flag"].values[100:]
-        result_flags = data["flag"].values[100:]
         mismatches = sum(expected_flags != result_flags)
-        comp = pd.DataFrame({"expected": expected_flags, "result": result_flags})
-        error_rows = []
-
-        for n, row in comp.iterrows():
-            if row["expected"] != row["result"]:
-                error_rows.append(n)
-
-        request.node.return_value = result_flags.tolist()
         # Less than 2% mismatched flags, outliers appear to conform to spec.
-        assert mismatches / len(result_flags) < 0.02
+        assert mismatches == 6
 
     def test_loop_edit_pressure_min_velocity_pass_2(self, request):
         expected_data = si.read_cnv_file(test_data / "SBE19plus_loop_edit.cnv")
         data = si.read_cnv_file(test_data / "SBE19plus.cnv")
 
-        sp.loop_edit_pressure(
+        result_flags = sp.loop_edit_pressure(
             pressure=data["prdM"].values,
             latitude=0,
             flag=data["flag"].values,
@@ -459,23 +402,14 @@ class TestLoopEdit:
             max_soak_depth=20,
             use_deck_pressure_offset=True,
             exclude_flags=True,
-        )
+        )[100:]
 
         # SeaSoft is including earliest samples as local maxima during the first
         # downcast which would be discarded when requiring a minimum soak depth
         expected_flags = expected_data["flag"].values[100:]
-        result_flags = data["flag"].values[100:]
         mismatches = sum(expected_flags != result_flags)
-        comp = pd.DataFrame({"expected": expected_flags, "result": result_flags})
-        error_rows = []
-
-        for n, row in comp.iterrows():
-            if row["expected"] != row["result"]:
-                error_rows.append(n)
-
-        request.node.return_value = result_flags.tolist()
         # Less than 2% mismatched flags, outliers appear to conform to spec.
-        assert mismatches / len(result_flags) < 0.02
+        assert mismatches == 2
 
 
 class TestBinAverage:
