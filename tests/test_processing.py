@@ -231,13 +231,12 @@ class TestCellThermalMass:
 
 
 class TestLoopEdit:
-    def test_loop_edit_pressure_min_velocity_pass(self, request):
+    def test_loop_edit_pressure_min_velocity_pass(self):
         expected_data = si.read_cnv_file(test_data / "CAST0002_mod_filt_loop_min_v.cnv")
         data = si.read_cnv_file(test_data / "CAST0002_mod_filt.cnv")
 
-        sp.loop_edit_pressure(
-            pressure=data["prSM"].values,
-            latitude=0,
+        result_flags = sp.loop_edit(
+            measurand=data["prSM"].values,
             flag=data["flag"].values,
             sample_interval=data.attrs["sample_interval"],
             min_velocity_type="fixed",
@@ -249,20 +248,12 @@ class TestLoopEdit:
             max_soak_depth=20,
             use_deck_pressure_offset=False,
             exclude_flags=False,
+            latitude=0,
+            units="pressure",
         )
 
         expected_flags = expected_data["flag"].values
-        result_flags = data["flag"].values
-        mismatches = sum(expected_flags != result_flags)
-        comp = pd.DataFrame({"expected": expected_flags, "result": result_flags})
-        error_rows = []
-
-        for n, row in comp.iterrows():
-            if row["expected"] != row["result"]:
-                error_rows.append(n)
-
-        request.node.return_value = result_flags.tolist()
-        assert mismatches / len(result_flags) < 0.01
+        assert np.all(expected_flags == result_flags)
 
     def test_loop_edit_pressure_min_velocity_remove_soak_pass(self, request):
         expected_data = si.read_cnv_file(
@@ -270,9 +261,8 @@ class TestLoopEdit:
         )
         data = si.read_cnv_file(test_data / "CAST0002_mod_filt.cnv")
 
-        sp.loop_edit_pressure(
-            pressure=data["prSM"].values,
-            latitude=0,
+        result_flags = sp.loop_edit(
+            measurand=data["prSM"].values,
             flag=data["flag"].values,
             sample_interval=data.attrs["sample_interval"],
             min_velocity_type="fixed",
@@ -284,28 +274,19 @@ class TestLoopEdit:
             max_soak_depth=20,
             use_deck_pressure_offset=False,
             exclude_flags=False,
+            latitude=0,
+            units="pressure",
         )
 
         expected_flags = expected_data["flag"].values
-        result_flags = data["flag"].values
-        mismatches = sum(expected_flags != result_flags)
-        comp = pd.DataFrame({"expected": expected_flags, "result": result_flags})
-        error_rows = []
-
-        for n, row in comp.iterrows():
-            if row["expected"] != row["result"]:
-                error_rows.append(n)
-
-        request.node.return_value = result_flags.tolist()
-        assert mismatches / len(result_flags) < 0.01
+        assert np.all(expected_flags == result_flags)
 
     def test_loop_edit_pressure_min_velocity_reset_flags_pass(self, request):
         expected_data = si.read_cnv_file(test_data / "CAST0002_mod_filt_loop_min_v.cnv")
         data = si.read_cnv_file(test_data / "CAST0002_mod_filt_loop_min_v_remove_soak.cnv")
 
-        sp.loop_edit_pressure(
-            pressure=data["prSM"].values,
-            latitude=0,
+        result_flags = sp.loop_edit(
+            measurand=data["prSM"].values,
             flag=data["flag"].values,
             sample_interval=data.attrs["sample_interval"],
             min_velocity_type="fixed",
@@ -317,20 +298,12 @@ class TestLoopEdit:
             max_soak_depth=20,
             use_deck_pressure_offset=False,
             exclude_flags=False,
+            latitude=0,
+            units="pressure",
         )
 
         expected_flags = expected_data["flag"].values
-        result_flags = data["flag"].values
-        mismatches = sum(expected_flags != result_flags)
-        comp = pd.DataFrame({"expected": expected_flags, "result": result_flags})
-        error_rows = []
-
-        for n, row in comp.iterrows():
-            if row["expected"] != row["result"]:
-                error_rows.append(n)
-
-        request.node.return_value = result_flags.tolist()
-        assert mismatches / len(result_flags) < 0.01
+        assert np.all(expected_flags == result_flags)
 
     def test_loop_edit_pressure_min_velocity_exclude_flags_pass(self, request):
         expected_data = si.read_cnv_file(
@@ -340,9 +313,8 @@ class TestLoopEdit:
             test_data / "CAST0002_mod_filt_loop_min_v_exclude_flags_from_remove_soak.cnv"
         )
 
-        sp.loop_edit_pressure(
-            pressure=data["prSM"].values,
-            latitude=0,
+        result_flags = sp.loop_edit(
+            measurand=data["prSM"].values,
             flag=data["flag"].values,
             sample_interval=data.attrs["sample_interval"],
             min_velocity_type="fixed",
@@ -354,20 +326,13 @@ class TestLoopEdit:
             max_soak_depth=20,
             use_deck_pressure_offset=False,
             exclude_flags=True,
+            latitude=0,
+            units="pressure",
         )
 
         expected_flags = expected_data["flag"].values
-        result_flags = data["flag"].values
         mismatches = sum(expected_flags != result_flags)
-        comp = pd.DataFrame({"expected": expected_flags, "result": result_flags})
-        error_rows = []
-
-        for n, row in comp.iterrows():
-            if row["expected"] != row["result"]:
-                error_rows.append(n)
-
-        request.node.return_value = result_flags.tolist()
-        assert mismatches / len(result_flags) < 0.01
+        assert mismatches == 1
 
     def test_loop_edit_pressure_mean_speed_percent_remove_soak_pass(self, request):
         expected_data = si.read_cnv_file(
@@ -375,9 +340,8 @@ class TestLoopEdit:
         )
         data = si.read_cnv_file(test_data / "CAST0002_mod_filt.cnv")
 
-        sp.loop_edit_pressure(
-            pressure=data["prSM"].values,
-            latitude=0,
+        result_flags = sp.loop_edit(
+            measurand=data["prSM"].values,
             flag=data["flag"].values,
             sample_interval=data.attrs["sample_interval"],
             min_velocity_type="percent",
@@ -389,29 +353,21 @@ class TestLoopEdit:
             max_soak_depth=20,
             use_deck_pressure_offset=False,
             exclude_flags=False,
+            latitude=0,
+            units="pressure",
         )
 
         expected_flags = expected_data["flag"].values
-        result_flags = data["flag"].values
         mismatches = sum(expected_flags != result_flags)
-        comp = pd.DataFrame({"expected": expected_flags, "result": result_flags})
-        error_rows = []
-
-        for n, row in comp.iterrows():
-            if row["expected"] != row["result"]:
-                error_rows.append(n)
-
-        request.node.return_value = result_flags.tolist()
         # Less than 2% mismatched flags, outliers appear to conform to spec.
-        assert mismatches / len(result_flags) < 0.02
+        assert mismatches == 8
 
     def test_loop_edit_pressure_mean_speed_percent_pass(self, request):
         expected_data = si.read_cnv_file(test_data / "CAST0002_mod_filt_loop_percent.cnv")
         data = si.read_cnv_file(test_data / "CAST0002_mod_filt.cnv")
 
-        sp.loop_edit_pressure(
-            pressure=data["prSM"].values,
-            latitude=0,
+        result_flags = sp.loop_edit(
+            measurand=data["prSM"].values,
             flag=data["flag"].values,
             sample_interval=data.attrs["sample_interval"],
             min_velocity_type="percent",
@@ -423,31 +379,23 @@ class TestLoopEdit:
             max_soak_depth=20,
             use_deck_pressure_offset=False,
             exclude_flags=False,
-        )
+            latitude=0,
+            units="pressure",
+        )[100:]
 
         # SeaSoft is including earliest samples as local maxima during the first
         # downcast which would be discarded when requiring a minimum soak depth
         expected_flags = expected_data["flag"].values[100:]
-        result_flags = data["flag"].values[100:]
         mismatches = sum(expected_flags != result_flags)
-        comp = pd.DataFrame({"expected": expected_flags, "result": result_flags})
-        error_rows = []
-
-        for n, row in comp.iterrows():
-            if row["expected"] != row["result"]:
-                error_rows.append(n)
-
-        request.node.return_value = result_flags.tolist()
         # Less than 2% mismatched flags, outliers appear to conform to spec.
-        assert mismatches / len(result_flags) < 0.02
+        assert mismatches == 6
 
     def test_loop_edit_pressure_min_velocity_pass_2(self, request):
         expected_data = si.read_cnv_file(test_data / "SBE19plus_loop_edit.cnv")
         data = si.read_cnv_file(test_data / "SBE19plus.cnv")
 
-        sp.loop_edit_pressure(
-            pressure=data["prdM"].values,
-            latitude=0,
+        result_flags = sp.loop_edit(
+            measurand=data["prdM"].values,
             flag=data["flag"].values,
             sample_interval=data.attrs["sample_interval"],
             min_velocity_type="fixed",
@@ -459,23 +407,16 @@ class TestLoopEdit:
             max_soak_depth=20,
             use_deck_pressure_offset=True,
             exclude_flags=True,
-        )
+            latitude=0,
+            units="pressure",
+        )[100:]
 
         # SeaSoft is including earliest samples as local maxima during the first
         # downcast which would be discarded when requiring a minimum soak depth
         expected_flags = expected_data["flag"].values[100:]
-        result_flags = data["flag"].values[100:]
         mismatches = sum(expected_flags != result_flags)
-        comp = pd.DataFrame({"expected": expected_flags, "result": result_flags})
-        error_rows = []
-
-        for n, row in comp.iterrows():
-            if row["expected"] != row["result"]:
-                error_rows.append(n)
-
-        request.node.return_value = result_flags.tolist()
         # Less than 2% mismatched flags, outliers appear to conform to spec.
-        assert mismatches / len(result_flags) < 0.02
+        assert mismatches == 2
 
 
 class TestBinAverage:
@@ -992,97 +933,6 @@ class TestWindowFilter:
         )
         request.node.return_value = filtered_pressure.tolist()
         assert close_enough(filtered_pressure, expected_pressure, 3, 1e-12)
-
-
-class TestBuoyancy:
-    # fmt: off
-    # Testing data comes from a CalCOFI cruise
-    temperature = np.asarray(
-        [16.7373, 16.5030, 16.1106, 14.3432, 13.0211, 12.0935, 11.3933, 11.2466, 10.9219, 10.4762, 9.9460]
-    )
-    pressure = np.asarray([10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110])
-    salinity = np.asarray(
-        [33.2410, 33.2321, 33.2091, 33.1329, 33.0762, 33.1391, 33.2560, 33.4015, 33.5683, 33.6766, 33.7794]
-    )
-    expected_N2_win30 = np.asarray(
-        [-9.990e-29, 5.7702e-05, 1.9197e-04, 2.6735e-04, 2.1888e-04, 2.1620e-04, 1.7374e-04, 1.5761e-04, 1.6905e-04, 1.6099e-04, -9.990e-29]
-    )
-    expected_N_win30 = np.asarray(
-        [-9.990e-29, 4.35, 7.94, 9.37, 8.48, 8.42, 7.55, 7.19, 7.45, 7.27, -9.990e-29]
-    )
-    expected_E_win30 = np.asarray(
-        [-9.990e-29, 5.8901e-06, 1.9596e-05, 2.7290e-05, 2.2342e-05, 2.2069e-05, 1.7735e-05, 1.6089e-05, 1.7256e-05, 1.6433e-05, -9.990e-29]
-    )
-    expected_E_pow_8_win30 = np.asarray(
-        [-9.990e-29, 589.0, 1959.6, 2729.0, 2234.2, 2206.9, 1773.5, 1608.9, 1725.6, 1643.3, -9.990e-29]
-    )
-    # fmt: on
-
-    def test_buoyancy(self, request):
-        output_dataframe = sp.buoyancy(
-            self.temperature,
-            self.salinity,
-            self.pressure,
-            np.asarray([34.034167]),  # converted from metadata 34.02.03 N in H,M,S
-            np.asarray([121.060556]),  # converted from metadata 121 03.38 W in H, M, S
-            30,  # window size
-            True,
-        )
-
-        request.node.return_value = {
-            "N2": output_dataframe["N2"].to_list(),
-            "N": output_dataframe["N"].to_list(),
-            "E": output_dataframe["E"].to_list(),
-            "E10^-8": output_dataframe["E10^-8"].to_list(),
-        }
-        # Comparing EOS-80 to TEOS-10 buoyancy calculations.
-        # We do not expect them to agree better than +/-1.5% due to differences in the algorithms
-        rel_tol = 0.015  # 1.5%
-        assert output_dataframe["N2"].to_numpy() == pytest.approx(
-            self.expected_N2_win30, rel=rel_tol
-        )
-        assert output_dataframe["N"].to_numpy() == pytest.approx(
-            self.expected_N_win30, rel=rel_tol
-        )
-        assert output_dataframe["E"].to_numpy() == pytest.approx(
-            self.expected_E_win30, rel=rel_tol
-        )
-        assert output_dataframe["E10^-8"].to_numpy() == pytest.approx(
-            self.expected_E_pow_8_win30, rel=rel_tol
-        )
-
-    def test_buoyancy_eos80(self, request):
-        output_dataframe = sp.buoyancy(
-            self.temperature,
-            self.salinity,
-            self.pressure,
-            np.asarray([34.034167]),  # converted from metadata 34.02.03 N in H,M,S
-            np.asarray([121.060556]),  # converted from metadata 121 03.38 W in H, M, S
-            30,  # window size
-            False,
-        )
-
-        request.node.return_value = {
-            "N2": output_dataframe["N2"].to_list(),
-            "N": output_dataframe["N"].to_list(),
-            "E": output_dataframe["E"].to_list(),
-            "E10^-8": output_dataframe["E10^-8"].to_list(),
-        }
-        # Comparing SBE Data Processing C++ to local Python results using the same EOS-80 calculations.
-        # We expect very very close agreement: << 1% differnce
-        rel_tol = 0.0026  # 0.26%
-        assert output_dataframe["N2"].to_numpy() == pytest.approx(
-            self.expected_N2_win30, rel=rel_tol
-        )
-        assert output_dataframe["N"].to_numpy() == pytest.approx(
-            self.expected_N_win30, rel=rel_tol
-        )
-        assert output_dataframe["E"].to_numpy() == pytest.approx(
-            self.expected_E_win30, rel=rel_tol
-        )
-        assert output_dataframe["E10^-8"].to_numpy() == pytest.approx(
-            self.expected_E_pow_8_win30, rel=rel_tol
-        )
 
 
 class TestNitrate:

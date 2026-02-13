@@ -1,24 +1,19 @@
 """Functions for processing converted SBS instrument data."""
 
 # Native imports
-import math
 import warnings
 from enum import Enum
 from logging import getLogger
 from typing import Literal
 
 # Third-party imports
-import gsw
 import numpy as np
 import pandas as pd
 import xarray as xr
-from scipy import signal, stats
+from scipy import signal
 
 # Sea-Bird imports
-
-# Internal imports
-from seabirdscientific.conversion import depth_from_pressure
-from seabirdscientific import eos80_processing as eos80
+from seabirdscientific import conversion as c
 
 
 logger = getLogger(__name__)
@@ -184,37 +179,11 @@ def loop_edit_pressure(
     exclude_flags: bool,
     flag_value=FLAG_VALUE,
 ) -> np.ndarray:
-    """Variation of loop_edit_depth that derives depth from pressure
-    and latitude.
+    """Deprecated. Use loop_edit"""
 
-    :param pressure: A pressure array in dbar
-    :param latitude: A single latitude value where the cast occurred
-    :param flag: Array of flag values. The flag for a good value is 0.0.
-        The flag for a detected loop value defaults to -9.99e-29
-    :param sample_interval: Time interval between samples in seconds
-    :param min_velocity_type: Sets whether flags are based on min
-        velocity or a percentage of mean speed
-    :param min_velocity: The minimum velocity for data to be considered
-        good
-    :param window_size: Time interval to include in mean speed
-        calculation
-    :param mean_speed_percent: Percentage of mean speed for data to be
-        considered good
-    :param remove_surface_soak: If true, data that occur before the
-        minimum soak depth is reached are marked as bad
-    :param min_soak_depth: The depth that must be reached before data
-        can be considered good
-    :param max_soak_depth: The maximum depth that can be considered the
-        start of a downcast
-    :param use_deck_pressure_offset: If true, min and max soak depths
-        are offset by the first value in the depth array
-    :param exclude_flags: If true, existing bad flags are preserved
-    :param flag_value: Passing is 0.0, failing defaults to -9.99e-29.
+    warnings.warn("Deprecated. Use loop_edit", DeprecationWarning)
 
-    :return: the input data with updated flags
-    """
-
-    depth = depth_from_pressure(pressure, latitude)
+    depth = c.depth_from_pressure(pressure, latitude)
     return loop_edit_depth(
         depth,
         flag,
@@ -247,14 +216,53 @@ def loop_edit_depth(
     exclude_flags: bool,
     flag_value=FLAG_VALUE,
 ) -> np.ndarray:
+    """Deprecated. Use loop_edit"""
+
+    warnings.warn("Deprecated. Use loop_edit", DeprecationWarning)
+
+    return loop_edit(
+        depth,
+        flag,
+        sample_interval,
+        min_velocity_type,
+        min_velocity,
+        window_size,
+        mean_speed_percent,
+        remove_surface_soak,
+        min_soak_depth,
+        max_soak_depth,
+        use_deck_pressure_offset,
+        exclude_flags,
+        flag_value,
+        units="depth"
+    )
+
+
+def loop_edit(
+    measurand: np.ndarray,
+    flag: np.ndarray,
+    sample_interval: float,
+    min_velocity_type: Literal["fixed", "percent"] = "fixed",
+    min_velocity: float = 0.25,
+    window_size: float = 300,
+    mean_speed_percent: float = 20,
+    remove_surface_soak: bool = True,
+    min_soak_depth: float = 5,
+    max_soak_depth: float = 20,
+    use_deck_pressure_offset: bool = True,
+    exclude_flags: bool = True,
+    flag_value=FLAG_VALUE,
+    latitude: float = 0,
+    units: Literal["depth", "pressure"] = "depth"
+) -> np.ndarray:
     """Marks scans determined to be part of a pressure loop as bad.
 
     Loop Edit marks scans bad by setting the flag value associated with
     the scan to badflag in data that has pressure slowdowns or reversals
     (typically caused by ship heave).
 
-    :param depth: Salt water depth as an array of positive numbers.
-        Colloquially used interchangeably with pressure in dbar
+    :param measurand: Salt water depth or pressure as an array of
+        positive numbers
     :param flag: Array of flag values. The flag for a good value is 0.0.
         The flag for a detected loop value defaults to -9.99e-29
     :param sample_interval: Time interval between samples in seconds
@@ -284,15 +292,22 @@ def loop_edit_depth(
     if isinstance(min_velocity_type, MinVelocityType):
         warnings.warn("MinVelocityType Enum is deprecated, use Literals", DeprecationWarning)
 
+    if units == "pressure":
+        depth = c.depth_from_pressure(measurand, latitude)
+    else:
+        depth = measurand.copy()
+    
+    _flag = flag.copy()
+
     if not exclude_flags:
-        flag[:] = 0.0
+        _flag[:] = 0.0
 
     if use_deck_pressure_offset:
         min_soak_depth -= depth[0]
         max_soak_depth -= depth[0]
 
     (min_depth_n, max_depth_n) = _find_depth_peaks(
-        depth, flag, remove_surface_soak, flag_value, min_soak_depth, max_soak_depth
+        depth, _flag, remove_surface_soak, flag_value, min_soak_depth, max_soak_depth
     )
 
     if min_velocity_type in ["fixed", MinVelocityType.FIXED]:
@@ -328,14 +343,11 @@ def loop_edit_depth(
     else:
         raise ValueError
 
-    flag[~downcast_mask & ~upcast_mask] = flag_value
+    _flag[~downcast_mask & ~upcast_mask] = flag_value
 
-    _flag_by_minima_maxima(depth, flag, min_depth_n, max_depth_n, flag_value)
+    _flag_by_minima_maxima(depth, _flag, min_depth_n, max_depth_n, flag_value)
 
-    cast = np.array([0 for _ in range(len(flag))])
-    cast[downcast_mask] = -1
-    cast[upcast_mask] = 1
-    return cast  # TODO: refactor to handle cast and flag in seperate functions
+    return _flag
 
 
 def _find_depth_peaks(
@@ -953,181 +965,44 @@ def window_filter(
 
 
 def bouyancy_frequency(
-    temperature: np.ndarray,
-    salinity: np.ndarray,
-    pressure: np.ndarray,
-    gravity: float,
-    temp_conservative_subset: np.ndarray = None,  # Deprecated
-    salinity_abs_subset: np.ndarray = None,  # Deprecated
-    pressure_dbar_subset: np.ndarray = None,  # Deprecated
+    temp_conservative_subset: np.ndarray = None,
+    salinity_abs_subset: np.ndarray = None,
+    pressure_dbar_subset: np.ndarray = None,
+    gravity: float = 0,
 ):
-    """Calculates an N^2 value (buoyancy frequency) for the given window
-    of temperature, salinity, and pressure, at the given latitude.
+    """Deprecated. Use conversion.buoyancy_frequency"""
 
-    Expect temperature as conservative temperature, salinity as abslute
-    salinity, and pressure as dbar, all of the same length. Performs the
-    calculation using TEOS-10 and specific volume.
+    warnings.warn("Deprecated. Use conversion.buoyancy_frequency", DeprecationWarning)
 
-    :param temperature: temperature values for the given window
-    :param salinity: salinity values for the given window
-    :param pressure: pressure values for the given window
-    :param gravity: gravity value
-
-    :return: A single N^2 [Brunt-Väisälä (buoyancy) frequency]
-    """
-
-    if temp_conservative_subset is not None:
-        warnings.warn("Deprecated, use temperature", DeprecationWarning)
-        temperature = temp_conservative_subset
-
-    if salinity_abs_subset is not None:
-        warnings.warn("Deprecated, use temperature", DeprecationWarning)
-        salinity = salinity_abs_subset
-
-    if pressure_dbar_subset is not None:
-        warnings.warn("Deprecated, use temperature", DeprecationWarning)
-        pressure = pressure_dbar_subset
-
-    db_to_pa = 1e4
-    # Wrap these as a length-1 array so that GSW accepts them
-    pressure_bar = [np.mean(pressure)]
-    temperature_bar = [np.mean(temperature)]
-    salinity_bar = [np.mean(salinity)]
-
-    # Compute average specific volume, temp expansion ceoff,
-    # and saline contraction coeff over window
-    (v_bar, alpha_bar, beta_bar) = gsw.specvol_alpha_beta(
-        salinity_bar, temperature_bar, pressure_bar
+    return c.buoyancy_frequency(
+        temp_conservative_subset, salinity_abs_subset, pressure_dbar_subset, gravity
     )
-
-    # Estimate vertical gradient of conservative temp
-    dct_dp = stats.linregress(pressure, temperature)
-    # TODO: error handling with r, p, std_error
-
-    # Estimate vertical gradient of absolute salinity
-    dsa_dp = stats.linregress(pressure, salinity)
-    # TODO: error handling with r, p, std_error
-
-    # Compute N2 combining computed ceofficients and vertical gradients.
-    # we index into v_bar, alpha_bar, and beta_bar as they are all arrays of len 1
-    n2 = gravity**2 / (v_bar[0] * db_to_pa)
-    n2 *= beta_bar[0] * dsa_dp.slope - alpha_bar[0] * dct_dp.slope
-    return n2
 
 
 def buoyancy(
-    temperature: np.ndarray = [],
-    salinity: np.ndarray = [],
-    pressure: np.ndarray = [],
+    temperature_c: np.ndarray,
+    salinity_prac: np.ndarray,
+    pressure_dbar: np.ndarray,
     latitude: np.ndarray = 0,
     longitude: np.ndarray = 0,
     window_size: float = 11,
     use_modern_formula=True,
     flag_value=FLAG_VALUE,
-    temperature_c: np.ndarray = None,  # Deprecated
-    salinity_prac: np.ndarray = None,  # Deprecated
-    pressure_dbar: np.ndarray = None,  # Deprecated
 ):
-    """Calculates the 4 buoyancy values based off the incoming data.
+    """Deprecated. Use conversion.buoyancy"""
 
-    Data is expected to have already been binned via Bin_Average using
-    decibar pressure bins. All arrays are expected to be the same
-    length, except for latitude and longitude, which can be length 1.
-    Optionally can use the former calculation for N^2 from the SBE Data
-    Processing Manual, but defaults to a newer formula using TEOS-10.
+    warnings.warn("Deprecated. Use conversion.buoyancy", DeprecationWarning)
 
-    :param temperature_c: Temperature in ITS-90 degrees C
-    :param salinity_prac: Practical salinity in PSU
-    :param pressure_dbar: Pressure in dbar
-    :param latitude: latitude values. If length 1, gets applied to all
-        values.
-    :param longitude: longitude values. If length 1, gets applied to all
-        values.
-    :param window_size: window size to use. If this number is smaller
-        than the binned window size, round up to a minium of 3 scans.
-        I.E. uses the center scan and one scan on each side of it at the
-        very least
-    :param use_modern_formula: Whether to use a modern formula for
-        calculating N^2. Defaults to true.
-    :param flag_value: Bad Flag value to use for marking bad scans.
-        Defaults to -9.99e-29
-
-    :return: dataframe with 4 columns, one with each calculated
-        variable. The columns are as follows:
-    """
-
-    if temperature_c is not None:
-        warnings.warn("Deprecated, use temperature", DeprecationWarning)
-        temperature = temperature_c
-
-    if salinity_prac is not None:
-        warnings.warn("Deprecated, use temperature", DeprecationWarning)
-        salinity = salinity_prac
-
-    if pressure_dbar is not None:
-        warnings.warn("Deprecated, use temperature", DeprecationWarning)
-        pressure = pressure_dbar
-
-    _salinity, _temperature, _pressure, _latitude, _longitude = np.broadcast_arrays(
-        salinity, temperature, pressure, latitude, longitude
+    return c.buoyancy(
+        temperature_c,
+        salinity_prac,
+        pressure_dbar,
+        latitude,
+        longitude,
+        window_size,
+        use_modern_formula,
+        flag_value,
     )
-    _pressure = _pressure.astype(np.double)
-
-    # Get the original bin size that we're working with, using the
-    # second and third bin so we don't have to worry about the surface
-    # bin
-    original_bin_size = abs(_pressure[2] - _pressure[1])
-
-    # Calculates how many scans to have on either side of our median
-    # point, but need at least 1 (for a total of 3 scans)
-    scans_per_side = max(math.floor(window_size / original_bin_size / 2), 1)
-
-    salinity_abs = gsw.SA_from_SP(_salinity, _pressure, _longitude, _latitude)
-    temperature_conservative = gsw.CT_from_t(salinity_abs, _temperature, _pressure)
-
-    result = pd.DataFrame()
-
-    # create our result np.ndarrays with the flag value as default
-    result["N2"] = np.full(len(_temperature), flag_value)
-    result["N"] = np.full(len(_temperature), flag_value)
-    result["E"] = np.full(len(_temperature), flag_value)
-    result["E10^-8"] = np.full(len(_temperature), flag_value)
-
-    # start loop at scans_per_side
-    for i in range(scans_per_side, len(temperature_conservative) - scans_per_side):
-        min_index = i - scans_per_side
-        max_index = (
-            i + scans_per_side + 1
-        )  # add + 1 because slicing does not include the max_index
-
-        pressure_subset = _pressure[min_index:max_index]
-        temperature_cons_subset = temperature_conservative[min_index:max_index]
-        temperature_its_subset = _temperature[min_index:max_index]
-        salinity_subset = salinity_abs[min_index:max_index]
-
-        pressure_bar = [np.mean(pressure_subset)]
-        gravity = gsw.grav([_latitude[i]], pressure_bar)[0]
-
-        if use_modern_formula:
-            salinity_subset = salinity_abs[min_index:max_index]
-            n2 = bouyancy_frequency(
-                temperature_cons_subset, salinity_subset, pressure_subset, gravity
-            )
-        else:
-            salinity_subset = _salinity[min_index:max_index]
-            n2 = eos80.bouyancy_frequency(
-                temperature_its_subset, salinity_subset, pressure_subset, gravity
-            )
-
-        result.at[i, "N2"] = n2
-        if n2 >= 0:
-            result.at[i, "N"] = math.sqrt(n2) * 3600 / (2 * np.pi)
-        else:
-            result.at[i, "N"] = np.nan
-        result.at[i, "E"] = n2 / gravity
-        result.at[i, "E10^-8"] = result.at[i, "E"] * 1e8
-
-    return result
 
 
 def _get_downcast_mask(
