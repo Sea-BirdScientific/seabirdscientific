@@ -196,7 +196,15 @@
   <input type="hidden" name="area" value="default">
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
-  <p class="caption" role="heading"><span class="caption-text">Source</span></p>
+  <p class="caption" role="heading"><span class="caption-text">Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="migration_guide.html">Migration Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Theory</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ctd_processing.html">CTD Processing</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Source</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="cal_coefficients.html">cal_coefficients.py</a></li>
 <li class="toctree-l1"><a class="reference internal" href="contour.html">contour.py</a></li>
@@ -207,10 +215,6 @@
 <li class="toctree-l1"><a class="reference internal" href="processing.html">processing.py</a></li>
 <li class="toctree-l1"><a class="reference internal" href="utils.html">utils.py</a></li>
 <li class="toctree-l1"><a class="reference internal" href="visualization.html">visualization.py</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Theory</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="ctd_processing.html">CTD Processing</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Links</span></p>
 <ul>
@@ -260,25 +264,12 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="seabirdscientific.eos80_processing.adiabatic_temperature_gradient">
 <span class="sig-prename descclassname"><span class="pre">seabirdscientific.eos80_processing.</span></span><span class="sig-name descname"><span class="pre">adiabatic_temperature_gradient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#seabirdscientific.eos80_processing.adiabatic_temperature_gradient" title="Link to this definition"><span>#</span></a></dt>
-<dd><p>EOS-80 adiabatic lapse rate calculation.</p>
-<p>This was ported from CSharedCalc::ATG()</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>s</strong> – salinity data</p></li>
-<li><p><strong>t</strong> – temperature data</p></li>
-<li><p><strong>p</strong> – pressure data</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>the resulting adiabatic lapse rate</p>
-</dd>
-</dl>
+<dd><p>Deprecated. Use eos80_conversion.adiabatic_temperature_gradient</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="seabirdscientific.eos80_processing.bouyancy_frequency">
-<span class="sig-prename descclassname"><span class="pre">seabirdscientific.eos80_processing.</span></span><span class="sig-name descname"><span class="pre">bouyancy_frequency</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">temperature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">salinity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pressure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gravity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temp_ITS_subset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">salinity_prac_subset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pressure_dbar_subset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seabirdscientific.eos80_processing.bouyancy_frequency" title="Link to this definition"><span>#</span></a></dt>
+<span class="sig-prename descclassname"><span class="pre">seabirdscientific.eos80_processing.</span></span><span class="sig-name descname"><span class="pre">bouyancy_frequency</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">temp_ITS_subset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">salinity_prac_subset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pressure_dbar_subset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gravity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seabirdscientific.eos80_processing.bouyancy_frequency" title="Link to this definition"><span>#</span></a></dt>
 <dd><p>Calculates an N^2 value (buoyancy frequency) for the given window
 of temperature, salinity, and pressure, at the given latitude.</p>
 <p>Expects temperature as ITS-90 temperature, salinity as practical
@@ -302,41 +293,14 @@ calculations for potential temp and density</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="seabirdscientific.eos80_processing.density">
-<span class="sig-prename descclassname"><span class="pre">seabirdscientific.eos80_processing.</span></span><span class="sig-name descname"><span class="pre">density</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">salinity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pressure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s0</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p0</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#seabirdscientific.eos80_processing.density" title="Link to this definition"><span>#</span></a></dt>
-<dd><p>EOS-80 density calculation.</p>
-<p>This was ported from CSharedCalc::Density()</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>salinity</strong> – salinity data</p></li>
-<li><p><strong>temperature</strong> – temperature data</p></li>
-<li><p><strong>pressure</strong> – pressure data</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>resulting density data</p>
-</dd>
-</dl>
+<span class="sig-prename descclassname"><span class="pre">seabirdscientific.eos80_processing.</span></span><span class="sig-name descname"><span class="pre">density</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s0</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p0</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#seabirdscientific.eos80_processing.density" title="Link to this definition"><span>#</span></a></dt>
+<dd><p>Deprecated. Use eos80_conversion.density</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="seabirdscientific.eos80_processing.potential_temperature">
 <span class="sig-prename descclassname"><span class="pre">seabirdscientific.eos80_processing.</span></span><span class="sig-name descname"><span class="pre">potential_temperature</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t0</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p0</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#seabirdscientific.eos80_processing.potential_temperature" title="Link to this definition"><span>#</span></a></dt>
-<dd><p>EOS-80 potential temperature calculation.</p>
-<p>This was ported from CSharedCalc::PoTemp()</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>s</strong> – sainity data</p></li>
-<li><p><strong>t0</strong> – temperature data</p></li>
-<li><p><strong>p0</strong> – subset pressure data</p></li>
-<li><p><strong>pr</strong> – pressure data</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>calculated potential temperature data</p>
-</dd>
-</dl>
+<dd><p>Deprecated. Use eos80_conversion.potential_temperature</p>
 </dd></dl>
 
 </section>

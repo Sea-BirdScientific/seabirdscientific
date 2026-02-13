@@ -40,6 +40,16 @@ Example Usage:
 Contents
 ********
 
+Guides
+======
+
+:ref:`migration_guide`: How to address breaking changes when migrating from v2.7.3 -> v3.0.0
+
+Theory
+======
+
+:ref:`ctd_processing`: In depth descriptions of some of the algorithms used in processing.py.
+
 Source
 ======
 
@@ -61,13 +71,19 @@ Source
 
 :ref:`visualization`: Functions for generating Plotly charts from Sea-Bird data.
 
-Theory
-======
-
-:ref:`ctd_processing`: In depth descriptions of some of the algorithms used in processing.py.
-`CTD Processing (PDF) <_static/processing.pdf>`__
-
 .. Sidebar content
+
+.. toctree::
+   :caption: Guides
+   :hidden:
+
+   migration_guide
+
+.. toctree::
+   :caption: Theory
+   :hidden:
+
+   ctd_processing
 
 .. toctree::
    :caption: Source
@@ -82,12 +98,6 @@ Theory
    processing
    utils
    visualization
-
-.. toctree::
-   :caption: Theory
-   :hidden:
-
-   ctd_processing
 
 .. toctree::
    :caption: Links

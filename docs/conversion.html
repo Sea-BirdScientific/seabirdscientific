@@ -196,7 +196,15 @@
   <input type="hidden" name="area" value="default">
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
-  <p class="caption" role="heading"><span class="caption-text">Source</span></p>
+  <p class="caption" role="heading"><span class="caption-text">Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="migration_guide.html">Migration Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Theory</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ctd_processing.html">CTD Processing</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Source</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="cal_coefficients.html">cal_coefficients.py</a></li>
 <li class="toctree-l1"><a class="reference internal" href="contour.html">contour.py</a></li>
@@ -207,10 +215,6 @@
 <li class="toctree-l1"><a class="reference internal" href="processing.html">processing.py</a></li>
 <li class="toctree-l1"><a class="reference internal" href="utils.html">utils.py</a></li>
 <li class="toctree-l1"><a class="reference internal" href="visualization.html">visualization.py</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Theory</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="ctd_processing.html">CTD Processing</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Links</span></p>
 <ul>
@@ -257,6 +261,66 @@
           <section id="module-seabirdscientific.conversion">
 <span id="conversion-py"></span><span id="conversion"></span><h1>conversion.py<a class="headerlink" href="#module-seabirdscientific.conversion" title="Link to this heading"><span>#</span></a></h1>
 <p>A collection of raw data conversion functions.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="seabirdscientific.conversion.buoyancy">
+<span class="sig-prename descclassname"><span class="pre">seabirdscientific.conversion.</span></span><span class="sig-name descname"><span class="pre">buoyancy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">temperature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">salinity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pressure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">latitude</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">longitude</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_modern_formula</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flag_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-9.99e-29</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dataset</span></span></span><a class="headerlink" href="#seabirdscientific.conversion.buoyancy" title="Link to this definition"><span>#</span></a></dt>
+<dd><p>Calculates the 4 buoyancy values based off the incoming data.</p>
+<p>Data is expected to have already been binned via Bin_Average using
+decibar pressure bins. All arrays are expected to be the same
+length, except for latitude and longitude, which can be length 1.
+Optionally can use the former calculation for buoyancy frequency
+from the SBE Data Processing Manual, but defaults to a newer formula
+using TEOS-10.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>temperature_c</strong> – Temperature in ITS-90 degrees C</p></li>
+<li><p><strong>salinity_prac</strong> – Practical salinity in PSU</p></li>
+<li><p><strong>pressure_dbar</strong> – Pressure in dbar</p></li>
+<li><p><strong>latitude</strong> – latitude values. If length 1, gets applied to all
+values.</p></li>
+<li><p><strong>longitude</strong> – longitude values. If length 1, gets applied to all
+values.</p></li>
+<li><p><strong>window_size</strong> – window size to use. If this number is smaller
+than the binned window size, round up to a minium of 3 scans.
+I.E. uses the center scan and one scan on each side of it at the
+very least</p></li>
+<li><p><strong>use_modern_formula</strong> – Whether to use a modern formula for
+calculating buoyancy frequency. Defaults to true.</p></li>
+<li><p><strong>flag_value</strong> – Bad Flag value to use for marking bad scans.
+Defaults to -9.99e-29</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>a tuple of ndarrays including: buoyancy frequency squared,
+buoyancy frequency, stability, and scaled stability</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="seabirdscientific.conversion.buoyancy_frequency">
+<span class="sig-prename descclassname"><span class="pre">seabirdscientific.conversion.</span></span><span class="sig-name descname"><span class="pre">buoyancy_frequency</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">temperature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">salinity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pressure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gravity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seabirdscientific.conversion.buoyancy_frequency" title="Link to this definition"><span>#</span></a></dt>
+<dd><p>Calculates an N^2 value (buoyancy frequency) for the given window
+of temperature, salinity, and pressure, at the given latitude.</p>
+<p>Expect temperature as conservative temperature, salinity as abslute
+salinity, and pressure as dbar, all of the same length. Performs the
+calculation using TEOS-10 and specific volume.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>temperature</strong> – temperature values for the given window</p></li>
+<li><p><strong>salinity</strong> – salinity values for the given window</p></li>
+<li><p><strong>pressure</strong> – pressure values for the given window</p></li>
+<li><p><strong>gravity</strong> – gravity value</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A single N^2 [Brunt-Väisälä (buoyancy) frequency]</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="seabirdscientific.conversion.convert_altimeter">
 <span class="sig-prename descclassname"><span class="pre">seabirdscientific.conversion.</span></span><span class="sig-name descname"><span class="pre">convert_altimeter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">volts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coefs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cal_coefficients.html#seabirdscientific.cal_coefficients.AltimeterCoefficients" title="seabirdscientific.cal_coefficients.AltimeterCoefficients"><span class="pre">AltimeterCoefficients</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seabirdscientific.conversion.convert_altimeter" title="Link to this definition"><span>#</span></a></dt>
@@ -912,6 +976,8 @@ to 0.0.</p></li>
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">conversion.py</a><ul>
+<li><a class="reference internal" href="#seabirdscientific.conversion.buoyancy"><code class="docutils literal notranslate"><span class="pre">buoyancy()</span></code></a></li>
+<li><a class="reference internal" href="#seabirdscientific.conversion.buoyancy_frequency"><code class="docutils literal notranslate"><span class="pre">buoyancy_frequency()</span></code></a></li>
 <li><a class="reference internal" href="#seabirdscientific.conversion.convert_altimeter"><code class="docutils literal notranslate"><span class="pre">convert_altimeter()</span></code></a></li>
 <li><a class="reference internal" href="#seabirdscientific.conversion.convert_conductivity"><code class="docutils literal notranslate"><span class="pre">convert_conductivity()</span></code></a></li>
 <li><a class="reference internal" href="#seabirdscientific.conversion.convert_eco"><code class="docutils literal notranslate"><span class="pre">convert_eco()</span></code></a></li>

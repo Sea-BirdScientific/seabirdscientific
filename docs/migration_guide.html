@@ -1,0 +1,617 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="./">
+  <head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="CTD Processing" href="ctd_processing.html"><link rel="prev" title="Sea-Bird Scientific Community Toolkit" href="index.html">
+        <link rel="prefetch" href="_static/images/seabird-logo.png" as="image">
+        <link rel="prefetch" href="_static/images/seabird-logo-white.png" as="image">
+
+    <!-- Generated with Sphinx 7.4.7 and Furo 2025.12.19 -->
+        <title>Migration Guide - Community Toolkit 3.0.0a1</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sbsfuro.css?v=3d7447bb" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f2f2f2;
+  --color-code-foreground: #1e1e1e;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle site navigation sidebar">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc" aria-label="Toggle table of contents sidebar">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <span class="icon"><svg><use href="#svg-menu"></use></svg></span>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand">Community Toolkit 3.0.0a1</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo only-light" src="_static/images/seabird-logo.png" alt="Light Logo"/>
+    <img class="sidebar-logo only-dark" src="_static/images/seabird-logo-white.png" alt="Dark Logo"/>
+  </div>
+  
+  <span class="sidebar-brand-text">Community Toolkit 3.0.0a1</span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Guides</span></p>
+<ul class="current">
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Migration Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Theory</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ctd_processing.html">CTD Processing</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Source</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="cal_coefficients.html">cal_coefficients.py</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contour.html">contour.py</a></li>
+<li class="toctree-l1"><a class="reference internal" href="conversion.html">conversion.py</a></li>
+<li class="toctree-l1"><a class="reference internal" href="eos80_processing.html">eos80_processing.py</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrument_data.html">instrument_data.py</a></li>
+<li class="toctree-l1"><a class="reference internal" href="interpret_sbs_variable.html">interpret_sbs_variable.py</a></li>
+<li class="toctree-l1"><a class="reference internal" href="processing.html">processing.py</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">utils.py</a></li>
+<li class="toctree-l1"><a class="reference internal" href="visualization.html">visualization.py</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Links</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Sea-BirdScientific/seabirdscientific">Github</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pypi.org/project/seabirdscientific">PyPI</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="_sources/migration_guide.rst.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="migration-guide">
+<span id="id1"></span><h1>Migration Guide<a class="headerlink" href="#migration-guide" title="Link to this heading"><span>#</span></a></h1>
+<section id="v2-7-3-v3-0-0">
+<h2>v2.7.3 → v3.0.0<a class="headerlink" href="#v2-7-3-v3-0-0" title="Link to this heading"><span>#</span></a></h2>
+<section id="breaking-changes-summary">
+<h3>Breaking Changes Summary<a class="headerlink" href="#breaking-changes-summary" title="Link to this heading"><span>#</span></a></h3>
+<ul>
+<li><p><strong>Pandas → Xarray</strong></p>
+<ul class="simple">
+<li><p><cite>read_hex_file()</cite> now returns <code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.Dataset</span></code>.</p></li>
+<li><p><cite>bin_average()</cite> now returns <code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.Dataset</span></code>.</p></li>
+<li><p>New <cite>read_cnv_file()</cite> replaces the old <cite>cnv_to_instrument_data</cite> pattern.</p></li>
+</ul>
+</li>
+<li><p><strong>Function Rename to Snake Case</strong></p>
+<p>Old names (<cite>read_SBE19plus_format_0</cite> etc.) still exist but emit a
+<cite>DeprecationWarning</cite>. New canonical versions:</p>
+<ul class="simple">
+<li><p><cite>read_sbe19plus_format_0</cite></p></li>
+<li><p><cite>read_sbe37sm_format_0</cite></p></li>
+<li><p><cite>read_sbe39plus_format_0</cite></p></li>
+<li><p><cite>read_sbe911plus_format_0</cite></p></li>
+</ul>
+</li>
+<li><p><strong>Enums Deprecated at Call Sites</strong></p>
+<ul class="simple">
+<li><p><cite>MinVelocityType</cite> and <cite>WindowFilterType</cite> are deprecated at call sites.
+Functions now accept string literals instead.</p></li>
+</ul>
+</li>
+<li><p><strong>Hex Metadata Restructured</strong></p>
+<ul class="simple">
+<li><p>New <cite>HEX_TYPE_*</cite> and <cite>HEX_LEN_*</cite> constants.</p></li>
+<li><p><cite>HexDataTypes</cite> Enum remains but triggers warnings when accessed.</p></li>
+</ul>
+</li>
+<li><p><strong>Deprecated Parameters Removed</strong></p>
+<ul class="simple">
+<li><p><cite>ph_counts</cite>, <cite>k0</cite>, <cite>k2</cite>, <cite>int_k0</cite>, <cite>ext_k0</cite> and related variants
+removed from multiple APIs.</p></li>
+</ul>
+</li>
+<li><p><strong>New Utilities</strong></p>
+<ul class="simple">
+<li><p><cite>profile</cite> decorator for local line profiling.</p></li>
+<li><p><cite>WarnAllMembersMeta</cite> to warn on deprecated Enum access.</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="module-level-api-changes">
+<h3>Module-level API Changes<a class="headerlink" href="#module-level-api-changes" title="Link to this heading"><span>#</span></a></h3>
+<section id="cal-coefficients-module">
+<h4><cite>cal_coefficients</cite> module<a class="headerlink" href="#cal-coefficients-module" title="Link to this heading"><span>#</span></a></h4>
+<p>Removed deprecated constructor parameters:</p>
+<ul class="simple">
+<li><p><cite>PHSeaFETInternalCoefficients</cite> no longer accepts:
+<cite>k0</cite>, <cite>k2</cite>, <cite>int_k0</cite>, <cite>int_k2</cite>.</p></li>
+<li><p><cite>PHSeaFETExternalCoefficients</cite> no longer accepts:
+<cite>ext_k0</cite>, <cite>ext_k2</cite>.</p></li>
+</ul>
+<p><strong>Migration Example</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Before</span>
+<span class="n">cc</span> <span class="o">=</span> <span class="n">PHSeaFETInternalCoefficients</span><span class="p">(</span><span class="n">k0</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">k2</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
+
+<span class="c1"># After</span>
+<span class="n">cc</span> <span class="o">=</span> <span class="n">PHSeaFETInternalCoefficients</span><span class="p">(</span><span class="n">kdf0</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">kdf2</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Before</span>
+<span class="n">cc</span> <span class="o">=</span> <span class="n">PHSeaFETExternalCoefficients</span><span class="p">(</span><span class="n">ext_k0</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">ext_k2</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
+
+<span class="c1"># After</span>
+<span class="n">cc</span> <span class="o">=</span> <span class="n">PHSeaFETExternalCoefficients</span><span class="p">(</span><span class="n">k0</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">k2</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="conversion-module">
+<h4><cite>conversion</cite> module<a class="headerlink" href="#conversion-module" title="Link to this heading"><span>#</span></a></h4>
+<p>Removed <cite>ph_counts</cite> from:</p>
+<ul class="simple">
+<li><p><cite>convert_internal_seafet_ph</cite></p></li>
+<li><p><cite>convert_external_seafet_ph</cite></p></li>
+</ul>
+<p><strong>Migration Example</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Before</span>
+<span class="n">ph</span> <span class="o">=</span> <span class="n">convert_internal_seafet_ph</span><span class="p">(</span><span class="n">raw_ph</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ph_counts</span><span class="o">=</span><span class="n">arr</span><span class="p">)</span>
+
+<span class="c1"># After</span>
+<span class="n">ph</span> <span class="o">=</span> <span class="n">convert_internal_seafet_ph</span><span class="p">(</span><span class="n">raw_ph</span><span class="o">=</span><span class="n">arr</span><span class="p">,</span> <span class="n">ph_units</span><span class="o">=</span><span class="s2">&quot;counts&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="eos80-processing-module">
+<h4><cite>eos80_processing</cite> module<a class="headerlink" href="#eos80-processing-module" title="Link to this heading"><span>#</span></a></h4>
+<p><cite>bouyancy_frequency</cite> renamed parameters:</p>
+<ul class="simple">
+<li><p>New canonical names: <cite>temperature</cite>, <cite>salinity</cite>, <cite>pressure</cite>.</p></li>
+<li><p>Old names still accepted with warnings.</p></li>
+</ul>
+<p><strong>Migration Example</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Before</span>
+<span class="n">n2</span> <span class="o">=</span> <span class="n">bouyancy_frequency</span><span class="p">(</span>
+    <span class="n">temp_ITS_subset</span><span class="o">=</span><span class="n">t</span><span class="p">,</span>
+    <span class="n">salinity_prac_subset</span><span class="o">=</span><span class="n">s</span><span class="p">,</span>
+    <span class="n">pressure_dbar_subset</span><span class="o">=</span><span class="n">p</span><span class="p">,</span>
+    <span class="n">gravity</span><span class="o">=</span><span class="n">g</span>
+<span class="p">)</span>
+
+<span class="c1"># After</span>
+<span class="n">n2</span> <span class="o">=</span> <span class="n">bouyancy_frequency</span><span class="p">(</span>
+    <span class="n">temperature</span><span class="o">=</span><span class="n">t</span><span class="p">,</span>
+    <span class="n">salinity</span><span class="o">=</span><span class="n">s</span><span class="p">,</span>
+    <span class="n">pressure</span><span class="o">=</span><span class="n">p</span><span class="p">,</span>
+    <span class="n">gravity</span><span class="o">=</span><span class="n">g</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p><cite>density</cite> similarly renamed parameters.</p>
+</section>
+<section id="instrument-data-module">
+<h4><cite>instrument_data</cite> module<a class="headerlink" href="#instrument-data-module" title="Link to this heading"><span>#</span></a></h4>
+<p>CNV Reading (New API)</p>
+<p>New reader:</p>
+<ul class="simple">
+<li><p><cite>read_cnv_file(filepath) -&gt; xarray.Dataset</cite>
+Replaces <cite>InstrumentData</cite> / <cite>MeasurementSeries</cite> / <cite>cnv_to_instrument_data</cite>.</p></li>
+</ul>
+<p><strong>Migration Example</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Before</span>
+<span class="n">inst</span> <span class="o">=</span> <span class="n">cnv_to_instrument_data</span><span class="p">(</span><span class="s2">&quot;file.cnv&quot;</span><span class="p">)</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">inst</span><span class="o">.</span><span class="n">_to_dataframe</span><span class="p">()</span>
+
+<span class="c1"># After</span>
+<span class="n">ds</span> <span class="o">=</span> <span class="n">read_cnv_file</span><span class="p">(</span><span class="s2">&quot;file.cnv&quot;</span><span class="p">)</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">to_dataframe</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>HEX Reading and Decoding</p>
+<ul class="simple">
+<li><p><cite>read_hex_file</cite> now returns <cite>xarray.Dataset</cite> instead of <cite>pandas.DataFrame</cite>.</p></li>
+<li><p>Added <cite>_preallocate_dataset</cite> helper.</p></li>
+<li><p>Introduced <cite>HEX_TYPE_*</cite> and <cite>HEX_LEN_*</cite> constants.</p></li>
+<li><p><cite>HexDataTypes</cite> still present but every member access triggers a
+<cite>DeprecationWarning</cite>.</p></li>
+</ul>
+<p><strong>Migration Example</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Before</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">read_hex_file</span><span class="p">(</span><span class="s2">&quot;cast.hex&quot;</span><span class="p">,</span> <span class="n">itype</span><span class="p">,</span> <span class="n">enabled_sensors</span><span class="o">=</span><span class="p">[</span><span class="o">...</span><span class="p">])</span>
+
+<span class="c1"># After</span>
+<span class="n">ds</span> <span class="o">=</span> <span class="n">read_hex_file</span><span class="p">(</span><span class="s2">&quot;cast.hex&quot;</span><span class="p">,</span> <span class="n">itype</span><span class="p">,</span> <span class="n">enabled_sensors</span><span class="o">=</span><span class="p">[</span><span class="o">...</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>Snake-case Format Readers</p>
+<p>Old → new names:</p>
+<ul class="simple">
+<li><p><cite>read_SBE19plus_format_0</cite> → <cite>read_sbe19plus_format_0</cite></p></li>
+<li><p><cite>read_SBE37SM_format_0</cite> → <cite>read_sbe37sm_format_0</cite></p></li>
+<li><p><cite>read_SBE39plus_format_0</cite> → <cite>read_sbe39plus_format_0</cite></p></li>
+<li><p><cite>read_SBE911plus_format_0</cite> → <cite>read_sbe911plus_format_0</cite></p></li>
+</ul>
+<p><strong>Migration Example</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Before</span>
+<span class="n">vals</span> <span class="o">=</span> <span class="n">read_SBE37SM_format_0</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">enabled_sensors</span><span class="o">=...</span><span class="p">)</span>
+
+<span class="c1"># After</span>
+<span class="n">vals</span> <span class="o">=</span> <span class="n">read_sbe37sm_format_0</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">enabled_sensors</span><span class="o">=...</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="processing-module">
+<h4><cite>processing</cite> module<a class="headerlink" href="#processing-module" title="Link to this heading"><span>#</span></a></h4>
+<p>Deprecated Enums at Call Sites</p>
+<p>Use string literals instead of <cite>MinVelocityType</cite> or <cite>WindowFilterType</cite>.</p>
+<p><strong>Migration Example</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Before</span>
+<span class="n">m</span> <span class="o">=</span> <span class="n">loop_edit_depth</span><span class="p">(</span><span class="n">depth</span><span class="p">,</span> <span class="n">flag</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">MinVelocityType</span><span class="o">.</span><span class="n">FIXED</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>
+
+<span class="c1"># After</span>
+<span class="n">m</span> <span class="o">=</span> <span class="n">loop_edit_depth</span><span class="p">(</span><span class="n">depth</span><span class="p">,</span> <span class="n">flag</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="s2">&quot;fixed&quot;</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Before</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">window_filter</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">flags</span><span class="p">,</span> <span class="n">WindowFilterType</span><span class="o">.</span><span class="n">MEDIAN</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">dt</span><span class="p">)</span>
+
+<span class="c1"># After</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">window_filter</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">flags</span><span class="p">,</span> <span class="s2">&quot;median&quot;</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">dt</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Xarray-Based <cite>bin_average</cite></p>
+<ul class="simple">
+<li><p>Input: now an <cite>xarray.Dataset</cite>.</p></li>
+<li><p>Output: <cite>xarray.Dataset</cite> with <cite>bin_number</cite> dimension.</p></li>
+</ul>
+<p><strong>Migration Example</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Before</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">read_hex_file</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<span class="n">avg</span> <span class="o">=</span> <span class="n">bin_average</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="s2">&quot;prdM&quot;</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+
+<span class="c1"># After</span>
+<span class="n">ds</span> <span class="o">=</span> <span class="n">read_hex_file</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<span class="n">avg</span> <span class="o">=</span> <span class="n">bin_average</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s2">&quot;prdM&quot;</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Cast Splitting Now Uses Coordinates</p>
+<p><cite>split</cite> now:</p>
+<ul class="simple">
+<li><p>Adds a <cite>cast_type</cite> coordinate.</p></li>
+<li><p>Does <em>not</em> return separate datasets unless <cite>drop=True</cite> is used.</p></li>
+</ul>
+<p><strong>Migration Example</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">labeled</span> <span class="o">=</span> <span class="n">split</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s2">&quot;prdM&quot;</span><span class="p">,</span> <span class="n">cast_type</span><span class="o">=</span><span class="n">CastType</span><span class="o">.</span><span class="n">BOTH</span><span class="p">,</span> <span class="n">drop</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">down</span> <span class="o">=</span> <span class="n">labeled</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">labeled</span><span class="p">[</span><span class="s2">&quot;cast_type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">CastType</span><span class="o">.</span><span class="n">DOWNCAST</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+<span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">up</span> <span class="o">=</span> <span class="n">labeled</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">labeled</span><span class="p">[</span><span class="s2">&quot;cast_type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">CastType</span><span class="o">.</span><span class="n">UPCAST</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+<span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Deprecated Parameter Names</p>
+<p>Several processing functions (<cite>cell_thermal_mass</cite>,
+<cite>bouyancy_frequency</cite>, <cite>buoyancy</cite>) now use:</p>
+<ul class="simple">
+<li><p><cite>temperature</cite>, <cite>salinity</cite>, <cite>pressure</cite></p></li>
+</ul>
+<p>Old names are accepted but warn.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Before</span>
+<span class="n">ctm</span> <span class="o">=</span> <span class="n">cell_thermal_mass</span><span class="p">(</span><span class="n">temperature_C</span><span class="o">=</span><span class="n">t</span><span class="p">,</span> <span class="n">conductivity_Sm</span><span class="o">=</span><span class="n">c</span><span class="p">,</span>
+<span class="n">amplitude</span><span class="o">=</span><span class="mf">0.03</span><span class="p">,</span> <span class="n">time_constant</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">sample_interval</span><span class="o">=</span><span class="mf">0.25</span><span class="p">)</span>
+
+<span class="c1"># After</span>
+<span class="n">ctm</span> <span class="o">=</span> <span class="n">cell_thermal_mass</span><span class="p">(</span><span class="n">temperature</span><span class="o">=</span><span class="n">t</span><span class="p">,</span> <span class="n">conductivity</span><span class="o">=</span><span class="n">c</span><span class="p">,</span>
+<span class="n">amplitude</span><span class="o">=</span><span class="mf">0.03</span><span class="p">,</span> <span class="n">time_constant</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">sample_interval</span><span class="o">=</span><span class="mf">0.25</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="utils-module">
+<h4><cite>utils</cite> module<a class="headerlink" href="#utils-module" title="Link to this heading"><span>#</span></a></h4>
+<ul class="simple">
+<li><p><cite>get_tolerance</cite> now accepts <cite>flag_value</cite> explicitly.</p></li>
+<li><p>New decorator <cite>profile</cite> for line profiling.</p></li>
+<li><p>New <cite>WarnAllMembersMeta</cite> metaclass (used for deprecation warnings).</p></li>
+</ul>
+</section>
+</section>
+<section id="end-to-end-migration-example">
+<h3>End-to-End Migration Example<a class="headerlink" href="#end-to-end-migration-example" title="Link to this heading"><span>#</span></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">seabirdscientific.instrument_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_hex_file</span><span class="p">,</span> <span class="n">Sensors</span><span class="p">,</span> <span class="n">InstrumentType</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">seabirdscientific.processing</span><span class="w"> </span><span class="kn">import</span> <span class="n">bin_average</span><span class="p">,</span> <span class="n">split</span><span class="p">,</span> <span class="n">CastType</span>
+
+<span class="n">ds</span> <span class="o">=</span> <span class="n">read_hex_file</span><span class="p">(</span>
+<span class="n">filepath</span><span class="o">=</span><span class="s2">&quot;cast.hex&quot;</span><span class="p">,</span>
+<span class="n">instrument_type</span><span class="o">=</span><span class="n">InstrumentType</span><span class="o">.</span><span class="n">SBE37SM</span><span class="p">,</span>
+<span class="n">enabled_sensors</span><span class="o">=</span><span class="p">[</span><span class="n">Sensors</span><span class="o">.</span><span class="n">Temperature</span><span class="p">,</span> <span class="n">Sensors</span><span class="o">.</span><span class="n">Conductivity</span><span class="p">,</span> <span class="n">Sensors</span><span class="o">.</span><span class="n">Pressure</span><span class="p">],</span>
+<span class="n">moored_mode</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">binned</span> <span class="o">=</span> <span class="n">bin_average</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">bin_variable</span><span class="o">=</span><span class="s2">&quot;prdM&quot;</span><span class="p">,</span> <span class="n">bin_size</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+
+<span class="n">labeled</span> <span class="o">=</span> <span class="n">split</span><span class="p">(</span><span class="n">binned</span><span class="p">,</span> <span class="s2">&quot;prdM&quot;</span><span class="p">,</span> <span class="n">cast_type</span><span class="o">=</span><span class="n">CastType</span><span class="o">.</span><span class="n">BOTH</span><span class="p">,</span>
+<span class="n">exclude_bad_scans</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">drop</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<span class="n">down</span> <span class="o">=</span> <span class="n">labeled</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">labeled</span><span class="p">[</span><span class="s2">&quot;cast_type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">CastType</span><span class="o">.</span><span class="n">DOWNCAST</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+<span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="ctd_processing.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">CTD Processing</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="index.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Home</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2026, Sea-Bird Scientific
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Migration Guide</a><ul>
+<li><a class="reference internal" href="#v2-7-3-v3-0-0">v2.7.3 → v3.0.0</a><ul>
+<li><a class="reference internal" href="#breaking-changes-summary">Breaking Changes Summary</a></li>
+<li><a class="reference internal" href="#module-level-api-changes">Module-level API Changes</a><ul>
+<li><a class="reference internal" href="#cal-coefficients-module"><cite>cal_coefficients</cite> module</a></li>
+<li><a class="reference internal" href="#conversion-module"><cite>conversion</cite> module</a></li>
+<li><a class="reference internal" href="#eos80-processing-module"><cite>eos80_processing</cite> module</a></li>
+<li><a class="reference internal" href="#instrument-data-module"><cite>instrument_data</cite> module</a></li>
+<li><a class="reference internal" href="#processing-module"><cite>processing</cite> module</a></li>
+<li><a class="reference internal" href="#utils-module"><cite>utils</cite> module</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#end-to-end-migration-example">End-to-End Migration Example</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="_static/documentation_options.js?v=840a91ac"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/scripts/furo.js?v=46bd48cc"></script>
+    </body>
+</html>
