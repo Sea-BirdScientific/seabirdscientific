@@ -179,35 +179,9 @@ def loop_edit_pressure(
     exclude_flags: bool,
     flag_value=FLAG_VALUE,
 ) -> np.ndarray:
-    """Variation of loop_edit_depth that derives depth from pressure
-    and latitude.
+    """Deprecated. Use loop_edit"""
 
-    :param pressure: A pressure array in dbar
-    :param latitude: A single latitude value where the cast occurred
-    :param flag: Array of flag values. The flag for a good value is 0.0.
-        The flag for a detected loop value defaults to -9.99e-29
-    :param sample_interval: Time interval between samples in seconds
-    :param min_velocity_type: Sets whether flags are based on min
-        velocity or a percentage of mean speed
-    :param min_velocity: The minimum velocity for data to be considered
-        good
-    :param window_size: Time interval to include in mean speed
-        calculation
-    :param mean_speed_percent: Percentage of mean speed for data to be
-        considered good
-    :param remove_surface_soak: If true, data that occur before the
-        minimum soak depth is reached are marked as bad
-    :param min_soak_depth: The depth that must be reached before data
-        can be considered good
-    :param max_soak_depth: The maximum depth that can be considered the
-        start of a downcast
-    :param use_deck_pressure_offset: If true, min and max soak depths
-        are offset by the first value in the depth array
-    :param exclude_flags: If true, existing bad flags are preserved
-    :param flag_value: Passing is 0.0, failing defaults to -9.99e-29.
-
-    :return: the input data with updated flags
-    """
+    warnings.warn("Deprecated. Use loop_edit", DeprecationWarning)
 
     depth = c.depth_from_pressure(pressure, latitude)
     return loop_edit_depth(
@@ -242,14 +216,53 @@ def loop_edit_depth(
     exclude_flags: bool,
     flag_value=FLAG_VALUE,
 ) -> np.ndarray:
+    """Deprecated. Use loop_edit"""
+
+    warnings.warn("Deprecated. Use loop_edit", DeprecationWarning)
+
+    return loop_edit(
+        depth,
+        flag,
+        sample_interval,
+        min_velocity_type,
+        min_velocity,
+        window_size,
+        mean_speed_percent,
+        remove_surface_soak,
+        min_soak_depth,
+        max_soak_depth,
+        use_deck_pressure_offset,
+        exclude_flags,
+        flag_value,
+        units="depth"
+    )
+
+
+def loop_edit(
+    measurand: np.ndarray,
+    flag: np.ndarray,
+    sample_interval: float,
+    min_velocity_type: Literal["fixed", "percent"] = "fixed",
+    min_velocity: float = 0.25,
+    window_size: float = 300,
+    mean_speed_percent: float = 20,
+    remove_surface_soak: bool = True,
+    min_soak_depth: float = 5,
+    max_soak_depth: float = 20,
+    use_deck_pressure_offset: bool = True,
+    exclude_flags: bool = True,
+    flag_value=FLAG_VALUE,
+    latitude: float = 0,
+    units: Literal["depth", "pressure"] = "depth"
+) -> np.ndarray:
     """Marks scans determined to be part of a pressure loop as bad.
 
     Loop Edit marks scans bad by setting the flag value associated with
     the scan to badflag in data that has pressure slowdowns or reversals
     (typically caused by ship heave).
 
-    :param depth: Salt water depth as an array of positive numbers.
-        Colloquially used interchangeably with pressure in dbar
+    :param measurand: Salt water depth or pressure as an array of
+        positive numbers
     :param flag: Array of flag values. The flag for a good value is 0.0.
         The flag for a detected loop value defaults to -9.99e-29
     :param sample_interval: Time interval between samples in seconds
@@ -279,6 +292,11 @@ def loop_edit_depth(
     if isinstance(min_velocity_type, MinVelocityType):
         warnings.warn("MinVelocityType Enum is deprecated, use Literals", DeprecationWarning)
 
+    if units == "pressure":
+        depth = c.depth_from_pressure(measurand, latitude)
+    else:
+        depth = measurand.copy()
+    
     _flag = flag.copy()
 
     if not exclude_flags:
