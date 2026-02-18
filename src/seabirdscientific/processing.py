@@ -48,9 +48,8 @@ import pandas as pd
 from scipy import signal, stats
 
 # Sea-Bird imports
-from seabirdscientific import eos80_processing as eos80
-
 # Internal imports
+from seabirdscientific import eos80_processing as eos80
 from seabirdscientific.conversion import depth_from_pressure
 
 logger = getLogger(__name__)
