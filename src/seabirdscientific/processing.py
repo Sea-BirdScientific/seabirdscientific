@@ -47,9 +47,9 @@ import numpy as np
 import pandas as pd
 from scipy import signal, stats
 
+# Sea-Bird imports
 from seabirdscientific import eos80_processing as eos80
 
-# Sea-Bird imports
 # Internal imports
 from seabirdscientific.conversion import depth_from_pressure
 
