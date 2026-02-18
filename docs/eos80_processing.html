@@ -270,25 +270,7 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="seabirdscientific.eos80_processing.bouyancy_frequency">
 <span class="sig-prename descclassname"><span class="pre">seabirdscientific.eos80_processing.</span></span><span class="sig-name descname"><span class="pre">bouyancy_frequency</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">temp_ITS_subset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">salinity_prac_subset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pressure_dbar_subset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gravity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seabirdscientific.eos80_processing.bouyancy_frequency" title="Link to this definition"><span>#</span></a></dt>
-<dd><p>Calculates an N^2 value (buoyancy frequency) for the given window
-of temperature, salinity, and pressure, at the given latitude.</p>
-<p>Expects temperature as ITS-90 temperature, salinity as practical
-salinity, and pressure as dbar, all of the same length. Performs the
-calculation following the SBE Data Processing formula using E0S-80
-calculations for potential temp and density</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>temperature</strong> – ITS-90 temperature values for the given window</p></li>
-<li><p><strong>salinity</strong> – practical salinity values for the given window</p></li>
-<li><p><strong>pressure</strong> – pressure values for the given window</p></li>
-<li><p><strong>gravity</strong> – gravity value</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A single N^2 [Brunt-Väisälä (buoyancy) frequency]</p>
-</dd>
-</dl>
+<dd><p>Deprecated. Use eos80_conversion.buoyancy_frequency</p>
 </dd></dl>
 
 <dl class="py function">

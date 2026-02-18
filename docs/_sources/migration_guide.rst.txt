@@ -9,41 +9,49 @@ v2.7.3 → v3.0.0
 Breaking Changes Summary
 ========================
 
-*   **Pandas → Xarray**
+*   **Pandas → Xarray**:
 
-    *   `read_hex_file()` now returns :class:`xarray.Dataset`.
-    *   `bin_average()` now returns :class:`xarray.Dataset`.
-    *   New `read_cnv_file()` replaces the old `cnv_to_instrument_data` pattern.
+    *   `read_hex_file(...)` now returns :class:`xarray.Dataset` (previously :class:`pandas.DataFrame`).
+    *   `processing.bin_average(...)` now *accepts* and *returns* :class:`xarray.Dataset`.
+    *   New `instrument_data.read_cnv_file(...) -> xarray.Dataset` provides a direct CNV→xarray path, replacing the old custom container approach.
 
-*   **Function Rename to Snake Case**
+*   **Snake-case reader names + deprecation shims**:
 
-    Old names (`read_SBE19plus_format_0` etc.) still exist but emit a
-    `DeprecationWarning`. New canonical versions:
+    *   `read_SBE19plus_format_0` → `read_sbe19plus_format_0`
+    *   `read_SBE37SM_format_0` → `read_sbe37sm_format_0`
+    *   `read_SBE39plus_format_0` → `read_sbe39plus_format_0`
+    *   `read_SBE911plus_format_0` → `read_sbe911plus_format_0`  
+        Old names remain as *wrappers* that emit `DeprecationWarning`.
 
-    *   `read_sbe19plus_format_0`
-    *   `read_sbe37sm_format_0`
-    *   `read_sbe39plus_format_0`
-    *   `read_sbe911plus_format_0`
+*   **Enums at call sites deprecated → use string literals**:
 
-*   **Enums Deprecated at Call Sites**
+    *   For processing functions, pass strings (e.g., `"fixed"`, `"percent"`, `"boxcar"`, `"median"`) instead of `MinVelocityType` or `WindowFilterType`. Using the Enums still works but warns.
 
-    *   `MinVelocityType` and `WindowFilterType` are deprecated at call sites.
-        Functions now accept string literals instead.
+*   **HEX metadata refactor**:
 
-*   **Hex Metadata Restructured**
+    *   Prefer new `HEX_TYPE_*` and `HEX_LEN_*` constants for type names and field lengths.
+    *   `HexDataTypes` Enum is retained but emits warnings on member access.
 
-    *   New `HEX_TYPE_*` and `HEX_LEN_*` constants.
-    *   `HexDataTypes` Enum remains but triggers warnings when accessed.
+*   **Parameter cleanup / deprecations removed**:
 
-*   **Deprecated Parameters Removed**
+    *   SeaFET pH converters removed `ph_counts`; use `raw_ph` with `ph_units="counts"|"volts"`.
+    *   SeaFET coefficient constructors dropped deprecated aliases (`k0`, `k2`, `int_k0`, `int_k2`, `ext_k0`, `ext_k2`).
+    *   Legacy dummy `hex=...` parameters removed from low-level readers.
 
-    *   `ph_counts`, `k0`, `k2`, `int_k0`, `ext_k0` and related variants
-        removed from multiple APIs.
+*   **New EOS-80 module and deprecation routing**:
 
-*   **New Utilities**
+    *   New `eos80_conversion` module contains EOS-80 implementations (`density`, `potential_temperature`, `adiabatic_temperature_gradient`, and EOS-80 `bouyancy_frequency`).
+    *   `eos80_processing` now delegates to `eos80_conversion` and marks old functions as deprecated.
 
-    *   `profile` decorator for local line profiling.
-    *   `WarnAllMembersMeta` to warn on deprecated Enum access.
+*   **Loop-edit API clarified**:
+
+    *   New canonical `processing.loop_edit(...)` operates on *depth* or *pressure* (with `units`/`latitude`), returns updated flag array.
+    *   `loop_edit_depth(...)` and `loop_edit_pressure(...)` retained as **deprecated** compatibility wrappers.
+
+*   **Cast splitting now labels data**:
+
+    *   `processing.split(...)` *adds* a `cast_type` coordinate to a dataset (`"downcast"`, `"upcast"`, or empty string) and can optionally `drop=True` to subset. It no longer returns a list of frames by default.
+
 
 Module-level API Changes
 ========================
@@ -53,63 +61,90 @@ Module-level API Changes
 
 Removed deprecated constructor parameters:
 
-*   `PHSeaFETInternalCoefficients` no longer accepts:
-    `k0`, `k2`, `int_k0`, `int_k2`.
-*   `PHSeaFETExternalCoefficients` no longer accepts:
-    `ext_k0`, `ext_k2`.
+*   `PHSeaFETInternalCoefficients`: no longer accepts `k0`, `k2`, `int_k0`, `int_k2`.
+*   `PHSeaFETExternalCoefficients`: no longer accepts `ext_k0`, `ext_k2`.
 
 **Migration Example**
 
 .. code-block:: python
 
    # Before
-   cc = PHSeaFETInternalCoefficients(k0=1.0, k2=2.0)
+   ci = PHSeaFETInternalCoefficients(k0=1.0, k2=2.0)
 
    # After
-   cc = PHSeaFETInternalCoefficients(kdf0=1.0, kdf2=2.0)
+   ci = PHSeaFETInternalCoefficients(kdf0=1.0, kdf2=2.0)
+
 
 .. code-block:: python
 
    # Before
-   cc = PHSeaFETExternalCoefficients(ext_k0=1.0, ext_k2=2.0)
+   ce = PHSeaFETExternalCoefficients(ext_k0=1.0, ext_k2=2.0)
 
    # After
-   cc = PHSeaFETExternalCoefficients(k0=1.0, k2=2.0)
+   ce = PHSeaFETExternalCoefficients(k0=1.0, k2=2.0)
 
 
 `conversion` module
 -------------------
 
-Removed `ph_counts` from:
+Parameter removals and doc clarifications:
 
-*   `convert_internal_seafet_ph`
-*   `convert_external_seafet_ph`
+*   `convert_internal_seafet_ph(...)`: removed `ph_counts`; use `raw_ph` with `ph_units`.
+*   `convert_external_seafet_ph(...)`: removed `ph_counts`.
 
 **Migration Example**
 
 .. code-block:: python
 
    # Before
-   ph = convert_internal_seafet_ph(raw_ph=None, ph_counts=arr)
+   ph = convert_internal_seafet_ph(ph_counts=counts)
 
    # After
-   ph = convert_internal_seafet_ph(raw_ph=arr, ph_units="counts")
+   ph = convert_internal_seafet_ph(raw_ph=counts, ph_units="counts")
+
+
+.. code-block:: python
+
+   # Before
+   ph = convert_external_seafet_ph(ph_counts=counts)
+
+   # After
+   ph = convert_external_seafet_ph(raw_ph=counts, ph_units="counts")
+
+
+New buoyancy utilities added here (moved from `processing`):
+
+*   `buoyancy_frequency(temperature, salinity, pressure, gravity)`
+*   `buoyancy(temperature, salinity, pressure, latitude, longitude, window_size, ...)`
+
+`eos80_conversion` module
+-------------------------
+
+EOS-80 implementations moved from `eos80_procesing`:
+
+*   `density(salinity, temperature, pressure)`
+*   `potential_temperature(salinity, temperature, pressure, mean_pressure)`
+*   `adiabatic_temperature_gradient(salinity, temperature, pressure)`
+*   `bouyancy_frequency(temperature, salinity, pressure, gravity)`
 
 
 `eos80_processing` module
 -------------------------
 
-`bouyancy_frequency` renamed parameters:
+Functions now delegate to `eos80_conversion` equivalents and emit deprecation warnings:
 
-*   New canonical names: `temperature`, `salinity`, `pressure`.
-*   Old names still accepted with warnings.
+*   `bouyancy_frequency(...)` → calls `eos80_conversion.bouyancy_frequency(...)`
+*   `density(...)` → `eos80_conversion.density(...)`
+*   `potential_temperature(...)` → `eos80_conversion.potential_temperature(...)`
+*   `adiabatic_temperature_gradient(...)` → `eos80_conversion.adiabatic_temperature_gradient(...)`
 
 **Migration Example**
 
 .. code-block:: python
 
    # Before
-   n2 = bouyancy_frequency(
+   from seabirdscientific import eos80_processing as ep
+   n2 = ep.bouyancy_frequency(
        temp_ITS_subset=t,
        salinity_prac_subset=s,
        pressure_dbar_subset=p,
@@ -117,22 +152,15 @@ Removed `ph_counts` from:
    )
 
    # After
-   n2 = bouyancy_frequency(
-       temperature=t,
-       salinity=s,
-       pressure=p,
-       gravity=g
-   )
-
-`density` similarly renamed parameters.
+   from seabirdscientific import eos80_conversion as ec
+   n2 = ec.bouyancy_frequency(temperature=t, salinity=s, pressure=p, gravity=g)
 
 
 `instrument_data` module
 ------------------------
 
-CNV Reading (New API)
 
-New reader:
+CNV Reading Now Returns Xarray
 
 *   `read_cnv_file(filepath) -> xarray.Dataset`  
     Replaces `InstrumentData` / `MeasurementSeries` / `cnv_to_instrument_data`.
@@ -143,29 +171,29 @@ New reader:
 
    # Before
    inst = cnv_to_instrument_data("file.cnv")
-   df = inst._to_dataframe()
+   dataframe = inst._to_dataframe()
 
    # After
-   ds = read_cnv_file("file.cnv")
-   df = ds.to_dataframe()
+   dataset = read_cnv_file("file.cnv")
+   dataframe = ds.to_dataframe()
 
 HEX Reading and Decoding
 
 *   `read_hex_file` now returns `xarray.Dataset` instead of `pandas.DataFrame`.
 *   Added `_preallocate_dataset` helper.
 *   Introduced `HEX_TYPE_*` and `HEX_LEN_*` constants.
-*   `HexDataTypes` still present but every member access triggers a
-    `DeprecationWarning`.
+*   `HexDataTypes` still present but every member access triggers a `DeprecationWarning`.
 
 **Migration Example**
 
 .. code-block:: python
 
    # Before
-   df = read_hex_file("cast.hex", itype, enabled_sensors=[...])
+   dataframe = read_hex_file("cast.hex", itype, enabled_sensors=[...])
 
    # After
-   ds = read_hex_file("cast.hex", itype, enabled_sensors=[...])
+   dataset = read_hex_file("cast.hex", itype, enabled_sensors=[...])
+   dataframe = dataset.to_dataframe()
 
 Snake-case Format Readers
 
@@ -176,123 +204,126 @@ Old → new names:
 *   `read_SBE39plus_format_0` → `read_sbe39plus_format_0`
 *   `read_SBE911plus_format_0` → `read_sbe911plus_format_0`
 
-**Migration Example**
-
-.. code-block:: python
-
-   # Before
-   vals = read_SBE37SM_format_0(line, enabled_sensors=...)
-
-   # After
-   vals = read_sbe37sm_format_0(line, enabled_sensors=...)
-
-
 `processing` module
 -------------------
 
-Deprecated Enums at Call Sites
+Loop Edit
 
-Use string literals instead of `MinVelocityType` or `WindowFilterType`.
+*   `loop_edit` replaces `loop_edit_depth` and `loop_edit_pressure`, which remain only as compatibility shims and emit deprecation warnings. Use `units="depth"` (default) or `units="pressure"`
+*   The `min_velocity_type` argument now expects strings (e.g., `"fixed"`, `"percent"`) instead of the `MinVelocityType` enum. Passing the enum is accepted but deprecated.
+
+**Migration Example (prefer string literal over enum and use the core API)**
+
+.. code-block:: python
+
+      # Before
+      m = loop_edit_depth(depth, flag, dt, MinVelocityType.FIXED, 0.1)
+
+      # After
+      m = loop_edit_depth(depth, flag, dt, "fixed", 0.1)
+
+
+Window Filter
+
+*   `window_filter(...)` now expects a string literal for the window type: `"boxcar"`, `"cosine"`, `"gaussian"`, `"median"`, or `"triangle"`.
+*   Passing `WindowFilterType` still works but warns.
 
 **Migration Example**
 
 .. code-block:: python
 
-   # Before
-   m = loop_edit_depth(depth, flag, dt, MinVelocityType.FIXED, 0.1)
+  # Before
+  y = window_filter(x, flags, WindowFilterType.MEDIAN, 5, dt)
 
-   # After
-   m = loop_edit_depth(depth, flag, dt, "fixed", 0.1)
+  # After
+  y = window_filter(x, flags, "median", 5, dt)
 
-.. code-block:: python
 
-   # Before
-   y = window_filter(x, flags, WindowFilterType.MEDIAN, 5, dt)
+Xarray bin-average
 
-   # After
-   y = window_filter(x, flags, "median", 5, dt)
-
-Xarray-Based `bin_average`
-
-*   Input: now an `xarray.Dataset`.
-*   Output: `xarray.Dataset` with `bin_number` dimension.
+- ``bin_average(dataset, ...)`` now takes and return an :class:`xarray.Dataset`.
+- Output uses a ``bin_number`` dimension; dataset attributes are preserved.
+- Supports options like ``include_scan_count``, ``interpolate``, cast selection (via ``cast_type`` alongside ``split(...)``), and flag handling.
 
 **Migration Example**
 
 .. code-block:: python
 
-   # Before
-   df = read_hex_file(...)
-   avg = bin_average(df, "prdM", 1.0)
+   dataset = read_hex_file(...)
+   binned_dataset = bin_average(dataset, bin_variable="prdM", bin_size=1.0)
 
-   # After
-   ds = read_hex_file(...)
-   avg = bin_average(ds, "prdM", 1.0)
+Cast splitting via coordinate
 
-Cast Splitting Now Uses Coordinates
-
-`split` now:
-
-*   Adds a `cast_type` coordinate.
-*   Does *not* return separate datasets unless `drop=True` is used.
+*   `split(...)` now labels the data by adding a `cast_type` coordinate (values: `"downcast"`, `"upcast"`, or `""`).
+*   Use `drop=True` to immediately subset.
 
 **Migration Example**
 
 .. code-block:: python
 
-   labeled = split(ds, "prdM", cast_type=CastType.BOTH, drop=False)
-   down = labeled.where(labeled["cast_type"] == CastType.DOWNCAST.value,
-   drop=True)
-   up = labeled.where(labeled["cast_type"] == CastType.UPCAST.value,
-   drop=True)
+   labeled = split(
+       binned_dataset,
+       "prdM",
+       cast_type=CastType.BOTH,
+       exclude_bad_scans=True,
+       drop=False
+   )
+   down = labeled.where(labeled["cast_type"] == CastType.DOWNCAST.value, drop=True)
+   up = labeled.where(labeled["cast_type"] == CastType.UPCAST.value, drop=True)
 
-Deprecated Parameter Names
+TEOS-10 buoyancy relocation
 
-Several processing functions (`cell_thermal_mass`,
-`bouyancy_frequency`, `buoyancy`) now use:
+- ``processing.bouyancy_frequency(...)`` and ``processing.buoyancy(...)`` are deprecated wrappers that now call the new implementations in ``conversion``. Prefer calling ``conversion`` directly.
 
-*   `temperature`, `salinity`, `pressure`
-
-Old names are accepted but warn.
+**Migration Example**
 
 .. code-block:: python
 
-   # Before
-   ctm = cell_thermal_mass(temperature_C=t, conductivity_Sm=c,
-   amplitude=0.03, time_constant=7, sample_interval=0.25)
+   from seabirdscientific.conversion import buoyancy_frequency
+   n2 = buoyancy_frequency(temperature=ct, salinity=sa, pressure=p, gravity=g)
 
-   # After
-   ctm = cell_thermal_mass(temperature=t, conductivity=c,
-   amplitude=0.03, time_constant=7, sample_interval=0.25)
+Enum value adjustments
+
+- ``CastType`` values are now strings: ``BOTH="both"``, ``DOWNCAST="downcast"``, ``UPCAST="upcast"``, ``NONE=""``.
+- Logic based on equality remains the same; avoid numeric comparisons.
+
+``utils`` module
+----------------
+
+- ``get_tolerance(data, flag_value=-9.99e-29)`` now accepts an explicit ``flag_value`` argument for tests.
+- New: ``profile`` decorator (uses ``line_profiler``) to print per-line timings during development.
+- New: ``WarnAllMembersMeta`` metaclass used to warn when deprecated Enum members are accessed (e.g., ``HexDataTypes.temperature``).
 
 
-`utils` module
---------------
+End-to-End Examples
+===================
 
-*   `get_tolerance` now accepts `flag_value` explicitly.
-*   New decorator `profile` for line profiling.
-*   New `WarnAllMembersMeta` metaclass (used for deprecation warnings).
-
-
-End-to-End Migration Example
-============================
+HEX → bin → cast labeling (xarray)
+----------------------------------
 
 .. code-block:: python
 
    from seabirdscientific.instrument_data import read_hex_file, Sensors, InstrumentType
    from seabirdscientific.processing import bin_average, split, CastType
 
-   ds = read_hex_file(
-   filepath="cast.hex",
-   instrument_type=InstrumentType.SBE37SM,
-   enabled_sensors=[Sensors.Temperature, Sensors.Conductivity, Sensors.Pressure],
-   moored_mode=False,
+   dataset = read_hex_file(
+       filepath="cast.hex",
+       instrument_type=InstrumentType.SBE37SM,
+       enabled_sensors=[Sensors.Temperature, Sensors.Conductivity, Sensors.Pressure],
+       moored_mode=False,
    )
 
-   binned = bin_average(ds, bin_variable="prdM", bin_size=1.0)
+   binned_dataset = bin_average(dataset, bin_variable="prdM", bin_size=1.0)
 
-   labeled = split(binned, "prdM", cast_type=CastType.BOTH,
-   exclude_bad_scans=True, drop=False)
+   labeled = split(
+       binned_dataset,
+       "prdM",
+       cast_type=CastType.BOTH,
+       exclude_bad_scans=True,
+       drop=False
+   )
 
-   down = labeled.where(labeled["cast_type"] == CastType.DOWNCAST.value,
-   drop=True)
+   down = labeled.where(
+       labeled["cast_type"] == CastType.DOWNCAST.value,
+       drop=True
+   )

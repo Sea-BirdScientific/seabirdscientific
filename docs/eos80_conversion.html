@@ -2,12 +2,14 @@
 <html class="no-js" lang="en" data-content_root="./">
   <head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html">
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html">
         <link rel="prefetch" href="_static/images/seabird-logo.png" as="image">
         <link rel="prefetch" href="_static/images/seabird-logo-white.png" as="image">
 
-    <!-- Generated with Sphinx 7.4.7 and Furo 2025.12.19 --><title>Python Module Index - Community Toolkit 3.0.0a1</title>
-<link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
+    <!-- Generated with Sphinx 7.4.7 and Furo 2025.12.19 -->
+        <title>eos80_conversion.py - Community Toolkit 3.0.0a1</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="_static/styles/sbsfuro.css?v=3d7447bb" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
     
@@ -172,7 +174,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
         <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
       </label>
     </div>
@@ -237,7 +239,13 @@
           <span>Back to top</span>
         </a>
         <div class="content-icon-container">
-          <div class="theme-toggle-container theme-toggle-content">
+          <div class="view-this-page">
+  <a class="muted-link" href="_sources/eos80_conversion.rst.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
+<div class="theme-toggle-container theme-toggle-content">
             <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
               <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
               <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
@@ -245,91 +253,97 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
             <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          
-<section class="domainindex-section">
-  <h1>Python Module Index</h1>
-  <div class="domainindex-jumpbox"><a href="#cap-s"><strong>s</strong></a></div>
+          <section id="module-seabirdscientific.eos80_conversion">
+<span id="eos80-conversion-py"></span><span id="eos80-conversion"></span><h1>eos80_conversion.py<a class="headerlink" href="#module-seabirdscientific.eos80_conversion" title="Link to this heading"><span>#</span></a></h1>
+<p>EOS80 functions to support legacy conversions</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="seabirdscientific.eos80_conversion.adiabatic_temperature_gradient">
+<span class="sig-prename descclassname"><span class="pre">seabirdscientific.eos80_conversion.</span></span><span class="sig-name descname"><span class="pre">adiabatic_temperature_gradient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">salinity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pressure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#seabirdscientific.eos80_conversion.adiabatic_temperature_gradient" title="Link to this definition"><span>#</span></a></dt>
+<dd><p>EOS-80 adiabatic lapse rate calculation.</p>
+<p>This was ported from CSharedCalc::ATG()</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>salinity</strong> – salinity data</p></li>
+<li><p><strong>temperature</strong> – temperature data</p></li>
+<li><p><strong>pressure</strong> – pressure data</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the resulting adiabatic lapse rate</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="seabirdscientific.eos80_conversion.bouyancy_frequency">
+<span class="sig-prename descclassname"><span class="pre">seabirdscientific.eos80_conversion.</span></span><span class="sig-name descname"><span class="pre">bouyancy_frequency</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">temperature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">salinity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pressure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gravity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seabirdscientific.eos80_conversion.bouyancy_frequency" title="Link to this definition"><span>#</span></a></dt>
+<dd><p>Calculates an N^2 value (buoyancy frequency) for the given window
+of temperature, salinity, and pressure, at the given latitude.</p>
+<p>Expects temperature as ITS-90 temperature, salinity as practical
+salinity, and pressure as dbar, all of the same length. Performs the
+calculation following the SBE Data Processing formula using E0S-80
+calculations for potential temp and density</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>temperature</strong> – ITS-90 temperature values for the given window</p></li>
+<li><p><strong>salinity</strong> – practical salinity values for the given window</p></li>
+<li><p><strong>pressure</strong> – pressure values for the given window</p></li>
+<li><p><strong>gravity</strong> – gravity value</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A single N^2 [Brunt-Väisälä (buoyancy) frequency]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="seabirdscientific.eos80_conversion.density">
+<span class="sig-prename descclassname"><span class="pre">seabirdscientific.eos80_conversion.</span></span><span class="sig-name descname"><span class="pre">density</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">salinity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pressure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#seabirdscientific.eos80_conversion.density" title="Link to this definition"><span>#</span></a></dt>
+<dd><p>EOS-80 density calculation.</p>
+<p>This was ported from CSharedCalc::Density()</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>salinity</strong> – salinity data</p></li>
+<li><p><strong>temperature</strong> – temperature data</p></li>
+<li><p><strong>pressure</strong> – pressure data</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>resulting density data</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="seabirdscientific.eos80_conversion.potential_temperature">
+<span class="sig-prename descclassname"><span class="pre">seabirdscientific.eos80_conversion.</span></span><span class="sig-name descname"><span class="pre">potential_temperature</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">salinity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pressure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mean_pressure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#seabirdscientific.eos80_conversion.potential_temperature" title="Link to this definition"><span>#</span></a></dt>
+<dd><p>EOS-80 potential temperature calculation.</p>
+<p>This was ported from CSharedCalc::PoTemp()</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>salinity</strong> – sainity data</p></li>
+<li><p><strong>temperature</strong> – temperature data</p></li>
+<li><p><strong>pressure</strong> – subset pressure data</p></li>
+<li><p><strong>mean_pressure</strong> – pressure data</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>calculated potential temperature data</p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
-<table class="domainindex-table">
-  <tr class="pcap">
-    <td></td><td>&#160;</td><td></td>
-  </tr>
-  <tr class="cap" id="cap-s">
-    <td></td><td><strong>s</strong></td><td></td>
-  </tr>
-  <tr>
-    <td><img src="_static/minus.png" class="toggler"
-              id="toggle-1" style="display: none" alt="-" /></td>
-    <td>
-        <code class="xref">seabirdscientific</code></td><td>
-    <em></em></td>
-  </tr>
-  <tr class="cg-1">
-    <td></td>
-    <td>&#160;&#160;&#160;
-        <a href="cal_coefficients.html#module-seabirdscientific.cal_coefficients"><code class="xref">seabirdscientific.cal_coefficients</code></a></td><td>
-    <em></em></td>
-  </tr>
-  <tr class="cg-1">
-    <td></td>
-    <td>&#160;&#160;&#160;
-        <a href="contour.html#module-seabirdscientific.contour"><code class="xref">seabirdscientific.contour</code></a></td><td>
-    <em></em></td>
-  </tr>
-  <tr class="cg-1">
-    <td></td>
-    <td>&#160;&#160;&#160;
-        <a href="conversion.html#module-seabirdscientific.conversion"><code class="xref">seabirdscientific.conversion</code></a></td><td>
-    <em></em></td>
-  </tr>
-  <tr class="cg-1">
-    <td></td>
-    <td>&#160;&#160;&#160;
-        <a href="eos80_conversion.html#module-seabirdscientific.eos80_conversion"><code class="xref">seabirdscientific.eos80_conversion</code></a></td><td>
-    <em></em></td>
-  </tr>
-  <tr class="cg-1">
-    <td></td>
-    <td>&#160;&#160;&#160;
-        <a href="eos80_processing.html#module-seabirdscientific.eos80_processing"><code class="xref">seabirdscientific.eos80_processing</code></a></td><td>
-    <em></em></td>
-  </tr>
-  <tr class="cg-1">
-    <td></td>
-    <td>&#160;&#160;&#160;
-        <a href="instrument_data.html#module-seabirdscientific.instrument_data"><code class="xref">seabirdscientific.instrument_data</code></a></td><td>
-    <em></em></td>
-  </tr>
-  <tr class="cg-1">
-    <td></td>
-    <td>&#160;&#160;&#160;
-        <a href="interpret_sbs_variable.html#module-seabirdscientific.interpret_sbs_variable"><code class="xref">seabirdscientific.interpret_sbs_variable</code></a></td><td>
-    <em></em></td>
-  </tr>
-  <tr class="cg-1">
-    <td></td>
-    <td>&#160;&#160;&#160;
-        <a href="processing.html#module-seabirdscientific.processing"><code class="xref">seabirdscientific.processing</code></a></td><td>
-    <em></em></td>
-  </tr>
-  <tr class="cg-1">
-    <td></td>
-    <td>&#160;&#160;&#160;
-        <a href="utils.html#module-seabirdscientific.utils"><code class="xref">seabirdscientific.utils</code></a></td><td>
-    <em></em></td>
-  </tr>
-  <tr class="cg-1">
-    <td></td>
-    <td>&#160;&#160;&#160;
-        <a href="visualization.html#module-seabirdscientific.visualization"><code class="xref">seabirdscientific.visualization</code></a></td><td>
-    <em></em></td>
-  </tr>
-</table>
 
         </article>
       </div>
@@ -356,8 +370,30 @@
         
       </footer>
     </div>
-    <aside class="toc-drawer no-toc">
+    <aside class="toc-drawer">
       
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">eos80_conversion.py</a><ul>
+<li><a class="reference internal" href="#seabirdscientific.eos80_conversion.adiabatic_temperature_gradient"><code class="docutils literal notranslate"><span class="pre">adiabatic_temperature_gradient()</span></code></a></li>
+<li><a class="reference internal" href="#seabirdscientific.eos80_conversion.bouyancy_frequency"><code class="docutils literal notranslate"><span class="pre">bouyancy_frequency()</span></code></a></li>
+<li><a class="reference internal" href="#seabirdscientific.eos80_conversion.density"><code class="docutils literal notranslate"><span class="pre">density()</span></code></a></li>
+<li><a class="reference internal" href="#seabirdscientific.eos80_conversion.potential_temperature"><code class="docutils literal notranslate"><span class="pre">potential_temperature()</span></code></a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
       
       
     </aside>

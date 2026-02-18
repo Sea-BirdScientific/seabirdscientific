@@ -264,46 +264,56 @@
 <h2>v2.7.3 → v3.0.0<a class="headerlink" href="#v2-7-3-v3-0-0" title="Link to this heading"><span>#</span></a></h2>
 <section id="breaking-changes-summary">
 <h3>Breaking Changes Summary<a class="headerlink" href="#breaking-changes-summary" title="Link to this heading"><span>#</span></a></h3>
+<ul class="simple">
+<li><p><strong>Pandas → Xarray</strong>:</p>
 <ul>
-<li><p><strong>Pandas → Xarray</strong></p>
-<ul class="simple">
-<li><p><cite>read_hex_file()</cite> now returns <code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.Dataset</span></code>.</p></li>
-<li><p><cite>bin_average()</cite> now returns <code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.Dataset</span></code>.</p></li>
-<li><p>New <cite>read_cnv_file()</cite> replaces the old <cite>cnv_to_instrument_data</cite> pattern.</p></li>
+<li><p><cite>read_hex_file(…)</cite> now returns <code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.Dataset</span></code> (previously <code class="xref py py-class docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code>).</p></li>
+<li><p><cite>processing.bin_average(…)</cite> now <em>accepts</em> and <em>returns</em> <code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.Dataset</span></code>.</p></li>
+<li><p>New <cite>instrument_data.read_cnv_file(…) -&gt; xarray.Dataset</cite> provides a direct CNV→xarray path, replacing the old custom container approach.</p></li>
 </ul>
 </li>
-<li><p><strong>Function Rename to Snake Case</strong></p>
-<p>Old names (<cite>read_SBE19plus_format_0</cite> etc.) still exist but emit a
-<cite>DeprecationWarning</cite>. New canonical versions:</p>
-<ul class="simple">
-<li><p><cite>read_sbe19plus_format_0</cite></p></li>
-<li><p><cite>read_sbe37sm_format_0</cite></p></li>
-<li><p><cite>read_sbe39plus_format_0</cite></p></li>
-<li><p><cite>read_sbe911plus_format_0</cite></p></li>
+<li><p><strong>Snake-case reader names + deprecation shims</strong>:</p>
+<ul>
+<li><p><cite>read_SBE19plus_format_0</cite> → <cite>read_sbe19plus_format_0</cite></p></li>
+<li><p><cite>read_SBE37SM_format_0</cite> → <cite>read_sbe37sm_format_0</cite></p></li>
+<li><p><cite>read_SBE39plus_format_0</cite> → <cite>read_sbe39plus_format_0</cite></p></li>
+<li><p><cite>read_SBE911plus_format_0</cite> → <cite>read_sbe911plus_format_0</cite>
+Old names remain as <em>wrappers</em> that emit <cite>DeprecationWarning</cite>.</p></li>
 </ul>
 </li>
-<li><p><strong>Enums Deprecated at Call Sites</strong></p>
-<ul class="simple">
-<li><p><cite>MinVelocityType</cite> and <cite>WindowFilterType</cite> are deprecated at call sites.
-Functions now accept string literals instead.</p></li>
+<li><p><strong>Enums at call sites deprecated → use string literals</strong>:</p>
+<ul>
+<li><p>For processing functions, pass strings (e.g., <cite>“fixed”</cite>, <cite>“percent”</cite>, <cite>“boxcar”</cite>, <cite>“median”</cite>) instead of <cite>MinVelocityType</cite> or <cite>WindowFilterType</cite>. Using the Enums still works but warns.</p></li>
 </ul>
 </li>
-<li><p><strong>Hex Metadata Restructured</strong></p>
-<ul class="simple">
-<li><p>New <cite>HEX_TYPE_*</cite> and <cite>HEX_LEN_*</cite> constants.</p></li>
-<li><p><cite>HexDataTypes</cite> Enum remains but triggers warnings when accessed.</p></li>
+<li><p><strong>HEX metadata refactor</strong>:</p>
+<ul>
+<li><p>Prefer new <cite>HEX_TYPE_*</cite> and <cite>HEX_LEN_*</cite> constants for type names and field lengths.</p></li>
+<li><p><cite>HexDataTypes</cite> Enum is retained but emits warnings on member access.</p></li>
 </ul>
 </li>
-<li><p><strong>Deprecated Parameters Removed</strong></p>
-<ul class="simple">
-<li><p><cite>ph_counts</cite>, <cite>k0</cite>, <cite>k2</cite>, <cite>int_k0</cite>, <cite>ext_k0</cite> and related variants
-removed from multiple APIs.</p></li>
+<li><p><strong>Parameter cleanup / deprecations removed</strong>:</p>
+<ul>
+<li><p>SeaFET pH converters removed <cite>ph_counts</cite>; use <cite>raw_ph</cite> with <cite>ph_units=”counts”|”volts”</cite>.</p></li>
+<li><p>SeaFET coefficient constructors dropped deprecated aliases (<cite>k0</cite>, <cite>k2</cite>, <cite>int_k0</cite>, <cite>int_k2</cite>, <cite>ext_k0</cite>, <cite>ext_k2</cite>).</p></li>
+<li><p>Legacy dummy <cite>hex=…</cite> parameters removed from low-level readers.</p></li>
 </ul>
 </li>
-<li><p><strong>New Utilities</strong></p>
-<ul class="simple">
-<li><p><cite>profile</cite> decorator for local line profiling.</p></li>
-<li><p><cite>WarnAllMembersMeta</cite> to warn on deprecated Enum access.</p></li>
+<li><p><strong>New EOS-80 module and deprecation routing</strong>:</p>
+<ul>
+<li><p>New <cite>eos80_conversion</cite> module contains EOS-80 implementations (<cite>density</cite>, <cite>potential_temperature</cite>, <cite>adiabatic_temperature_gradient</cite>, and EOS-80 <cite>bouyancy_frequency</cite>).</p></li>
+<li><p><cite>eos80_processing</cite> now delegates to <cite>eos80_conversion</cite> and marks old functions as deprecated.</p></li>
+</ul>
+</li>
+<li><p><strong>Loop-edit API clarified</strong>:</p>
+<ul>
+<li><p>New canonical <cite>processing.loop_edit(…)</cite> operates on <em>depth</em> or <em>pressure</em> (with <cite>units</cite>/<cite>latitude</cite>), returns updated flag array.</p></li>
+<li><p><cite>loop_edit_depth(…)</cite> and <cite>loop_edit_pressure(…)</cite> retained as <strong>deprecated</strong> compatibility wrappers.</p></li>
+</ul>
+</li>
+<li><p><strong>Cast splitting now labels data</strong>:</p>
+<ul>
+<li><p><cite>processing.split(…)</cite> <em>adds</em> a <cite>cast_type</cite> coordinate to a dataset (<cite>“downcast”</cite>, <cite>“upcast”</cite>, or empty string) and can optionally <cite>drop=True</cite> to subset. It no longer returns a list of frames by default.</p></li>
 </ul>
 </li>
 </ul>
@@ -314,53 +324,76 @@ removed from multiple APIs.</p></li>
 <h4><cite>cal_coefficients</cite> module<a class="headerlink" href="#cal-coefficients-module" title="Link to this heading"><span>#</span></a></h4>
 <p>Removed deprecated constructor parameters:</p>
 <ul class="simple">
-<li><p><cite>PHSeaFETInternalCoefficients</cite> no longer accepts:
-<cite>k0</cite>, <cite>k2</cite>, <cite>int_k0</cite>, <cite>int_k2</cite>.</p></li>
-<li><p><cite>PHSeaFETExternalCoefficients</cite> no longer accepts:
-<cite>ext_k0</cite>, <cite>ext_k2</cite>.</p></li>
+<li><p><cite>PHSeaFETInternalCoefficients</cite>: no longer accepts <cite>k0</cite>, <cite>k2</cite>, <cite>int_k0</cite>, <cite>int_k2</cite>.</p></li>
+<li><p><cite>PHSeaFETExternalCoefficients</cite>: no longer accepts <cite>ext_k0</cite>, <cite>ext_k2</cite>.</p></li>
 </ul>
 <p><strong>Migration Example</strong></p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Before</span>
-<span class="n">cc</span> <span class="o">=</span> <span class="n">PHSeaFETInternalCoefficients</span><span class="p">(</span><span class="n">k0</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">k2</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
+<span class="n">ci</span> <span class="o">=</span> <span class="n">PHSeaFETInternalCoefficients</span><span class="p">(</span><span class="n">k0</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">k2</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
 
 <span class="c1"># After</span>
-<span class="n">cc</span> <span class="o">=</span> <span class="n">PHSeaFETInternalCoefficients</span><span class="p">(</span><span class="n">kdf0</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">kdf2</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
+<span class="n">ci</span> <span class="o">=</span> <span class="n">PHSeaFETInternalCoefficients</span><span class="p">(</span><span class="n">kdf0</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">kdf2</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Before</span>
-<span class="n">cc</span> <span class="o">=</span> <span class="n">PHSeaFETExternalCoefficients</span><span class="p">(</span><span class="n">ext_k0</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">ext_k2</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
+<span class="n">ce</span> <span class="o">=</span> <span class="n">PHSeaFETExternalCoefficients</span><span class="p">(</span><span class="n">ext_k0</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">ext_k2</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
 
 <span class="c1"># After</span>
-<span class="n">cc</span> <span class="o">=</span> <span class="n">PHSeaFETExternalCoefficients</span><span class="p">(</span><span class="n">k0</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">k2</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
+<span class="n">ce</span> <span class="o">=</span> <span class="n">PHSeaFETExternalCoefficients</span><span class="p">(</span><span class="n">k0</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">k2</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
 <section id="conversion-module">
 <h4><cite>conversion</cite> module<a class="headerlink" href="#conversion-module" title="Link to this heading"><span>#</span></a></h4>
-<p>Removed <cite>ph_counts</cite> from:</p>
+<p>Parameter removals and doc clarifications:</p>
 <ul class="simple">
-<li><p><cite>convert_internal_seafet_ph</cite></p></li>
-<li><p><cite>convert_external_seafet_ph</cite></p></li>
+<li><p><cite>convert_internal_seafet_ph(…)</cite>: removed <cite>ph_counts</cite>; use <cite>raw_ph</cite> with <cite>ph_units</cite>.</p></li>
+<li><p><cite>convert_external_seafet_ph(…)</cite>: removed <cite>ph_counts</cite>.</p></li>
 </ul>
 <p><strong>Migration Example</strong></p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Before</span>
-<span class="n">ph</span> <span class="o">=</span> <span class="n">convert_internal_seafet_ph</span><span class="p">(</span><span class="n">raw_ph</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ph_counts</span><span class="o">=</span><span class="n">arr</span><span class="p">)</span>
+<span class="n">ph</span> <span class="o">=</span> <span class="n">convert_internal_seafet_ph</span><span class="p">(</span><span class="n">ph_counts</span><span class="o">=</span><span class="n">counts</span><span class="p">)</span>
 
 <span class="c1"># After</span>
-<span class="n">ph</span> <span class="o">=</span> <span class="n">convert_internal_seafet_ph</span><span class="p">(</span><span class="n">raw_ph</span><span class="o">=</span><span class="n">arr</span><span class="p">,</span> <span class="n">ph_units</span><span class="o">=</span><span class="s2">&quot;counts&quot;</span><span class="p">)</span>
+<span class="n">ph</span> <span class="o">=</span> <span class="n">convert_internal_seafet_ph</span><span class="p">(</span><span class="n">raw_ph</span><span class="o">=</span><span class="n">counts</span><span class="p">,</span> <span class="n">ph_units</span><span class="o">=</span><span class="s2">&quot;counts&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Before</span>
+<span class="n">ph</span> <span class="o">=</span> <span class="n">convert_external_seafet_ph</span><span class="p">(</span><span class="n">ph_counts</span><span class="o">=</span><span class="n">counts</span><span class="p">)</span>
+
+<span class="c1"># After</span>
+<span class="n">ph</span> <span class="o">=</span> <span class="n">convert_external_seafet_ph</span><span class="p">(</span><span class="n">raw_ph</span><span class="o">=</span><span class="n">counts</span><span class="p">,</span> <span class="n">ph_units</span><span class="o">=</span><span class="s2">&quot;counts&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>New buoyancy utilities added here (moved from <cite>processing</cite>):</p>
+<ul class="simple">
+<li><p><cite>buoyancy_frequency(temperature, salinity, pressure, gravity)</cite></p></li>
+<li><p><cite>buoyancy(temperature, salinity, pressure, latitude, longitude, window_size, …)</cite></p></li>
+</ul>
+</section>
+<section id="eos80-conversion-module">
+<h4><cite>eos80_conversion</cite> module<a class="headerlink" href="#eos80-conversion-module" title="Link to this heading"><span>#</span></a></h4>
+<p>EOS-80 implementations moved from <cite>eos80_procesing</cite>:</p>
+<ul class="simple">
+<li><p><cite>density(salinity, temperature, pressure)</cite></p></li>
+<li><p><cite>potential_temperature(salinity, temperature, pressure, mean_pressure)</cite></p></li>
+<li><p><cite>adiabatic_temperature_gradient(salinity, temperature, pressure)</cite></p></li>
+<li><p><cite>bouyancy_frequency(temperature, salinity, pressure, gravity)</cite></p></li>
+</ul>
 </section>
 <section id="eos80-processing-module">
 <h4><cite>eos80_processing</cite> module<a class="headerlink" href="#eos80-processing-module" title="Link to this heading"><span>#</span></a></h4>
-<p><cite>bouyancy_frequency</cite> renamed parameters:</p>
+<p>Functions now delegate to <cite>eos80_conversion</cite> equivalents and emit deprecation warnings:</p>
 <ul class="simple">
-<li><p>New canonical names: <cite>temperature</cite>, <cite>salinity</cite>, <cite>pressure</cite>.</p></li>
-<li><p>Old names still accepted with warnings.</p></li>
+<li><p><cite>bouyancy_frequency(…)</cite> → calls <cite>eos80_conversion.bouyancy_frequency(…)</cite></p></li>
+<li><p><cite>density(…)</cite> → <cite>eos80_conversion.density(…)</cite></p></li>
+<li><p><cite>potential_temperature(…)</cite> → <cite>eos80_conversion.potential_temperature(…)</cite></p></li>
+<li><p><cite>adiabatic_temperature_gradient(…)</cite> → <cite>eos80_conversion.adiabatic_temperature_gradient(…)</cite></p></li>
 </ul>
 <p><strong>Migration Example</strong></p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Before</span>
-<span class="n">n2</span> <span class="o">=</span> <span class="n">bouyancy_frequency</span><span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">seabirdscientific</span><span class="w"> </span><span class="kn">import</span> <span class="n">eos80_processing</span> <span class="k">as</span> <span class="n">ep</span>
+<span class="n">n2</span> <span class="o">=</span> <span class="n">ep</span><span class="o">.</span><span class="n">bouyancy_frequency</span><span class="p">(</span>
     <span class="n">temp_ITS_subset</span><span class="o">=</span><span class="n">t</span><span class="p">,</span>
     <span class="n">salinity_prac_subset</span><span class="o">=</span><span class="n">s</span><span class="p">,</span>
     <span class="n">pressure_dbar_subset</span><span class="o">=</span><span class="n">p</span><span class="p">,</span>
@@ -368,20 +401,14 @@ removed from multiple APIs.</p></li>
 <span class="p">)</span>
 
 <span class="c1"># After</span>
-<span class="n">n2</span> <span class="o">=</span> <span class="n">bouyancy_frequency</span><span class="p">(</span>
-    <span class="n">temperature</span><span class="o">=</span><span class="n">t</span><span class="p">,</span>
-    <span class="n">salinity</span><span class="o">=</span><span class="n">s</span><span class="p">,</span>
-    <span class="n">pressure</span><span class="o">=</span><span class="n">p</span><span class="p">,</span>
-    <span class="n">gravity</span><span class="o">=</span><span class="n">g</span>
-<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">seabirdscientific</span><span class="w"> </span><span class="kn">import</span> <span class="n">eos80_conversion</span> <span class="k">as</span> <span class="n">ec</span>
+<span class="n">n2</span> <span class="o">=</span> <span class="n">ec</span><span class="o">.</span><span class="n">bouyancy_frequency</span><span class="p">(</span><span class="n">temperature</span><span class="o">=</span><span class="n">t</span><span class="p">,</span> <span class="n">salinity</span><span class="o">=</span><span class="n">s</span><span class="p">,</span> <span class="n">pressure</span><span class="o">=</span><span class="n">p</span><span class="p">,</span> <span class="n">gravity</span><span class="o">=</span><span class="n">g</span><span class="p">)</span>
 </pre></div>
 </div>
-<p><cite>density</cite> similarly renamed parameters.</p>
 </section>
 <section id="instrument-data-module">
 <h4><cite>instrument_data</cite> module<a class="headerlink" href="#instrument-data-module" title="Link to this heading"><span>#</span></a></h4>
-<p>CNV Reading (New API)</p>
-<p>New reader:</p>
+<p>CNV Reading Now Returns Xarray</p>
 <ul class="simple">
 <li><p><cite>read_cnv_file(filepath) -&gt; xarray.Dataset</cite>
 Replaces <cite>InstrumentData</cite> / <cite>MeasurementSeries</cite> / <cite>cnv_to_instrument_data</cite>.</p></li>
@@ -389,11 +416,11 @@ Replaces <cite>InstrumentData</cite> / <cite>MeasurementSeries</cite> / <cite>cn
 <p><strong>Migration Example</strong></p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Before</span>
 <span class="n">inst</span> <span class="o">=</span> <span class="n">cnv_to_instrument_data</span><span class="p">(</span><span class="s2">&quot;file.cnv&quot;</span><span class="p">)</span>
-<span class="n">df</span> <span class="o">=</span> <span class="n">inst</span><span class="o">.</span><span class="n">_to_dataframe</span><span class="p">()</span>
+<span class="n">dataframe</span> <span class="o">=</span> <span class="n">inst</span><span class="o">.</span><span class="n">_to_dataframe</span><span class="p">()</span>
 
 <span class="c1"># After</span>
-<span class="n">ds</span> <span class="o">=</span> <span class="n">read_cnv_file</span><span class="p">(</span><span class="s2">&quot;file.cnv&quot;</span><span class="p">)</span>
-<span class="n">df</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">to_dataframe</span><span class="p">()</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">read_cnv_file</span><span class="p">(</span><span class="s2">&quot;file.cnv&quot;</span><span class="p">)</span>
+<span class="n">dataframe</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">to_dataframe</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>HEX Reading and Decoding</p>
@@ -401,15 +428,15 @@ Replaces <cite>InstrumentData</cite> / <cite>MeasurementSeries</cite> / <cite>cn
 <li><p><cite>read_hex_file</cite> now returns <cite>xarray.Dataset</cite> instead of <cite>pandas.DataFrame</cite>.</p></li>
 <li><p>Added <cite>_preallocate_dataset</cite> helper.</p></li>
 <li><p>Introduced <cite>HEX_TYPE_*</cite> and <cite>HEX_LEN_*</cite> constants.</p></li>
-<li><p><cite>HexDataTypes</cite> still present but every member access triggers a
-<cite>DeprecationWarning</cite>.</p></li>
+<li><p><cite>HexDataTypes</cite> still present but every member access triggers a <cite>DeprecationWarning</cite>.</p></li>
 </ul>
 <p><strong>Migration Example</strong></p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Before</span>
-<span class="n">df</span> <span class="o">=</span> <span class="n">read_hex_file</span><span class="p">(</span><span class="s2">&quot;cast.hex&quot;</span><span class="p">,</span> <span class="n">itype</span><span class="p">,</span> <span class="n">enabled_sensors</span><span class="o">=</span><span class="p">[</span><span class="o">...</span><span class="p">])</span>
+<span class="n">dataframe</span> <span class="o">=</span> <span class="n">read_hex_file</span><span class="p">(</span><span class="s2">&quot;cast.hex&quot;</span><span class="p">,</span> <span class="n">itype</span><span class="p">,</span> <span class="n">enabled_sensors</span><span class="o">=</span><span class="p">[</span><span class="o">...</span><span class="p">])</span>
 
 <span class="c1"># After</span>
-<span class="n">ds</span> <span class="o">=</span> <span class="n">read_hex_file</span><span class="p">(</span><span class="s2">&quot;cast.hex&quot;</span><span class="p">,</span> <span class="n">itype</span><span class="p">,</span> <span class="n">enabled_sensors</span><span class="o">=</span><span class="p">[</span><span class="o">...</span><span class="p">])</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">read_hex_file</span><span class="p">(</span><span class="s2">&quot;cast.hex&quot;</span><span class="p">,</span> <span class="n">itype</span><span class="p">,</span> <span class="n">enabled_sensors</span><span class="o">=</span><span class="p">[</span><span class="o">...</span><span class="p">])</span>
+<span class="n">dataframe</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">to_dataframe</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>Snake-case Format Readers</p>
@@ -420,20 +447,15 @@ Replaces <cite>InstrumentData</cite> / <cite>MeasurementSeries</cite> / <cite>cn
 <li><p><cite>read_SBE39plus_format_0</cite> → <cite>read_sbe39plus_format_0</cite></p></li>
 <li><p><cite>read_SBE911plus_format_0</cite> → <cite>read_sbe911plus_format_0</cite></p></li>
 </ul>
-<p><strong>Migration Example</strong></p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Before</span>
-<span class="n">vals</span> <span class="o">=</span> <span class="n">read_SBE37SM_format_0</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">enabled_sensors</span><span class="o">=...</span><span class="p">)</span>
-
-<span class="c1"># After</span>
-<span class="n">vals</span> <span class="o">=</span> <span class="n">read_sbe37sm_format_0</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">enabled_sensors</span><span class="o">=...</span><span class="p">)</span>
-</pre></div>
-</div>
 </section>
 <section id="processing-module">
 <h4><cite>processing</cite> module<a class="headerlink" href="#processing-module" title="Link to this heading"><span>#</span></a></h4>
-<p>Deprecated Enums at Call Sites</p>
-<p>Use string literals instead of <cite>MinVelocityType</cite> or <cite>WindowFilterType</cite>.</p>
-<p><strong>Migration Example</strong></p>
+<p>Loop Edit</p>
+<ul class="simple">
+<li><p><cite>loop_edit</cite> replaces <cite>loop_edit_depth</cite> and <cite>loop_edit_pressure</cite>, which remain only as compatibility shims and emit deprecation warnings. Use <cite>units=”depth”</cite> (default) or <cite>units=”pressure”</cite></p></li>
+<li><p>The <cite>min_velocity_type</cite> argument now expects strings (e.g., <cite>“fixed”</cite>, <cite>“percent”</cite>) instead of the <cite>MinVelocityType</cite> enum. Passing the enum is accepted but deprecated.</p></li>
+</ul>
+<p><strong>Migration Example (prefer string literal over enum and use the core API)</strong></p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Before</span>
 <span class="n">m</span> <span class="o">=</span> <span class="n">loop_edit_depth</span><span class="p">(</span><span class="n">depth</span><span class="p">,</span> <span class="n">flag</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">MinVelocityType</span><span class="o">.</span><span class="n">FIXED</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>
 
@@ -441,6 +463,12 @@ Replaces <cite>InstrumentData</cite> / <cite>MeasurementSeries</cite> / <cite>cn
 <span class="n">m</span> <span class="o">=</span> <span class="n">loop_edit_depth</span><span class="p">(</span><span class="n">depth</span><span class="p">,</span> <span class="n">flag</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="s2">&quot;fixed&quot;</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>
 </pre></div>
 </div>
+<p>Window Filter</p>
+<ul class="simple">
+<li><p><cite>window_filter(…)</cite> now expects a string literal for the window type: <cite>“boxcar”</cite>, <cite>“cosine”</cite>, <cite>“gaussian”</cite>, <cite>“median”</cite>, or <cite>“triangle”</cite>.</p></li>
+<li><p>Passing <cite>WindowFilterType</cite> still works but warns.</p></li>
+</ul>
+<p><strong>Migration Example</strong></p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Before</span>
 <span class="n">y</span> <span class="o">=</span> <span class="n">window_filter</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">flags</span><span class="p">,</span> <span class="n">WindowFilterType</span><span class="o">.</span><span class="n">MEDIAN</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">dt</span><span class="p">)</span>
 
@@ -448,82 +476,89 @@ Replaces <cite>InstrumentData</cite> / <cite>MeasurementSeries</cite> / <cite>cn
 <span class="n">y</span> <span class="o">=</span> <span class="n">window_filter</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">flags</span><span class="p">,</span> <span class="s2">&quot;median&quot;</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">dt</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Xarray-Based <cite>bin_average</cite></p>
+<p>Xarray bin-average</p>
 <ul class="simple">
-<li><p>Input: now an <cite>xarray.Dataset</cite>.</p></li>
-<li><p>Output: <cite>xarray.Dataset</cite> with <cite>bin_number</cite> dimension.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bin_average(dataset,</span> <span class="pre">...)</span></code> now takes and return an <code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.Dataset</span></code>.</p></li>
+<li><p>Output uses a <code class="docutils literal notranslate"><span class="pre">bin_number</span></code> dimension; dataset attributes are preserved.</p></li>
+<li><p>Supports options like <code class="docutils literal notranslate"><span class="pre">include_scan_count</span></code>, <code class="docutils literal notranslate"><span class="pre">interpolate</span></code>, cast selection (via <code class="docutils literal notranslate"><span class="pre">cast_type</span></code> alongside <code class="docutils literal notranslate"><span class="pre">split(...)</span></code>), and flag handling.</p></li>
 </ul>
 <p><strong>Migration Example</strong></p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Before</span>
-<span class="n">df</span> <span class="o">=</span> <span class="n">read_hex_file</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
-<span class="n">avg</span> <span class="o">=</span> <span class="n">bin_average</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="s2">&quot;prdM&quot;</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
-
-<span class="c1"># After</span>
-<span class="n">ds</span> <span class="o">=</span> <span class="n">read_hex_file</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
-<span class="n">avg</span> <span class="o">=</span> <span class="n">bin_average</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s2">&quot;prdM&quot;</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dataset</span> <span class="o">=</span> <span class="n">read_hex_file</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<span class="n">binned_dataset</span> <span class="o">=</span> <span class="n">bin_average</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">bin_variable</span><span class="o">=</span><span class="s2">&quot;prdM&quot;</span><span class="p">,</span> <span class="n">bin_size</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Cast Splitting Now Uses Coordinates</p>
-<p><cite>split</cite> now:</p>
+<p>Cast splitting via coordinate</p>
 <ul class="simple">
-<li><p>Adds a <cite>cast_type</cite> coordinate.</p></li>
-<li><p>Does <em>not</em> return separate datasets unless <cite>drop=True</cite> is used.</p></li>
+<li><p><cite>split(…)</cite> now labels the data by adding a <cite>cast_type</cite> coordinate (values: <cite>“downcast”</cite>, <cite>“upcast”</cite>, or <cite>“”</cite>).</p></li>
+<li><p>Use <cite>drop=True</cite> to immediately subset.</p></li>
 </ul>
 <p><strong>Migration Example</strong></p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">labeled</span> <span class="o">=</span> <span class="n">split</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s2">&quot;prdM&quot;</span><span class="p">,</span> <span class="n">cast_type</span><span class="o">=</span><span class="n">CastType</span><span class="o">.</span><span class="n">BOTH</span><span class="p">,</span> <span class="n">drop</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<span class="n">down</span> <span class="o">=</span> <span class="n">labeled</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">labeled</span><span class="p">[</span><span class="s2">&quot;cast_type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">CastType</span><span class="o">.</span><span class="n">DOWNCAST</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
-<span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">up</span> <span class="o">=</span> <span class="n">labeled</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">labeled</span><span class="p">[</span><span class="s2">&quot;cast_type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">CastType</span><span class="o">.</span><span class="n">UPCAST</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
-<span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">labeled</span> <span class="o">=</span> <span class="n">split</span><span class="p">(</span>
+    <span class="n">binned_dataset</span><span class="p">,</span>
+    <span class="s2">&quot;prdM&quot;</span><span class="p">,</span>
+    <span class="n">cast_type</span><span class="o">=</span><span class="n">CastType</span><span class="o">.</span><span class="n">BOTH</span><span class="p">,</span>
+    <span class="n">exclude_bad_scans</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">drop</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">)</span>
+<span class="n">down</span> <span class="o">=</span> <span class="n">labeled</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">labeled</span><span class="p">[</span><span class="s2">&quot;cast_type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">CastType</span><span class="o">.</span><span class="n">DOWNCAST</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">up</span> <span class="o">=</span> <span class="n">labeled</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">labeled</span><span class="p">[</span><span class="s2">&quot;cast_type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">CastType</span><span class="o">.</span><span class="n">UPCAST</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Deprecated Parameter Names</p>
-<p>Several processing functions (<cite>cell_thermal_mass</cite>,
-<cite>bouyancy_frequency</cite>, <cite>buoyancy</cite>) now use:</p>
+<p>TEOS-10 buoyancy relocation</p>
 <ul class="simple">
-<li><p><cite>temperature</cite>, <cite>salinity</cite>, <cite>pressure</cite></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">processing.bouyancy_frequency(...)</span></code> and <code class="docutils literal notranslate"><span class="pre">processing.buoyancy(...)</span></code> are deprecated wrappers that now call the new implementations in <code class="docutils literal notranslate"><span class="pre">conversion</span></code>. Prefer calling <code class="docutils literal notranslate"><span class="pre">conversion</span></code> directly.</p></li>
 </ul>
-<p>Old names are accepted but warn.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Before</span>
-<span class="n">ctm</span> <span class="o">=</span> <span class="n">cell_thermal_mass</span><span class="p">(</span><span class="n">temperature_C</span><span class="o">=</span><span class="n">t</span><span class="p">,</span> <span class="n">conductivity_Sm</span><span class="o">=</span><span class="n">c</span><span class="p">,</span>
-<span class="n">amplitude</span><span class="o">=</span><span class="mf">0.03</span><span class="p">,</span> <span class="n">time_constant</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">sample_interval</span><span class="o">=</span><span class="mf">0.25</span><span class="p">)</span>
-
-<span class="c1"># After</span>
-<span class="n">ctm</span> <span class="o">=</span> <span class="n">cell_thermal_mass</span><span class="p">(</span><span class="n">temperature</span><span class="o">=</span><span class="n">t</span><span class="p">,</span> <span class="n">conductivity</span><span class="o">=</span><span class="n">c</span><span class="p">,</span>
-<span class="n">amplitude</span><span class="o">=</span><span class="mf">0.03</span><span class="p">,</span> <span class="n">time_constant</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">sample_interval</span><span class="o">=</span><span class="mf">0.25</span><span class="p">)</span>
+<p><strong>Migration Example</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">seabirdscientific.conversion</span><span class="w"> </span><span class="kn">import</span> <span class="n">buoyancy_frequency</span>
+<span class="n">n2</span> <span class="o">=</span> <span class="n">buoyancy_frequency</span><span class="p">(</span><span class="n">temperature</span><span class="o">=</span><span class="n">ct</span><span class="p">,</span> <span class="n">salinity</span><span class="o">=</span><span class="n">sa</span><span class="p">,</span> <span class="n">pressure</span><span class="o">=</span><span class="n">p</span><span class="p">,</span> <span class="n">gravity</span><span class="o">=</span><span class="n">g</span><span class="p">)</span>
 </pre></div>
 </div>
+<p>Enum value adjustments</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">CastType</span></code> values are now strings: <code class="docutils literal notranslate"><span class="pre">BOTH=&quot;both&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">DOWNCAST=&quot;downcast&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">UPCAST=&quot;upcast&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">NONE=&quot;&quot;</span></code>.</p></li>
+<li><p>Logic based on equality remains the same; avoid numeric comparisons.</p></li>
+</ul>
 </section>
 <section id="utils-module">
-<h4><cite>utils</cite> module<a class="headerlink" href="#utils-module" title="Link to this heading"><span>#</span></a></h4>
+<h4><code class="docutils literal notranslate"><span class="pre">utils</span></code> module<a class="headerlink" href="#utils-module" title="Link to this heading"><span>#</span></a></h4>
 <ul class="simple">
-<li><p><cite>get_tolerance</cite> now accepts <cite>flag_value</cite> explicitly.</p></li>
-<li><p>New decorator <cite>profile</cite> for line profiling.</p></li>
-<li><p>New <cite>WarnAllMembersMeta</cite> metaclass (used for deprecation warnings).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">get_tolerance(data,</span> <span class="pre">flag_value=-9.99e-29)</span></code> now accepts an explicit <code class="docutils literal notranslate"><span class="pre">flag_value</span></code> argument for tests.</p></li>
+<li><p>New: <code class="docutils literal notranslate"><span class="pre">profile</span></code> decorator (uses <code class="docutils literal notranslate"><span class="pre">line_profiler</span></code>) to print per-line timings during development.</p></li>
+<li><p>New: <code class="docutils literal notranslate"><span class="pre">WarnAllMembersMeta</span></code> metaclass used to warn when deprecated Enum members are accessed (e.g., <code class="docutils literal notranslate"><span class="pre">HexDataTypes.temperature</span></code>).</p></li>
 </ul>
 </section>
 </section>
-<section id="end-to-end-migration-example">
-<h3>End-to-End Migration Example<a class="headerlink" href="#end-to-end-migration-example" title="Link to this heading"><span>#</span></a></h3>
+<section id="end-to-end-examples">
+<h3>End-to-End Examples<a class="headerlink" href="#end-to-end-examples" title="Link to this heading"><span>#</span></a></h3>
+<section id="hex-bin-cast-labeling-xarray">
+<h4>HEX → bin → cast labeling (xarray)<a class="headerlink" href="#hex-bin-cast-labeling-xarray" title="Link to this heading"><span>#</span></a></h4>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">seabirdscientific.instrument_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_hex_file</span><span class="p">,</span> <span class="n">Sensors</span><span class="p">,</span> <span class="n">InstrumentType</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">seabirdscientific.processing</span><span class="w"> </span><span class="kn">import</span> <span class="n">bin_average</span><span class="p">,</span> <span class="n">split</span><span class="p">,</span> <span class="n">CastType</span>
 
-<span class="n">ds</span> <span class="o">=</span> <span class="n">read_hex_file</span><span class="p">(</span>
-<span class="n">filepath</span><span class="o">=</span><span class="s2">&quot;cast.hex&quot;</span><span class="p">,</span>
-<span class="n">instrument_type</span><span class="o">=</span><span class="n">InstrumentType</span><span class="o">.</span><span class="n">SBE37SM</span><span class="p">,</span>
-<span class="n">enabled_sensors</span><span class="o">=</span><span class="p">[</span><span class="n">Sensors</span><span class="o">.</span><span class="n">Temperature</span><span class="p">,</span> <span class="n">Sensors</span><span class="o">.</span><span class="n">Conductivity</span><span class="p">,</span> <span class="n">Sensors</span><span class="o">.</span><span class="n">Pressure</span><span class="p">],</span>
-<span class="n">moored_mode</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">read_hex_file</span><span class="p">(</span>
+    <span class="n">filepath</span><span class="o">=</span><span class="s2">&quot;cast.hex&quot;</span><span class="p">,</span>
+    <span class="n">instrument_type</span><span class="o">=</span><span class="n">InstrumentType</span><span class="o">.</span><span class="n">SBE37SM</span><span class="p">,</span>
+    <span class="n">enabled_sensors</span><span class="o">=</span><span class="p">[</span><span class="n">Sensors</span><span class="o">.</span><span class="n">Temperature</span><span class="p">,</span> <span class="n">Sensors</span><span class="o">.</span><span class="n">Conductivity</span><span class="p">,</span> <span class="n">Sensors</span><span class="o">.</span><span class="n">Pressure</span><span class="p">],</span>
+    <span class="n">moored_mode</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="n">binned</span> <span class="o">=</span> <span class="n">bin_average</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">bin_variable</span><span class="o">=</span><span class="s2">&quot;prdM&quot;</span><span class="p">,</span> <span class="n">bin_size</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+<span class="n">binned_dataset</span> <span class="o">=</span> <span class="n">bin_average</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">bin_variable</span><span class="o">=</span><span class="s2">&quot;prdM&quot;</span><span class="p">,</span> <span class="n">bin_size</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
 
-<span class="n">labeled</span> <span class="o">=</span> <span class="n">split</span><span class="p">(</span><span class="n">binned</span><span class="p">,</span> <span class="s2">&quot;prdM&quot;</span><span class="p">,</span> <span class="n">cast_type</span><span class="o">=</span><span class="n">CastType</span><span class="o">.</span><span class="n">BOTH</span><span class="p">,</span>
-<span class="n">exclude_bad_scans</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">drop</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">labeled</span> <span class="o">=</span> <span class="n">split</span><span class="p">(</span>
+    <span class="n">binned_dataset</span><span class="p">,</span>
+    <span class="s2">&quot;prdM&quot;</span><span class="p">,</span>
+    <span class="n">cast_type</span><span class="o">=</span><span class="n">CastType</span><span class="o">.</span><span class="n">BOTH</span><span class="p">,</span>
+    <span class="n">exclude_bad_scans</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">drop</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">)</span>
 
-<span class="n">down</span> <span class="o">=</span> <span class="n">labeled</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">labeled</span><span class="p">[</span><span class="s2">&quot;cast_type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">CastType</span><span class="o">.</span><span class="n">DOWNCAST</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
-<span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">down</span> <span class="o">=</span> <span class="n">labeled</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+    <span class="n">labeled</span><span class="p">[</span><span class="s2">&quot;cast_type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">CastType</span><span class="o">.</span><span class="n">DOWNCAST</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+    <span class="n">drop</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
 </pre></div>
 </div>
+</section>
 </section>
 </section>
 </section>
@@ -589,13 +624,17 @@ Replaces <cite>InstrumentData</cite> / <cite>MeasurementSeries</cite> / <cite>cn
 <li><a class="reference internal" href="#module-level-api-changes">Module-level API Changes</a><ul>
 <li><a class="reference internal" href="#cal-coefficients-module"><cite>cal_coefficients</cite> module</a></li>
 <li><a class="reference internal" href="#conversion-module"><cite>conversion</cite> module</a></li>
+<li><a class="reference internal" href="#eos80-conversion-module"><cite>eos80_conversion</cite> module</a></li>
 <li><a class="reference internal" href="#eos80-processing-module"><cite>eos80_processing</cite> module</a></li>
 <li><a class="reference internal" href="#instrument-data-module"><cite>instrument_data</cite> module</a></li>
 <li><a class="reference internal" href="#processing-module"><cite>processing</cite> module</a></li>
-<li><a class="reference internal" href="#utils-module"><cite>utils</cite> module</a></li>
+<li><a class="reference internal" href="#utils-module"><code class="docutils literal notranslate"><span class="pre">utils</span></code> module</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#end-to-end-migration-example">End-to-End Migration Example</a></li>
+<li><a class="reference internal" href="#end-to-end-examples">End-to-End Examples</a><ul>
+<li><a class="reference internal" href="#hex-bin-cast-labeling-xarray">HEX → bin → cast labeling (xarray)</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
