@@ -92,7 +92,7 @@ Source
    cal_coefficients
    contour
    conversion
-   eos80_processing
+   eos80_conversion
    instrument_data
    interpret_sbs_variable
    processing
