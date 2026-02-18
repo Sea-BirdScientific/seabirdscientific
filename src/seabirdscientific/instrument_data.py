@@ -1061,13 +1061,24 @@ def read_SBE19plus_format_0(
         n += HEX_LENGTH["time"]
 
     # Validate hex length. Ensure length matches what is expected based
-    # on enabled sensors and moored mode.
+    # on enabled sensors and moored mode. If it does not, set all values
+    # to NaN
+    
     if n != len(hex_segment.strip()):
+        for key in results:
+            results[key] = np.nan
         return results
-        raise RuntimeWarning(
-            "Hex string length does not match expectation based on enabled sensors and moored mode"
-        )
+        # raise RuntimeWarning(
+            # "Hex string length does not match expectation based on enabled sensors and moored mode"
+        # )
 
+    # Final validation to check if any values have been set to NaN, and if so,
+    # set all values to NaN
+    for key in results:
+        if results[key] == np.nan:
+            for key in results:
+                results[key] = np.nan
+            break
     return results
 
 
@@ -1140,10 +1151,10 @@ def read_nmea_coordinates(hex_segment: str):
     """
     if len(hex_segment) != 6:
         return np.nan
-        raise RuntimeWarning(
-            f"Unknown Coordinate Format. Received Hex of length {len(hex_segment)}. "
-            f"Should have received Hex of length {HEX_LENGTH['nmeaLongitude']}"
-        )
+        # raise RuntimeWarning(
+            # f"Unknown Coordinate Format. Received Hex of length {len(hex_segment)}. "
+            # f"Should have received Hex of length {HEX_LENGTH['nmeaLongitude']}"
+        # )
     byte0 = int(hex_segment[0:2], 16)
     byte1 = int(hex_segment[2:4], 16)
     byte2 = int(hex_segment[4:6], 16)
@@ -1176,7 +1187,8 @@ def read_status_sign(hex_segment: str):
     elif binary[1] == "1":
         signs.append(-1)
     if len(signs) != 2:
-        raise RuntimeWarning("An error occured while processing Coordinate Signs")
+        return [np.nan, np.nan]
+        # raise RuntimeWarning("An error occured while processing Coordinate Signs")
     return signs
 
 
