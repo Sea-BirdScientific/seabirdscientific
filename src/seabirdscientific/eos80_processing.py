@@ -12,21 +12,7 @@ def bouyancy_frequency(
     pressure_dbar_subset: np.ndarray,
     gravity: float,
 ):
-    """Calculates an N^2 value (buoyancy frequency) for the given window
-    of temperature, salinity, and pressure, at the given latitude.
-
-    Expects temperature as ITS-90 temperature, salinity as practical
-    salinity, and pressure as dbar, all of the same length. Performs the
-    calculation following the SBE Data Processing formula using E0S-80
-    calculations for potential temp and density
-
-    :param temperature: ITS-90 temperature values for the given window
-    :param salinity: practical salinity values for the given window
-    :param pressure: pressure values for the given window
-    :param gravity: gravity value
-
-    :return: A single N^2 [Brunt-Väisälä (buoyancy) frequency]
-    """
+    """Deprecated. Use eos80_conversion.buoyancy_frequency"""
 
     warnings.warn("Deprecated. Use eos80_conversion.buoyancy_frequency", DeprecationWarning)
 

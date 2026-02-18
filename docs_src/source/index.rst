@@ -59,7 +59,7 @@ Source
 
 :ref:`conversion`: A collection of functions for converting raw instrument data to SI units. Also includes some functions for converting between SI units, for exampel from depth from pressure.
 
-:ref:`eos80_processing`: Legacy functions for legacy data.
+:ref:`eos80_conversion`: Legacy functions for legacy data.
 
 :ref:`instrument_data`: Classes and functions for parsing instrument data files into python data types.
 
