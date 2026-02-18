@@ -36,10 +36,10 @@ data.
 
 # Native imports
 import math
+import warnings
 from enum import Enum
 from logging import getLogger
 from typing import List
-import warnings
 
 # Third-party imports
 import gsw
@@ -47,12 +47,11 @@ import numpy as np
 import pandas as pd
 from scipy import signal, stats
 
-# Sea-Bird imports
-
-# Internal imports
-from seabirdscientific.conversion import depth_from_pressure
 from seabirdscientific import eos80_processing as eos80
 
+# Sea-Bird imports
+# Internal imports
+from seabirdscientific.conversion import depth_from_pressure
 
 logger = getLogger(__name__)
 
@@ -120,16 +119,7 @@ def low_pass_filter(x: np.ndarray, time_constant: float, sample_interval: float)
 
     a = 1 / (1 + 2 * time_constant / sample_interval)
     b = a * (1 - 2 * time_constant / sample_interval)
-
-    x2 = x.copy()
-    for n in range(1, len(x)):
-        x2[n] = a * x[n] + a * x[n - 1] - b * x2[n - 1]
-
-    y = x2.copy()
-    for n in range(len(x) - 2, -1, -1):
-        y[n] = a * x2[n] + a * x2[n + 1] - b * y[n + 1]
-
-    return y
+    return signal.filtfilt(b=[a, a], a=[1, b], x=x, padtype=None)
 
 
 def align_ctd(
