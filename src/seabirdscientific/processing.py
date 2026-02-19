@@ -36,10 +36,10 @@ data.
 
 # Native imports
 import math
+import warnings
 from enum import Enum
 from logging import getLogger
 from typing import List
-import warnings
 
 # Third-party imports
 import gsw
@@ -48,11 +48,9 @@ import pandas as pd
 from scipy import signal, stats
 
 # Sea-Bird imports
-
 # Internal imports
-from seabirdscientific.conversion import depth_from_pressure
 from seabirdscientific import eos80_processing as eos80
-
+from seabirdscientific.conversion import depth_from_pressure
 
 logger = getLogger(__name__)
 
@@ -169,24 +167,20 @@ def cell_thermal_mass(
     :param temperature_C: temperature in degrees C
     :param conductivity_Sm: conductivity in S/m
     :param amplitude: thermal anomaly amplitude (alpha)
-    :param time_constant: thermal anomoly time constant (1/beta)
+    :param time_constant: thermal anomaly time constant (1/beta)
     :param sample_interval: time between samples
 
     :return: the corrected conductivity in S/m
     """
-
-    a = 2 * amplitude / (sample_interval / time_constant + 2)
-    b = 1 - (2 * a / amplitude)
-    ctm = np.zeros(len(temperature_C))  # cell thermal mass
-    corrected_conductivity = conductivity_Sm.copy()
-
-    for n in range(1, len(ctm)):
-        dc_dt = 0.1 * (1.0 + 0.006 * (temperature_C[n] - 20.0))
-        dt = temperature_C[n] - temperature_C[n - 1]
-        ctm[n] = -1.0 * b * ctm[n - 1] + a * dc_dt * dt
-        corrected_conductivity[n] += ctm[n]
-
-    return corrected_conductivity
+    divisor = sample_interval * 1 / time_constant + 2
+    dc = (
+        0.1
+        * (1 + 0.006 * (temperature_C - 20))
+        * np.diff(temperature_C, prepend=[temperature_C[0]])
+    )
+    return conductivity_Sm + signal.lfilter(
+        b=[2 * amplitude / divisor, 0], a=[1, 1 - 4 / divisor], x=dc
+    )
 
 
 def loop_edit_pressure(
