@@ -84,16 +84,7 @@ def low_pass_filter(x: np.ndarray, time_constant: float, sample_interval: float)
 
     a = 1 / (1 + 2 * time_constant / sample_interval)
     b = a * (1 - 2 * time_constant / sample_interval)
-
-    x2 = x.copy()
-    for n in range(1, len(x)):
-        x2[n] = a * x[n] + a * x[n - 1] - b * x2[n - 1]
-
-    y = x2.copy()
-    for n in range(len(x) - 2, -1, -1):
-        y[n] = a * x2[n] + a * x2[n + 1] - b * y[n + 1]
-
-    return y
+    return signal.filtfilt(b=[a, a], a=[1, b], x=x, padtype=None)
 
 
 def align_ctd(
