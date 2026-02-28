@@ -1068,15 +1068,13 @@ def read_SBE19plus_format_0(
         for key in results:
             results[key] = np.nan
         return results
-        # raise RuntimeWarning(
-            # "Hex string length does not match expectation based on enabled sensors and moored mode"
-        # )
 
     # Final validation to check if any values have been set to NaN, and if so,
     # set all values to NaN
     for key in results:
         if results[key] == np.nan:
             for key in results:
+                logger.warning("Invalid sample detected, values set to NaN")
                 results[key] = np.nan
             break
     return results
@@ -1151,10 +1149,7 @@ def read_nmea_coordinates(hex_segment: str):
     """
     if len(hex_segment) != 6:
         return np.nan
-        # raise RuntimeWarning(
-            # f"Unknown Coordinate Format. Received Hex of length {len(hex_segment)}. "
-            # f"Should have received Hex of length {HEX_LENGTH['nmeaLongitude']}"
-        # )
+
     byte0 = int(hex_segment[0:2], 16)
     byte1 = int(hex_segment[2:4], 16)
     byte2 = int(hex_segment[4:6], 16)
@@ -1173,7 +1168,6 @@ def read_status_sign(hex_segment: str):
     """
     if len(hex_segment) != 2:
         return np.nan
-        raise RuntimeWarning("Unknown Status Format")
     integer = int(hex_segment, 16)
     binary = format(integer, "0>8b")
     signs = []
@@ -1188,7 +1182,6 @@ def read_status_sign(hex_segment: str):
         signs.append(-1)
     if len(signs) != 2:
         return [np.nan, np.nan]
-        # raise RuntimeWarning("An error occured while processing Coordinate Signs")
     return signs
 
 
@@ -1201,7 +1194,6 @@ def read_nmea_time(hex_segment: str):
     """
     if len(hex_segment) != 8:
         return np.nan
-        raise RuntimeWarning("Unknown Time Format")
     byte0 = hex_segment[0:2]
     byte1 = hex_segment[2:4]
     byte2 = hex_segment[4:6]
