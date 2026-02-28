@@ -1073,8 +1073,8 @@ def read_SBE19plus_format_0(
     # set all values to NaN
     for key in results:
         if results[key] == np.nan:
+            logger.warning("Invalid sample detected, values set to NaN")
             for key in results:
-                logger.warning("Invalid sample detected, values set to NaN")
                 results[key] = np.nan
             break
     return results
