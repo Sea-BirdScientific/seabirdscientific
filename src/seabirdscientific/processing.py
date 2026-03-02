@@ -355,17 +355,17 @@ def _find_depth_peaks(
 ) -> tuple[int, int]:
     """Finds the global depth minima and maxima.
 
-    This determinines the earliest points where the downcast and upcast
+    This determines the earliest points where the downcast and upcast
     can begin
 
     :param depth: depth data
     :param flag: flag data
     :param remove_surface_soak: If true, scans before a minimum depth
-        are mrked as bad
+        are marked as bad
     :param flag_value: the flag value (typically -9.99e-29)
     :param min_soak_depth: the minimum depth that must be reached before
         a series can be considered a downcast
-    :param max_soak_depth: maximumm depth that can be considered the
+    :param max_soak_depth: maximum depth that can be considered the
         start of a downcast
 
     :return: minimum and maximum index corresponding to minimum and
@@ -373,33 +373,29 @@ def _find_depth_peaks(
     """
 
     # first index where min_soak_depth < depth < max_soak_depth
+    min_soak_depth_n = 0
     if remove_surface_soak:
-        min_soak_depth_n = min(
-            n
-            for n, d in enumerate(depth)
-            if flag[n] != flag_value and min_soak_depth < d < max_soak_depth
+        # argmax will return the first element that is the max
+        # with the array being full of true (1) and false (0), so the first true
+        min_soak_depth_n = np.argmax(
+            (min_soak_depth < depth) & (depth < max_soak_depth) & (flag != flag_value)
         )
-    else:
-        min_soak_depth_n = 0
 
-    max_soak_depth_n = min(
-        n for n, d in enumerate(depth) if flag[n] != flag_value and d > max_soak_depth
-    )
+    max_soak_depth_n = np.argmax((max_soak_depth < depth) & (flag != flag_value))
 
     # beginning of possible downcast domain
-    min_depth_n = min(
-        (d, n)
-        for n, d in enumerate(depth)
-        if flag[n] != flag_value and min_soak_depth_n <= n < max_soak_depth_n
-    )[1]
+    # because we know the limits, we don't have to iterate over the whole array
+    zone_of_interest = np.ma.array(
+        data=depth[min_soak_depth_n:max_soak_depth_n], mask=flag[min_soak_depth_n:max_soak_depth_n]
+    )
+    min_depth_n = zone_of_interest.argmin() + min_soak_depth_n
 
     # beginning of possible upcast domain
-    if min_depth_n == len(depth) - 1:
-        max_depth_n = -1
-    else:
-        max_depth_n = [n for n, d in enumerate(depth) if d == max(depth) and n > min_depth_n][0]
+    max_depth_n = -1
+    if min_depth_n != len(depth) - 1:
+        max_depth_n = np.argmax(depth[min_depth_n + 1 :]) + min_depth_n + 1
 
-    return (min_depth_n, max_depth_n)
+    return min_depth_n, max_depth_n
 
 
 def find_depth_peaks(*args, **kwargs):
