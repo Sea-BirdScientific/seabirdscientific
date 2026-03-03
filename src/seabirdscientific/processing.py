@@ -163,15 +163,14 @@ def cell_thermal_mass(
 
     :return: the corrected conductivity in S/m
     """
-    divisor = sample_interval * 1 / time_constant + 2
-    dc = (
-        0.1
-        * (1 + 0.006 * (temperature_C - 20))
-        * np.diff(temperature_C, prepend=[temperature_C[0]])
-    )
-    return conductivity_Sm + signal.lfilter(
-        b=[2 * amplitude / divisor, 0], a=[1, 1 - 4 / divisor], x=dc
-    )
+    # keeping a and b defined as they are in the SBE data procesing
+    # manual, even though they get swapped in the lfilter args
+    a = 2 * amplitude / (sample_interval * 1 / time_constant + 2)
+    b = 1 - (2 * a / amplitude)
+    dc_dt = 0.1 * (1 + 0.006 * (temperature_C - 20))
+    dt = np.diff(temperature_C, prepend=[temperature_C[0]])
+    ctm = conductivity_Sm + signal.lfilter(b=[a, 0], a=[1, b], x=dc_dt * dt)
+    return ctm
 
 
 def loop_edit_pressure(
