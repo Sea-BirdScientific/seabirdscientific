@@ -739,7 +739,6 @@ class TestSeaFETPH:
         )
         assert np.allclose(external_ph, 7.939406, atol=1e-6)
 
-
     def test_convert_external_seafet_ph_v1p3_shallow(self, request):
         # from application note 99
         external_ph = dc.convert_external_seafet_ph(
