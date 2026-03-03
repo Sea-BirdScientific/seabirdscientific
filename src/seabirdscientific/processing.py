@@ -158,24 +158,19 @@ def cell_thermal_mass(
     :param temperature_C: temperature in degrees C
     :param conductivity_Sm: conductivity in S/m
     :param amplitude: thermal anomaly amplitude (alpha)
-    :param time_constant: thermal anomoly time constant (1/beta)
+    :param time_constant: thermal anomaly time constant (1/beta)
     :param sample_interval: time between samples
 
     :return: the corrected conductivity in S/m
     """
-
-    a = 2 * amplitude / (sample_interval / time_constant + 2)
+    # keeping a and b defined as they are in the SBE data procesing
+    # manual, even though they get swapped in the lfilter args
+    a = 2 * amplitude / (sample_interval * 1 / time_constant + 2)
     b = 1 - (2 * a / amplitude)
-    ctm = np.zeros(len(temperature_C))  # cell thermal mass
-    corrected_conductivity = conductivity_Sm.copy()
-
-    for n in range(1, len(ctm)):
-        dc_dt = 0.1 * (1.0 + 0.006 * (temperature_C[n] - 20.0))
-        dt = temperature_C[n] - temperature_C[n - 1]
-        ctm[n] = -1.0 * b * ctm[n - 1] + a * dc_dt * dt
-        corrected_conductivity[n] += ctm[n]
-
-    return corrected_conductivity
+    dc_dt = 0.1 * (1 + 0.006 * (temperature_C - 20))
+    dt = np.diff(temperature_C, prepend=[temperature_C[0]])
+    ctm = conductivity_Sm + signal.lfilter(b=[a, 0], a=[1, b], x=dc_dt * dt)
+    return ctm
 
 
 def loop_edit_pressure(
