@@ -514,10 +514,10 @@ def _flag_by_minima_maxima(
 
     # flag values that don't exceed most recent valid local minima/maxima
     for n, d in enumerate(depth):
-        if n >= max_depth_n and d < local_min and flag[n] != flag_value:
-            local_min = d
-        elif n >= min_depth_n and d > local_max and flag[n] != flag_value:
+        if min_depth_n <= n < max_depth_n and d > local_max and flag[n] != flag_value:
             local_max = d
+        elif n >= max_depth_n and d < local_min and flag[n] != flag_value:
+            local_min = d
         else:
             flag[n] = flag_value
 
