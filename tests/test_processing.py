@@ -281,6 +281,32 @@ class TestFindDepthPeaks:
         assert min_depth_n == 5
         assert max_depth_n == 11
 
+    def test_find_depth_peaks_flagged_min_depth(self):
+        flag = np.array([1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+        min_depth_n, max_depth_n = p._find_depth_peaks(
+            depth=self.depth,
+            flag=flag,
+            remove_surface_soak=False,
+            flag_value=10,
+            min_soak_depth=None,
+            max_soak_depth=3,
+        )
+        assert min_depth_n == 6
+        assert max_depth_n == 11
+
+    def test_find_depth_peaks_remove_soak_flagged_min_depth(self):
+        flag = np.array([1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+        min_depth_n, max_depth_n = p._find_depth_peaks(
+            depth=self.depth,
+            flag=flag,
+            remove_surface_soak=True,
+            flag_value=self.flag_value,
+            min_soak_depth=2.5,
+            max_soak_depth=3.5,
+        )
+        assert min_depth_n == 6
+        assert max_depth_n == 11
+
 
 class TestFlagByMinimaMaxima:
     depth = np.array([-1, 0, 1, 2, 3, 2, 3, 4, 5, 6, 5, 6, 7, 8, 7, 6, 5, 6, 5, 4, 3, 2, 1])
