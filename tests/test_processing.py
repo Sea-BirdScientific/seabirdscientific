@@ -381,6 +381,54 @@ class TestFlagByMinimaMaxima:
         )
         assert np.all(flag == expected_flag)
 
+    def test_flag_by_minima_maxima_flagged_min_depth(self):
+        depth = np.array(
+            [-1, 0, 1, 2, 3, 2, 3, 4, 5, 6, 5, 6, 7, 8, 7, 7.5, 6.5, 6, 5, 4, 3, 2, 1]
+        )
+        flag = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+        min_depth_n, max_depth_n = p._find_depth_peaks(
+            depth=depth,
+            flag=flag,
+            remove_surface_soak=False,
+            flag_value=self.flag_value,
+            min_soak_depth=None,
+            max_soak_depth=3.5,
+        )
+
+        p._flag_by_minima_maxima(
+            depth=depth,
+            flag=flag,
+            min_depth_n=min_depth_n,
+            max_depth_n=max_depth_n,
+            flag_value=self.flag_value,
+        )
+        expected_flag = np.array(
+            [0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0]
+        )
+        assert np.all(flag == expected_flag)
+
+    def test_flag_by_minima_maxima_flagged_min_depth2(self):
+        depth = np.array([0.0, 1, 2, 1, 100, 60, 70, 80, 90, 90, 80, 60, 40])
+        flag = np.zeros(len(depth))
+        min_depth_n, max_depth_n = p._find_depth_peaks(
+            depth=depth,
+            flag=flag,
+            remove_surface_soak=False,
+            flag_value=self.flag_value,
+            min_soak_depth=None,
+            max_soak_depth=3.5,
+        )
+
+        p._flag_by_minima_maxima(
+            depth=depth,
+            flag=flag,
+            min_depth_n=min_depth_n,
+            max_depth_n=max_depth_n,
+            flag_value=10,
+        )
+        expected_flag = np.array([0, 0, 0, 10, 0, 0, 10, 10, 10, 10, 10, 10, 0])
+        assert np.all(flag == expected_flag)
+
 
 class TestLoopEdit:
     def test_loop_edit_pressure_min_velocity(self):
@@ -538,7 +586,7 @@ class TestLoopEdit:
             max_soak_depth=20,
             use_deck_pressure_offset=False,
             exclude_flags=False,
-            flag_value=10
+            flag_value=10,
         )
 
         expected_flags = expected_data.measurements["flag"].values
@@ -566,7 +614,7 @@ class TestLoopEdit:
             max_soak_depth=20,
             use_deck_pressure_offset=False,
             exclude_flags=False,
-            flag_value=10
+            flag_value=10,
         )
 
         expected_flags = expected_data.measurements["flag"].values
