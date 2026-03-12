@@ -2,16 +2,18 @@
 
 # Native imports
 import json
-from logging import getLogger
-from typing import Dict, List, Literal, Optional, Union
-from pathlib import Path
 import warnings
+from dataclasses import dataclass
+from datetime import timedelta
+from logging import getLogger
+from pathlib import Path
+from typing import Dict, List, Literal, Optional, Union
 
 # Third-party imports
 import numpy as np
 import pandas as pd
-import xarray as xr
 import plotly.graph_objects as go
+import xarray as xr
 from plotly import subplots
 
 # Internal imports
@@ -21,6 +23,56 @@ from seabirdscientific.interpret_sbs_variable import interpret_sbs_variable
 # TODO: translate warning and error messages
 
 logger = getLogger(__name__)
+
+
+
+@dataclass
+class Transform:
+    slope: float
+    offset: float
+
+
+@dataclass
+class AxisSettings:
+    name: str # e.g. "tv290C", "c0S/m"
+    title: str # e.g. "Temperature", "Conductivity"
+    units: str # e.g. "ITS-90 deg C", "S/m"
+    range: List[float] # e.g. [0, 50], [20, 100] one pair per variable
+    marker: str # e.g. "circle", "square"
+    color: str #  e.g. "#00576d", "#0083a4", "#8ae7ff"
+    color_scale: List[List[Union[float, str]]] # e.g. [[0, "#00576d"],[0.4, "#0083a4"],[1, "#8ae7ff"]]
+    transform: Transform
+
+
+@dataclass
+class Axes:
+    x: List[AxisSettings]
+    y: List[AxisSettings]
+    z: List[AxisSettings]
+
+
+@dataclass
+class PlotSettings:
+    axes: Axes
+    title: str
+    layout_type: Literal["multiple-x", "multiple-y", "contour"]
+    show_loop_edit_flags: bool
+    connect_gaps: bool
+    flag_value: float
+    invert_y_axis: bool
+    title_font_size: float
+    label_font_size: float
+    marker_size: float
+    series_names: List[str]
+    annotate: bool
+    background_color: str
+    height: int
+    width: int
+    disabled: bool
+    plot_previous_casts: str
+    plot_all_scans: bool
+    previous_scans_to_plot: int
+    previous_interval_to_plot: timedelta
 
 
 class ChartConfig:
