@@ -5,9 +5,9 @@ from pathlib import Path
 
 # Third-party imports
 import numpy as np
-import pandas as pd
 import pytest
 import plotly.graph_objects as go
+import xarray as xr
 
 # Sea-Bird imports
 
@@ -23,12 +23,12 @@ class TestParseChartData:
         [test_resources / "example_pass.csv", test_resources / "example_pass.asc"],
     )
     def test_parse_instrument_data_csv_pass(self, path):
-        assert isinstance(sv.parse_instrument_data(path), pd.DataFrame)
+        assert isinstance(sv.parse_instrument_data(path), xr.Dataset)
 
     def test_parse_instrument_data_json_pass(self):
         assert isinstance(
             sv.parse_instrument_data(test_resources / "example_pass.json"),
-            pd.DataFrame,
+            xr.Dataset,
         )
 
     def test_parse_instrument_data_txt_error(self, caplog):
@@ -39,13 +39,15 @@ class TestParseChartData:
 class TestSelectSubset:
     def test_select_subset_empty_pass(self):
         data = sv.parse_instrument_data(test_resources / "example_pass.asc")
-        assert np.all(sv.select_subset([], data) == pd.DataFrame({"Sample Count": [0, 1, 2]}))
+        subset = sv.select_subset([], data)
+        assert isinstance(subset, xr.Dataset)
+        assert np.array_equal(subset["Sample Count"].data, np.array([0, 1, 2]))
 
     def test_select_subset_single_pass(self):
         data = sv.parse_instrument_data(test_resources / "example_pass.asc")
         subset = sv.select_subset(["Col1"], data)
-        assert subset.columns == ["Col1"]
-        assert np.all(subset == pd.DataFrame({"Col1": [1, 4, 7]}))
+        assert list(subset.data_vars) == ["Col1"]
+        assert np.array_equal(subset["Col1"].data, np.array([1, 4, 7]))
 
 
 class TestPlotXYChart:
@@ -63,7 +65,7 @@ class TestPlotXYChart:
 
     @pytest.fixture
     def data(self, config):
-        return sv.ChartData(self.data_path, config)
+        return sv.parse_instrument_data(self.data_path)
 
     def test_plot_xy_chart_pass(self, data, config):
         assert isinstance(sv.plot_xy_chart(data, config), go.Figure)
@@ -87,12 +89,12 @@ class TestPlotXYChart:
         config.x_names = ["Col1", "Col2"]
         config.y_names = ["Col1", "Col2"]
         config.chart_type = chart_type
-        data = sv.ChartData(self.data_path, config)
+        data = sv.parse_instrument_data(self.data_path)
         with pytest.warns(UserWarning, match="Only one axis can support multiple data sets"):
             sv.plot_xy_chart(data, config)
 
 
-class TestChartData:
+class TestDatasetInput:
     data_path = test_resources / "example_pass.asc"
 
     @pytest.fixture
@@ -107,24 +109,27 @@ class TestChartData:
 
     @pytest.fixture
     def data(self, config):
-        return sv.ChartData(self.data_path, config)
+        return sv.parse_instrument_data(self.data_path)
 
     def test_chart_data_x_error(self, config):
         with pytest.raises(KeyError):
             config.x_names = ["Col999"]
-            sv.ChartData(self.data_path, config)
+            data = sv.parse_instrument_data(self.data_path)
+            sv.plot_xy_chart(data, config)
 
     def test_chart_data_y_error(self, config):
         with pytest.raises(KeyError):
             config = config
             config.y_names = ["Col999"]
-            sv.ChartData(self.data_path, config)
+            data = sv.parse_instrument_data(self.data_path)
+            sv.plot_xy_chart(data, config)
 
     def test_chart_data_z_error(self, config):
         with pytest.raises(KeyError):
             config = config
             config.z_names = ["Col999"]
-            sv.ChartData(self.data_path, config)
+            data = sv.parse_instrument_data(self.data_path)
+            sv.select_subset(config.z_names, data)
 
     def test_chart_data_slash_pass(self):
         data_path = test_resources / "example_fail_slash.csv"
@@ -135,9 +140,15 @@ class TestChartData:
             z_names=["Col-3"],
             chart_type="",
         )
-        data = sv.ChartData(data_path, config)
+        data = sv.parse_instrument_data(data_path)
+        subset_x = sv.select_subset(config.x_names, data)
+        subset_y = sv.select_subset(config.y_names, data)
+        subset_z = sv.select_subset(config.z_names, data)
 
-        assert isinstance(data, sv.ChartData)
+        assert isinstance(data, xr.Dataset)
+        assert list(subset_x.data_vars) == ["Col_1"]
+        assert list(subset_y.data_vars) == ["Col_2"]
+        assert list(subset_z.data_vars) == ["Col_3"]
 
 
 class TestPlotXYChart2:
@@ -150,7 +161,7 @@ class TestPlotXYChart2:
             chart_type="subplots",
         )
         source = '{"Col1": [1.0, 4.0, 7.0], "Col2": [2.0, 5.0, 8.0], "Col3": [3.0, 6.0, 9.0], "flag": [0, 0, 0]}'
-        data = sv.ChartData(source, config)
+        data = sv.parse_instrument_data(source)
         figure = sv.plot_xy_chart(data, config)
         assert isinstance(figure, go.Figure)
 
@@ -204,7 +215,7 @@ class TestChartBounds:
             chart_type="overlay",
             bounds={"x": {0: [1, 5], 1: [6, 8], 2: [5, 9], 3: [9, 11]}},
         )
-        data = sv.ChartData(self.data_path, config)
+        data = sv.parse_instrument_data(self.data_path)
         assert isinstance(sv.plot_xy_chart(data, config), go.Figure)
 
     def test_chart_bounds_multiple_y_pass(self):
@@ -216,5 +227,5 @@ class TestChartBounds:
             chart_type="overlay",
             bounds={"y": {0: [1, 5], 1: [6, 8], 2: [5, 9], 3: [9, 11]}},
         )
-        data = sv.ChartData(self.data_path, config)
+        data = sv.parse_instrument_data(self.data_path)
         assert isinstance(sv.plot_xy_chart(data, config), go.Figure)

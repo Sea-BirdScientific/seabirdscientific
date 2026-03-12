@@ -10,7 +10,7 @@ import warnings
 # Third-party imports
 import numpy as np
 import pandas as pd
-import plotly.express as px
+import xarray as xr
 import plotly.graph_objects as go
 from plotly import subplots
 
@@ -97,31 +97,22 @@ class ChartConfig:
                 self.bounds[axis] = {}
 
 
-class ChartData:
-    """Class to contain chart data and helper functions"""
+def _mask_dataset(dataset: xr.Dataset, config: ChartConfig) -> xr.Dataset:
+    """Apply plotting masks to the dataset based on chart configuration."""
 
-    # TODO: move helper functions into ChartData
+    masked = dataset.copy(deep=True)
 
-    def __init__(self, data_source: Union[str, pd.DataFrame], config: ChartConfig):
-        """Initializes an object to store chart data.
+    for name, data_array in masked.data_vars.items():
+        if np.issubdtype(data_array.dtype, np.number):
+            masked[name] = data_array.where(data_array != config.flag_value)
 
-        :param data_source: A file path (.csv, .asc, .json), a JSON
-            string, or pandas DataFrame
-        :param config: A ChartConfig object to configure plotly
-        """
+    if not config.plot_loop_edit_flags and "flag" in masked.data_vars:
+        masked = masked.where(masked["flag"].notnull())
 
-        data = parse_instrument_data(data_source)
-        if data is not None:
-            data.mask(data == config.flag_value, inplace=True)
-            if not config.plot_loop_edit_flags and "flag" in data.columns:
-                mask = data["flag"].isnull()
-                data.loc[mask, :] = np.nan
-            self.x = select_subset(config.x_names, data)
-            self.y = select_subset(config.y_names, data)
-            self.z = select_subset(config.z_names, data)
+    return masked
 
 
-def parse_instrument_data(source: Union[str, Path, pd.DataFrame]) -> pd.DataFrame:
+def parse_instrument_data(source: Union[str, Path, pd.DataFrame, xr.Dataset]) -> xr.Dataset:
     """Top level function for converting instrument data to numpy array.
 
     Currently supports pandas dataframes, json strings, or a Path to the
@@ -130,12 +121,15 @@ def parse_instrument_data(source: Union[str, Path, pd.DataFrame]) -> pd.DataFram
     :param source: A JSON string, file path (.csv, .asc, .json), or
         pandas DataFrame
 
-    :return: pandas dataframe containing field names and data
+    :return: xarray dataset containing field names and data
 
     """
 
     try:
-        if isinstance(source, pd.DataFrame):
+        if isinstance(source, xr.Dataset):
+            data = source.to_dataframe().reset_index(drop=True)
+
+        elif isinstance(source, pd.DataFrame):
             data = source.copy()
 
         elif isinstance(source, Path):
@@ -161,22 +155,27 @@ def parse_instrument_data(source: Union[str, Path, pd.DataFrame]) -> pd.DataFram
         columns = [interpret_sbs_variable(column)["name"] for column in data.columns]
         for old_column, new_column in zip(data.columns, columns):
             data.rename(columns={old_column: new_column}, inplace=True)
-        return data
+        sample_coord = np.arange(len(data))
+        dataset = xr.Dataset(coords={"sample": sample_coord})
+        for column in data.columns:
+            dataset[column] = xr.DataArray(data[column].to_numpy(), dims=["sample"])
+
+        return dataset
 
     except (NameError, TypeError) as e:
         logger.error(e)
         return None
 
 
-def select_subset(axis_names: list[str], data: pd.DataFrame) -> pd.DataFrame:
+def select_subset(axis_names: list[str], data: xr.Dataset) -> xr.Dataset:
     """Takes a list of axis names and returns a data set for each name
     in the list.
 
-    If axis_names is empty the function will return a DataFrame of
+    If axis_names is empty the function will return a Dataset of
     integers representing the sample count of the data. This could be
     used in a single series chart for example.
 
-    Otherwise, the function will return a DataFrame for each name in the
+    Otherwise, the function will return a Dataset for each name in the
     list. This would be for a single xy chart or an overlay/subplot
     chart.
 
@@ -187,24 +186,33 @@ def select_subset(axis_names: list[str], data: pd.DataFrame) -> pd.DataFrame:
     subset = select_subset(["T090C", "C0Sm"], data)
 
     :param axis_names: List of axis names corresponding to the data
-    :param data: The numpy DataFrame returned from read_data()
+    :param data: xarray dataset containing one-dimensional instrument
+        variables
 
     :return: A tuple with the axis name and data
 
     """
 
     if len(axis_names) == 0:
-        return pd.DataFrame({"Sample Count": list(range(0, len(data)))})
+        sample_count = data.sizes.get("sample", 0)
+        return xr.Dataset(
+            {"Sample Count": xr.DataArray(np.arange(sample_count), dims=["sample"])},
+            coords={"sample": np.arange(sample_count)},
+        )
+
+    missing_names = [name for name in axis_names if name not in data.data_vars]
+    if missing_names:
+        raise KeyError(missing_names[0])
 
     return data[axis_names]
 
 
-def plot_xy_chart(data: ChartData, config: ChartConfig) -> go.Figure:
+def plot_xy_chart(data: xr.Dataset, config: ChartConfig) -> go.Figure:
     """Takes instrument data and a config and plots an XY chart with one
     or more data sets.
 
-    :param data: Data object with x, y, z, data selected
-        according to the config
+    :param data: xarray dataset, such as that returned by read_cnv_file
+        or read_hex_file
     :param config: Config object with various plotly
         settings
 
@@ -213,22 +221,26 @@ def plot_xy_chart(data: ChartData, config: ChartConfig) -> go.Figure:
 
     figure = go.Figure()
 
+    masked_data = _mask_dataset(data, config)
+    x_data = select_subset(config.x_names, masked_data)
+    y_data = select_subset(config.y_names, masked_data)
+
     # single data set
-    if len(data.x.columns) == 1 and len(data.y.columns) == 1:
-        figure = create_single_plot(data.x, data.y, config)
+    if len(x_data.data_vars) == 1 and len(y_data.data_vars) == 1:
+        figure = create_single_plot(x_data, y_data, config)
 
     # too many data sets
-    elif len(data.x.columns) > 1 and len(data.y.columns) > 1:
+    elif len(x_data.data_vars) > 1 and len(y_data.data_vars) > 1:
         message = "Only one axis can support multiple data sets"
         logger.warning(message)
         warnings.warn(message)
 
     # multiple data sets
-    elif len(data.x.columns) > 1 or len(data.y.columns) > 1:
+    elif len(x_data.data_vars) > 1 or len(y_data.data_vars) > 1:
         if config.chart_type == "overlay":
-            figure = create_overlay(data.x, data.y, config)
+            figure = create_overlay(x_data, y_data, config)
         elif config.chart_type == "subplots":
-            figure = create_subplots(data.x, data.y, config)
+            figure = create_subplots(x_data, y_data, config)
 
     else:
         # getting here should not be possible unless data and config are
@@ -241,66 +253,77 @@ def plot_xy_chart(data: ChartData, config: ChartConfig) -> go.Figure:
     return figure
 
 
-def create_single_plot(x: pd.DataFrame, y: pd.DataFrame, config: ChartConfig) -> go.Figure:
+def create_single_plot(x: xr.Dataset, y: xr.Dataset, config: ChartConfig) -> go.Figure:
     """Creates a single XY plot, with one or more data sets.
 
     If there are multiple datasets for the x or y axis, an overlay plot
     will be generated
 
-    :param x: Numpy array of data for the x axis
-    :param y: Numpy array of data for the y axis
+    :param x: xarray dataset of data for the x axis
+    :param y: xarray dataset of data for the y axis
     :param config: Dataclass with settings for the plotly chart
 
     :return: A plotly.graph_objects.Figure displaying the provided x y
         data
     """
 
-    if any(name in x.columns for name in y.columns):
+    x_names = list(x.data_vars)
+    y_names = list(y.data_vars)
+
+    if any(name in x_names for name in y_names):
         logger.warning("Duplicate data names will be omitted")
 
-    figure = px.line(
-        data_frame=pd.concat([x, y], axis=1),
-        x=x.columns[0] if len(x.columns) == 1 else x.columns,
-        y=y.columns[0] if len(y.columns) == 1 else y.columns,
-        title=config.title,
-        # markers=True,
+    x_name = x_names[0]
+    y_name = y_names[0]
+    figure = go.Figure()
+    figure.add_trace(
+        go.Scatter(
+            x=x[x_name].data,
+            y=y[y_name].data,
+            mode="lines",
+            name=y_name,
+        )
     )
+    figure.update_layout(title=config.title)
 
     apply_single_config(figure, config)
 
     return figure
 
 
-def create_subplots(x: pd.DataFrame, y: pd.DataFrame, config: ChartConfig) -> go.Figure:
+def create_subplots(x: xr.Dataset, y: xr.Dataset, config: ChartConfig) -> go.Figure:
     """Creates a chart with multiple subplots.
 
-    :param x: Pandas DataFrame of data for the x axis
-    :param y: Pandas DataFrame of data for the y axis
+    :param x: xarray dataset of data for the x axis
+    :param y: xarray dataset of data for the y axis
     :param config: Dataclass with settings for the plotly chart
 
     :return: A plotly.graph_objects.Figure with multiple subplots
     """
 
-    if any(name in x.columns for name in y.columns):
+    x_names = list(x.data_vars)
+    y_names = list(y.data_vars)
+
+    if any(name in x_names for name in y_names):
         logger.warning("Duplicate data names will be omitted")
 
     figure = go.Figure()
     figure.layout.title = config.title
 
-    if len(x.columns) > 1 and len(y.columns) == 1:
+    if len(x_names) > 1 and len(y_names) == 1:
         figure = subplots.make_subplots(
-            rows=len(y.columns),
-            cols=len(x.columns),
-            column_titles=list(x.columns),
-            y_title=y.columns[0],
+            rows=1,
+            cols=len(x_names),
+            column_titles=x_names,
+            y_title=y_names[0],
             figure=figure,
         )
         column = 1
-        for x_column in x.columns:
+        for x_column in x_names:
             figure.add_trace(
                 go.Scatter(
-                    x=x[x_column],
-                    y=y[y.columns[0]],
+                    x=x[x_column].data,
+                    y=y[y_names[0]].data,
                     name=x_column,
                 ),
                 row=1,
@@ -309,20 +332,20 @@ def create_subplots(x: pd.DataFrame, y: pd.DataFrame, config: ChartConfig) -> go
             column += 1
         apply_subplots_x_config(figure, config)
 
-    elif len(x.columns) == 1 and len(y.columns) > 1:
+    elif len(x_names) == 1 and len(y_names) > 1:
         figure = subplots.make_subplots(
-            rows=len(y.columns),
-            cols=len(x.columns),
-            row_titles=list(y.columns),
-            x_title=x.columns[0],
+            rows=len(y_names),
+            cols=1,
+            row_titles=y_names,
+            x_title=x_names[0],
             figure=figure,
         )
         row = 1
-        for y_column in y.columns:
+        for y_column in y_names:
             figure.add_trace(
                 go.Scatter(
-                    x=x[x.columns[0]],
-                    y=y[y_column],
+                    x=x[x_names[0]].data,
+                    y=y[y_column].data,
                     name=y_column,
                 ),
                 row=row,
@@ -334,37 +357,50 @@ def create_subplots(x: pd.DataFrame, y: pd.DataFrame, config: ChartConfig) -> go
     return figure
 
 
-def create_overlay(x: pd.DataFrame, y: pd.DataFrame, config: ChartConfig) -> go.Figure:
+def create_overlay(x: xr.Dataset, y: xr.Dataset, config: ChartConfig) -> go.Figure:
     """Creates a chart with multiple datasets overlayed on one axis.
 
-    :param x: Pandas DataFrame of data for the x axis
-    :param y: Pandas DataFrame of data for the y axis
+    :param x: xarray dataset of data for the x axis
+    :param y: xarray dataset of data for the y axis
     :param config: Dataclass with settings for the plotly chart
 
     :return: A plotly.graph_objects.Figure
     """
 
-    if any(name in x.columns for name in y.columns):
+    x_names = list(x.data_vars)
+    y_names = list(y.data_vars)
+
+    if any(name in x_names for name in y_names):
         logger.warning("Duplicate data names will be omitted")
 
     figure = go.Figure()
     figure.layout.title = config.title
 
-    if len(x.columns) > 1 and len(y.columns) == 1:
+    if len(x_names) > 1 and len(y_names) == 1:
         x_axis = 1
-        for x_column in x.columns:
+        for x_column in x_names:
             figure.add_trace(
-                go.Scatter(x=x[x_column], y=y[y.columns[0]], name=x_column, xaxis=f"x{x_axis}")
+                go.Scatter(
+                    x=x[x_column].data,
+                    y=y[y_names[0]].data,
+                    name=x_column,
+                    xaxis=f"x{x_axis}",
+                )
             )
             x_axis += 1
 
         apply_overlay_config(figure, config)
 
-    elif len(x.columns) == 1 and len(y.columns) > 1:
+    elif len(x_names) == 1 and len(y_names) > 1:
         y_axis = 1
-        for y_column in y.columns:
+        for y_column in y_names:
             figure.add_trace(
-                go.Scatter(x=x[x.columns[0]], y=y[y_column], name=y_column, yaxis=f"y{y_axis}")
+                go.Scatter(
+                    x=x[x_names[0]].data,
+                    y=y[y_column].data,
+                    name=y_column,
+                    yaxis=f"y{y_axis}",
+                )
             )
             y_axis += 1
 
