@@ -126,7 +126,7 @@ def cell_thermal_mass(
     :param temperature_C: temperature in degrees C
     :param conductivity_Sm: conductivity in S/m
     :param amplitude: thermal anomaly amplitude (alpha)
-    :param time_constant: thermal anomoly time constant (1/beta)
+    :param time_constant: thermal anomaly time constant (1/beta)
     :param sample_interval: time between samples
 
     :return: the corrected conductivity in S/m
@@ -142,16 +142,10 @@ def cell_thermal_mass(
 
     a = 2 * amplitude / (sample_interval / time_constant + 2)
     b = 1 - (2 * a / amplitude)
-    ctm = np.zeros(len(temperature))  # cell thermal mass
-    corrected_conductivity = conductivity.copy()
-
-    for n in range(1, len(ctm)):
-        dc_dt = 0.1 * (1.0 + 0.006 * (temperature[n] - 20.0))
-        dt = temperature[n] - temperature[n - 1]
-        ctm[n] = -1.0 * b * ctm[n - 1] + a * dc_dt * dt
-        corrected_conductivity[n] += ctm[n]
-
-    return corrected_conductivity
+    dc_dt = 0.1 * (1 + 0.006 * (temperature_C - 20))
+    dt = np.diff(temperature_C, prepend=[temperature_C[0]])
+    ctm = conductivity_Sm + signal.lfilter(b=[a, 0], a=[1, b], x=dc_dt * dt)
+    return ctm
 
 
 def loop_edit_pressure(
@@ -351,17 +345,17 @@ def _find_depth_peaks(
 ) -> tuple[int, int]:
     """Finds the global depth minima and maxima.
 
-    This determinines the earliest points where the downcast and upcast
+    This determines the earliest points where the downcast and upcast
     can begin
 
     :param depth: depth data
     :param flag: flag data
     :param remove_surface_soak: If true, scans before a minimum depth
-        are mrked as bad
+        are marked as bad
     :param flag_value: the flag value (typically -9.99e-29)
     :param min_soak_depth: the minimum depth that must be reached before
         a series can be considered a downcast
-    :param max_soak_depth: maximumm depth that can be considered the
+    :param max_soak_depth: maximum depth that can be considered the
         start of a downcast
 
     :return: minimum and maximum index corresponding to minimum and
@@ -369,30 +363,34 @@ def _find_depth_peaks(
     """
 
     # first index where min_soak_depth < depth < max_soak_depth
+    min_soak_depth_n = 0
     if remove_surface_soak:
-        min_soak_depth_n = min(
-            n
-            for n, d in enumerate(depth)
-            if flag[n] != flag_value and min_soak_depth < d < max_soak_depth and d != flag_value
+        # argmax will return the first element that is the max
+        # with the array being full of true (1) and false (0), so the first true
+        min_soak_depth_n = np.argmax(
+            (min_soak_depth < depth) & (depth < max_soak_depth) & (flag != flag_value)
         )
-    else:
-        min_soak_depth_n = 0
 
-    # beginning of possible upcast domain
-    max_depth = max([d for n, d in enumerate(depth) if flag_value not in [d, flag[n]]])
-    max_depth_n = np.where(depth == max_depth)[0][0]
+    max_soak_depth_n = np.argmax((max_soak_depth < depth) & (flag != flag_value))
 
     # beginning of possible downcast domain
-    min_depth = min(
-        [
-            d
-            for n, d in enumerate(depth)
-            if flag_value not in [d, flag[n]] and min_soak_depth_n < n < max_depth_n
-        ]
+    # because we know the limits, we don't have to iterate over the whole array
+    zone_of_interest = np.ma.array(
+        data=depth[min_soak_depth_n:max_soak_depth_n], mask=flag[min_soak_depth_n:max_soak_depth_n]
     )
-    min_depth_n = np.where(depth == min_depth)[0][0]
+    min_depth_n = zone_of_interest.argmin() + min_soak_depth_n
+
+    # beginning of possible upcast domain
+    max_depth_n = -1
+    if min_depth_n != len(depth) - 1:
+        max_depth_n = np.argmax(depth[min_depth_n + 1 :]) + min_depth_n + 1
 
     return (min_depth_n, max_depth_n)
+
+
+def find_depth_peaks(*args, **kwargs):
+    warnings.warn("Deprecated, use _find_depth_peaks", DeprecationWarning)
+    return _find_depth_peaks(*args, **kwargs)
 
 
 def _min_velocity_mask(
@@ -501,10 +499,10 @@ def _flag_by_minima_maxima(
 
     # flag values that don't exceed most recent valid local minima/maxima
     for n, d in enumerate(depth):
-        if n >= max_depth_n and d < local_min and flag[n] != flag_value:
-            local_min = d
-        elif n >= min_depth_n and d > local_max and flag[n] != flag_value:
+        if min_depth_n <= n < max_depth_n and d > local_max and flag[n] != flag_value:
             local_max = d
+        elif n >= max_depth_n and d < local_min and flag[n] != flag_value:
+            local_min = d
         else:
             flag[n] = flag_value
 
