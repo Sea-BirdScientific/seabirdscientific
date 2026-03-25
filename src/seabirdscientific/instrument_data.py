@@ -978,7 +978,7 @@ def read_sbe19plus_format_0(
     # Validate hex length. Ensure length matches what is expected based
     # on enabled sensors and moored mode. If it does not, set all values
     # to NaN
-    
+
     if n != len(hex_segment.strip()):
         for key in results:
             results[key] = np.nan

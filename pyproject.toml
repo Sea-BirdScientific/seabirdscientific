@@ -70,18 +70,13 @@ requires = [
   "setuptools>=61",
 ]
 
-[tool.mypy]
-ignore_missing_imports = true
+[tool.ty.src]
+include = [
+  "src",
+  "tests",
+]
 exclude = [
-  ".git",
-  ".github",
-  ".mypy_cache",
-  ".pytest_cache",
-  ".ruff_cache",
-  ".venv",
-  ".vscode",
-  "build",
-  "dist",
+  "tests/resources",
 ]
 
 [tool.coverage.run]
@@ -91,16 +86,8 @@ omit = [
 
 [tool.ruff]
 line-length=99
-exclude = [
-  ".git",
+extend-exclude = [
   ".github",
-  ".mypy_cache",
-  ".pytest_cache",
-  ".ruff_cache",
-  ".venv",
-  ".vscode",
-  "build",
-  "dist",
 ]
 
 [tool.pytest.ini_options]
