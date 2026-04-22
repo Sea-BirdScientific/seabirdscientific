@@ -1,6 +1,6 @@
 [project]
 name = "seabirdscientific"
-version = "2.7.8"
+version = "2.7.9"
 description = "Sea-Bird Scientific Community Toolkit"
 readme = "README.md"
 license = "MIT"
@@ -23,12 +23,12 @@ classifiers = [
   "Programming Language :: Python :: 3.12",
 ]
 dependencies = [
-  "gsw",
-  "matplotlib",
-  "numpy",
-  "pandas",
-  "plotly>=6.0.0",
-  "scipy",
+  "gsw~=3.6.20",
+  "matplotlib~=3.9.4",
+  "numpy~=2.0.2",
+  "pandas~=2.3.3",
+  "plotly~=6.3.1",
+  "scipy~=1.13.1",
 ]
 
 # For dev environment created with venv and pip
@@ -47,12 +47,12 @@ dev = [
 # For dev environment created with UV
 [dependency-groups]
 dev = [
-  "nbconvert[webpdf]",
-  "nbformat",
-  "notebook",
-  "pytest",
-  "pytest-cov",
-  "kaleido",
+  "kaleido~=1.1.0",
+  "nbconvert[webpdf]~=7.17.1",
+  "nbformat~=5.10.4",
+  "notebook~=7.4.7",
+  "pytest~=8.4.2",
+  "pytest-cov~=6.2.1",
 ]
 
 [project.urls]
