@@ -2579,7 +2579,6 @@ dependencies = [
     { name = "bleach", version = "6.3.0", source = { registry = "http://pypi.sbs.ewqg.com/simple/" }, extra = ["css"], marker = "python_full_version >= '3.10'" },
     { name = "defusedxml" },
     { name = "importlib-metadata", version = "8.7.1", source = { registry = "http://pypi.sbs.ewqg.com/simple/" }, marker = "python_full_version < '3.10'" },
-    { name = "importlib-metadata", version = "9.0.0", source = { registry = "http://pypi.sbs.ewqg.com/simple/" }, marker = "python_version < '0'" },
     { name = "jinja2" },
     { name = "jupyter-core", version = "5.8.1", source = { registry = "http://pypi.sbs.ewqg.com/simple/" }, marker = "python_full_version < '3.10'" },
     { name = "jupyter-core", version = "5.9.1", source = { registry = "http://pypi.sbs.ewqg.com/simple/" }, marker = "python_full_version >= '3.10'" },
@@ -4202,7 +4201,7 @@ wheels = [
 
 [[package]]
 name = "seabirdscientific"
-version = "2.7.8"
+version = "2.7.9"
 source = { editable = "." }
 dependencies = [
     { name = "gsw", version = "3.6.20", source = { registry = "http://pypi.sbs.ewqg.com/simple/" }, marker = "python_full_version < '3.11'" },
