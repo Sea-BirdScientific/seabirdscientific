@@ -14,12 +14,11 @@ from scipy import signal
 
 # Sea-Bird imports
 from seabirdscientific import conversion as c
+from seabirdscientific.constants import FLAG_VALUE
 
 
 logger = getLogger(__name__)
 
-
-FLAG_VALUE = -9.99e-29
 
 
 class MinVelocityType(Enum):

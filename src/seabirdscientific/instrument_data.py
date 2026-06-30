@@ -14,13 +14,11 @@ import pandas as pd
 import xarray as xr
 
 # Sea-Bird imports
+from seabirdscientific.constants import COUNTS_TO_VOLTS, SECONDS_BETWEEN_EPOCH_AND_2000
 from seabirdscientific.utils import WarnAllMembersMeta
 
 
 logger = getLogger(__name__)
-
-COUNTS_TO_VOLTS = 13107
-SECONDS_BETWEEN_EPOCH_AND_2000 = 946684800
 
 
 """Possible data types in hex files"""

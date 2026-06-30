@@ -13,25 +13,11 @@ from scipy import stats
 
 # Sea-Bird imports
 import seabirdscientific.cal_coefficients as cc
-from seabirdscientific.processing import FLAG_VALUE
+import seabirdscientific.constants as const
 from seabirdscientific import eos80_conversion as eos80
 
 
-DBAR_TO_PSI = 1.450377
-PSI_TO_DBAR = 0.6894759
-OXYGEN_PHASE_TO_VOLTS = 39.457071
-KELVIN_OFFSET_0C = 273.15
-KELVIN_OFFSET_25C = 298.15
-OXYGEN_MLPERL_TO_MGPERL = 1.42903
-OXYGEN_MLPERL_TO_UMOLPERKG = 44660
-# taken from https://blog.seabird.com/ufaqs/what-is-the-difference-in-temperature-expressions-between-ipts-68-and-its-90/
-ITS90_TO_IPTS68 = 1.00024
-# micro moles of nitrate to milligrams of nitrogen per liter
-UMNO3_TO_MGNL = 0.014007
-# [J K^{-1} mol^{-1}] Gas constant from SBS application note 99
-R = 8.3144621
-# [Coulombs mol^{-1}] Faraday constant from SBS application note 99
-F = 96485.365
+
 
 
 def convert_temperature(
@@ -67,10 +53,10 @@ def convert_temperature(
     log_t = np.log(temperature_counts)
     temperature = (
         1 / (coefs.a0 + coefs.a1 * log_t + coefs.a2 * log_t**2 + coefs.a3 * log_t**3)
-    ) - KELVIN_OFFSET_0C
+    ) - const.KELVIN_OFFSET_0C
 
     if standard == "IPTS68":
-        temperature *= ITS90_TO_IPTS68
+        temperature *= const.ITS90_TO_IPTS68
     if units == "F":
         temperature = temperature * 9 / 5 + 32  # Convert C to F
 
@@ -91,11 +77,11 @@ def convert_temperature_frequency(
     """
     fLog = np.log(coefs.f0 / frequency)
     temperature = (
-        1 / (coefs.g + coefs.h * fLog + coefs.i * fLog**2 + coefs.j * fLog**3) - KELVIN_OFFSET_0C
+        1 / (coefs.g + coefs.h * fLog + coefs.i * fLog**2 + coefs.j * fLog**3) - const.KELVIN_OFFSET_0C
     )
 
     if standard == "IPTS68":
-        temperature *= ITS90_TO_IPTS68
+        temperature *= const.ITS90_TO_IPTS68
     if units == "F":
         temperature = temperature * 9 / 5 + 32  # Convert C to F
 
@@ -137,7 +123,7 @@ def convert_pressure(
         pressure -= sea_level_pressure
 
     if units == "dbar":
-        pressure *= PSI_TO_DBAR
+        pressure *= const.PSI_TO_DBAR
 
     return pressure
 
@@ -208,7 +194,7 @@ def convert_pressure_digiquartz(
     p = c * one_minus_ratio * (1 - d * one_minus_ratio)
     abs_pressure = p - sea_level_pressure
     if units == "dbar":
-        abs_pressure *= PSI_TO_DBAR
+        abs_pressure *= const.PSI_TO_DBAR
     return abs_pressure
 
 
@@ -363,7 +349,7 @@ def depth_from_pressure(
     """
     pressure = pressure_in.copy()
     if pressure_units == "psi":
-        pressure /= DBAR_TO_PSI
+        pressure /= const.DBAR_TO_PSI
 
     depth = -gsw.z_from_p(pressure, latitude)
 
@@ -409,7 +395,7 @@ def convert_sbe63_oxygen(
     else:
         raise ValueError
 
-    oxygen_volts = raw_oxygen_phase / OXYGEN_PHASE_TO_VOLTS  # from the manual
+    oxygen_volts = raw_oxygen_phase / const.OXYGEN_PHASE_TO_VOLTS  # from the manual
 
     ksv = coefs.c0 + coefs.c1 * temperature + coefs.c2 * temperature**2
 
@@ -420,14 +406,14 @@ def convert_sbe63_oxygen(
     sol_b3 = -8.17083e-3
     sol_c0 = -4.88682e-7
 
-    ts = np.log((KELVIN_OFFSET_25C - temperature) / (KELVIN_OFFSET_0C + temperature))
+    ts = np.log((const.KELVIN_OFFSET_25C - temperature) / (const.KELVIN_OFFSET_0C + temperature))
     s_corr_exp = (
         salinity * (sol_b0 + sol_b1 * ts + sol_b2 * ts**2 + sol_b3 * ts**3) + sol_c0 * salinity**2
     )
     s_corr = math.e**s_corr_exp
 
     # temperature in Kelvin
-    temperature_k = temperature + KELVIN_OFFSET_0C
+    temperature_k = temperature + const.KELVIN_OFFSET_0C
     p_corr_exp = (coefs.e * pressure) / temperature_k
     p_corr = math.e**p_corr_exp
 
@@ -457,7 +443,7 @@ def convert_sbe63_thermistor(
     log_raw = np.log((100000 * instrument_output) / (3.3 - instrument_output))
     temperature = (
         1 / (coefs.ta0 + coefs.ta1 * log_raw + coefs.ta2 * log_raw**2 + coefs.ta3 * log_raw**3)
-        - KELVIN_OFFSET_0C
+        - const.KELVIN_OFFSET_0C
     )
     return temperature
 
@@ -580,7 +566,7 @@ def _convert_sbe43_oxygen(
     b3 = -0.00817083
     c0 = -0.000000488682
 
-    ts = np.log((KELVIN_OFFSET_25C - temperature) / (KELVIN_OFFSET_0C + temperature))
+    ts = np.log((const.KELVIN_OFFSET_25C - temperature) / (const.KELVIN_OFFSET_0C + temperature))
     a_term = a0 + a1 * ts + a2 * ts**2 + a3 * ts**3 + a4 * ts**4 + a5 * ts**5
     b_term = salinity * (b0 + b1 * ts + b2 * ts**2 + b3 * ts**3)
     c_term = c0 * salinity**2
@@ -595,7 +581,7 @@ def _convert_sbe43_oxygen(
         soc_term
         * solubility
         * temp_term
-        * np.exp((coefs.e * pressure) / (temperature + KELVIN_OFFSET_0C))
+        * np.exp((coefs.e * pressure) / (temperature + const.KELVIN_OFFSET_0C))
     )
     return oxygen
 
@@ -610,7 +596,7 @@ def convert_oxygen_to_mg_per_l(ox_values: np.ndarray):
     :return: oxygen values converted to milligrams/Liter
     """
 
-    return ox_values * OXYGEN_MLPERL_TO_MGPERL
+    return ox_values * const.OXYGEN_MLPERL_TO_MGPERL
 
 
 def convert_oxygen_to_umol_per_kg(ox_values: np.ndarray, potential_density: np.ndarray):
@@ -631,7 +617,7 @@ def convert_oxygen_to_umol_per_kg(ox_values: np.ndarray, potential_density: np.n
     :return: oxygen values converted to milligrams/Liter
     """
 
-    oxygen_umolkg = (ox_values * OXYGEN_MLPERL_TO_UMOLPERKG) / (potential_density + 1000)
+    oxygen_umolkg = (ox_values * const.OXYGEN_MLPERL_TO_UMOLPERKG) / (potential_density + 1000)
     return oxygen_umolkg
 
 
@@ -668,7 +654,7 @@ def convert_sbe18_ph(
     :return: converted pH
     """
     ph = 7 + (raw_ph - coefs.offset) / (
-        1.98416e-4 * (temperature + KELVIN_OFFSET_0C) * coefs.slope
+        1.98416e-4 * (temperature + const.KELVIN_OFFSET_0C) * coefs.slope
     )
     return ph
 
@@ -775,7 +761,7 @@ def convert_nitrate(
     nitrate = a1 * volts + a0
 
     if units == "mgNL":
-        nitrate *= UMNO3_TO_MGNL
+        nitrate *= const.UMNO3_TO_MGNL
 
     return nitrate
 
@@ -799,7 +785,7 @@ def _calculate_nernst(temperature: np.ndarray) -> np.ndarray:
     :param temperature: temperature in kelvin
     :return: the nernst term (J/Coulomb; electrical potential; volts)
     """
-    nernst_term = R * temperature * np.log(10) / F
+    nernst_term = const.R * temperature * np.log(10) / const.F
     return nernst_term
 
 
@@ -824,7 +810,7 @@ def convert_internal_seafet_ph(
     else:  # ph_counts == 'volts'
         ph_volts = raw_ph
 
-    nernst = _calculate_nernst(temperature + KELVIN_OFFSET_0C)
+    nernst = _calculate_nernst(temperature + const.KELVIN_OFFSET_0C)
     ph = (ph_volts - coefs.kdf0 - coefs.kdf2 * temperature) / nernst
     return ph
 
@@ -932,8 +918,8 @@ def _log_of_hcl_activity_coefficient_of_tp(
     """
     log_y_hcl = _log_of_hcl_activity_coefficient_of_t(salinity, temperature)
     v_hcl = _partial_molal_hcl_volume(temperature)
-    t_kelvin = temperature + KELVIN_OFFSET_0C
-    term_2 = (v_hcl * pressure) / (np.log(10) * R * t_kelvin * 10) / 2
+    t_kelvin = temperature + const.KELVIN_OFFSET_0C
+    term_2 = (v_hcl * pressure) / (np.log(10) * const.R * t_kelvin * 10) / 2
     log_y_hcl_tp = log_y_hcl + term_2
     return log_y_hcl_tp
 
@@ -967,11 +953,11 @@ def _acid_dissociation_constant_of_hso4_tp(
     :param pressure: Pressure in bar
     :return: Acid dissociation constant of HSO4
     """
-    t_kelvin = temperature + KELVIN_OFFSET_0C
+    t_kelvin = temperature + const.KELVIN_OFFSET_0C
     k_s = _acid_dissociation_constant_of_hso4(salinity, t_kelvin)
     v_bar_s = _partial_molal_hso4_volume(temperature)
     k_bar_s = _hso4_compressibility(temperature)
-    exponent = (-v_bar_s * pressure + 0.5 * k_bar_s * pressure**2) / (R * t_kelvin * 10)
+    exponent = (-v_bar_s * pressure + 0.5 * k_bar_s * pressure**2) / (const.R * t_kelvin * 10)
     k_stp = k_s * np.exp(exponent)
     return k_stp
 
@@ -1057,7 +1043,7 @@ def convert_external_seafet_ph(
     else:  # ph_counts == 'volts'
         ph_volts = raw_ph
 
-    t_kelvin = temperature + KELVIN_OFFSET_0C
+    t_kelvin = temperature + const.KELVIN_OFFSET_0C
     p_bar = pressure / 10
     f_p = _pressure_response(pressure, coefs)
     nernst = _calculate_nernst(t_kelvin)
@@ -1100,7 +1086,7 @@ def convert_seafet_temperature(raw_temp, coefs: cc.TemperatureSeaFETCoefficients
         ((coefs.tdfa3 * temp_log + coefs.tdfa2) * temp_log + coefs.tdfa1) * temp_log + coefs.tdfa0
     )
 
-    temp_c = temp - KELVIN_OFFSET_0C
+    temp_c = temp - const.KELVIN_OFFSET_0C
 
     return temp_c
 
@@ -1223,7 +1209,7 @@ def buoyancy(
     longitude: np.ndarray,
     window_size: float,
     use_modern_formula=True,
-    flag_value=FLAG_VALUE,
+    flag_value=const.FLAG_VALUE,
 ) -> xr.Dataset:
     """Calculates the 4 buoyancy values based off the incoming data.
 
