@@ -25,7 +25,6 @@ from seabirdscientific.interpret_sbs_variable import interpret_sbs_variable
 logger = getLogger(__name__)
 
 
-
 @dataclass
 class Transform:
     slope: float
@@ -34,13 +33,15 @@ class Transform:
 
 @dataclass
 class AxisSettings:
-    name: str # e.g. "tv290C", "c0S/m"
-    title: str # e.g. "Temperature", "Conductivity"
-    units: str # e.g. "ITS-90 deg C", "S/m"
-    range: List[float] # e.g. [0, 50], [20, 100] one pair per variable
-    marker: str # e.g. "circle", "square"
-    color: str #  e.g. "#00576d", "#0083a4", "#8ae7ff"
-    color_scale: List[List[Union[float, str]]] # e.g. [[0, "#00576d"],[0.4, "#0083a4"],[1, "#8ae7ff"]]
+    name: str  # e.g. "tv290C", "c0S/m"
+    title: str  # e.g. "Temperature", "Conductivity"
+    units: str  # e.g. "ITS-90 deg C", "S/m"
+    range: List[float]  # e.g. [0, 50], [20, 100] one pair per variable
+    marker: str  # e.g. "circle", "square"
+    color: str  #  e.g. "#00576d", "#0083a4", "#8ae7ff"
+    color_scale: List[
+        List[Union[float, str]]
+    ]  # e.g. [[0, "#00576d"],[0.4, "#0083a4"],[1, "#8ae7ff"]]
     transform: Transform
 
 
@@ -207,10 +208,10 @@ def parse_instrument_data(source: Union[str, Path, pd.DataFrame, xr.Dataset]) ->
         columns = [interpret_sbs_variable(column)["name"] for column in data.columns]
         for old_column, new_column in zip(data.columns, columns):
             data.rename(columns={old_column: new_column}, inplace=True)
-        sample_coord = np.arange(len(data))
-        dataset = xr.Dataset(coords={"sample": sample_coord})
+        scan_coords = np.arange(len(data))
+        dataset = xr.Dataset(coords={"scan": scan_coords})
         for column in data.columns:
-            dataset[column] = xr.DataArray(data[column].to_numpy(), dims=["sample"])
+            dataset[column] = xr.DataArray(data[column].to_numpy(), dims=["scan"])
 
         return dataset
 
@@ -224,7 +225,7 @@ def select_subset(axis_names: list[str], data: xr.Dataset) -> xr.Dataset:
     in the list.
 
     If axis_names is empty the function will return a Dataset of
-    integers representing the sample count of the data. This could be
+    integers representing the scan count of the data. This could be
     used in a single series chart for example.
 
     Otherwise, the function will return a Dataset for each name in the
@@ -246,10 +247,10 @@ def select_subset(axis_names: list[str], data: xr.Dataset) -> xr.Dataset:
     """
 
     if len(axis_names) == 0:
-        sample_count = data.sizes.get("sample", 0)
+        sample_count = data.sizes.get("scan", 0)
         return xr.Dataset(
-            {"Sample Count": xr.DataArray(np.arange(sample_count), dims=["sample"])},
-            coords={"sample": np.arange(sample_count)},
+            {"Scan Count": xr.DataArray(np.arange(sample_count), dims=["scan"])},
+            coords={"scan": np.arange(sample_count)},
         )
 
     missing_names = [name for name in axis_names if name not in data.data_vars]

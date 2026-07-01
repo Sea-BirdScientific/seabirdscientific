@@ -20,7 +20,6 @@ from seabirdscientific.constants import FLAG_VALUE
 logger = getLogger(__name__)
 
 
-
 class MinVelocityType(Enum):
     """The minimum velocity type used with loop edit
     DEPRECATED. Use Literal defined in loop_edit"""
@@ -122,8 +121,8 @@ def cell_thermal_mass(
     cell thermal mass effects from the measured conductivity [From the
     SeaSoft manual, page 92]
 
-    :param temperature_C: temperature in degrees C
-    :param conductivity_Sm: conductivity in S/m
+    :param temperature: temperature in degrees C
+    :param conductivity: conductivity in S/m
     :param amplitude: thermal anomaly amplitude (alpha)
     :param time_constant: thermal anomaly time constant (1/beta)
     :param sample_interval: time between samples
@@ -136,14 +135,14 @@ def cell_thermal_mass(
         temperature = temperature_C
 
     if conductivity_Sm is not None:
-        warnings.warn("Deprecated, use salinity", DeprecationWarning)
+        warnings.warn("Deprecated, use conductivity", DeprecationWarning)
         conductivity = conductivity_Sm
 
     a = 2 * amplitude / (sample_interval / time_constant + 2)
     b = 1 - (2 * a / amplitude)
-    dc_dt = 0.1 * (1 + 0.006 * (temperature_C - 20))
-    dt = np.diff(temperature_C, prepend=[temperature_C[0]])
-    ctm = conductivity_Sm + signal.lfilter(b=[a, 0], a=[1, b], x=dc_dt * dt)
+    dc_dt = 0.1 * (1 + 0.006 * (temperature - 20))
+    dt = np.diff(temperature, prepend=[temperature[0]])
+    ctm = conductivity + signal.lfilter(b=[a, 0], a=[1, b], x=dc_dt * dt)
     return ctm
 
 
@@ -218,7 +217,7 @@ def loop_edit_depth(
         use_deck_pressure_offset,
         exclude_flags,
         flag_value,
-        units="depth"
+        units="depth",
     )
 
 
@@ -237,7 +236,7 @@ def loop_edit(
     exclude_flags: bool = True,
     flag_value=FLAG_VALUE,
     latitude: float = 0,
-    units: Literal["depth", "pressure"] = "depth"
+    units: Literal["depth", "pressure"] = "depth",
 ) -> np.ndarray:
     """Marks scans determined to be part of a pressure loop as bad.
 
@@ -280,7 +279,7 @@ def loop_edit(
         depth = c.depth_from_pressure(measurand, latitude)
     else:
         depth = measurand.copy()
-    
+
     _flag = flag.copy()
 
     if not exclude_flags:
@@ -448,14 +447,14 @@ def _mean_speed_percent_mask(
     :param interval: sampling interval in seconds
     :param min_velocity: minimum velocity
     :param mean_speed_percent: the minimum percentage of the mean speed
-        that qualifies a sample as good
+        that qualifies a scan as good
     :param domain_start: earliest possible beginning of downcast
     :param domain_end: earliest possible beginning of upcast
     :param is_upcast: inverts velocity sign for upcast
     :param diff_length: averaging window divided by sample interval
 
-    :return: true/false mask where true means the sample velocity is at
-        least the given percentage of the mean
+    :return: true/false mask where true means the velocity is at least
+        the given percentage of the mean
     """
 
     sign = -1 if is_upcast else 1
@@ -568,7 +567,7 @@ def bin_average(
     :return: A new Dataset with binned data
     """
 
-    df = dataset.to_dataframe().iloc[trim_start : len(dataset["sample"]) - trim_end]
+    df = dataset.to_dataframe().iloc[trim_start : len(dataset["scan"]) - trim_end]
 
     # remove scans marked as bad during loop edit
     if exclude_bad_scans and "flag" in df.columns:
@@ -1003,7 +1002,7 @@ def _get_downcast_mask(
     at the first value greater than min_value, and the max index is at
     the greatest value in the control_variable array. If flags are
     excluded those samples will be excluded but they won't be removed
-    from the dataframe. In that case, the last valid sample on the
+    from the dataframe. In that case, the last valid scan on the
     downcast side of the peak will be determine the index to end on
 
     :param dataset: The dataset to create a downcast mask from
@@ -1017,21 +1016,21 @@ def _get_downcast_mask(
     """
 
     n_min = 0
-    n_max = dataset[control_variable].idxmax(dim="sample").item()
+    n_max = dataset[control_variable].idxmax(dim="scan").item()
 
     if exclude_bad_scans and "flag" in list(dataset.data_vars):
         # this diverges slightly from seasoft, where seasoft will take
         # the index of the max value that isn't a flag, this version
         # first finds the peak (regardless of flags) then finds the
         # first non-flagged value on the downcast side of the peak
-        mask = (dataset["flag"].values != FLAG_VALUE) & (dataset["sample"].values < n_max)
-        n_max = dataset[control_variable].where(mask).idxmax(dim="sample").item()
+        mask = (dataset["flag"].values != FLAG_VALUE) & (dataset["scan"].values < n_max)
+        n_max = dataset[control_variable].where(mask).idxmax(dim="scan").item()
 
     if min_value > -np.inf:
-        mask = (min_value < dataset[control_variable].values) & (dataset["sample"].values < n_max)
-        n_min = dataset[control_variable].where(mask).idxmin(dim="sample").item()
+        mask = (min_value < dataset[control_variable].values) & (dataset["scan"].values < n_max)
+        n_min = dataset[control_variable].where(mask).idxmin(dim="scan").item()
 
-    downcast_mask = (n_min <= dataset["sample"].values) & (dataset["sample"].values <= n_max)
+    downcast_mask = (n_min <= dataset["scan"].values) & (dataset["scan"].values <= n_max)
 
     return downcast_mask
 
@@ -1046,7 +1045,7 @@ def _get_upcast_mask(
     the greatest value of the control_variable values. If flags are
     excluded those samples will be excluded when determining the max
     index, but they won't be removed them from the dataframe. In that
-    case, the first valid sample on the upcast side of the peak will be
+    case, the first valid scan on the upcast side of the peak will be
     determine the index to start on. The min index is at the last value
     greater than min_value
 
@@ -1062,23 +1061,23 @@ def _get_upcast_mask(
 
     # n_min and n_max refer to the index of min/max value of the control
     # variable, meaning n_max will be less than n_min for an upcast
-    n_min = len(dataset["sample"]) - 1
-    n_max = dataset[control_variable].idxmax(dim="sample").item() + 1
+    n_min = len(dataset["scan"]) - 1
+    n_max = dataset[control_variable].idxmax(dim="scan").item() + 1
 
     if exclude_bad_scans and "flag" in list(dataset.data_vars):
         # this diverges slightly from seasoft, where seasoft will take
         # the index of the max value that isn't a flag, this version
         # first finds the peak (regardless of flags) then finds the
         # first non-flagged value on the upcast side of the peak
-        mask = (n_max < dataset["sample"].values) & (dataset["flag"].values != FLAG_VALUE)
-        n_max = dataset[control_variable].where(mask).idxmax(dim="sample").item() + 1
+        mask = (n_max < dataset["scan"].values) & (dataset["flag"].values != FLAG_VALUE)
+        n_max = dataset[control_variable].where(mask).idxmax(dim="scan").item() + 1
 
     if min_value > -np.inf:
         # seasoft data processing doesn't include the max value
-        mask = (n_max < dataset["sample"].values) & (min_value < dataset[control_variable].values)
-        n_min = dataset[control_variable].where(mask).idxmin(dim="sample").item() - 1
+        mask = (n_max < dataset["scan"].values) & (min_value < dataset[control_variable].values)
+        n_min = dataset[control_variable].where(mask).idxmin(dim="scan").item() - 1
 
-    upcast_mask = (n_max <= dataset["sample"].values) & (dataset["sample"].values <= n_min)
+    upcast_mask = (n_max <= dataset["scan"].values) & (dataset["scan"].values <= n_min)
 
     return upcast_mask
 
@@ -1109,7 +1108,7 @@ def split(
 
     ds = dataset.copy()
 
-    cast_type_coord = np.full(dataset.sizes["sample"], None, dtype=object)
+    cast_type_coord = np.full(dataset.sizes["scan"], None, dtype=object)
     if cast_type in [CastType.BOTH, CastType.DOWNCAST]:
         downcast_mask = _get_downcast_mask(ds, control_variable, min_value, exclude_bad_scans)
         cast_type_coord[downcast_mask] = CastType.DOWNCAST.value
@@ -1118,7 +1117,7 @@ def split(
         upcast_mask = _get_upcast_mask(ds, control_variable, min_value, exclude_bad_scans)
         cast_type_coord[upcast_mask] = CastType.UPCAST.value
 
-    ds = ds.assign_coords(cast_type=("sample", cast_type_coord))
+    ds = ds.assign_coords(cast_type=("scan", cast_type_coord))
 
     if drop:
         if cast_type is CastType.BOTH:

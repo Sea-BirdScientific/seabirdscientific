@@ -41,7 +41,7 @@ class TestSelectSubset:
         data = sv.parse_instrument_data(test_resources / "example_pass.asc")
         subset = sv.select_subset([], data)
         assert isinstance(subset, xr.Dataset)
-        assert np.array_equal(subset["Sample Count"].data, np.array([0, 1, 2]))
+        assert np.array_equal(subset["Scan Count"].data, np.array([0, 1, 2]))
 
     def test_select_subset_single_pass(self):
         data = sv.parse_instrument_data(test_resources / "example_pass.asc")

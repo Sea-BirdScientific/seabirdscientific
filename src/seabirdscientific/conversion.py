@@ -17,9 +17,6 @@ import seabirdscientific.constants as const
 from seabirdscientific import eos80_conversion as eos80
 
 
-
-
-
 def convert_temperature(
     temperature_counts_in: np.ndarray,
     coefs: cc.TemperatureCoefficients,
@@ -77,7 +74,8 @@ def convert_temperature_frequency(
     """
     fLog = np.log(coefs.f0 / frequency)
     temperature = (
-        1 / (coefs.g + coefs.h * fLog + coefs.i * fLog**2 + coefs.j * fLog**3) - const.KELVIN_OFFSET_0C
+        1 / (coefs.g + coefs.h * fLog + coefs.i * fLog**2 + coefs.j * fLog**3)
+        - const.KELVIN_OFFSET_0C
     )
 
     if standard == "IPTS68":
@@ -135,7 +133,8 @@ def convert_pressure_digiquartz(
     units: Literal["dbar", "psia"],
     sample_interval: float,
 ):
-    """Converts pressure counts to PSIA (pounds per square inch, abolute) or dbar for a digiquartz pressure sensor.
+    """Converts pressure counts to PSIA (pounds per square inch, abolute)
+    or dbar for a digiquartz pressure sensor.
 
     pressure_count and compensation_voltage are expected to be raw data
     from an instrument in A/D counts
@@ -143,10 +142,12 @@ def convert_pressure_digiquartz(
     :param pressure_count: pressure value to convert, in A/D counts
     :param compensation_voltage: pressure temperature compensation
         voltage, in counts or volts depending on the instrument
-    :param coefs: calibration coefficients for the digiquartz pressure sensor
+    :param coefs: calibration coefficients for the digiquartz pressure
+        sensor
     :param units: whether or not to use psia or dbar as the returned
         unit type
-    :param sample_interval: sample rate of the data to be used for temperature compensation correction, in seconds
+    :param sample_interval: sample rate of the data to be used for
+        temperature compensation correction, in seconds
     :return: pressure val in PSIA or dbar
     """
     sea_level_pressure = 14.7
