@@ -435,9 +435,7 @@ class TestFlagByMinimaMaxima:
 
 class TestLoopEdit:
     def test_loop_edit_pressure_min_velocity(self):
-        expected_data = si.read_cnv_file(
-            test_data / "CAST0002_mod_filt_loop_min_v.cnv"
-        )
+        expected_data = si.read_cnv_file(test_data / "CAST0002_mod_filt_loop_min_v.cnv")
         data = si.read_cnv_file(test_data / "CAST0002_mod_filt.cnv")
 
         result_flags = sp.loop_edit(
@@ -460,9 +458,7 @@ class TestLoopEdit:
         assert np.all(result_flags == expected_flags)
 
     def test_loop_edit_pressure_min_velocity_pass_2(self):
-        expected_data = si.read_cnv_file(
-            test_data / "SBE19plus_loop_edit_corrected.cnv"
-        )
+        expected_data = si.read_cnv_file(test_data / "SBE19plus_loop_edit_corrected.cnv")
         data = si.read_cnv_file(test_data / "SBE19plus.cnv")
 
         result_flags = sp.loop_edit(
@@ -615,9 +611,7 @@ class TestLoopEdit:
         assert np.all(result_flags == expected_flags)
 
     def test_loop_edit_pressure_fake_cast_percent(self):
-        expected_data = si.read_cnv_file(
-            test_data / "fake_cast_loop_percent_corrected.cnv"
-        )
+        expected_data = si.read_cnv_file(test_data / "fake_cast_loop_percent_corrected.cnv")
         data = si.read_cnv_file(test_data / "fake_cast.cnv")
 
         result_flags = sp.loop_edit(
@@ -634,7 +628,7 @@ class TestLoopEdit:
             use_deck_pressure_offset=False,
             exclude_flags=False,
             flag_value=10,
-            units="pressure"
+            units="pressure",
         )
 
         expected_flags = expected_data["flag"].values
