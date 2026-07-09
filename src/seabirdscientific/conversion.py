@@ -1293,7 +1293,8 @@ def buoyancy(
         if n2 >= 0:
             buoyancy_freq[i] = math.sqrt(n2) * 3600 / (2 * np.pi)
         else:
-            buoyancy_freq[i] = np.nan
+            # using the negative square root of the absolute buoyancy squared to match seasoft
+            buoyancy_freq[i] = -math.sqrt(abs(n2)) * 3600 / (2 * np.pi)
         stability[i] = n2 / gravity
         scaled_stability[i] = stability[i] * 1e8
 
