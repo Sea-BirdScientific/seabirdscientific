@@ -240,7 +240,7 @@ def read_cnv_file(filepath: Union[Path, str]) -> xr.Dataset:
 
             elif line.startswith("# name "):
                 name = line[line.find("= ") + 2 : line.find(":")]
-                
+
                 # scan is already added to each data array
                 if name == "scan":
                     name = "scan_count"
@@ -287,7 +287,7 @@ def read_cnv_file(filepath: Union[Path, str]) -> xr.Dataset:
                 end = min(line.find("\n"), line.find(" ["))
                 date_string = line[line.find("= ") + 2 : end]
                 start_time = datetime.strptime(date_string, "%b %d %Y %H:%M:%S")
-                dataset.attrs["start_time"] = start_time
+                dataset.attrs["start_time"] = start_time.isoformat()
 
             elif line.startswith("*END*"):
                 data_lines = cnv.readlines()
