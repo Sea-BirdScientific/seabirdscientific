@@ -162,6 +162,7 @@ HEX_LENGTH = {
     "conductivity": 6,
     "pressure": 6,
     "temperatureCompensation": 4,
+    "digiquartzPressureTemperatureCompensation": 3,
     "voltage": 4,
     "SBE911Voltage": 3,
     "SBE911SPAR": 3,
@@ -210,6 +211,7 @@ class Sensors(Enum):
     )
     SecondaryConductivity = "SecondaryConductivity"  # change enums to UPPER_CASE for TKIT-75
     Pressure = "Pressure"  # change enums to UPPER_CASE for TKIT-75
+    DigiquartzPressure = "DigiquartzPressure"  # change enums to UPPER_CASE for TKIT-75
     ExtVolt0 = "ExtVolt0"  # change enums to UPPER_CASE for TKIT-75
     ExtVolt1 = "ExtVolt1"  # change enums to UPPER_CASE for TKIT-75
     ExtVolt2 = "ExtVolt2"  # change enums to UPPER_CASE for TKIT-75
@@ -937,7 +939,7 @@ def read_SBE19plus_format_0(
                 )
                 n += HEX_LENGTH["conductivity"]
 
-            if sensor == Sensors.Pressure:  # TODO: add conversion for quartz pressure sensors
+            if sensor == Sensors.Pressure:
                 results[HexDataTypes.pressure.value] = int(
                     hex_segment[n : n + HEX_LENGTH["pressure"]], 16
                 )
@@ -948,6 +950,18 @@ def read_SBE19plus_format_0(
                 )
                 results[HexDataTypes.temperatureCompensation.value] = result
                 n += HEX_LENGTH["temperatureCompensation"]
+            
+
+            if sensor == Sensors.DigiquartzPressure:
+                results[HexDataTypes.digiquartzPressure.value] = int(hex_segment[n : n + HEX_LENGTH["pressure"]], 16) / 256
+                n += HEX_LENGTH["pressure"]
+                # Seacat digiquartz temp comp only uses first 3 bits, and doesn't divide by COUNTS_TO_VOLTS
+                result = (
+                    int(hex_segment[n : n + HEX_LENGTH["digiquartzPressureTemperatureCompensation"]], 16)
+                )
+                results[HexDataTypes.temperatureCompensation.value] = result
+                n += HEX_LENGTH["temperatureCompensation"] # still increment by 4
+
 
             if sensor in [
                 Sensors.ExtVolt0,

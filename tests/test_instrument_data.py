@@ -128,6 +128,30 @@ class TestReadHex19plus:
         assert self.raw["temperature compensation"].iloc[-1] == 20361 / 13107
 
 
+class TestReadHex16plusDigiquartz:
+    filepath = test_data / "16plus_digiquartz.hex"
+    
+    raw = id.read_hex_file(
+        filepath,
+        id.InstrumentType.SBE16Plus,
+        [
+            id.Sensors.Temperature,
+            id.Sensors.Conductivity,
+            id.Sensors.DigiquartzPressure,
+        ],
+    )
+
+    def test_read_16plus_hex_digiquartz(self):
+        assert self.raw["temperature"].iloc[0] == 407128
+        assert self.raw["temperature"].iloc[-1] == 468996
+        assert self.raw["conductivity"].iloc[0] == 687669 / 256
+        assert self.raw["conductivity"].iloc[-1] == 687669 / 256
+        assert self.raw["digiquartz pressure"].iloc[0] == 8906797 / 256
+        assert self.raw["digiquartz pressure"].iloc[-1] == 8905702 / 256
+        assert self.raw["temperature compensation"].iloc[0] == 1571
+        assert self.raw["temperature compensation"].iloc[-1] == 1566
+
+
 class TestReadHex39plus:
     filepath = test_data / "SBE39plus.hex"
     raw = id.read_hex_file(
