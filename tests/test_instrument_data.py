@@ -130,7 +130,7 @@ class TestReadHex19plus:
 
 class TestReadHex16plusDigiquartz:
     filepath = test_data / "16plus_digiquartz.hex"
-    
+
     raw = id.read_hex_file(
         filepath,
         id.InstrumentType.SBE16Plus,
