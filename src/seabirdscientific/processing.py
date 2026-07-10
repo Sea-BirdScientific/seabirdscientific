@@ -219,7 +219,7 @@ def loop_edit_depth(
         use_deck_pressure_offset,
         exclude_flags,
         flag_value,
-        units="depth"
+        units="depth",
     )
 
 
@@ -238,7 +238,7 @@ def loop_edit(
     exclude_flags: bool = True,
     flag_value=FLAG_VALUE,
     latitude: float = 0,
-    units: Literal["depth", "pressure"] = "depth"
+    units: Literal["depth", "pressure"] = "depth",
 ) -> np.ndarray:
     """Marks scans determined to be part of a pressure loop as bad.
 
@@ -281,7 +281,7 @@ def loop_edit(
         depth = c.depth_from_pressure(measurand, latitude)
     else:
         depth = measurand.copy()
-    
+
     _flag = flag.copy()
 
     if not exclude_flags:

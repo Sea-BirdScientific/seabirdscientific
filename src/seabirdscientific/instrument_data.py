@@ -834,14 +834,14 @@ def read_sbe19plus_format_0(
                 )
                 results[HEX_TYPE_TEMPERATURE_COMPENSATION] = result
                 n += HEX_LEN_TEMPERATURE_COMPENSATION
-            
+
             if sensor == Sensors.DigiquartzPressure:
-                results[HEX_TYPE_DIGIQUARTZ_PRESSURE] = int(hex_segment[n : n + HEX_LEN_PRESSURE], 16) / 256
+                results[HEX_TYPE_DIGIQUARTZ_PRESSURE] = (
+                    int(hex_segment[n : n + HEX_LEN_PRESSURE], 16) / 256
+                )
                 n += HEX_LEN_PRESSURE
                 # Seacat digiquartz temp comp only uses first 3 bits, and doesn't divide by COUNTS_TO_VOLTS
-                result = (
-                    int(hex_segment[n : n + HEX_LEN_DIGIQUARTZ_PRESSURE_TEMP_COMP], 16)
-                )
+                result = int(hex_segment[n : n + HEX_LEN_DIGIQUARTZ_PRESSURE_TEMP_COMP], 16)
                 results[HEX_TYPE_TEMPERATURE_COMPENSATION] = result
                 n += HEX_LEN_TEMPERATURE_COMPENSATION
 

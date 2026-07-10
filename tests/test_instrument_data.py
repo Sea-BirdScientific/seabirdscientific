@@ -138,7 +138,6 @@ class TestReadHex16plusDigiquartz:
         assert hex_data["temperature compensation"][-1].item() == 1566
 
 
-
 class TestReadHex39plus:
     filepath = test_data / "SBE39plus.hex"
 
