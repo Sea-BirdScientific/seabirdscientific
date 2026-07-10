@@ -583,15 +583,6 @@ wheels = [
 ]
 
 [[package]]
-name = "cloudpickle"
-version = "3.1.2"
-source = { registry = "http://pypi.sbs.ewqg.com/simple/" }
-sdist = { url = "https://files.pythonhosted.org/packages/27/fb/576f067976d320f5f0114a8d9fa1215425441bb35627b1993e5afd8111e5/cloudpickle-3.1.2.tar.gz", hash = "sha256:7fda9eb655c9c230dab534f1983763de5835249750e85fbcef43aaa30a9a2414", size = 22330, upload-time = "2025-11-03T09:25:26.604Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/88/39/799be3f2f0f38cc727ee3b4f1445fe6d5e4133064ec2e4115069418a5bb6/cloudpickle-3.1.2-py3-none-any.whl", hash = "sha256:9acb47f6afd73f60dc1df93bb801b472f05ff42fa6c84167d25cb206be1fbf4a", size = 22228, upload-time = "2025-11-03T09:25:25.534Z" },
-]
-
-[[package]]
 name = "colorama"
 version = "0.4.6"
 source = { registry = "http://pypi.sbs.ewqg.com/simple/" }
@@ -4303,15 +4294,6 @@ wheels = [
 ]
 
 [[package]]
-name = "pyxdg"
-version = "0.28"
-source = { registry = "http://pypi.sbs.ewqg.com/simple/" }
-sdist = { url = "https://files.pythonhosted.org/packages/b0/25/7998cd2dec731acbd438fbf91bc619603fc5188de0a9a17699a781840452/pyxdg-0.28.tar.gz", hash = "sha256:3267bb3074e934df202af2ee0868575484108581e6f3cb006af1da35395e88b4", size = 77776, upload-time = "2022-06-05T11:35:01Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/e5/8d/cf41b66a8110670e3ad03dab9b759704eeed07fa96e90fdc0357b2ba70e2/pyxdg-0.28-py2.py3-none-any.whl", hash = "sha256:bdaf595999a0178ecea4052b7f4195569c1ff4d344567bccdc12dfdf02d545ab", size = 49520, upload-time = "2022-06-05T11:34:58.832Z" },
-]
-
-[[package]]
 name = "pyyaml"
 version = "6.0.3"
 source = { registry = "http://pypi.sbs.ewqg.com/simple/" }
@@ -5129,7 +5111,7 @@ wheels = [
 
 [[package]]
 name = "seabirdscientific"
-version = "3.0.0a4"
+version = "3.0.0a1"
 source = { editable = "." }
 dependencies = [
     { name = "gsw", version = "3.6.20", source = { registry = "http://pypi.sbs.ewqg.com/simple/" }, marker = "python_full_version < '3.11'" },
@@ -5152,9 +5134,6 @@ docs = [
 notebooks = [
     { name = "ipykernel" },
     { name = "nbformat" },
-]
-spyder = [
-    { name = "spyder-kernels" },
 ]
 
 [package.dev-dependencies]
@@ -5182,10 +5161,9 @@ requires-dist = [
     { name = "scipy", specifier = "~=1.13.1" },
     { name = "sphinx", marker = "extra == 'docs'", specifier = "~=7.4.7" },
     { name = "sphinx-mdinclude", marker = "extra == 'docs'", specifier = "~=0.6.2" },
-    { name = "spyder-kernels", marker = "extra == 'spyder'", specifier = "~=3.1.5" },
     { name = "xarray", specifier = "~=2024.7.0" },
 ]
-provides-extras = ["notebooks", "spyder", "docs"]
+provides-extras = ["notebooks", "docs"]
 
 [package.metadata.requires-dev]
 dev = [
@@ -5584,29 +5562,6 @@ source = { registry = "http://pypi.sbs.ewqg.com/simple/" }
 sdist = { url = "https://files.pythonhosted.org/packages/3b/44/6716b257b0aa6bfd51a1b31665d1c205fb12cb5ad56de752dfa15657de2f/sphinxcontrib_serializinghtml-2.0.0.tar.gz", hash = "sha256:e9d912827f872c029017a53f0ef2180b327c3f7fd23c87229f7a8e8b70031d4d", size = 16080, upload-time = "2024-07-29T01:10:09.332Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/52/a7/d2782e4e3f77c8450f727ba74a8f12756d5ba823d81b941f1b04da9d033a/sphinxcontrib_serializinghtml-2.0.0-py3-none-any.whl", hash = "sha256:6e2cb0eef194e10c27ec0023bfeb25badbbb5868244cf5bc5bdc04e4464bf331", size = 92072, upload-time = "2024-07-29T01:10:08.203Z" },
-]
-
-[[package]]
-name = "spyder-kernels"
-version = "3.1.5"
-source = { registry = "http://pypi.sbs.ewqg.com/simple/" }
-dependencies = [
-    { name = "cloudpickle" },
-    { name = "ipykernel" },
-    { name = "ipython", version = "8.18.1", source = { registry = "http://pypi.sbs.ewqg.com/simple/" }, marker = "python_full_version < '3.10'" },
-    { name = "ipython", version = "8.39.0", source = { registry = "http://pypi.sbs.ewqg.com/simple/" }, marker = "python_full_version == '3.10.*'" },
-    { name = "ipython", version = "9.15.0", source = { registry = "http://pypi.sbs.ewqg.com/simple/" }, marker = "python_full_version >= '3.11'" },
-    { name = "jupyter-client", version = "8.6.3", source = { registry = "http://pypi.sbs.ewqg.com/simple/" }, marker = "python_full_version < '3.10'" },
-    { name = "jupyter-client", version = "8.9.1", source = { registry = "http://pypi.sbs.ewqg.com/simple/" }, marker = "python_full_version >= '3.10'" },
-    { name = "packaging" },
-    { name = "pyxdg", marker = "sys_platform == 'linux'" },
-    { name = "pyzmq" },
-    { name = "traitlets" },
-    { name = "wurlitzer", marker = "sys_platform != 'win32'" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/35/0e/d1e878958fe8e022b625e8e3d8e7e2c96ff0ba872f10421540d7a58e2a02/spyder_kernels-3.1.5.tar.gz", hash = "sha256:5996ed30474e7f71815e87d398dbd44abeaa7456ea6756f8191124c10453738e", size = 86375, upload-time = "2026-06-23T18:17:26.846Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/c3/27/f6ad03fb33016acc102273c0ee398901803bdff01d4f288e5d9daa911359/spyder_kernels-3.1.5-py3-none-any.whl", hash = "sha256:9d9fce8978c6f95d09b61466565cbaa53bad7ab018ed016295b8c12cb0797f67", size = 84368, upload-time = "2026-06-23T18:17:24.774Z" },
 ]
 
 [[package]]
@@ -6358,15 +6313,6 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/a5/8f/aea9c71cc92bf9b6cc0f7f70df8f0b420636b6c96ef4feee1e16f80f75dd/websockets-16.0-pp311-pypy311_pp73-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:0298d07ee155e2e9fda5be8a9042200dd2e3bb0b8a38482156576f863a9d457c", size = 176968, upload-time = "2026-01-10T09:23:41.031Z" },
     { url = "https://files.pythonhosted.org/packages/9a/3f/f70e03f40ffc9a30d817eef7da1be72ee4956ba8d7255c399a01b135902a/websockets-16.0-pp311-pypy311_pp73-win_amd64.whl", hash = "sha256:a653aea902e0324b52f1613332ddf50b00c06fdaf7e92624fbf8c77c78fa5767", size = 178735, upload-time = "2026-01-10T09:23:42.259Z" },
     { url = "https://files.pythonhosted.org/packages/6f/28/258ebab549c2bf3e64d2b0217b973467394a9cea8c42f70418ca2c5d0d2e/websockets-16.0-py3-none-any.whl", hash = "sha256:1637db62fad1dc833276dded54215f2c7fa46912301a24bd94d45d46a011ceec", size = 171598, upload-time = "2026-01-10T09:23:45.395Z" },
-]
-
-[[package]]
-name = "wurlitzer"
-version = "3.1.1"
-source = { registry = "http://pypi.sbs.ewqg.com/simple/" }
-sdist = { url = "https://files.pythonhosted.org/packages/33/90/623f99c55c7d0727a58eb2b7dfb65cb406c561a5c2e9a95b0d6a450c473d/wurlitzer-3.1.1.tar.gz", hash = "sha256:bfb9144ab9f02487d802b9ff89dbd3fa382d08f73e12db8adc4c2fb00cd39bd9", size = 11867, upload-time = "2024-06-12T10:27:30.089Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/9a/24/93ce54550a9dd3fd996ed477f00221f215bf6da3580397fbc138d6036e2e/wurlitzer-3.1.1-py3-none-any.whl", hash = "sha256:0b2749c2cde3ef640bf314a9f94b24d929fe1ca476974719a6909dfc568c3aac", size = 8590, upload-time = "2024-06-12T10:27:28.787Z" },
 ]
 
 [[package]]

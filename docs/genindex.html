@@ -194,7 +194,11 @@
   <input type="hidden" name="area" value="default">
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
-  <p class="caption" role="heading"><span class="caption-text">Source</span></p>
+  <p class="caption" role="heading"><span class="caption-text">Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="migration_guide_v2_v3.html">Migration Guide: v2 to v3</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Source</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="cal_coefficients.html">cal_coefficients.py</a></li>
 <li class="toctree-l1"><a class="reference internal" href="contour.html">contour.py</a></li>
@@ -261,15 +265,19 @@
 </li>
         <li><a href="cal_coefficients.html#seabirdscientific.cal_coefficients.AltimeterCoefficients">AltimeterCoefficients (class in seabirdscientific.cal_coefficients)</a>
 </li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="visualization.html#seabirdscientific.visualization.apply_overlay_config">apply_overlay_config() (in module seabirdscientific.visualization)</a>
 </li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="visualization.html#seabirdscientific.visualization.apply_single_config">apply_single_config() (in module seabirdscientific.visualization)</a>
 </li>
         <li><a href="visualization.html#seabirdscientific.visualization.apply_subplots_x_config">apply_subplots_x_config() (in module seabirdscientific.visualization)</a>
 </li>
         <li><a href="visualization.html#seabirdscientific.visualization.apply_subplots_y_config">apply_subplots_y_config() (in module seabirdscientific.visualization)</a>
+</li>
+        <li><a href="visualization.html#seabirdscientific.visualization.Axes">Axes (class in seabirdscientific.visualization)</a>
+</li>
+        <li><a href="visualization.html#seabirdscientific.visualization.AxisSettings">AxisSettings (class in seabirdscientific.visualization)</a>
 </li>
     </ul></td>
   </tr></table>
@@ -289,7 +297,13 @@
         </ul></li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="processing.html#seabirdscientific.processing.buoyancy">buoyancy() (in module seabirdscientific.processing)</a>
+        <li><a href="conversion.html#seabirdscientific.conversion.buoyancy">buoyancy() (in module seabirdscientific.conversion)</a>
+
+        <ul>
+          <li><a href="processing.html#seabirdscientific.processing.buoyancy">(in module seabirdscientific.processing)</a>
+</li>
+        </ul></li>
+        <li><a href="conversion.html#seabirdscientific.conversion.buoyancy_frequency">buoyancy_frequency() (in module seabirdscientific.conversion)</a>
 </li>
         <li><a href="processing.html#seabirdscientific.processing.butterworth_filter">butterworth_filter() (in module seabirdscientific.processing)</a>
 </li>
@@ -306,8 +320,6 @@
         <li><a href="processing.html#seabirdscientific.processing.cell_thermal_mass">cell_thermal_mass() (in module seabirdscientific.processing)</a>
 </li>
         <li><a href="visualization.html#seabirdscientific.visualization.ChartConfig">ChartConfig (class in seabirdscientific.visualization)</a>
-</li>
-        <li><a href="visualization.html#seabirdscientific.visualization.ChartData">ChartData (class in seabirdscientific.visualization)</a>
 </li>
         <li><a href="utils.html#seabirdscientific.utils.close_enough">close_enough() (in module seabirdscientific.utils)</a>
 </li>
@@ -459,10 +471,14 @@
   <h2>L</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="processing.html#seabirdscientific.processing.loop_edit_depth">loop_edit_depth() (in module seabirdscientific.processing)</a>
+        <li><a href="instrument_data.html#seabirdscientific.instrument_data.logger">logger (in module seabirdscientific.instrument_data)</a>
+</li>
+        <li><a href="processing.html#seabirdscientific.processing.loop_edit">loop_edit() (in module seabirdscientific.processing)</a>
 </li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="processing.html#seabirdscientific.processing.loop_edit_depth">loop_edit_depth() (in module seabirdscientific.processing)</a>
+</li>
         <li><a href="processing.html#seabirdscientific.processing.loop_edit_pressure">loop_edit_pressure() (in module seabirdscientific.processing)</a>
 </li>
         <li><a href="processing.html#seabirdscientific.processing.low_pass_filter">low_pass_filter() (in module seabirdscientific.processing)</a>
@@ -536,11 +552,13 @@
 </li>
         <li><a href="utils.html#seabirdscientific.utils.plot">plot() (in module seabirdscientific.utils)</a>
 </li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="visualization.html#seabirdscientific.visualization.plot_ts_chart">plot_ts_chart() (in module seabirdscientific.visualization)</a>
 </li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="visualization.html#seabirdscientific.visualization.plot_xy_chart">plot_xy_chart() (in module seabirdscientific.visualization)</a>
+</li>
+        <li><a href="visualization.html#seabirdscientific.visualization.PlotSettings">PlotSettings (class in seabirdscientific.visualization)</a>
 </li>
         <li><a href="conversion.html#seabirdscientific.conversion.potential_density_from_t_c_p">potential_density_from_t_c_p() (in module seabirdscientific.conversion)</a>
 </li>
@@ -661,8 +679,6 @@
           <li><a href="visualization.html#module-seabirdscientific.visualization">module</a>
 </li>
         </ul></li>
-        <li><a href="instrument_data.html#seabirdscientific.instrument_data.SECONDS_BETWEEN_EPOCH_AND_2000">SECONDS_BETWEEN_EPOCH_AND_2000 (in module seabirdscientific.instrument_data)</a>
-</li>
         <li><a href="visualization.html#seabirdscientific.visualization.select_subset">select_subset() (in module seabirdscientific.visualization)</a>
 </li>
         <li><a href="instrument_data.html#seabirdscientific.instrument_data.Sensors">Sensors (class in seabirdscientific.instrument_data)</a>
@@ -688,6 +704,8 @@
         <li><a href="cal_coefficients.html#seabirdscientific.cal_coefficients.TemperatureSeaFETCoefficients">TemperatureSeaFETCoefficients (class in seabirdscientific.cal_coefficients)</a>
 </li>
         <li><a href="cal_coefficients.html#seabirdscientific.cal_coefficients.Thermistor63Coefficients">Thermistor63Coefficients (class in seabirdscientific.cal_coefficients)</a>
+</li>
+        <li><a href="visualization.html#seabirdscientific.visualization.Transform">Transform (class in seabirdscientific.visualization)</a>
 </li>
     </ul></td>
   </tr></table>

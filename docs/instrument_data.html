@@ -196,7 +196,11 @@
   <input type="hidden" name="area" value="default">
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
-  <p class="caption" role="heading"><span class="caption-text">Source</span></p>
+  <p class="caption" role="heading"><span class="caption-text">Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="migration_guide_v2_v3.html">Migration Guide: v2 to v3</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Source</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="cal_coefficients.html">cal_coefficients.py</a></li>
 <li class="toctree-l1"><a class="reference internal" href="contour.html">contour.py</a></li>
@@ -276,12 +280,6 @@ Deprecated. Use HEX_TYPE_* constants.</p>
 <dd><p>The type of instrument that generated the hex file being read</p>
 </dd></dl>
 
-<dl class="py data">
-<dt class="sig sig-object py" id="seabirdscientific.instrument_data.SECONDS_BETWEEN_EPOCH_AND_2000">
-<span class="sig-prename descclassname"><span class="pre">seabirdscientific.instrument_data.</span></span><span class="sig-name descname"><span class="pre">SECONDS_BETWEEN_EPOCH_AND_2000</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">946684800</span></em><a class="headerlink" href="#seabirdscientific.instrument_data.SECONDS_BETWEEN_EPOCH_AND_2000" title="Link to this definition"><span>#</span></a></dt>
-<dd><p>Possible data types in hex files</p>
-</dd></dl>
-
 <dl class="py class">
 <dt class="sig sig-object py" id="seabirdscientific.instrument_data.Sensors">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">seabirdscientific.instrument_data.</span></span><span class="sig-name descname"><span class="pre">Sensors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seabirdscientific.instrument_data.Sensors" title="Link to this definition"><span>#</span></a></dt>
@@ -300,6 +298,12 @@ Deprecated. Use HEX_TYPE_* constants.</p>
 <dd class="field-even"><p>frequency in Hz</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="seabirdscientific.instrument_data.logger">
+<span class="sig-prename descclassname"><span class="pre">seabirdscientific.instrument_data.</span></span><span class="sig-name descname"><span class="pre">logger</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Logger</span> <span class="pre">seabirdscientific.instrument_data</span> <span class="pre">(INFO)&gt;</span></em><a class="headerlink" href="#seabirdscientific.instrument_data.logger" title="Link to this definition"><span>#</span></a></dt>
+<dd><p>Possible data types in hex files</p>
 </dd></dl>
 
 <dl class="py function">
@@ -613,9 +617,9 @@ Channels are suppressed in pairs, 3 bytes at a time.</p>
 <li><a class="reference internal" href="#seabirdscientific.instrument_data.HEX_TYPE_SYSTEM_TIME"><code class="docutils literal notranslate"><span class="pre">HEX_TYPE_SYSTEM_TIME</span></code></a></li>
 <li><a class="reference internal" href="#seabirdscientific.instrument_data.HexDataTypes"><code class="docutils literal notranslate"><span class="pre">HexDataTypes</span></code></a></li>
 <li><a class="reference internal" href="#seabirdscientific.instrument_data.InstrumentType"><code class="docutils literal notranslate"><span class="pre">InstrumentType</span></code></a></li>
-<li><a class="reference internal" href="#seabirdscientific.instrument_data.SECONDS_BETWEEN_EPOCH_AND_2000"><code class="docutils literal notranslate"><span class="pre">SECONDS_BETWEEN_EPOCH_AND_2000</span></code></a></li>
 <li><a class="reference internal" href="#seabirdscientific.instrument_data.Sensors"><code class="docutils literal notranslate"><span class="pre">Sensors</span></code></a></li>
 <li><a class="reference internal" href="#seabirdscientific.instrument_data.frequency_from_3_bytes"><code class="docutils literal notranslate"><span class="pre">frequency_from_3_bytes()</span></code></a></li>
+<li><a class="reference internal" href="#seabirdscientific.instrument_data.logger"><code class="docutils literal notranslate"><span class="pre">logger</span></code></a></li>
 <li><a class="reference internal" href="#seabirdscientific.instrument_data.read_cnv_file"><code class="docutils literal notranslate"><span class="pre">read_cnv_file()</span></code></a></li>
 <li><a class="reference internal" href="#seabirdscientific.instrument_data.read_hex"><code class="docutils literal notranslate"><span class="pre">read_hex()</span></code></a></li>
 <li><a class="reference internal" href="#seabirdscientific.instrument_data.read_hex_file"><code class="docutils literal notranslate"><span class="pre">read_hex_file()</span></code></a></li>
