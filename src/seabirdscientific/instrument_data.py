@@ -79,6 +79,7 @@ HEX_LEN_TEMPERATURE = 6
 HEX_LEN_CONDUCTIVITY = 6
 HEX_LEN_PRESSURE = 6
 HEX_LEN_TEMPERATURE_COMPENSATION = 4
+HEX_LEN_DIGIQUARTZ_PRESSURE_TEMP_COMP = 3
 HEX_LEN_VOLTAGE = 4
 HEX_LEN_SBE911_VOLTAGE = 3
 HEX_LEN_SBE911_SURFACE_PAR = 3
@@ -138,6 +139,7 @@ class Sensors(Enum):
     Conductivity = "Conductivity"
     SecondaryConductivity = "SecondaryConductivity"
     Pressure = "Pressure"
+    DigiquartzPressure = "DigiquartzPressure"
     ExtVolt0 = "ExtVolt0"
     ExtVolt1 = "ExtVolt1"
     ExtVolt2 = "ExtVolt2"
@@ -829,6 +831,16 @@ def read_sbe19plus_format_0(
                 result = (
                     int(hex_segment[n : n + HEX_LEN_TEMPERATURE_COMPENSATION], 16)
                     / COUNTS_TO_VOLTS
+                )
+                results[HEX_TYPE_TEMPERATURE_COMPENSATION] = result
+                n += HEX_LEN_TEMPERATURE_COMPENSATION
+            
+            if sensor == Sensors.DigiquartzPressure:
+                results[HEX_TYPE_DIGIQUARTZ_PRESSURE] = int(hex_segment[n : n + HEX_LEN_PRESSURE], 16) / 256
+                n += HEX_LEN_PRESSURE
+                # Seacat digiquartz temp comp only uses first 3 bits, and doesn't divide by COUNTS_TO_VOLTS
+                result = (
+                    int(hex_segment[n : n + HEX_LEN_DIGIQUARTZ_PRESSURE_TEMP_COMP], 16)
                 )
                 results[HEX_TYPE_TEMPERATURE_COMPENSATION] = result
                 n += HEX_LEN_TEMPERATURE_COMPENSATION
