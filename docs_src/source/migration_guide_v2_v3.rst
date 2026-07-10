@@ -49,6 +49,12 @@ Installing the base package is unchanged:
 
    py -m pip install seabirdscientific
 
+Optional dependencies can be included with square brackets:
+
+.. code-block:: bash
+
+   py -m pip install seabirdscientific[notebooks,docs]
+
 The data model: xarray.Dataset
 *******************************
 
@@ -62,9 +68,9 @@ such as the sample interval and start time are stored as dataset attributes.
 
 .. code-block:: python
 
-   import seabirdscientific.instrument_data as id
+   import seabirdscientific.instrument_data as si
 
-   data = id.cnv_to_instrument_data("example.cnv")
+   data = si.cnv_to_instrument_data("example.cnv")
    temperature = data.measurements["tv290C"].values
    df = data.to_dataframe()
 
@@ -72,9 +78,9 @@ such as the sample interval and start time are stored as dataset attributes.
 
 .. code-block:: python
 
-   import seabirdscientific.instrument_data as id
+   import seabirdscientific.instrument_data as si
 
-   dataset = id.read_cnv_file("example.cnv")
+   dataset = si.read_cnv_file("example.cnv")
    temperature = dataset["tv290C"].values
 
 Variable metadata is available on each ``DataArray`` through its ``attrs``
@@ -99,16 +105,16 @@ read_cnv_file
 =============
 
 ``cnv_to_instrument_data`` has been renamed to ``read_cnv_file`` and now
-returns an ``xarray.Dataset``. There is no compatibility alias for the old
-name.
+returns an ``xarray.Dataset``. The original function remains as a wrapper
+for ``read_cnv_file`` and emits a ``DeprecationWarning``.
 
 .. code-block:: python
 
    # v2
-   data = id.cnv_to_instrument_data(filepath)
+   data = si.cnv_to_instrument_data(filepath)
 
    # v3
-   dataset = id.read_cnv_file(filepath)
+   dataset = si.read_cnv_file(filepath)
 
 read_hex_file
 =============
@@ -119,7 +125,7 @@ is a variable in the returned dataset.
 
 .. code-block:: python
 
-   dataset = id.read_hex_file(filepath, instrument_type, enabled_sensors)
+   dataset = si.read_hex_file(filepath, instrument_type, enabled_sensors)
    temperature_counts = dataset["temperature"].values
 
 Removed classes
@@ -133,8 +139,9 @@ Renamed hex reading functions
 ==============================
 
 The instrument-specific hex reading functions have been renamed from mixed
-case to lower snake_case. The old names remain as deprecated aliases that
-forward to the new functions and emit a ``DeprecationWarning``.
+case to lower snake_case and no longer specify a format. The old names remain
+as deprecated aliases that forward to the new functions and emit a
+``DeprecationWarning``.
 
 .. list-table::
    :header-rows: 1
@@ -142,13 +149,15 @@ forward to the new functions and emit a ``DeprecationWarning``.
    * - v2 name
      - v3 name
    * - ``read_SBE39plus_format_0``
-     - ``read_sbe39plus_format_0``
+     - ``read_sbe39plus_data``
+   * - ``read_seafet_format_0``
+     - ``read_seafet_data``
    * - ``read_SBE911plus_format_0``
-     - ``read_sbe911plus_format_0``
+     - ``read_sbe911plus_data``
    * - ``read_SBE19plus_format_0``
-     - ``read_sbe19plus_format_0``
+     - ``read_sbe19plus_data``
    * - ``read_SBE37SM_format_0``
-     - ``read_sbe37sm_format_0``
+     - ``read_sbe37sm_data``
 
 The ``HexDataTypes`` enum members are now deprecated. Accessing any member
 emits a ``DeprecationWarning``.
@@ -173,12 +182,12 @@ forward to ``eos80_conversion`` and emit a ``DeprecationWarning``.
 .. code-block:: python
 
    # v2
-   import seabirdscientific.eos80_processing as eos
-   rho = eos.density(salinity, temperature, pressure)
+   import seabirdscientific.eos80_processing as se
+   rho = se.density(salinity, temperature, pressure)
 
    # v3
-   import seabirdscientific.eos80_conversion as ec
-   rho = ec.density(salinity, temperature, pressure)
+   import seabirdscientific.eos80_conversion as se
+   rho = se.density(salinity, temperature, pressure)
 
 buoyancy moved to conversion
 ============================
@@ -211,7 +220,7 @@ bin_average now takes a Dataset
 
 .. code-block:: python
 
-   dataset = id.read_cnv_file(filepath)
+   dataset = si.read_cnv_file(filepath)
    binned = p.bin_average(dataset, "prdM", bin_size=1)
 
 String parameters replace enums
@@ -256,7 +265,7 @@ reflects the move to ``xarray`` throughout the toolkit.
 
    # v3
    config = vis.ChartConfig(...)
-   dataset = id.read_cnv_file(filepath)
+   dataset = si.read_cnv_file(filepath)
    figure = vis.plot_xy_chart(dataset, config)
 
 The ``ChartConfig`` constructor keeps the same parameters. ``parse_instrument_data``
@@ -289,16 +298,20 @@ should be updated:
 
    * - Deprecated
      - Replacement
+   * - ``instrument_data.cnv_to_instrument_data``
+     - ``instrument_data.read_cnv_file``
    * - ``instrument_data.read_SBE39plus_format_0``
-     - ``instrument_data.read_sbe39plus_format_0``
+     - ``instrument_data.read_sbe39plus_data``
+   * - ``instrument_data.read_seafet_format_0``
+     - ``instrument_data.read_seafet_data``
    * - ``instrument_data.read_SBE911plus_format_0``
-     - ``instrument_data.read_sbe911plus_format_0``
+     - ``instrument_data.read_sbe911plus_data``
    * - ``instrument_data.read_SBE19plus_format_0``
-     - ``instrument_data.read_sbe19plus_format_0``
+     - ``instrument_data.read_sbe19plus_data``
    * - ``instrument_data.read_SBE37SM_format_0``
-     - ``instrument_data.read_sbe37sm_format_0``
-   * - ``instrument_data.HexDataTypes`` members
-     - (no longer needed)
+     - ``instrument_data.read_sbe37sm_data``
+   * - ``instrument_data.HexDataTypes``
+     - (replaced with constants)
    * - ``eos80_processing.bouyancy_frequency``
      - ``eos80_conversion.bouyancy_frequency``
    * - ``eos80_processing.density``
@@ -316,7 +329,6 @@ should be updated:
 
 The following have been removed with no compatibility alias:
 
-- ``instrument_data.cnv_to_instrument_data`` (use ``read_cnv_file``)
 - ``instrument_data.InstrumentData``
 - ``instrument_data.MeasurementSeries``
 - ``visualization.ChartData``

@@ -302,6 +302,10 @@ more focused groups:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>py<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>seabirdscientific
 </pre></div>
 </div>
+<p>Optional dependencies can be included with square brackets:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>py<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>seabirdscientific<span class="o">[</span>notebooks,docs<span class="o">]</span>
+</pre></div>
+</div>
 </section>
 <section id="the-data-model-xarray-dataset">
 <h2>The data model: xarray.Dataset<a class="headerlink" href="#the-data-model-xarray-dataset" title="Link to this heading"><span>#</span></a></h2>
@@ -311,17 +315,17 @@ dictionary of <code class="docutils literal notranslate"><span class="pre">Measu
 <code class="docutils literal notranslate"><span class="pre">xarray.Dataset</span></code>. Each measurand is a variable in the dataset, and metadata
 such as the sample interval and start time are stored as dataset attributes.</p>
 <p><strong>v2:</strong></p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">seabirdscientific.instrument_data</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">id</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">seabirdscientific.instrument_data</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">si</span>
 
-<span class="n">data</span> <span class="o">=</span> <span class="nb">id</span><span class="o">.</span><span class="n">cnv_to_instrument_data</span><span class="p">(</span><span class="s2">&quot;example.cnv&quot;</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">si</span><span class="o">.</span><span class="n">cnv_to_instrument_data</span><span class="p">(</span><span class="s2">&quot;example.cnv&quot;</span><span class="p">)</span>
 <span class="n">temperature</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">measurements</span><span class="p">[</span><span class="s2">&quot;tv290C&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
 <span class="n">df</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">to_dataframe</span><span class="p">()</span>
 </pre></div>
 </div>
 <p><strong>v3:</strong></p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">seabirdscientific.instrument_data</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">id</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">seabirdscientific.instrument_data</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">si</span>
 
-<span class="n">dataset</span> <span class="o">=</span> <span class="nb">id</span><span class="o">.</span><span class="n">read_cnv_file</span><span class="p">(</span><span class="s2">&quot;example.cnv&quot;</span><span class="p">)</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">si</span><span class="o">.</span><span class="n">read_cnv_file</span><span class="p">(</span><span class="s2">&quot;example.cnv&quot;</span><span class="p">)</span>
 <span class="n">temperature</span> <span class="o">=</span> <span class="n">dataset</span><span class="p">[</span><span class="s2">&quot;tv290C&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
 </pre></div>
 </div>
@@ -343,13 +347,13 @@ original name is preserved in the <code class="docutils literal notranslate"><sp
 <section id="read-cnv-file">
 <h3>read_cnv_file<a class="headerlink" href="#read-cnv-file" title="Link to this heading"><span>#</span></a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">cnv_to_instrument_data</span></code> has been renamed to <code class="docutils literal notranslate"><span class="pre">read_cnv_file</span></code> and now
-returns an <code class="docutils literal notranslate"><span class="pre">xarray.Dataset</span></code>. There is no compatibility alias for the old
-name.</p>
+returns an <code class="docutils literal notranslate"><span class="pre">xarray.Dataset</span></code>. The original function remains as a wrapper
+for <code class="docutils literal notranslate"><span class="pre">read_cnv_file</span></code> and emits a <code class="docutils literal notranslate"><span class="pre">DeprecationWarning</span></code>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># v2</span>
-<span class="n">data</span> <span class="o">=</span> <span class="nb">id</span><span class="o">.</span><span class="n">cnv_to_instrument_data</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">si</span><span class="o">.</span><span class="n">cnv_to_instrument_data</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
 
 <span class="c1"># v3</span>
-<span class="n">dataset</span> <span class="o">=</span> <span class="nb">id</span><span class="o">.</span><span class="n">read_cnv_file</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">si</span><span class="o">.</span><span class="n">read_cnv_file</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -358,7 +362,7 @@ name.</p>
 <p><code class="docutils literal notranslate"><span class="pre">read_hex_file</span></code> keeps the same name and parameters but now returns an
 <code class="docutils literal notranslate"><span class="pre">xarray.Dataset</span></code> instead of an <code class="docutils literal notranslate"><span class="pre">InstrumentData</span></code> object. Each hex data type
 is a variable in the returned dataset.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dataset</span> <span class="o">=</span> <span class="nb">id</span><span class="o">.</span><span class="n">read_hex_file</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">instrument_type</span><span class="p">,</span> <span class="n">enabled_sensors</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dataset</span> <span class="o">=</span> <span class="n">si</span><span class="o">.</span><span class="n">read_hex_file</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">instrument_type</span><span class="p">,</span> <span class="n">enabled_sensors</span><span class="p">)</span>
 <span class="n">temperature_counts</span> <span class="o">=</span> <span class="n">dataset</span><span class="p">[</span><span class="s2">&quot;temperature&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
 </pre></div>
 </div>
@@ -372,8 +376,9 @@ Code that referenced these types should be updated to work with
 <section id="renamed-hex-reading-functions">
 <h3>Renamed hex reading functions<a class="headerlink" href="#renamed-hex-reading-functions" title="Link to this heading"><span>#</span></a></h3>
 <p>The instrument-specific hex reading functions have been renamed from mixed
-case to lower snake_case. The old names remain as deprecated aliases that
-forward to the new functions and emit a <code class="docutils literal notranslate"><span class="pre">DeprecationWarning</span></code>.</p>
+case to lower snake_case and no longer specify a format. The old names remain
+as deprecated aliases that forward to the new functions and emit a
+<code class="docutils literal notranslate"><span class="pre">DeprecationWarning</span></code>.</p>
 <div class="table-wrapper docutils container">
 <table class="docutils align-default">
 <thead>
@@ -383,16 +388,19 @@ forward to the new functions and emit a <code class="docutils literal notranslat
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">read_SBE39plus_format_0</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">read_sbe39plus_format_0</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">read_sbe39plus_data</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">read_SBE911plus_format_0</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">read_sbe911plus_format_0</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">read_seafet_format_0</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">read_seafet_data</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">read_SBE19plus_format_0</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">read_sbe19plus_format_0</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">read_SBE911plus_format_0</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">read_sbe911plus_data</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">read_SBE37SM_format_0</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">read_sbe37sm_format_0</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">read_SBE19plus_format_0</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">read_sbe19plus_data</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">read_SBE37SM_format_0</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">read_sbe37sm_data</span></code></p></td>
 </tr>
 </tbody>
 </table>
@@ -416,12 +424,12 @@ previously in <code class="docutils literal notranslate"><span class="pre">eos80
 <p>The functions in <code class="docutils literal notranslate"><span class="pre">eos80_processing</span></code> remain as deprecated wrappers that
 forward to <code class="docutils literal notranslate"><span class="pre">eos80_conversion</span></code> and emit a <code class="docutils literal notranslate"><span class="pre">DeprecationWarning</span></code>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># v2</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">seabirdscientific.eos80_processing</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">eos</span>
-<span class="n">rho</span> <span class="o">=</span> <span class="n">eos</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">salinity</span><span class="p">,</span> <span class="n">temperature</span><span class="p">,</span> <span class="n">pressure</span><span class="p">)</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">seabirdscientific.eos80_processing</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">se</span>
+<span class="n">rho</span> <span class="o">=</span> <span class="n">se</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">salinity</span><span class="p">,</span> <span class="n">temperature</span><span class="p">,</span> <span class="n">pressure</span><span class="p">)</span>
 
 <span class="c1"># v3</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">seabirdscientific.eos80_conversion</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ec</span>
-<span class="n">rho</span> <span class="o">=</span> <span class="n">ec</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">salinity</span><span class="p">,</span> <span class="n">temperature</span><span class="p">,</span> <span class="n">pressure</span><span class="p">)</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">seabirdscientific.eos80_conversion</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">se</span>
+<span class="n">rho</span> <span class="o">=</span> <span class="n">se</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">salinity</span><span class="p">,</span> <span class="n">temperature</span><span class="p">,</span> <span class="n">pressure</span><span class="p">)</span>
 </pre></div>
 </div>
 <section id="buoyancy-moved-to-conversion">
@@ -448,7 +456,7 @@ deprecated wrappers.</p>
 <p><code class="docutils literal notranslate"><span class="pre">bin_average</span></code> previously accepted a <code class="docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code> and now accepts an
 <code class="docutils literal notranslate"><span class="pre">xarray.Dataset</span></code>. Pass the dataset returned by <code class="docutils literal notranslate"><span class="pre">read_cnv_file</span></code> or
 <code class="docutils literal notranslate"><span class="pre">read_hex_file</span></code> directly.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dataset</span> <span class="o">=</span> <span class="nb">id</span><span class="o">.</span><span class="n">read_cnv_file</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dataset</span> <span class="o">=</span> <span class="n">si</span><span class="o">.</span><span class="n">read_cnv_file</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
 <span class="n">binned</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">bin_average</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="s2">&quot;prdM&quot;</span><span class="p">,</span> <span class="n">bin_size</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -490,7 +498,7 @@ reflects the move to <code class="docutils literal notranslate"><span class="pre
 
 <span class="c1"># v3</span>
 <span class="n">config</span> <span class="o">=</span> <span class="n">vis</span><span class="o">.</span><span class="n">ChartConfig</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
-<span class="n">dataset</span> <span class="o">=</span> <span class="nb">id</span><span class="o">.</span><span class="n">read_cnv_file</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">si</span><span class="o">.</span><span class="n">read_cnv_file</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
 <span class="n">figure</span> <span class="o">=</span> <span class="n">vis</span><span class="o">.</span><span class="n">plot_xy_chart</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -523,20 +531,26 @@ should be updated:</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">instrument_data.read_SBE39plus_format_0</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">instrument_data.read_sbe39plus_format_0</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">instrument_data.cnv_to_instrument_data</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">instrument_data.read_cnv_file</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">instrument_data.read_SBE39plus_format_0</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">instrument_data.read_sbe39plus_data</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">instrument_data.read_seafet_format_0</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">instrument_data.read_seafet_data</span></code></p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">instrument_data.read_SBE911plus_format_0</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">instrument_data.read_sbe911plus_format_0</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">instrument_data.read_sbe911plus_data</span></code></p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">instrument_data.read_SBE19plus_format_0</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">instrument_data.read_sbe19plus_format_0</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">instrument_data.read_sbe19plus_data</span></code></p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">instrument_data.read_SBE37SM_format_0</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">instrument_data.read_sbe37sm_format_0</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">instrument_data.read_sbe37sm_data</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">instrument_data.HexDataTypes</span></code> members</p></td>
-<td><p>(no longer needed)</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">instrument_data.HexDataTypes</span></code></p></td>
+<td><p>(replaced with constants)</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">eos80_processing.bouyancy_frequency</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">eos80_conversion.bouyancy_frequency</span></code></p></td>
@@ -564,7 +578,6 @@ should be updated:</p>
 </div>
 <p>The following have been removed with no compatibility alias:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">instrument_data.cnv_to_instrument_data</span></code> (use <code class="docutils literal notranslate"><span class="pre">read_cnv_file</span></code>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">instrument_data.InstrumentData</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">instrument_data.MeasurementSeries</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">visualization.ChartData</span></code></p></li>
