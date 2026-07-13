@@ -119,9 +119,7 @@ def density(
     k1 = -6.12293e-6
     k2 = 5.2787e-8
 
-    s0, t, p0 = np.broadcast_arrays(salinity, temperature, pressure)
-    p = p0.copy()
-    s = s0.copy()
+    s, t, p = np.broadcast_arrays(salinity, temperature, pressure)
 
     t2 = t * t
     t3 = t * t2
@@ -156,10 +154,10 @@ def density(
 
     val = 1 - p / k
 
-    val[val <= 0] = np.nan
-    val = sigma / val
+    _density = sigma
+    _density[val != 0] = sigma / val
 
-    return val
+    return _density
 
 
 def potential_temperature(

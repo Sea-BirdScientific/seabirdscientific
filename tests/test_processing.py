@@ -180,14 +180,14 @@ class TestAlignCtd:
         return si.read_cnv_file(self.source_data_path)
 
     def test_align_ctd_add_simple_pass(self, expected_data, source_data, request):
-        # Fix last valid sample
+        # Fix last valid scan
         expected_data["tv290C"].values[len(expected_data["tv290C"].values) - 1] = -9.99e-29
         result = sp.align_ctd(source_data["tv290C"].values, 12, 120)
         request.node.return_value = result.tolist()
         assert np.allclose(expected_data["tv290C"].values, result, atol=0.0001)
 
     def test_align_ctd_add_simple_pass_2(self, expected_data, source_data, request):
-        # Fix last valid sample
+        # Fix last valid scan
         expected_data["cond0S/m"].values[len(expected_data["cond0S/m"].values) - 2] = -9.99e-29
         result = sp.align_ctd(source_data["cond0S/m"].values, 150, 120)
         request.node.return_value = result.tolist()
@@ -236,7 +236,7 @@ class TestFindDepthPeaks:
     flag_value = 1
 
     def test_find_depth_peaks(self):
-        min_depth_n, max_depth_n = p._find_depth_peaks(
+        min_depth_n, max_depth_n = sp._find_depth_peaks(
             depth=self.depth,
             flag=self.flag,
             remove_surface_soak=False,
@@ -248,7 +248,7 @@ class TestFindDepthPeaks:
         assert max_depth_n == 11
 
     def test_find_depth_peaks_remove_soak(self):
-        min_depth_n, max_depth_n = p._find_depth_peaks(
+        min_depth_n, max_depth_n = sp._find_depth_peaks(
             depth=self.depth,
             flag=self.flag,
             remove_surface_soak=True,
@@ -260,7 +260,7 @@ class TestFindDepthPeaks:
         assert max_depth_n == 11
 
     def test_find_depth_peaks_remove_soak2(self):
-        min_depth_n, max_depth_n = p._find_depth_peaks(
+        min_depth_n, max_depth_n = sp._find_depth_peaks(
             depth=self.depth,
             flag=self.flag,
             remove_surface_soak=True,
@@ -273,7 +273,7 @@ class TestFindDepthPeaks:
 
     def test_find_depth_peaks_remove_soak_flagged_peak(self):
         flag = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0])
-        min_depth_n, max_depth_n = p._find_depth_peaks(
+        min_depth_n, max_depth_n = sp._find_depth_peaks(
             depth=self.depth,
             flag=flag,
             remove_surface_soak=True,
@@ -286,7 +286,7 @@ class TestFindDepthPeaks:
 
     def test_find_depth_peaks_flagged_min_depth(self):
         flag = np.array([1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
-        min_depth_n, max_depth_n = p._find_depth_peaks(
+        min_depth_n, max_depth_n = sp._find_depth_peaks(
             depth=self.depth,
             flag=flag,
             remove_surface_soak=False,
@@ -299,7 +299,7 @@ class TestFindDepthPeaks:
 
     def test_find_depth_peaks_remove_soak_flagged_min_depth(self):
         flag = np.array([1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
-        min_depth_n, max_depth_n = p._find_depth_peaks(
+        min_depth_n, max_depth_n = sp._find_depth_peaks(
             depth=self.depth,
             flag=flag,
             remove_surface_soak=True,
@@ -317,7 +317,7 @@ class TestFlagByMinimaMaxima:
 
     def test_flag_by_minima_maxima(self):
         flag = np.zeros(len(self.depth))
-        min_depth_n, max_depth_n = p._find_depth_peaks(
+        min_depth_n, max_depth_n = sp._find_depth_peaks(
             depth=self.depth,
             flag=flag,
             remove_surface_soak=False,
@@ -326,7 +326,7 @@ class TestFlagByMinimaMaxima:
             max_soak_depth=3.5,
         )
 
-        p._flag_by_minima_maxima(
+        sp._flag_by_minima_maxima(
             depth=self.depth,
             flag=flag,
             min_depth_n=min_depth_n,
@@ -340,7 +340,7 @@ class TestFlagByMinimaMaxima:
 
     def test_flag_by_minima_maxima_remove_soak(self):
         flag = np.zeros(len(self.depth))
-        min_depth_n, max_depth_n = p._find_depth_peaks(
+        min_depth_n, max_depth_n = sp._find_depth_peaks(
             depth=self.depth,
             flag=flag,
             remove_surface_soak=True,
@@ -349,7 +349,7 @@ class TestFlagByMinimaMaxima:
             max_soak_depth=3.5,
         )
 
-        p._flag_by_minima_maxima(
+        sp._flag_by_minima_maxima(
             depth=self.depth,
             flag=flag,
             min_depth_n=min_depth_n,
@@ -363,7 +363,7 @@ class TestFlagByMinimaMaxima:
 
     def test_flag_by_minima_maxima_remove_soak_flagged_peak(self):
         flag = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0])
-        min_depth_n, max_depth_n = p._find_depth_peaks(
+        min_depth_n, max_depth_n = sp._find_depth_peaks(
             depth=self.depth,
             flag=flag,
             remove_surface_soak=True,
@@ -372,7 +372,7 @@ class TestFlagByMinimaMaxima:
             max_soak_depth=3.5,
         )
 
-        p._flag_by_minima_maxima(
+        sp._flag_by_minima_maxima(
             depth=self.depth,
             flag=flag,
             min_depth_n=min_depth_n,
@@ -389,7 +389,7 @@ class TestFlagByMinimaMaxima:
             [-1, 0, 1, 2, 3, 2, 3, 4, 5, 6, 5, 6, 7, 8, 7, 7.5, 6.5, 6, 5, 4, 3, 2, 1]
         )
         flag = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
-        min_depth_n, max_depth_n = p._find_depth_peaks(
+        min_depth_n, max_depth_n = sp._find_depth_peaks(
             depth=depth,
             flag=flag,
             remove_surface_soak=False,
@@ -398,7 +398,7 @@ class TestFlagByMinimaMaxima:
             max_soak_depth=3.5,
         )
 
-        p._flag_by_minima_maxima(
+        sp._flag_by_minima_maxima(
             depth=depth,
             flag=flag,
             min_depth_n=min_depth_n,
@@ -413,7 +413,7 @@ class TestFlagByMinimaMaxima:
     def test_flag_by_minima_maxima_flagged_min_depth2(self):
         depth = np.array([0.0, 1, 2, 1, 100, 60, 70, 80, 90, 90, 80, 60, 40])
         flag = np.zeros(len(depth))
-        min_depth_n, max_depth_n = p._find_depth_peaks(
+        min_depth_n, max_depth_n = sp._find_depth_peaks(
             depth=depth,
             flag=flag,
             remove_surface_soak=False,
@@ -422,7 +422,7 @@ class TestFlagByMinimaMaxima:
             max_soak_depth=3.5,
         )
 
-        p._flag_by_minima_maxima(
+        sp._flag_by_minima_maxima(
             depth=depth,
             flag=flag,
             min_depth_n=min_depth_n,
@@ -435,10 +435,8 @@ class TestFlagByMinimaMaxima:
 
 class TestLoopEdit:
     def test_loop_edit_pressure_min_velocity(self):
-        expected_data = idata.cnv_to_instrument_data(
-            test_data / "CAST0002_mod_filt_loop_min_v.cnv"
-        )
-        data = idata.cnv_to_instrument_data(test_data / "CAST0002_mod_filt.cnv")
+        expected_data = si.read_cnv_file(test_data / "CAST0002_mod_filt_loop_min_v.cnv")
+        data = si.read_cnv_file(test_data / "CAST0002_mod_filt.cnv")
 
         result_flags = sp.loop_edit(
             measurand=data["prSM"].values,
@@ -455,23 +453,19 @@ class TestLoopEdit:
             exclude_flags=False,
         )
 
-        expected_flags = expected_data.measurements["flag"].values
-        result_flags = data.measurements["flag"].values
+        expected_flags = expected_data["flag"].values
 
         assert np.all(result_flags == expected_flags)
 
     def test_loop_edit_pressure_min_velocity_pass_2(self):
-        expected_data = idata.cnv_to_instrument_data(
-            test_data / "SBE19plus_loop_edit_corrected.cnv"
-        )
-        data = idata.cnv_to_instrument_data(test_data / "SBE19plus.cnv")
+        expected_data = si.read_cnv_file(test_data / "SBE19plus_loop_edit_corrected.cnv")
+        data = si.read_cnv_file(test_data / "SBE19plus.cnv")
 
-        p.loop_edit_pressure(
-            pressure=data.measurements["prdM"].values,
-            latitude=data.latitude,
-            flag=data.measurements["flag"].values,
-            sample_interval=data.interval_s,
-            min_velocity_type=p.MinVelocityType.FIXED,
+        result_flags = sp.loop_edit(
+            measurand=data["prdM"].values,
+            flag=data["flag"].values,
+            sample_interval=data.attrs["sample_interval"],
+            min_velocity_type="fixed",
             min_velocity=0.25,
             window_size=3,
             mean_speed_percent=20,
@@ -480,15 +474,15 @@ class TestLoopEdit:
             max_soak_depth=20,
             use_deck_pressure_offset=True,
             exclude_flags=True,
+            units="pressure",
         )
 
-        expected_flags = expected_data.measurements["flag"].values
-        result_flags = data.measurements["flag"].values
+        expected_flags = expected_data["flag"].values
 
         assert np.all(result_flags == expected_flags)
 
     def test_loop_edit_pressure_min_velocity_remove_soak(self):
-        expected_data = idata.cnv_to_instrument_data(
+        expected_data = si.read_cnv_file(
             test_data / "CAST0002_mod_filt_loop_min_v_remove_soak.cnv"
         )
         data = si.read_cnv_file(test_data / "CAST0002_mod_filt.cnv")
@@ -508,16 +502,15 @@ class TestLoopEdit:
             exclude_flags=False,
         )
 
-        expected_flags = expected_data.measurements["flag"].values
-        result_flags = data.measurements["flag"].values
+        expected_flags = expected_data["flag"].values
 
         assert np.all(result_flags == expected_flags)
 
     def test_loop_edit_pressure_min_velocity_exclude_flags(self):
-        expected_data = idata.cnv_to_instrument_data(
+        expected_data = si.read_cnv_file(
             test_data / "CAST0002_mod_filt_loop_min_v_exclude_flags.cnv"
         )
-        data = idata.cnv_to_instrument_data(test_data / "CAST0002_mod_filt.cnv")
+        data = si.read_cnv_file(test_data / "CAST0002_mod_filt.cnv")
 
         result_flags = sp.loop_edit(
             measurand=data["prSM"].values,
@@ -534,16 +527,15 @@ class TestLoopEdit:
             exclude_flags=True,
         )
 
-        expected_flags = expected_data.measurements["flag"].values
-        result_flags = data.measurements["flag"].values
+        expected_flags = expected_data["flag"].values
 
         assert np.all(result_flags == expected_flags)
 
     def test_loop_edit_pressure_min_velocity_exclude_flags_remove_soak(self):
-        expected_data = idata.cnv_to_instrument_data(
+        expected_data = si.read_cnv_file(
             test_data / "CAST0002_mod_filt_loop_min_v_exclude_flags_remove_soak.cnv"
         )
-        data = idata.cnv_to_instrument_data(test_data / "CAST0002_mod_filt.cnv")
+        data = si.read_cnv_file(test_data / "CAST0002_mod_filt.cnv")
 
         result_flags = sp.loop_edit(
             measurand=data["prSM"].values,
@@ -562,13 +554,12 @@ class TestLoopEdit:
             units="pressure",
         )
 
-        expected_flags = expected_data.measurements["flag"].values
-        result_flags = data.measurements["flag"].values
+        expected_flags = expected_data["flag"].values
 
         assert np.all(result_flags == expected_flags)
 
     def test_loop_edit_pressure_mean_speed_percent_remove_soak(self):
-        expected_data = idata.cnv_to_instrument_data(
+        expected_data = si.read_cnv_file(
             test_data / "CAST0002_mod_filt_loop_percent_remove_soak_corrected.cnv"
         )
         data = si.read_cnv_file(test_data / "CAST0002_mod_filt.cnv")
@@ -589,16 +580,15 @@ class TestLoopEdit:
             flag_value=10,
         )
 
-        expected_flags = expected_data.measurements["flag"].values
-        result_flags = data.measurements["flag"].values
+        expected_flags = expected_data["flag"].values
 
         assert np.all(result_flags == expected_flags)
 
     def test_loop_edit_pressure_mean_speed_percent(self):
-        expected_data = idata.cnv_to_instrument_data(
+        expected_data = si.read_cnv_file(
             test_data / "CAST0002_mod_filt_loop_percent_corrected.cnv"
         )
-        data = idata.cnv_to_instrument_data(test_data / "CAST0002_mod_filt.cnv")
+        data = si.read_cnv_file(test_data / "CAST0002_mod_filt.cnv")
 
         result_flags = sp.loop_edit(
             measurand=data["prSM"].values,
@@ -616,23 +606,19 @@ class TestLoopEdit:
             flag_value=10,
         )
 
-        expected_flags = expected_data.measurements["flag"].values
-        result_flags = data.measurements["flag"].values
+        expected_flags = expected_data["flag"].values
 
         assert np.all(result_flags == expected_flags)
 
     def test_loop_edit_pressure_fake_cast_percent(self):
-        expected_data = idata.cnv_to_instrument_data(
-            test_data / "fake_cast_loop_percent_corrected.cnv"
-        )
-        data = idata.cnv_to_instrument_data(test_data / "fake_cast.cnv")
+        expected_data = si.read_cnv_file(test_data / "fake_cast_loop_percent_corrected.cnv")
+        data = si.read_cnv_file(test_data / "fake_cast.cnv")
 
-        p.loop_edit_pressure(
-            pressure=data.measurements["prSM"].values,
-            latitude=data.latitude,
-            flag=data.measurements["flag"].values,
-            sample_interval=data.interval_s,
-            min_velocity_type=p.MinVelocityType.PERCENT,
+        result_flags = sp.loop_edit(
+            measurand=data["prSM"].values,
+            flag=data["flag"].values,
+            sample_interval=data.attrs["sample_interval"],
+            min_velocity_type="percent",
             min_velocity=0.1,
             window_size=3,
             mean_speed_percent=20,
@@ -642,10 +628,10 @@ class TestLoopEdit:
             use_deck_pressure_offset=False,
             exclude_flags=False,
             flag_value=10,
+            units="pressure",
         )
 
-        expected_flags = expected_data.measurements["flag"].values
-        result_flags = data.measurements["flag"].values
+        expected_flags = expected_data["flag"].values
 
         assert np.all(result_flags == expected_flags)
 

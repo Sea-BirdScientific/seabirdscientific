@@ -1,6 +1,6 @@
 [project]
 name = "seabirdscientific"
-version = "3.0.0a3"
+version = "3.0.0a4"
 description = "Sea-Bird Scientific Community Toolkit"
 readme = "README.md"
 license = "MIT"
@@ -23,41 +23,37 @@ classifiers = [
   "Programming Language :: Python :: 3.12",
 ]
 dependencies = [
-  "gsw",
-  "line-profiler",
-  "matplotlib",
-  "numpy",
-  "pandas",
-  "plotly>=6.0.0",
-  "scipy",
-  "xarray",
+  "gsw~=3.6.20",
+  "line-profiler~=5.0.2",
+  "matplotlib~=3.9.4",
+  "numpy~=2.0.2",
+  "pandas~=2.3.3",
+  "plotly~=6.3.1",
+  "scipy~=1.13.1",
+  "xarray~=2024.7.0",
 ]
 
-# For dev environment created with venv and pip
 [project.optional-dependencies]
-dev = [
-  "build",
-  "nbconvert[webpdf]",
-  "nbformat",
-  "notebook",
-  "pytest",
-  "pytest-cov",
-  "ruff",
-  "kaleido",
+notebooks = [
+  "ipykernel~=6.31.0",
+  "nbformat~=5.10.4",
 ]
 
-# For dev environment created with UV
+docs = [
+  "sbsfuro==0.0.2a1",
+  "sphinx~=7.4.7",
+  "sphinx-mdinclude~=0.6.2",
+]
+
 [dependency-groups]
 dev = [
-  "kaleido",
-  "nbconvert[webpdf]",
-  "nbformat",
-  "notebook",
-  "pytest",
-  "pytest-cov",
-  'sbsfuro==0.0.2a1',
-  'sphinx',
-  'sphinx-mdinclude',
+  "ipykernel~=6.31.0",
+  "kaleido~=1.1.0",
+  "nbconvert[webpdf]~=7.17.1",
+  "nbformat~=5.10.4",
+  "notebook~=7.4.7",
+  "pytest~=8.4.2",
+  "pytest-cov~=6.2.1",
 ]
 
 [project.urls]

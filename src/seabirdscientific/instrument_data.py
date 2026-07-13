@@ -14,13 +14,11 @@ import pandas as pd
 import xarray as xr
 
 # Sea-Bird imports
+from seabirdscientific.constants import COUNTS_TO_VOLTS, SECONDS_BETWEEN_EPOCH_AND_2000
 from seabirdscientific.utils import WarnAllMembersMeta
 
 
 logger = getLogger(__name__)
-
-COUNTS_TO_VOLTS = 13107
-SECONDS_BETWEEN_EPOCH_AND_2000 = 946684800
 
 
 """Possible data types in hex files"""
@@ -230,7 +228,7 @@ def read_cnv_file(filepath: Union[Path, str]) -> xr.Dataset:
 
     dataset = xr.Dataset({}, attrs={"file_name": Path(filepath).name})
 
-    total_samples = 0
+    total_scans = 0
     data_lines = []
 
     logger.info("Unpacking instrument data from file: %s", filepath)
@@ -238,10 +236,15 @@ def read_cnv_file(filepath: Union[Path, str]) -> xr.Dataset:
     with open(filepath, mode="r") as cnv:
         for n_line, line in enumerate(cnv):
             if line.startswith("# nvalues = "):
-                total_samples = int(line[line.find("= ") + 2 : line.find("\n")])
+                total_scans = int(line[line.find("= ") + 2 : line.find("\n")])
 
             elif line.startswith("# name "):
                 name = line[line.find("= ") + 2 : line.find(":")]
+
+                # scan is already added to each data array
+                if name == "scan":
+                    name = "scan_count"
+
                 left_bracket = line.find(" [")
                 if left_bracket > 0:
                     long_name = line[line.find(": ") + 2 : left_bracket]
@@ -252,7 +255,7 @@ def read_cnv_file(filepath: Union[Path, str]) -> xr.Dataset:
 
                 safe_name = name
                 # check for label collision
-                # if collision, increment until find available key
+                # if collision, increment until an available key is found
                 n_name = 1
                 while safe_name in list(dataset.data_vars):
                     safe_name = f"{name}_{n_name}"
@@ -262,9 +265,9 @@ def read_cnv_file(filepath: Union[Path, str]) -> xr.Dataset:
                     logger.warning(f'Duplicate measurand "{name}" will use key "{safe_name}"')
 
                 data_array = xr.DataArray(
-                    data=np.zeros(total_samples),
-                    dims=["sample"],
-                    coords={"sample": np.arange(total_samples)},
+                    data=np.zeros(total_scans),
+                    dims=["scan"],
+                    coords={"scan": np.arange(total_scans)},
                     attrs={
                         "sbs_name": name,
                         "long_name": long_name,
@@ -284,7 +287,7 @@ def read_cnv_file(filepath: Union[Path, str]) -> xr.Dataset:
                 end = min(line.find("\n"), line.find(" ["))
                 date_string = line[line.find("= ") + 2 : end]
                 start_time = datetime.strptime(date_string, "%b %d %Y %H:%M:%S")
-                dataset.attrs["start_time"] = start_time
+                dataset.attrs["start_time"] = start_time.isoformat()
 
             elif line.startswith("*END*"):
                 data_lines = cnv.readlines()
@@ -374,7 +377,7 @@ def _preallocate_dataset(
     """Creates an xarray dataset prefilled with zeros or arbitrary dates
     to replace with instrument data
 
-    :param hex_data: a sample from a hex file converted to a dict
+    :param hex_data: a scan from a hex file converted to a dict
     :param data_length: the number of samples in the hex file
 
     :return: a dataset fill of zeros or arbitrary dates
@@ -390,8 +393,8 @@ def _preallocate_dataset(
 
         data_array = xr.DataArray(
             data=empty_data,
-            dims=["sample"],
-            coords={"sample": np.arange(len(empty_data))},
+            dims=["scan"],
+            coords={"scan": np.arange(len(empty_data))},
             attrs={
                 "sbs_name": key,
                 "long_name": "",
@@ -988,7 +991,7 @@ def read_sbe19plus_format_0(
     # set all values to NaN
     for key in results:
         if results[key] == np.nan:
-            logger.warning("Invalid sample detected, values set to NaN")
+            logger.warning("Invalid scan detected, values set to NaN")
             for key in results:
                 results[key] = np.nan
             break
