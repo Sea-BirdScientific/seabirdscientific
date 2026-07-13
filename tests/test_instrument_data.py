@@ -112,6 +112,32 @@ class TestReadHex19plus:
         assert hex_data["temperature compensation"][-1].item() == 20361 / 13107
 
 
+class TestReadHex16plusDigiquartz:
+    filepath = test_data / "16plus_digiquartz.hex"
+
+    @pytest.fixture
+    def hex_data(self):
+        return si.read_hex_file(
+            self.filepath,
+            si.InstrumentType.SBE16Plus,
+            [
+                si.Sensors.Temperature,
+                si.Sensors.Conductivity,
+                si.Sensors.DigiquartzPressure,
+            ],
+        )
+
+    def test_read_16plus_hex_digiquartz(self, hex_data):
+        assert hex_data["temperature"][0].item() == 407128
+        assert hex_data["temperature"][-1].item() == 468996
+        assert hex_data["conductivity"][0].item() == 687669 / 256
+        assert hex_data["conductivity"][-1].item() == 687669 / 256
+        assert hex_data["digiquartz pressure"][0].item() == 8906797 / 256
+        assert hex_data["digiquartz pressure"][-1].item() == 8905702 / 256
+        assert hex_data["temperature compensation"][0].item() == 1571
+        assert hex_data["temperature compensation"][-1].item() == 1566
+
+
 class TestReadHex39plus:
     filepath = test_data / "SBE39plus.hex"
 
