@@ -54,7 +54,7 @@ class TestCnvToInstrumentData:
                 "prDM",
                 "t090C",
                 "c0S/m",
-                "scan",
+                "scan_count",
                 "depSM",
                 "timeS",
                 "cpar",
@@ -76,7 +76,7 @@ class TestCnvToInstrumentData:
         # MeasurementSeries should have the original label
         assert dataset["depSM_1"].attrs["sbs_name"] == "depSM"
 
-        first_values = [dataset[key].sel(sample=0).item() for key in list(dataset.data_vars)]
+        first_values = [dataset[key].sel(scan=0).item() for key in list(dataset.data_vars)]
         first_data_line = "1.006 28.0831 5.811991 5248 0.998 218.616 6.9285e+01 3.9379e+02 11.8057 0.8223 2.7316e+02 28.0829 5.811250 1.000 36.2666 31 0.0000e+00"
         expected_first_values = [float(v) for v in first_data_line.split()]
         assert first_values == expected_first_values
