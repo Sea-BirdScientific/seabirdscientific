@@ -21,6 +21,7 @@ jobs:
         with:
           python-version: "3.12"
 
+      - run: pip install .
       - run: pip install sbsfuro
       - run: pip install sphinx
       - run: pip install sphinx-mdinclude
