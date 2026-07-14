@@ -1,0 +1,43 @@
+name: Publish Docs
+
+on:
+  pull_request:
+    branches:
+      - main
+      - v3.0.0
+
+permissions:
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install .
+      - run: pip install sbsfuro
+      - run: pip install sphinx
+      - run: pip install sphinx-mdinclude
+
+      - run: sphinx-build -b html -a -E docs/source _build/html
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _build/html
+
+  deploy:
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+
+    steps:
+      - uses: actions/deploy-pages@v4
