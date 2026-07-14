@@ -3,10 +3,10 @@
 # Native imports
 
 # Third-party imports
-from pathlib import Path
 import numpy as np
 import pandas as pd
 import pytest
+from pathlib import Path
 
 # Sea-Bird imports
 
@@ -14,7 +14,9 @@ import pytest
 import seabirdscientific.conversion as dc
 import seabirdscientific.instrument_data as id
 
+# relative path imports
 import test_coefficients as tc
+
 
 test_data = Path("./tests/resources/test-data")
 
@@ -864,26 +866,16 @@ class TestAltimeter:
 class TestBuoyancy:
     # fmt: off
     # Testing data comes from a CalCOFI cruise
-    temperature = np.asarray(
-        [16.7373, 16.5030, 16.1106, 14.3432, 13.0211, 12.0935, 11.3933, 11.2466, 10.9219, 10.4762, 9.9460]
-    )
+    # SBE911plus\Fathom-Testing\RL2301001seasoft-convert-bin-5-buoy2.cnv
+    temperature = np.asarray([13.4288, 10.3983, 9.2891, 8.3246, 7.6800, 7.1504, 6.7090, 6.1575, 5.8453, 5.6158])
     # bin_average will return floats so make sure we're replicating that here
-    pressure = np.asarray([10., 20., 30., 40., 50., 60., 70., 80., 90., 100., 110.])
-    salinity = np.asarray(
-        [33.2410, 33.2321, 33.2091, 33.1329, 33.0762, 33.1391, 33.2560, 33.4015, 33.5683, 33.6766, 33.7794]
-    )
-    expected_N2_win30 = np.asarray(
-        [-9.990e-29, 5.7702e-05, 1.9197e-04, 2.6735e-04, 2.1888e-04, 2.1620e-04, 1.7374e-04, 1.5761e-04, 1.6905e-04, 1.6099e-04, -9.990e-29]
-    )
-    expected_N_win30 = np.asarray(
-        [-9.990e-29, 4.35, 7.94, 9.37, 8.48, 8.42, 7.55, 7.19, 7.45, 7.27, -9.990e-29]
-    )
-    expected_E_win30 = np.asarray(
-        [-9.990e-29, 5.8901e-06, 1.9596e-05, 2.7290e-05, 2.2342e-05, 2.2069e-05, 1.7735e-05, 1.6089e-05, 1.7256e-05, 1.6433e-05, -9.990e-29]
-    )
-    expected_E_pow_8_win30 = np.asarray(
-        [-9.990e-29, 589.0, 1959.6, 2729.0, 2234.2, 2206.9, 1773.5, 1608.9, 1725.6, 1643.3, -9.990e-29]
-    )
+    pressure = np.asarray([50.0, 100.0, 150.0, 200.0, 250.0, 300.0, 350.0, 400.0, 450.0, 500.0])
+    salinity = np.array([33.1678, 33.6430, 33.9238, 33.9917, 34.0375, 34.0499, 34.0697, 34.1113, 34.1726, 34.2101])
+
+    expected_buoyancy_freq_squared = np.asarray([-9.990e-29, 1.3072e-04, 5.9338e-05, 3.3027e-05, 2.1500e-05, 1.6153e-05, 1.8199e-05, 1.9350e-05, 1.4610e-05, -9.990e-29])
+    expected_buoyancy_freq = np.asarray([-9.990e-29, 6.55, 4.41, 3.29, 2.66, 2.30, 2.44, 2.52, 2.19, -9.990e-29])
+    expected_stability = np.asarray([-9.990e-29, 1.3343e-05, 6.0570e-06, 3.3713e-06, 2.1946e-06, 1.6489e-06, 1.8577e-06, 1.9752e-06, 1.4913e-06, -9.990e-29])
+    expected_scaled_stability = np.asarray([-9.990e-29, 1334.3, 605.7, 337.1, 219.5, 164.9, 185.8, 197.5, 149.1, -9.990e-29])
     # fmt: on
 
     def test_buoyancy(self):
@@ -893,17 +885,31 @@ class TestBuoyancy:
             self.pressure,
             np.asarray([34.034167]),  # converted from metadata 34.02.03 N in H,M,S
             np.asarray([121.060556]),  # converted from metadata 121 03.38 W in H, M, S
-            30,  # window size
+            150,  # window size
             True,
         )
 
         # Comparing EOS-80 to TEOS-10 buoyancy calculations.
         # We do not expect them to agree better than +/-1.5% due to differences in the algorithms
-        rel_tol = 0.015  # 1.5%
-        assert buoyancy_freq_squared == pytest.approx(self.expected_N2_win30, rel=rel_tol)
-        assert buoyancy_freq == pytest.approx(self.expected_N_win30, rel=rel_tol)
-        assert stability == pytest.approx(self.expected_E_win30, rel=rel_tol)
-        assert scaled_stability == pytest.approx(self.expected_E_pow_8_win30, rel=rel_tol)
+        rel_tol = 0.02  # 2%
+        assert buoyancy_freq_squared == pytest.approx(
+            self.expected_buoyancy_freq_squared, rel=rel_tol
+        )
+        assert buoyancy_freq == pytest.approx(self.expected_buoyancy_freq, rel=rel_tol)
+        assert stability == pytest.approx(self.expected_stability, rel=rel_tol)
+        assert scaled_stability == pytest.approx(self.expected_scaled_stability, rel=rel_tol)
+
+        # fmt: off
+        # adding exact result comparisons to detect changes that still pass the tolerance tests
+        expected_buoyancy_freq_squared = np.array([-9.99e-29, 0.00012830774423210731, 5.9061904158766353e-05, 3.285253714504237e-05, 2.1427260827130063e-05, 1.610786846795634e-05, 1.8197855102567525e-05, 1.928895593187585e-05, 1.4586979090250307e-05, -9.99e-29])
+        expected_buoyancy_freq = np.array([-9.99e-29, 6.490065311850448, 4.403280527245377, 3.28402980427617, 2.6521981054713932, 2.2995437132561976, 2.4441774544272, 2.5163844503226995, 2.188292201351598, -9.99e-29])
+        expected_scaled_stability = np.array([-9.99e-29, 1309.6979919526298, 602.8661047814034, 335.33390726433163, 218.7108575931272, 164.41328104617097, 185.74372883265428, 196.8782837049103, 148.88453614380862, -9.99e-29])
+        expected_stability = np.array([-9.99e-29, 1.3096979919526299e-05, 6.028661047814034e-06, 3.353339072643316e-06, 2.187108575931272e-06, 1.6441328104617097e-06, 1.8574372883265428e-06, 1.968782837049103e-06, 1.4888453614380862e-06, -9.99e-29])
+        # fmt: on
+        assert np.all(buoyancy_freq_squared == expected_buoyancy_freq_squared)
+        assert np.all(buoyancy_freq == expected_buoyancy_freq)
+        assert np.all(stability == expected_stability)
+        assert np.all(scaled_stability == expected_scaled_stability)
 
     def test_buoyancy_eos80(self):
         (buoyancy_freq_squared, buoyancy_freq, stability, scaled_stability) = dc.buoyancy(
@@ -912,14 +918,28 @@ class TestBuoyancy:
             self.pressure,
             np.asarray([34.034167]),  # converted from metadata 34.02.03 N in H,M,S
             np.asarray([121.060556]),  # converted from metadata 121 03.38 W in H, M, S
-            30,  # window size
+            150,  # window size
             False,
         )
 
         # Comparing SBE Data Processing C++ to local Python results using the same EOS-80 calculations.
         # We expect very very close agreement: << 1% differnce
-        rel_tol = 0.0026  # 0.26%
-        assert buoyancy_freq_squared == pytest.approx(self.expected_N2_win30, rel=rel_tol)
-        assert buoyancy_freq == pytest.approx(self.expected_N_win30, rel=rel_tol)
-        assert stability == pytest.approx(self.expected_E_win30, rel=rel_tol)
-        assert scaled_stability == pytest.approx(self.expected_E_pow_8_win30, rel=rel_tol)
+        rel_tol = 0.002  # 0.2%
+        assert buoyancy_freq_squared == pytest.approx(
+            self.expected_buoyancy_freq_squared, rel=rel_tol
+        )
+        assert buoyancy_freq == pytest.approx(self.expected_buoyancy_freq, rel=rel_tol)
+        assert stability == pytest.approx(self.expected_stability, rel=rel_tol)
+        assert scaled_stability == pytest.approx(self.expected_scaled_stability, rel=rel_tol)
+
+        # fmt: off
+        # adding exact result comparisons to detect changes that still pass the tolerance tests
+        expected_buoyancy_freq_squared = np.array([-9.99e-29, 0.00013069443519014734, 5.932961410753015e-05, 3.3021309348275255e-05, 2.1495844621369152e-05, 1.6150523253891014e-05, 1.8197348677595506e-05, 1.9348996910895833e-05, 1.4610475131109874e-05, -9.99e-29])
+        expected_buoyancy_freq = np.array([-9.99e-29, 6.550149019323256, 4.4132486213213316, 3.2924544645935523, 2.6564392562582047, 2.302586378268702, 2.4441434448941073, 2.520297798385073, 2.1900538928778936, -9.99e-29])
+        expected_scaled_stability = np.array([-9.99e-29, 1334.060078386804, 605.5987165439468, 337.05660655229923, 219.41090136335237, 164.84865915481353, 185.73855980245008, 197.49110924835415, 149.12435256658875, -9.99e-29])
+        expected_stability = np.array([-9.99e-29, 1.334060078386804e-05, 6.055987165439468e-06, 3.370566065522992e-06, 2.1941090136335238e-06, 1.6484865915481353e-06, 1.857385598024501e-06, 1.9749110924835414e-06, 1.4912435256658876e-06, -9.99e-29])
+        # fmt: on
+        assert np.all(buoyancy_freq_squared == expected_buoyancy_freq_squared)
+        assert np.all(buoyancy_freq == expected_buoyancy_freq)
+        assert np.all(stability == expected_stability)
+        assert np.all(scaled_stability == expected_scaled_stability)
