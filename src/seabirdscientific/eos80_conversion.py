@@ -119,7 +119,10 @@ def density(
     k1 = -6.12293e-6
     k2 = 5.2787e-8
 
-    s, t, p = np.broadcast_arrays(salinity, temperature, pressure)
+    s0, t, p0 = np.broadcast_arrays(salinity, temperature, pressure)
+    # creating copies because broadcasted arrays may share memory locations
+    s = s0.copy()
+    p = p0.copy()
 
     t2 = t * t
     t3 = t * t2
@@ -155,7 +158,7 @@ def density(
     val = 1 - p / k
 
     _density = sigma
-    _density[val != 0] = sigma / val
+    _density[val != 0] = sigma / val - 1000
 
     return _density
 
