@@ -1,5 +1,4 @@
 *.egg-info/
-.doctrees/
 .mypy_cache/
 .pytest_cache/
 .ruff_cache/
@@ -9,5 +8,4 @@ build/
 dev/
 dist/
 
-.buildinfo
 .coverage
