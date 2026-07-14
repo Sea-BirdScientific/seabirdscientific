@@ -1,10 +1,10 @@
 name: Publish Docs
 
 on:
-  push:
+  pull_request:
     branches:
       - main
-      - tkit-156-migration-guide2
+      - v3.0.0
 
 permissions:
   pages: write
@@ -34,6 +34,7 @@ jobs:
 
   deploy:
     needs: build
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
