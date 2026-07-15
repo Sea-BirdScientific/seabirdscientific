@@ -40,6 +40,8 @@ Example Usage:
 Contents
 ********
 
+:ref:`migration_guide_v2_v3`: A guide for updating code from version 2 to version 3 of the toolkit.
+
 Source
 ======
 
@@ -68,6 +70,12 @@ Theory
 `CTD Processing (PDF) <_static/processing.pdf>`__
 
 .. Sidebar content
+
+.. toctree::
+   :caption: Guides
+   :hidden:
+
+   migration_guide_v2_v3
 
 .. toctree::
    :caption: Source

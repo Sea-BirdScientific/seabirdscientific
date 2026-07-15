@@ -7,8 +7,7 @@ This is the repository for the Sea-Bird Scientific (SBS) Community Toolkit. It i
 - A [Jupyter](https://jupyter.org/) notebook that documents the current toolkit processing options that can be applied to data collected with SBE 37 and SBE 19plus V2 CTDs (see the repository documentation folder). This notebook also serves to document the processing options available in the SBS Fathom application.
 
 ## Documentation
-<!-- TODO: change the following link to the sphinx generated docs when it's ready -->
-<https://github.com/Sea-BirdScientific/seabirdscientific/tree/main/documentation>  
+<https://sea-birdscientific.github.io/seabirdscientific/>  
 
 ## Package Installation With pip
 
@@ -20,7 +19,7 @@ On Windows:
 py -m pip install seabirdscientific
 ```
 
-On Unix/macOS:
+On Linux/macOS:
 
 ``` bash
 python3 -m pip install seabirdscientific
@@ -43,7 +42,7 @@ You must have [Python](https://www.python.org/downloads/) version 3.9 or higher 
 
 ## CTD Jupyter Notebook
 
-The ctd-processing.ipynb notebook in the documentation folder provides examples of the methods that can be applied to SBS CTD data within both the toolkit and the SBS Fathom application. There are a number of online references available with information on Jupyter notebook setup for different platforms and environments. For those who are not interested in an interactive notebook, there is a static version available in [PDF](https://github.com/Sea-BirdScientific/seabirdscientific/blob/main/documentation/processing.pdf) format.
+The processing.ipynb notebook in the notebooks folder provides examples of the methods that can be applied to SBS CTD data within both the toolkit and the SBS Fathom application. There are a number of online references available with information on Jupyter notebook setup for different platforms and environments. For those who are not interested in an interactive notebook, there is a static version available in [PDF](https://github.com/Sea-BirdScientific/seabirdscientific/blob/main/documentation/processing.pdf) format.
 
 ## Contributions to the Toolkit
 
