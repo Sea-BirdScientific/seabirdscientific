@@ -818,10 +818,9 @@ def read_sbe19plus_data(
         Defautls to False
 
     :return: the 19plus V2 sensor values in engineering units that were
-            extracted from the input hex string
+        extracted from the input hex string, or nan if the hex length is
+        wrong
 
-    :raises RuntimeWarning: if the hex string length does not match the
-        expected length
     """
 
     results: Dict[str, Union[int, float, datetime]] = {}
@@ -838,7 +837,7 @@ def read_sbe19plus_data(
                 )
                 n += HEX_LEN_CONDUCTIVITY
 
-            if sensor == Sensors.Pressure:  # TODO: add conversion for quartz pressure sensors
+            if sensor == Sensors.Pressure:
                 results[HEX_TYPE_PRESSURE] = int(hex_segment[n : n + HEX_LEN_PRESSURE], 16)
                 n += HEX_LEN_PRESSURE
                 result = (
@@ -853,7 +852,7 @@ def read_sbe19plus_data(
                     int(hex_segment[n : n + HEX_LEN_PRESSURE], 16) / 256
                 )
                 n += HEX_LEN_PRESSURE
-                # Seacat digiquartz temp comp only uses first 3 bits, and doesn't divide by COUNTS_TO_VOLTS
+                # Seacat digiquartz temp comp only uses first 1.5 bytes, and doesn't divide by COUNTS_TO_VOLTS
                 result = int(hex_segment[n : n + HEX_LEN_DIGIQUARTZ_PRESSURE_TEMP_COMP], 16)
                 results[HEX_TYPE_TEMPERATURE_COMPENSATION] = result
                 n += HEX_LEN_TEMPERATURE_COMPENSATION
@@ -1012,7 +1011,7 @@ def read_sbe19plus_data(
     # Final validation to check if any values have been set to NaN, and if so,
     # set all values to NaN
     for key in results:
-        if results[key] == np.nan:
+        if pd.isna(results[key]):
             logger.warning("Invalid scan detected, values set to NaN")
             for key in results:
                 results[key] = np.nan
@@ -1089,8 +1088,8 @@ def read_nmea_coordinates(hex_segment: str):
     """Converts a 3 byte NMEA hex string to latitude or longitude
 
     :param hex_segment: 3 byte hex string
-    :raises RuntimeWarning: raised if the hex string is the wrong length
-    :return: latitude or longitide coordinate
+    :return: latitude or longitide coordinate or nan if the hex length
+        is wrong
     """
     if len(hex_segment) != 6:
         return np.nan
@@ -1106,10 +1105,8 @@ def read_status_sign(hex_segment: str):
     """Converts a hex byte to the signs for NMEA latitude and longitude
 
     :param hex_segment: 1 byte hex string
-    :raises RuntimeWarning: raised if the hex string is the wrong length
-    :raises RuntimeWarning: raised when the signs are converted
-        incorrectly
-    :return: a list of two integers (1 or -1)
+    :return: a list of two integers (1 or -1) or nan if the hex length
+        is wrong
     """
     if len(hex_segment) != 2:
         return np.nan
@@ -1134,8 +1131,7 @@ def read_nmea_time(hex_segment: str):
     """Convert an 8 byte hex string to the number of seconds since 2000
 
     :param hex_segment: an 8 byte hex string
-    :raises RuntimeWarning: raised if the hex string is the wrong length
-    :return: _description_
+    :return: an integer number of seconds or nan if the hex length was wrong
     """
     if len(hex_segment) != 8:
         return np.nan
