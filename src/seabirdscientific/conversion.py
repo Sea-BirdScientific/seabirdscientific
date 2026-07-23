@@ -52,12 +52,32 @@ def convert_temperature(
         1 / (coefs.a0 + coefs.a1 * log_t + coefs.a2 * log_t**2 + coefs.a3 * log_t**3)
     ) - const.KELVIN_OFFSET_0C
 
-    if standard == "IPTS68":
-        temperature *= const.ITS90_TO_IPTS68
-    if units == "F":
-        temperature = temperature * 9 / 5 + 32  # Convert C to F
+    temperature = convert_temperature_units(temperature, standard, units, "ITS90", "C")
 
     return temperature
+
+
+def convert_temperature_units(
+    temperature: np.ndarray,
+    from_standard: Literal["ITS90", "IPTS68"],
+    from_units: Literal["C", "F"],
+    to_standard: Literal["ITS90", "IPTS68"] = "ITS90",
+    to_units: Literal["C", "F"] = "C",
+):
+    """Convert temperature units between C, F, ITS90, and IPTS68
+    """
+    _temperature = temperature.copy()
+    if from_standard == "ITS90" and to_standard == "IPTS68":
+        _temperature /= const.ITS90_TO_IPTS68
+    elif from_standard == "IPTS68" and to_standard == "ITS90":
+        _temperature *= const.ITS90_TO_IPTS68
+
+    if from_units == "F" and to_units =="C":
+        _temperature = _temperature * 9 / 5 + 32
+    if from_units == "C" and to_units =="F":
+        _temperature = (_temperature - 32) * 5 / 9
+
+    return _temperature
 
 
 def convert_temperature_frequency(
