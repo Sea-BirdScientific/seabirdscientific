@@ -66,6 +66,9 @@ requires = [
   "setuptools>=61",
 ]
 
+[tool.setuptools.package-data]
+seabirdscientific = ["resources/**"]
+
 [tool.ty.src]
 include = [
   "src",
@@ -73,11 +76,6 @@ include = [
 ]
 exclude = [
   "tests/resources",
-]
-
-[tool.coverage.run]
-omit = [
-  "interpret_sbs_variable.py"
 ]
 
 [tool.ruff]
