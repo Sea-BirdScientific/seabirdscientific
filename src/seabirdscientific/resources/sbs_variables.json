@@ -856,6 +856,17 @@
   },
   {
     "aliases": [
+      "timeNMEA"
+    ],
+    "name": "timeNMEA",
+    "units": "",
+    "title": "Date Time",
+    "info": [
+      "NMEA"
+    ]
+  },
+  {
+    "aliases": [
       "dateI"
     ],
     "name": "dateI",
@@ -863,6 +874,17 @@
     "title": "Date",
     "info": [
       "Instrument"
+    ]
+  },
+  {
+    "aliases": [
+      "dateN"
+    ],
+    "name": "dateN",
+    "units": "",
+    "title": "Date",
+    "info": [
+      "NMEA"
     ]
   },
   {
@@ -885,6 +907,17 @@
     "title": "Date Time ISO",
     "info": [
       "Software"
+    ]
+  },
+  {
+    "aliases": [
+      "timeNiso"
+    ],
+    "name": "timeNiso",
+    "units": "",
+    "title": "Date Time ISO",
+    "info": [
+      "NMEA"
     ]
   },
   {
@@ -3490,6 +3523,26 @@
     "name": "expoVolt",
     "units": "",
     "title": "User-Defined-Exponential",
+    "info": [
+      "Raw Voltage"
+    ]
+  },
+  {
+    "aliases": [
+      "uequation"
+    ],
+    "name": null,
+    "units": "",
+    "title": "User-Defined-Equation",
+    "info": []
+  },
+  {
+    "aliases": [
+      "uequationVolt"
+    ],
+    "name":null,
+    "units": "",
+    "title": "User-Defined-Equation",
     "info": [
       "Raw Voltage"
     ]
