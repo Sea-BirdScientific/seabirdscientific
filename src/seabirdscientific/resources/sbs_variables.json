@@ -1,0 +1,4256 @@
+[
+  {
+    "aliases": [
+      "tFreq"
+    ],
+    "name": "tFreq",
+    "units": "",
+    "title": "Temperature",
+    "info": [
+      "Raw Frequency"
+    ]
+  },
+  {
+    "aliases": [
+      "t090Cm",
+      "t4990C",
+      "tnc90C",
+      "tv290C",
+      "t090C"
+    ],
+    "name": "t090C",
+    "units": "deg C",
+    "title": "Temperature",
+    "info": [
+      "ITS-90"
+    ]
+  },
+  {
+    "aliases": [
+      "t090F",
+      "t4990F",
+      "tnc90F",
+      "tv290F"
+    ],
+    "name": "t090F",
+    "units": "deg F",
+    "title": "Temperature",
+    "info": [
+      "ITS-90"
+    ]
+  },
+  {
+    "aliases": [
+      "t068C",
+      "t4968C",
+      "tnc68C",
+      "tv268C"
+    ],
+    "name": "t068C",
+    "units": "deg C",
+    "title": "Temperature",
+    "info": [
+      "ITS-68"
+    ]
+  },
+  {
+    "aliases": [
+      "t068F",
+      "t4968F",
+      "tnc68F",
+      "tv268F"
+    ],
+    "name": "t068F",
+    "units": "deg F",
+    "title": "Temperature",
+    "info": [
+      "ITS-68"
+    ]
+  },
+  {
+    "aliases": [
+      "t090"
+    ],
+    "name": "t090",
+    "units": "deg C",
+    "title": "Temperature",
+    "info": [
+      "SBE49"
+    ]
+  },
+  {
+    "aliases": [
+      "t190C",
+      "tnc290C",
+      "t090C_1"
+    ],
+    "name": "t190C",
+    "units": "deg C",
+    "title": "Temperature",
+    "info": [
+      "Secondary",
+      "ITS-90"
+    ]
+  },
+  {
+    "aliases": [
+      "t190F",
+      "tnc290F",
+      "t090F_1"
+    ],
+    "name": "t190F",
+    "units": "deg F",
+    "title": "Temperature",
+    "info": [
+      "Secondary",
+      "ITS-90"
+    ]
+  },
+  {
+    "aliases": [
+      "t168C",
+      "tnc268C",
+      "t068C_1"
+    ],
+    "name": "t168C",
+    "units": "deg C",
+    "title": "Temperature",
+    "info": [
+      "Secondary",
+      "ITS-68"
+    ]
+  },
+  {
+    "aliases": [
+      "t168F",
+      "tnc268F",
+      "t068F_1"
+    ],
+    "name": "t168F",
+    "units": "deg F",
+    "title": "Temperature",
+    "info": [
+      "Secondary",
+      "ITS-68"
+    ]
+  },
+  {
+    "aliases": [
+      "t3890C",
+      "t38_90C"
+    ],
+    "name": "t03890C",
+    "units": "deg C",
+    "title": "Temperature",
+    "info": [
+      "Reference",
+      "ITS-90"
+    ]
+  },
+  {
+    "aliases": [
+      "t3890F",
+      "t38_90F"
+    ],
+    "name": "t03890F",
+    "units": "deg F",
+    "title": "Temperature",
+    "info": [
+      "Reference",
+      "ITS-90"
+    ]
+  },
+  {
+    "aliases": [
+      "t3868C",
+      "t38_68C"
+    ],
+    "name": "t03868C",
+    "units": "deg C",
+    "title": "Temperature-Reference",
+    "info": [
+      "ITS-68"
+    ]
+  },
+  {
+    "aliases": [
+      "t3868F",
+      "t38_68F"
+    ],
+    "name": "t03868F",
+    "units": "deg F",
+    "title": "Temperature-Reference",
+    "info": [
+      "ITS-68"
+    ]
+  },
+  {
+    "aliases": [
+      "t3890C1"
+    ],
+    "name": "t13890C",
+    "units": "deg C",
+    "title": "Temperature-Secondary-Sensor",
+    "info": [
+      "ITS-90"
+    ]
+  },
+  {
+    "aliases": [
+      "t3890F1"
+    ],
+    "name": "t13890F",
+    "units": "deg F",
+    "title": "Temperature-Secondary-Sensor",
+    "info": [
+      "ITS-90"
+    ]
+  },
+  {
+    "aliases": [
+      "t3868C1"
+    ],
+    "name": "t13868C",
+    "units": "deg C",
+    "title": "Temperature-Secondary-Sensor",
+    "info": [
+      "ITS-68"
+    ]
+  },
+  {
+    "aliases": [
+      "t3868F1"
+    ],
+    "name": "t13868F",
+    "units": "deg F",
+    "title": "Temperature-Secondary-Sensor",
+    "info": [
+      "ITS-68"
+    ]
+  },
+  {
+    "aliases": [
+      "T2-T190C"
+    ],
+    "name": "tdiff90C",
+    "units": "deg C",
+    "title": "Temperature-Difference",
+    "info": [
+      "ITS-90"
+    ]
+  },
+  {
+    "aliases": [
+      "T2-T190F"
+    ],
+    "name": "tdiff90F",
+    "units": "deg F",
+    "title": "Temperature-Difference",
+    "info": [
+      "ITS-90"
+    ]
+  },
+  {
+    "aliases": [
+      "T2-T168C"
+    ],
+    "name": "tdiff68C",
+    "units": "deg C",
+    "title": "Temperature-Difference",
+    "info": [
+      "IPTS-68"
+    ]
+  },
+  {
+    "aliases": [
+      "T2-T168F"
+    ],
+    "name": "tdiff68F",
+    "units": "deg F",
+    "title": "Temperature-Difference",
+    "info": [
+      "IPTS-68"
+    ]
+  },
+  {
+    "aliases": [
+      "cFreq"
+    ],
+    "name": "cFreq",
+    "units": "",
+    "title": "Conductivity",
+    "info": [
+      "Raw Frequency"
+    ]
+  },
+  {
+    "aliases": [
+      "c_S/m",
+      "cond0S/m",
+      "c0S/m"
+    ],
+    "name": "c0Sm",
+    "units": "S/m",
+    "title": "Conductivity",
+    "info": []
+  },
+  {
+    "aliases": [
+      "c_mS/cm",
+      "cond0mS/cm",
+      "c0mS/cm"
+    ],
+    "name": "c0mScm",
+    "units": "mS/cm",
+    "title": "Conductivity",
+    "info": []
+  },
+  {
+    "aliases": [
+      "c_uS/cm",
+      "cond0uS/cm",
+      "c0uS/cm"
+    ],
+    "name": "c0uScm",
+    "units": "μS/cm",
+    "title": "Conductivity",
+    "info": []
+  },
+  {
+    "aliases": [
+      "c1S/m",
+      "c0S/m_1",
+      "c0S_m_1"
+    ],
+    "name": "c1Sm",
+    "units": "S/m",
+    "title": "Conductivity",
+    "info": [
+      "Secondary"
+    ]
+  },
+  {
+    "aliases": [
+      "c1mS/cm",
+      "c0mS/cm_1",
+      "c0mS_cm_1"
+    ],
+    "name": "c1mScm",
+    "units": "mS/cm",
+    "title": "Conductivity",
+    "info": [
+      "Secondary"
+    ]
+  },
+  {
+    "aliases": [
+      "c1uS/cm",
+      "c0uS/cm_1",
+      "c0uS_cm_1"
+    ],
+    "name": "c1uScm",
+    "units": "μS/cm",
+    "title": "Conductivity",
+    "info": [
+      "Secondary"
+    ]
+  },
+  {
+    "aliases": [
+      "C2-C1S/m"
+    ],
+    "name": "cdiffSm",
+    "units": "S/m",
+    "title": "Conductivity-Difference",
+    "info": []
+  },
+  {
+    "aliases": [
+      "C2-C1mS/cm"
+    ],
+    "name": "cdiffmScm",
+    "units": "mS/cm",
+    "title": "Conductivity-Difference",
+    "info": []
+  },
+  {
+    "aliases": [
+      "C2-C1uS/cm"
+    ],
+    "name": "cdiffuScm",
+    "units": "μS/cm",
+    "title": "Conductivity-Difference",
+    "info": []
+  },
+  {
+    "aliases": [
+      "pFreq"
+    ],
+    "name": "pFreq",
+    "units": "",
+    "title": "Pressure",
+    "info": [
+      "Raw Frequency"
+    ]
+  },
+  {
+    "aliases": [
+      "pr"
+    ],
+    "name": "p",
+    "units": "db",
+    "title": "Pressure",
+    "info": [
+      "SBE49"
+    ]
+  },
+  {
+    "aliases": [
+      "prM"
+    ],
+    "name": "pM",
+    "units": "db",
+    "title": "Pressure",
+    "info": [
+      "User Entered"
+    ]
+  },
+  {
+    "aliases": [
+      "prE"
+    ],
+    "name": "pE",
+    "units": "psi",
+    "title": "Pressure",
+    "info": [
+      "User Entered"
+    ]
+  },
+  {
+    "aliases": [
+      "prDM"
+    ],
+    "name": "prDM",
+    "units": "db",
+    "title": "Pressure",
+    "info": [
+      "Digiquartz"
+    ]
+  },
+  {
+    "aliases": [
+      "prDE"
+    ],
+    "name": "prDE",
+    "units": "psi",
+    "title": "Pressure",
+    "info": [
+      "Digiquartz"
+    ]
+  },
+  {
+    "aliases": [
+      "prSM",
+      "prdM"
+    ],
+    "name": "prdM",
+    "units": "db",
+    "title": "Pressure",
+    "info": [
+      "Strain Gauge"
+    ]
+  },
+  {
+    "aliases": [
+      "prSE",
+      "prdE"
+    ],
+    "name": "prdE",
+    "units": "psi",
+    "title": "Pressure",
+    "info": [
+      "Strain Gauge"
+    ]
+  },
+  {
+    "aliases": [
+      "ptempC"
+    ],
+    "name": "ptempC",
+    "units": "deg C",
+    "title": "Pressure-Temperature",
+    "info": []
+  },
+  {
+    "aliases": [
+      "ptempF"
+    ],
+    "name": "ptempF",
+    "units": "deg F",
+    "title": "Pressure-Temperature",
+    "info": []
+  },
+  {
+    "aliases": [
+      "fgp0"
+    ],
+    "name": "fgp0",
+    "units": "KPa",
+    "title": "Pressure-FGP",
+    "info": []
+  },
+  {
+    "aliases": [
+      "fgp1"
+    ],
+    "name": "fgp1",
+    "units": "KPa",
+    "title": "Pressure-FGP",
+    "info": []
+  },
+  {
+    "aliases": [
+      "fgp2"
+    ],
+    "name": "fgp2",
+    "units": "KPa",
+    "title": "Pressure-FGP",
+    "info": []
+  },
+  {
+    "aliases": [
+      "fgp3"
+    ],
+    "name": "fgp3",
+    "units": "KPa",
+    "title": "Pressure-FGP",
+    "info": []
+  },
+  {
+    "aliases": [
+      "fgp4"
+    ],
+    "name": "fgp4",
+    "units": "KPa",
+    "title": "Pressure-FGP",
+    "info": []
+  },
+  {
+    "aliases": [
+      "fgp5"
+    ],
+    "name": "fgp5",
+    "units": "KPa",
+    "title": "Pressure-FGP",
+    "info": []
+  },
+  {
+    "aliases": [
+      "fgp6"
+    ],
+    "name": "fgp6",
+    "units": "KPa",
+    "title": "Pressure-FGP",
+    "info": []
+  },
+  {
+    "aliases": [
+      "fgp7"
+    ],
+    "name": "fgp7",
+    "units": "KPa",
+    "title": "Pressure-FGP",
+    "info": []
+  },
+  {
+    "aliases": [
+      "pr50M"
+    ],
+    "name": "p050m",
+    "units": "db",
+    "title": "Pressure-SBE50",
+    "info": [
+      "SBE50"
+    ]
+  },
+  {
+    "aliases": [
+      "pr50E"
+    ],
+    "name": "p050e",
+    "units": "psi",
+    "title": "Pressure-SBE50",
+    "info": [
+      "SBE50"
+    ]
+  },
+  {
+    "aliases": [
+      "pr50M1"
+    ],
+    "name": "p150m",
+    "units": "db",
+    "title": "Pressure-SBE50",
+    "info": [
+      "SBE50"
+    ]
+  },
+  {
+    "aliases": [
+      "pr50E1"
+    ],
+    "name": "p150e",
+    "units": "psi",
+    "title": "Pressure-SBE50",
+    "info": [
+      "SBE50"
+    ]
+  },
+  {
+    "aliases": [
+      "f0",
+      "f1",
+      "f2",
+      "f3",
+      "f4",
+      "f5",
+      "f6",
+      "f7",
+      "f8",
+      "f9",
+      "f10",
+      "f11",
+      "f12",
+      "f13",
+      "f14",
+      "f15",
+      "f16",
+      "f17",
+      "f18",
+      "f19",
+      "f20",
+      "f21",
+      "f22",
+      "f23",
+      "f24",
+      "f25",
+      "f26",
+      "f27",
+      "f28",
+      "f29",
+      "f30",
+      "f31",
+      "f32",
+      "f33",
+      "f34",
+      "f35",
+      "f36"
+    ],
+    "name": null,
+    "units": "Hz",
+    "title": "Frequency",
+    "info": []
+  },
+  {
+    "aliases": [
+      "v0",
+      "v1",
+      "v2",
+      "v3",
+      "v4",
+      "v5",
+      "v6",
+      "v7",
+      "v8",
+      "v9",
+      "v10",
+      "v11",
+      "v12",
+      "v13",
+      "v14",
+      "v15"
+    ],
+    "name": null,
+    "units": "V",
+    "title": "Voltage",
+    "info": [
+      "Voltage"
+    ]
+  },
+  {
+    "aliases": [
+      "GTDDOP0",
+      "GTDDOP1",
+      "GTDDOPdiff"
+    ],
+    "name": null,
+    "units": "mb",
+    "title": "GTD-DO-Pressure",
+    "info": []
+  },
+  {
+    "aliases": [
+      "GTDDOT0",
+      "GTDDOT1",
+      "GTDDOTdiff"
+    ],
+    "name": null,
+    "units": "deg C",
+    "title": "GTD-DO-Temperature",
+    "info": []
+  },
+  {
+    "aliases": [
+      "GTDN2P0",
+      "GTDN2P1",
+      "GTDN2Pdiff"
+    ],
+    "name": null,
+    "units": "mb",
+    "title": "GTD-N2-Pressure",
+    "info": []
+  },
+  {
+    "aliases": [
+      "GTDN2T0",
+      "GTDN2T1",
+      "GTDN2Tdiff"
+    ],
+    "name": null,
+    "units": "deg C",
+    "title": "GTD-N2-Temperature",
+    "info": []
+  },
+  {
+    "aliases": [
+      "timeS"
+    ],
+    "name": "timeS",
+    "units": "seconds",
+    "title": "Time",
+    "info": [
+      "Elapsed"
+    ]
+  },
+  {
+    "aliases": [
+      "timeM"
+    ],
+    "name": "timeM",
+    "units": "minutes",
+    "title": "Time",
+    "info": [
+      "Elapsed"
+    ]
+  },
+  {
+    "aliases": [
+      "timeH"
+    ],
+    "name": "timeH",
+    "units": "hours",
+    "title": "Time",
+    "info": [
+      "Elapsed"
+    ]
+  },
+  {
+    "aliases": [
+      "timeJ"
+    ],
+    "name": "timeJ",
+    "units": "Julian Days",
+    "title": "Time",
+    "info": [
+      "Elapsed"
+    ]
+  },
+  {
+    "aliases": [
+      "timeN"
+    ],
+    "name": "timeN",
+    "units": "seconds since January 1, 2000",
+    "title": "Time",
+    "info": [
+      "NMEA"
+    ]
+  },
+  {
+    "aliases": [
+      "timeQ"
+    ],
+    "name": "timeQ",
+    "units": "seconds since January 1, 1970",
+    "title": "Time",
+    "info": [
+      "NMEA"
+    ]
+  },
+  {
+    "aliases": [
+      "timeK"
+    ],
+    "name": "timeK",
+    "units": "seconds since January 1, 2000",
+    "title": "Time",
+    "info": [
+      "Instrument"
+    ]
+  },
+  {
+    "aliases": [
+      "timeJV2",
+      "timeSCP"
+    ],
+    "name": "jdays",
+    "units": "Julian Days",
+    "title": "Time",
+    "info": [
+      "Instrument"
+    ]
+  },
+  {
+    "aliases": [
+      "timeY"
+    ],
+    "name": "timeY",
+    "units": "seconds since January 1, 1970",
+    "title": "Time",
+    "info": [
+      "Computer"
+    ]
+  },
+  {
+    "aliases": [
+      "time"
+    ],
+    "name": "time",
+    "units": "",
+    "title": "Date Time",
+    "info": [
+      "Software"
+    ]
+  },
+  {
+    "aliases": [
+      "date"
+    ],
+    "name": "date",
+    "units": "",
+    "title": "Date",
+    "info": [
+      "Software"
+    ]
+  },
+  {
+    "aliases": [
+      "timeI"
+    ],
+    "name": "timeI",
+    "units": "",
+    "title": "Date Time",
+    "info": [
+      "Instrument"
+    ]
+  },
+  {
+    "aliases": [
+      "timeNMEA"
+    ],
+    "name": "timeNMEA",
+    "units": "",
+    "title": "Date Time",
+    "info": [
+      "NMEA"
+    ]
+  },
+  {
+    "aliases": [
+      "dateI"
+    ],
+    "name": "dateI",
+    "units": "",
+    "title": "Date",
+    "info": [
+      "Instrument"
+    ]
+  },
+  {
+    "aliases": [
+      "dateN"
+    ],
+    "name": "dateN",
+    "units": "",
+    "title": "Date",
+    "info": [
+      "NMEA"
+    ]
+  },
+  {
+    "aliases": [
+      "timeIiso"
+    ],
+    "name": "timeIiso",
+    "units": "",
+    "title": "Date Time ISO",
+    "info": [
+      "Instrument"
+    ]
+  },
+  {
+    "aliases": [
+      "timeSiso"
+    ],
+    "name": "timeSiso",
+    "units": "",
+    "title": "Date Time ISO",
+    "info": [
+      "Software"
+    ]
+  },
+  {
+    "aliases": [
+      "timeNiso"
+    ],
+    "name": "timeNiso",
+    "units": "",
+    "title": "Date Time ISO",
+    "info": [
+      "NMEA"
+    ]
+  },
+  {
+    "aliases": [
+      "latitude"
+    ],
+    "name": "latitude",
+    "units": "deg",
+    "title": "Latitude",
+    "info": []
+  },
+  {
+    "aliases": [
+      "longitude"
+    ],
+    "name": "longitude",
+    "units": "deg",
+    "title": "Longitude",
+    "info": []
+  },
+  {
+    "aliases": [
+      "depSM"
+    ],
+    "name": "depSM",
+    "units": "depth salt water, m",
+    "title": "Depth",
+    "info": []
+  },
+  {
+    "aliases": [
+      "depSF"
+    ],
+    "name": "depSF",
+    "units": "depth salt water, ft",
+    "title": "Depth",
+    "info": []
+  },
+  {
+    "aliases": [
+      "depFM"
+    ],
+    "name": "depFM",
+    "units": "depth fresh water, m",
+    "title": "Depth",
+    "info": []
+  },
+  {
+    "aliases": [
+      "depFF"
+    ],
+    "name": "depSM",
+    "units": "depth fresh water, ft",
+    "title": "Depth",
+    "info": []
+  },
+  {
+    "aliases": [
+      "dNMEA"
+    ],
+    "name": "depSM",
+    "units": "depth from NMEA salt water, m",
+    "title": "Depth",
+    "info": []
+  },
+  {
+    "aliases": [
+      "potemp090C"
+    ],
+    "name": "th090C",
+    "units": "deg C",
+    "title": "Potential-Temperature",
+    "info": []
+  },
+  {
+    "aliases": [
+      "potemp090F"
+    ],
+    "name": "th090F",
+    "units": "deg F",
+    "title": "Potential-Temperature",
+    "info": []
+  },
+  {
+    "aliases": [
+      "potemp068C"
+    ],
+    "name": "th068C",
+    "units": "deg C",
+    "title": "Potential-Temperature",
+    "info": [
+      "ITS-68"
+    ]
+  },
+  {
+    "aliases": [
+      "potemp068F"
+    ],
+    "name": "th068F",
+    "units": "deg F",
+    "title": "Potential-Temperature",
+    "info": [
+      "ITS-68"
+    ]
+  },
+  {
+    "aliases": [
+      "potemp190C"
+    ],
+    "name": "th190C",
+    "units": "deg C",
+    "title": "Potential-Temperature",
+    "info": []
+  },
+  {
+    "aliases": [
+      "potemp190F"
+    ],
+    "name": "th190F",
+    "units": "deg F",
+    "title": "Potential-Temperature",
+    "info": []
+  },
+  {
+    "aliases": [
+      "potemp168C"
+    ],
+    "name": "th168C",
+    "units": "deg C",
+    "title": "Potential-Temperature",
+    "info": [
+      "ITS-68"
+    ]
+  },
+  {
+    "aliases": [
+      "potemp168F"
+    ],
+    "name": "th168F",
+    "units": "deg F",
+    "title": "Potential-Temperature",
+    "info": [
+      "ITS-68"
+    ]
+  },
+  {
+    "aliases": [
+      "potemp90Cdiff"
+    ],
+    "name": "th090Cdiff",
+    "units": "deg C",
+    "title": "Potential-Temperature-Difference",
+    "info": []
+  },
+  {
+    "aliases": [
+      "potemp90Fdiff"
+    ],
+    "name": "th090Fdiff",
+    "units": "deg F",
+    "title": "Potential-Temperature-Difference",
+    "info": []
+  },
+  {
+    "aliases": [
+      "potemp68Cdiff"
+    ],
+    "name": "th068Cdiff",
+    "units": "deg C",
+    "title": "Potential-Temperature-Difference",
+    "info": [
+      "ITS-68"
+    ]
+  },
+  {
+    "aliases": [
+      "potemp68Fdiff"
+    ],
+    "name": "th068Fdiff",
+    "units": "deg F",
+    "title": "Potential-Temperature-Difference",
+    "info": [
+      "ITS-68"
+    ]
+  },
+  {
+    "aliases": [
+      "tha090C"
+    ],
+    "name": "tha090C",
+    "units": "deg C",
+    "title": "Potential-Temperature-Anomaly",
+    "info": []
+  },
+  {
+    "aliases": [
+      "tha090F"
+    ],
+    "name": "tha090F",
+    "units": "deg F",
+    "title": "Potential-Temperature-Anomaly",
+    "info": []
+  },
+  {
+    "aliases": [
+      "tha068C"
+    ],
+    "name": "tha068C",
+    "units": "deg C",
+    "title": "Potential-Temperature-Anomaly",
+    "info": [
+      "ITS-68"
+    ]
+  },
+  {
+    "aliases": [
+      "tha068F"
+    ],
+    "name": "tha068F",
+    "units": "deg F",
+    "title": "Potential-Temperature-Anomaly",
+    "info": [
+      "ITS-68"
+    ]
+  },
+  {
+    "aliases": [
+      "tha190C"
+    ],
+    "name": "tha190C",
+    "units": "deg C",
+    "title": "Potential-Temperature-Anomaly",
+    "info": []
+  },
+  {
+    "aliases": [
+      "tha190F"
+    ],
+    "name": "tha190F",
+    "units": "deg F",
+    "title": "Potential-Temperature-Anomaly",
+    "info": []
+  },
+  {
+    "aliases": [
+      "tha168C"
+    ],
+    "name": "tha168C",
+    "units": "deg C",
+    "title": "Potential-Temperature-Anomaly",
+    "info": [
+      "ITS-68"
+    ]
+  },
+  {
+    "aliases": [
+      "tha168F"
+    ],
+    "name": "tha168F",
+    "units": "deg F",
+    "title": "Potential-Temperature-Anomaly",
+    "info": [
+      "ITS-68"
+    ]
+  },
+  {
+    "aliases": [
+      "pta090C"
+    ],
+    "name": "pta090C",
+    "units": "deg C",
+    "title": "Potential-Temperature-Anomaly",
+    "info": [
+      "ITS-90"
+    ]
+  },
+  {
+    "aliases": [
+      "sal00"
+    ],
+    "name": "psal0",
+    "units": "PSU",
+    "title": "Salinity",
+    "info": [
+      "EOS-80"
+    ]
+  },
+  {
+    "aliases": [
+      "sal11"
+    ],
+    "name": "psal1",
+    "units": "PSU",
+    "title": "Salinity",
+    "info": [
+      "EOS-80"
+    ]
+  },
+  {
+    "aliases": [
+      "secS-priS"
+    ],
+    "name": "psaldiff",
+    "units": "PSU",
+    "title": "Salinity",
+    "info": [
+      "EOS-80"
+    ]
+  },
+  {
+    "aliases": [
+      "sigma-theta",
+      "sgth",
+      "potentialDensity"
+    ],
+    "name": "sgth",
+    "units": "sigma-theta, kg/m^3",
+    "title": "Potential Density",
+    "info": [
+      "TEOS-10"
+    ]
+  },
+  {
+    "aliases": [
+      "density00"
+    ],
+    "name": "rho0",
+    "units": "density, kg/m^3",
+    "title": "Density",
+    "info": [
+      "EOS-80"
+    ]
+  },
+  {
+    "aliases": [
+      "sigma-é00"
+    ],
+    "name": "sgth0",
+    "units": "sigma-theta (p=0 db), kg/m^3-1000",
+    "title": "Density",
+    "info": [
+      "EOS-80"
+    ]
+  },
+  {
+    "aliases": [
+      "sigma-t00"
+    ],
+    "name": "sgt0",
+    "units": "sigma-t (p=0 db), kg/m^3-1000",
+    "title": "Density",
+    "info": [
+      "EOS-80"
+    ]
+  },
+  {
+    "aliases": [
+      "sigma-100"
+    ],
+    "name": "sg10",
+    "units": "sigma-1 (p=1000 db), kg/m^3-1000",
+    "title": "Density",
+    "info": [
+      "EOS-80"
+    ]
+  },
+  {
+    "aliases": [
+      "sigma-200"
+    ],
+    "name": "sg20",
+    "units": "sigma-2 (p=2000 db), kg/m^3-1000",
+    "title": "Density",
+    "info": [
+      "EOS-80"
+    ]
+  },
+  {
+    "aliases": [
+      "sigma-300"
+    ],
+    "name": "sg30",
+    "units": "sigma-3 (p=3000 db), kg/m^3-1000",
+    "title": "Density",
+    "info": [
+      "EOS-80"
+    ]
+  },
+  {
+    "aliases": [
+      "sigma-400"
+    ],
+    "name": "sg40",
+    "units": "sigma-4 (p=4000 db), kg/m^3-1000",
+    "title": "Density",
+    "info": [
+      "EOS-80"
+    ]
+  },
+  {
+    "aliases": [
+      "density11"
+    ],
+    "name": "rho1",
+    "units": "density, kg/m^3",
+    "title": "Density",
+    "info": [
+      "EOS-80"
+    ]
+  },
+  {
+    "aliases": [
+      "sigma-é11"
+    ],
+    "name": "sgth1",
+    "units": "sigma-theta (p=0 db), kg/m^3-1000",
+    "title": "Density",
+    "info": [
+      "EOS-80"
+    ]
+  },
+  {
+    "aliases": [
+      "sigma-t11"
+    ],
+    "name": "sgt1",
+    "units": "sigma-t (p=0 db), kg/m^3-1000",
+    "title": "Density",
+    "info": [
+      "EOS-80"
+    ]
+  },
+  {
+    "aliases": [
+      "sigma-111"
+    ],
+    "name": "sg11",
+    "units": "sigma-1 (p=1000 db), kg/m^3-1000",
+    "title": "Density",
+    "info": [
+      "EOS-80"
+    ]
+  },
+  {
+    "aliases": [
+      "sigma-211"
+    ],
+    "name": "sg21",
+    "units": "sigma-2 (p=2000 db), kg/m^3-1000",
+    "title": "Density",
+    "info": [
+      "EOS-80"
+    ]
+  },
+  {
+    "aliases": [
+      "sigma-311"
+    ],
+    "name": "sg31",
+    "units": "sigma-3 (p=3000 db), kg/m^3-1000",
+    "title": "Density",
+    "info": [
+      "EOS-80"
+    ]
+  },
+  {
+    "aliases": [
+      "sigma-411"
+    ],
+    "name": "sg41",
+    "units": "sigma-4 (p=4000 db), kg/m^3-1000",
+    "title": "Density",
+    "info": [
+      "EOS-80"
+    ]
+  },
+  {
+    "aliases": [
+      "D2-D1, d"
+    ],
+    "name": "rhodiff",
+    "units": "density, kg/m^3",
+    "title": "Density-Difference",
+    "info": []
+  },
+  {
+    "aliases": [
+      "D2-D1,th"
+    ],
+    "name": "sgthdiff",
+    "units": "sigma-theta, kg/m^3",
+    "title": "Density-Difference",
+    "info": []
+  },
+  {
+    "aliases": [
+      "D2-D1,t"
+    ],
+    "name": "sgtdiff",
+    "units": "sigma-t, kg/m^3",
+    "title": "Density-Difference",
+    "info": []
+  },
+  {
+    "aliases": [
+      "D2-D1,1"
+    ],
+    "name": "sg1diff",
+    "units": "sigma-1 (p=1000 db), kg/m^3",
+    "title": "Density-Difference",
+    "info": []
+  },
+  {
+    "aliases": [
+      "D2-D1,2"
+    ],
+    "name": "sg2diff",
+    "units": "sigma-2 (p=1000 db), kg/m^3",
+    "title": "Density-Difference",
+    "info": []
+  },
+  {
+    "aliases": [
+      "D2-D1,3"
+    ],
+    "name": "sg3diff",
+    "units": "sigma-3 (p=1000 db), kg/m^3",
+    "title": "Density-Difference",
+    "info": []
+  },
+  {
+    "aliases": [
+      "D2-D1,4"
+    ],
+    "name": "sg4diff",
+    "units": "sigma-4 (p=1000 db), kg/m^3",
+    "title": "Density-Difference",
+    "info": []
+  },
+  {
+    "aliases": [
+      "svCM"
+    ],
+    "name": "sv0CM",
+    "units": "Chen-Millero, m/s",
+    "title": "Sound-Velocity",
+    "info": []
+  },
+  {
+    "aliases": [
+      "svCF"
+    ],
+    "name": "sv0CF",
+    "units": "Chen-Millero, ft/s",
+    "title": "Sound-Velocity",
+    "info": []
+  },
+  {
+    "aliases": [
+      "svDM"
+    ],
+    "name": "sv0DM",
+    "units": "Delgrosso, m/s",
+    "title": "Sound-Velocity",
+    "info": []
+  },
+  {
+    "aliases": [
+      "svDF"
+    ],
+    "name": "sv0DF",
+    "units": "Delgrosso, ft/s",
+    "title": "Sound-Velocity",
+    "info": []
+  },
+  {
+    "aliases": [
+      "svWM"
+    ],
+    "name": "sv0WM",
+    "units": "Wilson, m/s",
+    "title": "Sound-Velocity",
+    "info": []
+  },
+  {
+    "aliases": [
+      "svWF"
+    ],
+    "name": "sv0WF",
+    "units": "Wilson, ft/s",
+    "title": "Sound-Velocity",
+    "info": []
+  },
+  {
+    "aliases": [
+      "svCM1"
+    ],
+    "name": "sv1CM",
+    "units": "Chen-Millero, m/s",
+    "title": "Sound-Velocity-Secondary",
+    "info": []
+  },
+  {
+    "aliases": [
+      "svCF1"
+    ],
+    "name": "sv1CF",
+    "units": "Chen-Millero, ft/s",
+    "title": "Sound-Velocity-Secondary",
+    "info": []
+  },
+  {
+    "aliases": [
+      "svDM1"
+    ],
+    "name": "sv1DM",
+    "units": "Delgrosso, m/s",
+    "title": "Sound-Velocity-Secondary",
+    "info": []
+  },
+  {
+    "aliases": [
+      "svDF1"
+    ],
+    "name": "sv1DF",
+    "units": "Delgrosso, ft/s",
+    "title": "Sound-Velocity-Secondary",
+    "info": []
+  },
+  {
+    "aliases": [
+      "svWM1"
+    ],
+    "name": "sv1WM",
+    "units": "Wilson, m/s",
+    "title": "",
+    "info": []
+  },
+  {
+    "aliases": [
+      "svWF1"
+    ],
+    "name": "sv1WF",
+    "units": "Wilson, ft/s",
+    "title": "Sound-Velocity-Secondary",
+    "info": []
+  },
+  {
+    "aliases": [
+      "iowSv"
+    ],
+    "name": "iowSv",
+    "units": "IOW sound velocity sensor, m/s",
+    "title": "Sound-Velocity-IOW",
+    "info": []
+  },
+  {
+    "aliases": [
+      "sbeSv-iowSv"
+    ],
+    "name": "svdiff",
+    "units": "SBE CTD - IOW SV sensor, m/s",
+    "title": "Sound-Velocity-IOW",
+    "info": []
+  },
+  {
+    "aliases": [
+      "avgsvCM"
+    ],
+    "name": "avgsvCM",
+    "units": "Chen-Millero, m/s",
+    "title": "Sound-Velocity-Average",
+    "info": []
+  },
+  {
+    "aliases": [
+      "avgsvCF"
+    ],
+    "name": "avgsvCF",
+    "units": "Chen-Millero, ft/s",
+    "title": "Sound-Velocity-Average",
+    "info": []
+  },
+  {
+    "aliases": [
+      "avgsvDM"
+    ],
+    "name": "avgsvDM",
+    "units": "Delgrosso, m/s",
+    "title": "Sound-Velocity-Average",
+    "info": []
+  },
+  {
+    "aliases": [
+      "avgsvDF"
+    ],
+    "name": "avgsvDF",
+    "units": "Delgrosso, ft/s",
+    "title": "Sound-Velocity-Average",
+    "info": []
+  },
+  {
+    "aliases": [
+      "avgsvWM"
+    ],
+    "name": "avgsvWM",
+    "units": "Wilson, m/s",
+    "title": "Sound-Velocity-Average",
+    "info": []
+  },
+  {
+    "aliases": [
+      "avgsvWF"
+    ],
+    "name": "avgsvWF",
+    "units": "Wilson, ft/s",
+    "title": "Sound-Velocity-Average",
+    "info": []
+  },
+  {
+    "aliases": [
+      "N"
+    ],
+    "name": "N",
+    "units": "cycles/hour",
+    "title": "Buoyancy",
+    "info": []
+  },
+  {
+    "aliases": [
+      "N^2"
+    ],
+    "name": "N2",
+    "units": "rad^2/s^2",
+    "title": "Buoyancy",
+    "info": []
+  },
+  {
+    "aliases": [
+      "accM"
+    ],
+    "name": "accM",
+    "units": "m/s^2",
+    "title": "Acceleration",
+    "info": []
+  },
+  {
+    "aliases": [
+      "accF"
+    ],
+    "name": "accF",
+    "units": "ft/s^2",
+    "title": "Acceleration",
+    "info": []
+  },
+  {
+    "aliases": [
+      "dz/dtM"
+    ],
+    "name": "dzdtM",
+    "units": "m/s",
+    "title": "Descent-Rate",
+    "info": []
+  },
+  {
+    "aliases": [
+      "dz/dtF"
+    ],
+    "name": "dzdtF",
+    "units": "ft/s",
+    "title": "Descent-Rate",
+    "info": []
+  },
+  {
+    "aliases": [
+      "sfdSM"
+    ],
+    "name": "sfdSM",
+    "units": "salt water, m",
+    "title": "Seafloor-Depth",
+    "info": []
+  },
+  {
+    "aliases": [
+      "sfdSF"
+    ],
+    "name": "sfdSF",
+    "units": "salt water, ft",
+    "title": "Seafloor-Depth",
+    "info": []
+  },
+  {
+    "aliases": [
+      "sfdFM"
+    ],
+    "name": "sfdFM",
+    "units": "fresh water, m",
+    "title": "Seafloor-Depth",
+    "info": []
+  },
+  {
+    "aliases": [
+      "sfdFF"
+    ],
+    "name": "sfdFF",
+    "units": "fresh water, ft",
+    "title": "Seafloor-Depth",
+    "info": []
+  },
+  {
+    "aliases": [
+      "dm"
+    ],
+    "name": "dm",
+    "units": "10 J/kg",
+    "title": "Dynamic-Meters",
+    "info": []
+  },
+  {
+    "aliases": [
+      "gpa"
+    ],
+    "name": "gpa",
+    "units": "J/kg",
+    "title": "Geopotential-Anomaly",
+    "info": []
+  },
+  {
+    "aliases": [
+      "pla"
+    ],
+    "name": "pla",
+    "units": "?",
+    "title": "Plume-Anomaly",
+    "info": []
+  },
+  {
+    "aliases": [
+      "sva"
+    ],
+    "name": "sva",
+    "units": "10^-8 *m^3/kg",
+    "title": "Specific-Volume-Anomaly",
+    "info": []
+  },
+  {
+    "aliases": [
+      "E"
+    ],
+    "name": "E",
+    "units": "rad^2/m",
+    "title": "Stability",
+    "info": []
+  },
+  {
+    "aliases": [
+      "E10^-8"
+    ],
+    "name": "E10^-8",
+    "units": "10^-8 *rad^2/m",
+    "title": "E10^-8",
+    "info": []
+  },
+  {
+    "aliases": [
+      "tsa"
+    ],
+    "name": "tsa",
+    "units": "10^-8 *m^3/kg",
+    "title": "Thermosteric-Anomaly",
+    "info": []
+  },
+  {
+    "aliases": [
+      "specc"
+    ],
+    "name": "specc",
+    "units": "uS/cm",
+    "title": "Specific-Conductance",
+    "info": []
+  },
+  {
+    "aliases": [
+      "speccumhoscm"
+    ],
+    "name": "speccumhoscm",
+    "units": "umhos/cm",
+    "title": "Specific-Conductance",
+    "info": []
+  },
+  {
+    "aliases": [
+      "speccmsm"
+    ],
+    "name": "speccmsm",
+    "units": "mS/cm",
+    "title": "Specific-Conductance",
+    "info": []
+  },
+  {
+    "aliases": [
+      "speccmmhoscm"
+    ],
+    "name": "speccmmhoscm",
+    "units": "mmhos/cm",
+    "title": "Specific-Conductance",
+    "info": []
+  },
+  {
+    "aliases": [
+      "sbeox0V"
+    ],
+    "name": "sbeox0V",
+    "units": "V",
+    "title": "Oxygen-Raw-43",
+    "info": [
+      "Raw"
+    ]
+  },
+  {
+    "aliases": [
+      "sbeox0F"
+    ],
+    "name": "sbeox0F",
+    "units": "Hz",
+    "title": "Oxygen-Raw-43",
+    "info": [
+      "Raw"
+    ]
+  },
+  {
+    "aliases": [
+      "sbeox1V",
+      "sbeox1V_1"
+    ],
+    "name": "sbeox1V",
+    "units": "V",
+    "title": "Oxygen-Raw-43",
+    "info": [
+      "Raw"
+    ]
+  },
+  {
+    "aliases": [
+      "sbeox1F"
+    ],
+    "name": "sbeox1F",
+    "units": "Hz",
+    "title": "Oxygen-Raw-43",
+    "info": [
+      "Raw"
+    ]
+  },
+  {
+    "aliases": [
+      "sbeox0ML/L",
+      "sbeox0mL_L"
+    ],
+    "name": "sbeox0mL_L",
+    "units": "mL/L",
+    "title": "Oxygen",
+    "info": [
+      "Derived"
+    ]
+  },
+  {
+    "aliases": [
+      "sbeox0Mg/L",
+      "sbeox0mg_L"
+    ],
+    "name": "sbeox0mg_L",
+    "units": "mg/L",
+    "title": "Oxygen",
+    "info": [
+      "Derived"
+    ]
+  },
+  {
+    "aliases": [
+      "sbeox0PS"
+    ],
+    "name": "sbeox0PS",
+    "units": "% saturation",
+    "title": "Oxygen",
+    "info": [
+      "Derived"
+    ]
+  },
+  {
+    "aliases": [
+      "sbeox0Mm/Kg"
+    ],
+    "name": "sbeox0mum_kg",
+    "units": "micromol/kg",
+    "title": "Oxygen",
+    "info": [
+      "Derived"
+    ]
+  },
+  {
+    "aliases": [
+      "sbeox0Mm/L"
+    ],
+    "name": "sbeox0mum_L",
+    "units": "micromole/L",
+    "title": "Oxygen",
+    "info": [
+      "Derived"
+    ]
+  },
+  {
+    "aliases": [
+      "sbeox0dOV/dT"
+    ],
+    "name": "sbeox0dOV_dT",
+    "units": "V/s",
+    "title": "Oxygen",
+    "info": [
+      "Derived"
+    ]
+  },
+  {
+    "aliases": [
+      "sbeox1ML/L",
+      "sbeox1ML/L_1",
+      "sbeox1ML_L_1"
+    ],
+    "name": "sbeox1mL_L",
+    "units": "mL/L",
+    "title": "Oxygen",
+    "info": [
+      "Derived"
+    ]
+  },
+  {
+    "aliases": [
+      "sbeox1Mg/L",
+      "sbeox1Mg/L_1",
+      "sbeox1Mg_L_1"
+    ],
+    "name": "sbeox1mg_L",
+    "units": "mg/L",
+    "title": "Oxygen",
+    "info": [
+      "Derived"
+    ]
+  },
+  {
+    "aliases": [
+      "sbeox1PS",
+      "sbeox1PS_1"
+    ],
+    "name": "sbeox1PS",
+    "units": "% saturation",
+    "title": "Oxygen",
+    "info": [
+      "Derived"
+    ]
+  },
+  {
+    "aliases": [
+      "sbeox1Mm/Kg",
+      "sbeox1Mm/Kg_1",
+      "sbeox1Mm_Kg_1"
+    ],
+    "name": "sbeox1mum_kg",
+    "units": "micromol/kg",
+    "title": "Oxygen",
+    "info": [
+      "Derived"
+    ]
+  },
+  {
+    "aliases": [
+      "sbeox1Mm/L",
+      "sbeox1Mm/L_1"
+    ],
+    "name": "sbeox1mum_L",
+    "units": "micromole/L",
+    "title": "Oxygen",
+    "info": [
+      "Derived"
+    ]
+  },
+  {
+    "aliases": [
+      "sbeox1dOV/dT"
+    ],
+    "name": "sbeox1dOV_dT",
+    "units": "V/s",
+    "title": "Oxygen",
+    "info": [
+      "Derived"
+    ]
+  },
+  {
+    "aliases": [
+      "sbeox0ML/Ldiff"
+    ],
+    "name": "sbeox0ML_Ldiff",
+    "units": "ml/l",
+    "title": "Oxygen",
+    "info": [
+      "Difference",
+      "SBE43"
+    ]
+  },
+  {
+    "aliases": [
+      "sbeox0Mg/Ldiff"
+    ],
+    "name": "sbeox0Mg_Ldiff",
+    "units": "mg/l",
+    "title": "Oxygen",
+    "info": [
+      "Difference",
+      "SBE43"
+    ]
+  },
+  {
+    "aliases": [
+      "sbeox0PSdiff"
+    ],
+    "name": "sbeox0PSdiff",
+    "units": "% saturation",
+    "title": "Oxygen",
+    "info": [
+      "Difference",
+      "SBE43"
+    ]
+  },
+  {
+    "aliases": [
+      "sbeox0Mm/Kgdiff"
+    ],
+    "name": "sbeox0Mm_Kgdiff",
+    "units": "umol/kg",
+    "title": "Oxygen",
+    "info": [
+      "Difference",
+      "SBE43"
+    ]
+  },
+  {
+    "aliases": [
+      "sbeox0Mm/Ldiff"
+    ],
+    "name": "sbeox0Mm_Ldiff",
+    "units": "umol/l",
+    "title": "Oxygen",
+    "info": [
+      "Difference",
+      "SBE43"
+    ]
+  },
+  {
+    "aliases": [
+      "sbeoxpd"
+    ],
+    "name": "sbeoxpd",
+    "units": "usec",
+    "title": "Oxygen",
+    "info": [
+      "Raw",
+      "SBE63"
+    ]
+  },
+  {
+    "aliases": [
+      "sbeoxpdv"
+    ],
+    "name": "sbeoxpdv",
+    "units": "V",
+    "title": "Oxygen",
+    "info": [
+      "Raw",
+      "SBE63"
+    ]
+  },
+  {
+    "aliases": [
+      "sbeoxpd1"
+    ],
+    "name": "sbeoxpd1",
+    "units": "usec",
+    "title": "Oxygen",
+    "info": [
+      "Raw",
+      "SBE63"
+    ]
+  },
+  {
+    "aliases": [
+      "sbeoxpdv1"
+    ],
+    "name": "sbeoxpdv1",
+    "units": "sbeoxpdv1",
+    "title": "Oxygen",
+    "info": [
+      "Raw",
+      "SBE63"
+    ]
+  },
+  {
+    "aliases": [
+      "sbeoxtv"
+    ],
+    "name": "sbeoxtv",
+    "units": "sbeoxtv",
+    "title": "Oxygen",
+    "info": [
+      "Raw",
+      "SBE63"
+    ]
+  },
+  {
+    "aliases": [
+      "sbeoxtv1"
+    ],
+    "name": "sbeoxtv1",
+    "units": "sbeoxtv1",
+    "title": "Oxygen",
+    "info": [
+      "Raw",
+      "SBE63"
+    ]
+  },
+  {
+    "aliases": [
+      "sbeoxTC"
+    ],
+    "name": "sbeoxTC",
+    "units": "deg C",
+    "title": "Temperature",
+    "info": [
+      "Raw Oxygen",
+      "SBE63",
+      "ITS-90"
+    ]
+  },
+  {
+    "aliases": [
+      "sbeoxTF"
+    ],
+    "name": "sbeoxTF",
+    "units": "deg F",
+    "title": "Temperature",
+    "info": [
+      "Raw Oxygen",
+      "SBE63",
+      "ITS-90"
+    ]
+  },
+  {
+    "aliases": [
+      "sbeoxTC1"
+    ],
+    "name": "sbeoxTC1",
+    "units": "deg C",
+    "title": "Temperature",
+    "info": [
+      "Raw Oxygen",
+      "SBE63",
+      "ITS-90"
+    ]
+  },
+  {
+    "aliases": [
+      "sbeoxTF1"
+    ],
+    "name": "sbeoxTF1",
+    "units": "deg F",
+    "title": "Temperature",
+    "info": [
+      "Raw Oxygen",
+      "SBE63",
+      "ITS-90"
+    ]
+  },
+  {
+    "aliases": [
+      "sbeopoxML/L"
+    ],
+    "name": "sbeopoxML_L",
+    "units": "ml/l",
+    "title": "Oxygen",
+    "info": [
+      "Derived"
+    ]
+  },
+  {
+    "aliases": [
+      "sbeopoxMg/L"
+    ],
+    "name": "sbeopoxMg_L",
+    "units": "mg/l",
+    "title": "Oxygen",
+    "info": [
+      "Derived"
+    ]
+  },
+  {
+    "aliases": [
+      "sbeopoxPS"
+    ],
+    "name": "sbeopoxPS",
+    "units": "% saturation",
+    "title": "Oxygen",
+    "info": [
+      "Derived"
+    ]
+  },
+  {
+    "aliases": [
+      "sbeopoxMm/Kg"
+    ],
+    "name": "sbeopoxMm_Kg",
+    "units": "umol/kg",
+    "title": "Oxygen",
+    "info": [
+      "Derived"
+    ]
+  },
+  {
+    "aliases": [
+      "sbeopoxMm/L"
+    ],
+    "name": "sbeopoxMm_L",
+    "units": "umol/l",
+    "title": "Oxygen",
+    "info": [
+      "Derived"
+    ]
+  },
+  {
+    "aliases": [
+      "sbeopoxML/L1"
+    ],
+    "name": "sbeopoxML_L1",
+    "units": "ml/l",
+    "title": "Oxygen",
+    "info": [
+      "Derived"
+    ]
+  },
+  {
+    "aliases": [
+      "sbeopoxMg/L1"
+    ],
+    "name": "sbeopoxMg_L1",
+    "units": "mg/l",
+    "title": "Oxygen",
+    "info": [
+      "Derived"
+    ]
+  },
+  {
+    "aliases": [
+      "sbeopoxPS1"
+    ],
+    "name": "sbeopoxPS1",
+    "units": "% saturation",
+    "title": "Oxygen",
+    "info": [
+      "Derived"
+    ]
+  },
+  {
+    "aliases": [
+      "SbeopoxMm/Kg1"
+    ],
+    "name": "SbeopoxMm_Kg1",
+    "units": "umol/kg",
+    "title": "Oxygen",
+    "info": [
+      "Derived"
+    ]
+  },
+  {
+    "aliases": [
+      "sbeopoxMm/L1"
+    ],
+    "name": "sbeopoxMm/L1",
+    "units": "umol/l",
+    "title": "Oxygen",
+    "info": [
+      "Derived"
+    ]
+  },
+  {
+    "aliases": [
+      "opoxML/L"
+    ],
+    "name": "opoxML_L",
+    "units": "ml/l",
+    "title": "Optode-Aanderaa",
+    "info": []
+  },
+  {
+    "aliases": [
+      "opoxMg/L"
+    ],
+    "name": "opoxMg_L",
+    "units": "mg/l",
+    "title": "Optode-Aanderaa",
+    "info": []
+  },
+  {
+    "aliases": [
+      "opoxPS"
+    ],
+    "name": "opoxPS",
+    "units": "% saturation",
+    "title": "Optode-Aanderaa",
+    "info": []
+  },
+  {
+    "aliases": [
+      "opoxMm/L"
+    ],
+    "name": "opoxMm_L",
+    "units": "umol/l",
+    "title": "Optode-Aanderaa",
+    "info": []
+  },
+  {
+    "aliases": [
+      "oxC"
+    ],
+    "name": "oxC",
+    "units": "uA",
+    "title": "Beckman-YSI",
+    "info": []
+  },
+  {
+    "aliases": [
+      "oxsC"
+    ],
+    "name": "oxsC",
+    "units": "uA",
+    "title": "Beckman-YSI",
+    "info": []
+  },
+  {
+    "aliases": [
+      "oxTC"
+    ],
+    "name": "oxTC",
+    "units": "deg C",
+    "title": "Beckman-YSI",
+    "info": []
+  },
+  {
+    "aliases": [
+      "oxTF"
+    ],
+    "name": "oxTF",
+    "units": "deg F",
+    "title": "Beckman-YSI",
+    "info": []
+  },
+  {
+    "aliases": [
+      "oxsTC"
+    ],
+    "name": "oxsTC",
+    "units": "deg C",
+    "title": "Beckman-YSI",
+    "info": []
+  },
+  {
+    "aliases": [
+      "oxsTF"
+    ],
+    "name": "oxsTF",
+    "units": "deg F",
+    "title": "Beckman-YSI",
+    "info": []
+  },
+  {
+    "aliases": [
+      "oxML/L"
+    ],
+    "name": "oxML_L",
+    "units": "ml/l",
+    "title": "Beckman-YSI",
+    "info": []
+  },
+  {
+    "aliases": [
+      "oxMg/L"
+    ],
+    "name": "oxMg_L",
+    "units": "mg/l",
+    "title": "Beckman-YSI",
+    "info": []
+  },
+  {
+    "aliases": [
+      "oxPS"
+    ],
+    "name": "oxPS",
+    "units": "% saturation",
+    "title": "Beckman-YSI",
+    "info": []
+  },
+  {
+    "aliases": [
+      "oxMm/Kg"
+    ],
+    "name": "oxMm_Kg",
+    "units": "umol/kg",
+    "title": "Beckman-YSI",
+    "info": []
+  },
+  {
+    "aliases": [
+      "oxdOC/dT"
+    ],
+    "name": "oxdOC_dT",
+    "units": "doc/dt",
+    "title": "Beckman-YSI",
+    "info": []
+  },
+  {
+    "aliases": [
+      "oxsML/L"
+    ],
+    "name": "oxsML_L",
+    "units": "ml/l",
+    "title": "Beckman-YSI",
+    "info": []
+  },
+  {
+    "aliases": [
+      "oxsMg/L"
+    ],
+    "name": "oxsMg_L",
+    "units": "mg/l",
+    "title": "Beckman-YSI",
+    "info": []
+  },
+  {
+    "aliases": [
+      "oxsPS"
+    ],
+    "name": "oxsPS",
+    "units": "% saturation",
+    "title": "Beckman-YSI",
+    "info": []
+  },
+  {
+    "aliases": [
+      "oxsMm/Kg"
+    ],
+    "name": "oxsMm_Kg",
+    "units": "umol/kg",
+    "title": "",
+    "info": []
+  },
+  {
+    "aliases": [
+      "oxsdOC/dT"
+    ],
+    "name": "oxsdOC_dT",
+    "units": "doc/dt",
+    "title": "",
+    "info": []
+  },
+  {
+    "aliases": [
+      "iowOxML/L"
+    ],
+    "name": "iowOxML/L",
+    "units": "ml/l",
+    "title": "Oxygen-Saturation-IOW",
+    "info": []
+  },
+  {
+    "aliases": [
+      "oxsolML/L"
+    ],
+    "name": "oxsolML_L",
+    "units": "ml/l",
+    "title": "Oxygen-Saturation-Garcia-Gordon",
+    "info": []
+  },
+  {
+    "aliases": [
+      "oxsolMg/L"
+    ],
+    "name": "oxsolMg_L",
+    "units": "mg/l",
+    "title": "Oxygen-Saturation-Garcia-Gordon",
+    "info": []
+  },
+  {
+    "aliases": [
+      "oxsolMm/Kg"
+    ],
+    "name": "oxsolMm_Kg",
+    "units": "umol/kg",
+    "title": "Oxygen-Saturation-Garcia-Gordon",
+    "info": []
+  },
+  {
+    "aliases": [
+      "oxsatML/L"
+    ],
+    "name": "oxsatML_L",
+    "units": "ml/l",
+    "title": "Oxygen-Saturation-Weiss",
+    "info": []
+  },
+  {
+    "aliases": [
+      "oxsatMg/L"
+    ],
+    "name": "oxsatMg_L",
+    "units": "mg/l",
+    "title": "Oxygen-Saturation-Weiss",
+    "info": []
+  },
+  {
+    "aliases": [
+      "oxsatMm/Kg"
+    ],
+    "name": "oxsatMm_Kg",
+    "units": "umol/kg",
+    "title": "Oxygen-Saturation-Weiss",
+    "info": []
+  },
+  {
+    "aliases": [
+      "cdomflTC0",
+      "cdomflTC1",
+      "cdomflTCdiff"
+    ],
+    "name": null,
+    "units": "ppb QS",
+    "title": "CDOM",
+    "info": []
+  },
+  {
+    "aliases": [
+      "chloroflTC0",
+      "chloroflTC1",
+      "chloroflTCdiff"
+    ],
+    "name": null,
+    "units": "ug/l",
+    "title": "Fluorescence",
+    "info": []
+  },
+  {
+    "aliases": [
+      "croilflTC0",
+      "croilflTC1",
+      "croilflTCdiff"
+    ],
+    "name": null,
+    "units": "ppb QS",
+    "title": "Crude-Oil",
+    "info": []
+  },
+  {
+    "aliases": [
+      "flflTC0",
+      "flflTC1",
+      "flflTCdiff"
+    ],
+    "name": null,
+    "units": "ppb",
+    "title": "Fluorescein",
+    "info": []
+  },
+  {
+    "aliases": [
+      "obrflTC0",
+      "obrflTC1",
+      "obrflTCdiff"
+    ],
+    "name": null,
+    "units": "ppb QS",
+    "title": "Optical-Brighteners",
+    "info": []
+  },
+  {
+    "aliases": [
+      "phycyflTC0",
+      "phycyflTC1",
+      "phycyflTCdiff"
+    ],
+    "name": null,
+    "units": "RFU",
+    "title": "Phycocyanin",
+    "info": []
+  },
+  {
+    "aliases": [
+      "phyeryflTC0",
+      "phyeryflTC1",
+      "phyeryflTCdiff"
+    ],
+    "name": null,
+    "units": "RFU",
+    "title": "Phycoerythrin",
+    "info": []
+  },
+  {
+    "aliases": [
+      "rfuels0",
+      "rfuels1",
+      "rfuelsdiff"
+    ],
+    "name": null,
+    "units": "ppb NS",
+    "title": "Refined-Fuels",
+    "info": []
+  },
+  {
+    "aliases": [
+      "rhodflTC0",
+      "rhodflTC1",
+      "rhodflTCdiff"
+    ],
+    "name": null,
+    "units": "ppb",
+    "title": "Rhodamine",
+    "info": []
+  },
+  {
+    "aliases": [
+      "turbflTC0",
+      "turbflTC1",
+      "turbflTCdiff"
+    ],
+    "name": null,
+    "units": "NTU",
+    "title": "Turbidity",
+    "info": []
+  },
+  {
+    "aliases": [
+      "chConctr",
+      "naFluor",
+      "product"
+    ],
+    "name": null,
+    "units": "",
+    "title": "Fluorescence",
+    "info": []
+  },
+  {
+    "aliases": [
+      "flC",
+      "flC1",
+      "flCdiff"
+    ],
+    "name": null,
+    "units": "ug/l",
+    "title": "Fluorescence",
+    "info": []
+  },
+  {
+    "aliases": [
+      "flCM"
+    ],
+    "name": "flCM",
+    "units": "ug/l",
+    "title": "Fluorescence",
+    "info": []
+  },
+  {
+    "aliases": [
+      "flCUVA",
+      "flCUVA1",
+      "flCUVAdiff"
+    ],
+    "name": null,
+    "units": "ug/l",
+    "title": "Fluorescence",
+    "info": []
+  },
+  {
+    "aliases": [
+      "haardtC",
+      "haardtP",
+      "haardtY"
+    ],
+    "name": null,
+    "units": "",
+    "title": "Haardt",
+    "info": []
+  },
+  {
+    "aliases": [
+      "flSP",
+      "flSP1",
+      "flSPdiff"
+    ],
+    "name": null,
+    "units": "",
+    "title": "Fluorescence",
+    "info": []
+  },
+  {
+    "aliases": [
+      "flSPR"
+    ],
+    "name": null,
+    "units": "",
+    "title": "Rhodamine",
+    "info": []
+  },
+  {
+    "aliases": [
+      "flSPuv0",
+      "flSPuv1",
+      "flSPuvdiff"
+    ],
+    "name": null,
+    "units": "",
+    "title": "Ultraviolet",
+    "info": []
+  },
+  {
+    "aliases": [
+      "flS"
+    ],
+    "name": null,
+    "units": "",
+    "title": "Fluorescence",
+    "info": []
+  },
+  {
+    "aliases": [
+      "flT"
+    ],
+    "name": "flT",
+    "units": "",
+    "title": "Turner-10-005",
+    "info": []
+  },
+  {
+    "aliases": [
+      "flTAu"
+    ],
+    "name": "flTAu",
+    "units": "",
+    "title": "Turner-10-Au-005",
+    "info": []
+  },
+  {
+    "aliases": [
+      "flSCC",
+      "flSCC1",
+      "flSCCdiff"
+    ],
+    "name": null,
+    "units": "RFU",
+    "title": "Turner-Scufa-Corrected",
+    "info": []
+  },
+  {
+    "aliases": [
+      "flScufa",
+      "flScufa1",
+      "flScufadiff"
+    ],
+    "name": null,
+    "units": "",
+    "title": "Turner-Scufa",
+    "info": []
+  },
+  {
+    "aliases": [
+      "wetChAbs"
+    ],
+    "name": "wetChAbs",
+    "units": "1/m",
+    "title": "Wetlabs-AC3",
+    "info": []
+  },
+  {
+    "aliases": [
+      "wetCDOM",
+      "wetCDOM1",
+      "wetCDOM2",
+      "wetCDOM3",
+      "wetCDOM4",
+      "wetCDOM5",
+      "wetCDOMdiff"
+    ],
+    "name": null,
+    "units": "mg/m^3",
+    "title": "Wetlabs-CDOM",
+    "info": []
+  },
+  {
+    "aliases": [
+      "wetChConc"
+    ],
+    "name": "wetChConc",
+    "units": "mg/m^3",
+    "title": "Wetlabs-Chlorophyll",
+    "info": []
+  },
+  {
+    "aliases": [
+      "flECOVolt"
+    ],
+    "name": "flECOVolt",
+    "units": "",
+    "title": "Chlorophyll-a",
+    "info": [
+      "Raw Voltage"
+    ]
+  },
+  {
+    "aliases": [
+      "flECO-AFL"
+    ],
+    "name": "flECO_AFL",
+    "units": "mg/m^3",
+    "title": "Chlorophyll-a",
+    "info": []
+  },
+  {
+    "aliases": [
+      "flECO-AFL1"
+    ],
+    "name": "flECO_AFL1",
+    "units": "mg/m^3",
+    "title": "Chlorophyll-a",
+    "info": []
+  },
+  {
+    "aliases": [
+      "flECO-AFL2"
+    ],
+    "name": "flECO_AFL2",
+    "units": "mg/m^3",
+    "title": "Chlorophyll-a",
+    "info": []
+  },
+  {
+    "aliases": [
+      "flECO-AFL3"
+    ],
+    "name": "flECO_AFL3",
+    "units": "mg/m^3",
+    "title": "Chlorophyll-a",
+    "info": []
+  },
+  {
+    "aliases": [
+      "flECO-AFL4"
+    ],
+    "name": "flECO_AFL4",
+    "units": "mg/m^3",
+    "title": "Chlorophyll-a",
+    "info": []
+  },
+  {
+    "aliases": [
+      "flECO-AFL5"
+    ],
+    "name": "flECO_AFL5",
+    "units": "mg/m^3",
+    "title": "Chlorophyll-a",
+    "info": []
+  },
+  {
+    "aliases": [
+      "flECO-AFLdiff"
+    ],
+    "name": "flECO_AFLdiff",
+    "units": "mg/m^3",
+    "title": "Chlorophyll-a",
+    "info": []
+  },
+  {
+    "aliases": [
+      "flWETSeaOWLchl0",
+      "flWETSeaOWLchl1",
+      "flWETSeaOWLchldiff"
+    ],
+    "name": null,
+    "units": "?g/l",
+    "title": "Wetlabs-Fluorometer",
+    "info": []
+  },
+  {
+    "aliases": [
+      "flWETSeaOWLfdom0",
+      "flWETSeaOWLfdom1",
+      "flWETSeaOWLfdomdiff"
+    ],
+    "name": null,
+    "units": "?g/l",
+    "title": "Wetlabs-FDOM",
+    "info": []
+  },
+  {
+    "aliases": [
+      "wetStar",
+      "wetStar1",
+      "wetStar2",
+      "wetStar3",
+      "wetStar4",
+      "wetStar5",
+      "wetStardiff"
+    ],
+    "name": null,
+    "units": "mg/m^3",
+    "title": "Wetlabs-Wetstar",
+    "info": []
+  },
+  {
+    "aliases": [
+      "obs",
+      "obs1",
+      "obsdiff"
+    ],
+    "name": null,
+    "units": "NTU",
+    "title": "Backscatter",
+    "info": []
+  },
+  {
+    "aliases": [
+      "nephc"
+    ],
+    "name": "nephc",
+    "units": "FTU",
+    "title": "Nephelometer",
+    "info": []
+  },
+  {
+    "aliases": [
+      "obs3+"
+    ],
+    "name": "obs3plus",
+    "units": "NTU",
+    "title": "Obs3+",
+    "info": []
+  },
+  {
+    "aliases": [
+      "obs3+1"
+    ],
+    "name": "obs3plus1",
+    "units": "NTU",
+    "title": "Obs3+1",
+    "info": []
+  },
+  {
+    "aliases": [
+      "obs3+diff"
+    ],
+    "name": "obs3plusdiff",
+    "units": "NTU",
+    "title": "Obs3+diff",
+    "info": []
+  },
+  {
+    "aliases": [
+      "haardtT"
+    ],
+    "name": "haardtT",
+    "units": "",
+    "title": "Haardt",
+    "info": []
+  },
+  {
+    "aliases": [
+      "diff"
+    ],
+    "name": "diff",
+    "units": "",
+    "title": "Ifremer",
+    "info": []
+  },
+  {
+    "aliases": [
+      "stLs6000",
+      "stLs60001",
+      "stLs6000diff"
+    ],
+    "name": null,
+    "units": "",
+    "title": "Seatech-LS6000",
+    "info": []
+  },
+  {
+    "aliases": [
+      "obsscufa",
+      "obsscufa1",
+      "obsscufadiff"
+    ],
+    "name": null,
+    "units": "",
+    "title": "Turner-Scufa",
+    "info": []
+  },
+  {
+    "aliases": [
+      "betaECO"
+    ],
+    "name": null,
+    "units": "m^-1 * sr^-1",
+    "title": "β",
+    "info": []
+  },
+  {
+    "aliases": [
+      "betaECOVolt"
+    ],
+    "name": null,
+    "units": "",
+    "title": "backscatter",
+    "info": [
+      "Raw Voltage"
+    ]
+  },
+  {
+    "aliases": [
+      "wl0",
+      "wl1",
+      "wl2",
+      "wl3",
+      "wl4",
+      "wl5"
+    ],
+    "name": null,
+    "units": "Counts",
+    "title": "Wetlabs-Raw-Counts",
+    "info": []
+  },
+  {
+    "aliases": [
+      "seaTurbMtr",
+      "seaTurbMtr1",
+      "seaTurbMtrdiff"
+    ],
+    "name": null,
+    "units": "FTU",
+    "title": "Turbidity",
+    "info": []
+  },
+  {
+    "aliases": [
+      "turbWETbb0",
+      "turbWETbb1",
+      "turbWETbb2",
+      "turbWETbb3",
+      "turbWETbb4",
+      "turbWETbb5",
+      "turbWETbbdiff"
+    ],
+    "name": null,
+    "units": "m^-1/sr",
+    "title": "Wetlabs-ECO-BB",
+    "info": []
+  },
+  {
+    "aliases": [
+      "turbWETVolt"
+    ],
+    "name": "turbWETVolt",
+    "units": "",
+    "title": "Turbidity",
+    "info": [
+      "Raw Voltage"
+    ]
+  },
+  {
+    "aliases": [
+      "turbWETntu0",
+      "turbWETntu1",
+      "turbWETntu2",
+      "turbWETntu3",
+      "turbWETntu4",
+      "turbWETntu5",
+      "turbWETntudiff"
+    ],
+    "name": null,
+    "units": "NTU",
+    "title": "Turbidity",
+    "info": []
+  },
+  {
+    "aliases": [
+      "turbWETSeaOWLbb0",
+      "turbWETSeaOWLbb1",
+      "turbWETSeaOWLbbdiff"
+    ],
+    "name": null,
+    "units": "m^-1/sr",
+    "title": "Wetlabs-Seaowl",
+    "info": []
+  },
+  {
+    "aliases": [
+      "bat",
+      "bat1",
+      "batdiff"
+    ],
+    "name": null,
+    "units": "1/m",
+    "title": "Beam-Attenuation",
+    "info": []
+  },
+  {
+    "aliases": [
+      "wetBAttn"
+    ],
+    "name": "wetBAttn",
+    "units": "1/m",
+    "title": "Beam-Transmission",
+    "info": []
+  },
+  {
+    "aliases": [
+      "CStarAt",
+      "CStarAt0",
+      "CStarAt1",
+      "CStarAt2",
+      "CStarAt3",
+      "CStarAt4",
+      "CStarAt5",
+      "CStarAtdiff"
+    ],
+    "name": null,
+    "units": "1/m",
+    "title": "Beam-Attenuation",
+    "info": []
+  },
+  {
+    "aliases": [
+      "xmiss",
+      "xmiss1",
+      "xmissdiff"
+    ],
+    "name": null,
+    "units": "%",
+    "title": "Beam-Transmission",
+    "info": []
+  },
+  {
+    "aliases": [
+      "wetBTrans"
+    ],
+    "name": "wetBTrans",
+    "units": "%",
+    "title": "Beam-Transmission",
+    "info": []
+  },
+  {
+    "aliases": [
+      "CStarTr",
+      "CStarTr0",
+      "CStarTr1",
+      "CStarTr2",
+      "CStarTr3",
+      "CStarTr4",
+      "CStarTr5",
+      "CStarTrdiff"
+    ],
+    "name": null,
+    "units": "%",
+    "title": "Beam-Transmission",
+    "info": []
+  },
+  {
+    "aliases": [
+      "lisstBC"
+    ],
+    "name": "lisstBC",
+    "units": "1/m",
+    "title": "Lisst",
+    "info": []
+  },
+  {
+    "aliases": [
+      "lisstOT"
+    ],
+    "name": "lisstOT",
+    "units": "%",
+    "title": "Lisst",
+    "info": []
+  },
+  {
+    "aliases": [
+      "lisstMD"
+    ],
+    "name": "lisstMD",
+    "units": "u",
+    "title": "Lisst",
+    "info": []
+  },
+  {
+    "aliases": [
+      "lisstTVC"
+    ],
+    "name": "lisstTVC",
+    "units": "ul/l",
+    "title": "Lisst",
+    "info": []
+  },
+  {
+    "aliases": [
+      "parVolt"
+    ],
+    "name": "parVolt",
+    "units": "",
+    "title": "PAR",
+    "info": [
+      "Raw Voltage"
+    ]
+  },
+  {
+    "aliases": [
+      "sparVolt"
+    ],
+    "name": "sparVolt",
+    "units": "",
+    "title": "SPAR",
+    "info": [
+      "Raw Voltage"
+    ]
+  },
+  {
+    "aliases": [
+      "cpar"
+    ],
+    "name": "cpar",
+    "units": "%",
+    "title": "PAR",
+    "info": []
+  },
+  {
+    "aliases": [
+      "par"
+    ],
+    "name": "par",
+    "units": "",
+    "title": "PAR",
+    "info": []
+  },
+  {
+    "aliases": [
+      "par1"
+    ],
+    "name": "par1",
+    "units": "",
+    "title": "PAR",
+    "info": []
+  },
+  {
+    "aliases": [
+      "par/log"
+    ],
+    "name": "par_log",
+    "units": "μmol photons * m^-2 * s^-1",
+    "title": "PAR",
+    "info": []
+  },
+  {
+    "aliases": [
+      "spar"
+    ],
+    "name": "spar",
+    "units": "μmol photons * m^-2 * s^-1",
+    "title": "SPAR",
+    "info": []
+  },
+  {
+    "aliases": [
+      "meth"
+    ],
+    "name": "meth",
+    "units": "umol/l",
+    "title": "Methane",
+    "info": []
+  },
+  {
+    "aliases": [
+      "methT"
+    ],
+    "name": "methT",
+    "units": "deg C",
+    "title": "Methane",
+    "info": []
+  },
+  {
+    "aliases": [
+      "n2satML/L"
+    ],
+    "name": "n2satML_L",
+    "units": "ml/l",
+    "title": "Nitrogen",
+    "info": []
+  },
+  {
+    "aliases": [
+      "n2satMg/L"
+    ],
+    "name": "n2satMg_L",
+    "units": "mg/l",
+    "title": "Nitrogen",
+    "info": []
+  },
+  {
+    "aliases": [
+      "n2satumol/kg"
+    ],
+    "name": "n2satumol_kg",
+    "units": "umol/kg",
+    "title": "Nitrogen",
+    "info": []
+  },
+  {
+    "aliases": [
+      "orp"
+    ],
+    "name": "orp",
+    "units": "mV",
+    "title": "Oxidation-Reduction-Potential",
+    "info": []
+  },
+  {
+    "aliases": [
+      "pHVolt"
+    ],
+    "name": "pHVolt",
+    "units": "",
+    "title": "pH",
+    "info": [
+      "Raw Voltage"
+    ]
+  },
+  {
+    "aliases": [
+      "ph",
+      "phInt"
+    ],
+    "name": null,
+    "units": "",
+    "title": "pH Internal",
+    "info": []
+  },
+  {
+    "aliases": [
+      "phExt"
+    ],
+    "name": null,
+    "units": "",
+    "title": "pH External",
+    "info": []
+  },
+  {
+    "aliases": [
+      "phIntVolt"
+    ],
+    "name": null,
+    "units": "volts",
+    "title": "pH Internal Raw Voltage",
+    "info": []
+  },
+  {
+    "aliases": [
+      "phExtVolt"
+    ],
+    "name": null,
+    "units": "volts",
+    "title": "pH External Raw Voltage",
+    "info": []
+  },
+  {
+    "aliases": [
+      "phTemperature"
+    ],
+    "name": null,
+    "units": "deg C",
+    "title": "pH Reference Temperature",
+    "info": []
+  },
+  {
+    "aliases": [
+      "phTemperatureVolt"
+    ],
+    "name": null,
+    "units": "volts",
+    "title": "pH Reference Temperature Raw Voltage",
+    "info": []
+  },
+  {
+    "aliases": [
+      "internalTemperatureCelsius"
+    ],
+    "name": null,
+    "units": "deg C",
+    "title": "Internal Temperature",
+    "info": []
+  },
+  {
+    "aliases": [
+      "internalTemperatureCounts"
+    ],
+    "name": null,
+    "units": "counts",
+    "title": "Internal Temperature",
+    "info": []
+  },
+  {
+    "aliases": [
+      "internalRelativeHumidity"
+    ],
+    "name": null,
+    "units": "%",
+    "title": "Internal Relative Humidity",
+    "info": []
+  },
+  {
+    "aliases": [
+      "internalRelativeHumidityCounts"
+    ],
+    "name": null,
+    "units": "counts",
+    "title": "Internal Relative Humidity",
+    "info": []
+  },
+  {
+    "aliases": [
+      "zaps"
+    ],
+    "name": "zaps",
+    "units": "nmol",
+    "title": "Zaps",
+    "info": []
+  },
+  {
+    "aliases": [
+      "user",
+      "user1",
+      "user2",
+      "user3",
+      "user4",
+      "user5"
+    ],
+    "name": null,
+    "units": "",
+    "title": "User-Defined-Variable",
+    "info": []
+  },
+  {
+    "aliases": [
+      "upoly",
+      "upoly0",
+      "upoly1",
+      "upoly2",
+      "upoly3",
+      "upoly4",
+      "upoly5"
+    ],
+    "name": null,
+    "units": "",
+    "title": "User-Defined-Polynomial",
+    "info": []
+  },
+  {
+    "aliases": [
+      "polyVolt"
+    ],
+    "name": "polyVolt",
+    "units": "",
+    "title": "User-Defined-Polynomial",
+    "info": [
+      "Raw Voltage"
+    ]
+  },
+  {
+    "aliases": [
+      "uexpo",
+      "uexpo0",
+      "uexpo1",
+      "uexpo2",
+      "uexpo3",
+      "uexpo4",
+      "uexpo5"
+    ],
+    "name": null,
+    "units": "",
+    "title": "User-Defined-Exponential",
+    "info": []
+  },
+  {
+    "aliases": [
+      "expoVolt"
+    ],
+    "name": "expoVolt",
+    "units": "",
+    "title": "User-Defined-Exponential",
+    "info": [
+      "Raw Voltage"
+    ]
+  },
+  {
+    "aliases": [
+      "uequation"
+    ],
+    "name": null,
+    "units": "",
+    "title": "User-Defined-Equation",
+    "info": []
+  },
+  {
+    "aliases": [
+      "uequationVolt"
+    ],
+    "name":null,
+    "units": "",
+    "title": "User-Defined-Equation",
+    "info": [
+      "Raw Voltage"
+    ]
+  },
+  {
+    "aliases": [
+      "altM"
+    ],
+    "name": "altM",
+    "units": "m",
+    "title": "Altimeter",
+    "info": []
+  },
+  {
+    "aliases": [
+      "altF"
+    ],
+    "name": "altF",
+    "units": "ft",
+    "title": "Altimeter",
+    "info": []
+  },
+  {
+    "aliases": [
+      "altV"
+    ],
+    "name": "altV",
+    "units": "volts",
+    "title": "Altimeter",
+    "info": []
+  },
+  {
+    "aliases": [
+      "bct"
+    ],
+    "name": "bct",
+    "units": "",
+    "title": "Bottom-Contact",
+    "info": []
+  },
+  {
+    "aliases": [
+      "bpos",
+      "HBBotCls",
+      "nbf",
+      "newpos"
+    ],
+    "name": null,
+    "units": "",
+    "title": "Water-Sampler",
+    "info": []
+  },
+  {
+    "aliases": [
+      "pumps"
+    ],
+    "name": "pumps",
+    "units": "",
+    "title": "Pumps",
+    "info": []
+  },
+  {
+    "aliases": [
+      "nbytes"
+    ],
+    "name": "nbytes",
+    "units": "",
+    "title": "Byte-Count",
+    "info": []
+  },
+  {
+    "aliases": [
+      "modError"
+    ],
+    "name": "modError",
+    "units": "",
+    "title": "Modulo-Error-Count",
+    "info": []
+  },
+  {
+    "aliases": [
+      "mod"
+    ],
+    "name": "mod",
+    "units": "",
+    "title": "Modulo-Word",
+    "info": [],
+    "format": "%s"
+  },
+  {
+    "aliases": [
+      "scan"
+    ],
+    "name": "scan",
+    "units": "",
+    "title": "Scan-Count",
+    "info": []
+  },
+  {
+    "aliases": [
+      "nbin"
+    ],
+    "name": "nbin",
+    "units": "",
+    "title": "Scan-Per-Bin",
+    "info": []
+  },
+  {
+    "aliases": [
+      "absoluteSalinity",
+      "gsw_saA0"
+    ],
+    "name": "gsw_saA0",
+    "units": "g/kg",
+    "title": "Absolute Salinity",
+    "info": [
+      "TEOS-10"
+    ]
+  },
+  {
+    "aliases": [
+      "absoluteSalinityAnomaly",
+      "gsw_deltasaA0"
+    ],
+    "name": "gsw_deltasaA0",
+    "units": "g/kg",
+    "title": "Absolute Salinity Anomaly",
+    "info": [
+      "TEOS-10"
+    ]
+  },
+  {
+    "aliases": [
+      "adiabaticLapseRate",
+      "gsw_adlrA0"
+    ],
+    "name": "gsw_adlrA0",
+    "units": "K/Pa",
+    "title": "Adiabatic Lapse Rate",
+    "info": []
+  },
+  {
+    "aliases": [
+      "conservativeTemperature",
+      "gsw_ctA0"
+    ],
+    "name": "gsw_ctA0",
+    "units": "deg C",
+    "title": "Conservative Temperature",
+    "info": [
+      "ITS-90"
+    ]
+  },
+  {
+    "aliases": [
+      "conservativeTemperatureFreezing",
+      "gsw_ctfA0"
+    ],
+    "name": "gsw_ctfA0",
+    "units": "deg C",
+    "title": "Conservative Temperature Freezing",
+    "info": [
+      "ITS-90"
+    ]
+  },
+  {
+    "aliases": [
+      "density",
+      "gsw_densityA0"
+    ],
+    "name": "gsw_densityA0",
+    "units": "kg/m^3",
+    "title": "Density",
+    "info": [
+      "TEOS-10"
+    ]
+  },
+  {
+    "aliases": [
+      "dynamicEnthalpy",
+      "gsw_dynenthA0"
+    ],
+    "name": "gsw_dynenthA0",
+    "units": "J/kg",
+    "title": "Dynamic Enthalpy",
+    "info": []
+  },
+  {
+    "aliases": [
+      "enthalpy",
+      "gsw_enthalpyA0"
+    ],
+    "name": "gsw_enthalpyA0",
+    "units": "J/kg",
+    "title": "Enthalpy",
+    "info": []
+  },
+  {
+    "aliases": [
+      "entropy",
+      "gsw_entropyA0"
+    ],
+    "name": "gsw_entropyA0",
+    "units": "J/kg/K",
+    "title": "Entropy",
+    "info": []
+  },
+  {
+    "aliases": [
+      "gravity",
+      "gsw_gravA0",
+      "gsw_gravA"
+    ],
+    "name": "gsw_gravA0",
+    "units": "m/s^2",
+    "title": "Gravity",
+    "info": []
+  },
+  {
+    "aliases": [
+      "internalEnergy",
+      "gsw_ieA0"
+    ],
+    "name": "gsw_ieA0",
+    "units": "J/kg",
+    "title": "Internal Energy",
+    "info": []
+  },
+  {
+    "aliases": [
+      "isentropicCompressibility",
+      "gsw_icA0"
+    ],
+    "name": "gsw_icA0",
+    "units": "1/Pa",
+    "title": "Isentropic Compressibility",
+    "info": []
+  },
+  {
+    "aliases": [
+      "latentHeatEvaporation",
+      "gsw_lheA0"
+    ],
+    "name": "gsw_lheA0",
+    "units": "J/kg",
+    "title": "Latent Heat Of Evaporation",
+    "info": []
+  },
+  {
+    "aliases": [
+      "latentHeatMelting",
+      "gsw_lhmA0"
+    ],
+    "name": "gsw_lhmA0",
+    "units": "J/kg",
+    "title": "Latent Heat Of Melting",
+    "info": []
+  },
+  {
+    "aliases": [
+      "potentialTemperature",
+      "gsw_ptA0"
+    ],
+    "name": "gsw_ptA0",
+    "units": "deg C",
+    "title": "Potential Temperature",
+    "info": [
+      "ITS-90"
+    ]
+  },
+  {
+    "aliases": [
+      "practicalSalinity",
+      "gsw_spA0"
+    ],
+    "name": "gsw_spA0",
+    "units": "PSU",
+    "title": "Practical Salinity",
+    "info": []
+  },
+  {
+    "aliases": [
+      "preformedSalinity",
+      "gsw_sstarA0"
+    ],
+    "name": "gsw_sstarA0",
+    "units": "g/kg",
+    "title": "Preformed Salinity",
+    "info": []
+  },
+  {
+    "aliases": [
+      "referenceSalinity",
+      "gsw_srA0"
+    ],
+    "name": "gsw_srA0",
+    "units": "g/kg",
+    "title": "Reference Salinity",
+    "info": []
+  },
+  {
+    "aliases": [
+      "salineContractionCoefficient",
+      "gsw_betaA0"
+    ],
+    "name": "gsw_betaA0",
+    "units": "kg/g",
+    "title": "Saline Contraction Coefficient",
+    "info": []
+  },
+  {
+    "aliases": [
+      "soundSpeed",
+      "gsw_ssA0"
+    ],
+    "name": "gsw_ssA0",
+    "units": "m/s",
+    "title": "Sound Speed",
+    "info": [
+      "TEOS-10"
+    ]
+  },
+  {
+    "aliases": [
+      "specificVolume",
+      "gsw_specvolA0"
+    ],
+    "name": "gsw_specvolA0",
+    "units": "m^3/kg",
+    "title": "Specific Volume",
+    "info": [
+      "TEOS-10"
+    ]
+  },
+  {
+    "aliases": [
+      "specificVolumeAnomaly",
+      "gsw_svolanomA0"
+    ],
+    "name": "gsw_svolanomA0",
+    "units": "m^3/kg",
+    "title": "Specific Volume Anomaly",
+    "info": [
+      "TEOS-10"
+    ]
+  },
+  {
+    "aliases": [
+      "temperatureFreezing",
+      "gsw_tfA0"
+    ],
+    "name": "gsw_tfA0",
+    "units": "deg C",
+    "title": "Temperature Freezing",
+    "info": [
+      "ITS-90"
+    ]
+  },
+  {
+    "aliases": [
+      "thermalExpansionCoefficient",
+      "gsw_alphaA0"
+    ],
+    "name": "gsw_alphaA0",
+    "units": "1/K",
+    "title": "Thermal Expansion Coefficient",
+    "info": []
+  },
+  {
+    "aliases": [
+      "SUNAuM"
+    ],
+    "name": "SUNAuM",
+    "units": "μM NO3",
+    "title": "Nitrate",
+    "info": []
+  },
+  {
+    "aliases": [
+      "SUNAmgN/L"
+    ],
+    "name": "SUNAmgNL",
+    "units": "mgN/L",
+    "title": "Nitrogen",
+    "info": []
+  },
+  {
+    "aliases": [
+      "SUNAV"
+    ],
+    "name": "SUNAV",
+    "units": "V",
+    "title": "SUNA Raw Voltage",
+    "info": []
+  },
+  {
+    "aliases": [
+      "ECObackscattering880"
+    ],
+    "name": "ECObackscattering880",
+    "units": "",
+    "title": "ECO Backscattering 880",
+    "info": []
+  },
+  {
+    "aliases": [
+      "ECObackscattering870"
+    ],
+    "name": "ECObackscattering870",
+    "units": "",
+    "title": "ECO Backscattering 870",
+    "info": []
+  },
+  {
+    "aliases": [
+      "ECObackscattering780"
+    ],
+    "name": "ECObackscattering780",
+    "units": "",
+    "title": "ECO Backscattering 780",
+    "info": []
+  },
+  {
+    "aliases": [
+      "ECObackscattering770"
+    ],
+    "name": "ECObackscattering770",
+    "units": "",
+    "title": "ECO Backscattering 770",
+    "info": []
+  },
+  {
+    "aliases": [
+      "ECObackscattering720"
+    ],
+    "name": "ECObackscattering720",
+    "units": "",
+    "title": "ECO Backscattering 720",
+    "info": []
+  },
+  {
+    "aliases": [
+      "ECObackscattering715"
+    ],
+    "name": "ECObackscattering715",
+    "units": "",
+    "title": "ECO Backscattering 715",
+    "info": []
+  },
+  {
+    "aliases": [
+      "ECObackscattering700"
+    ],
+    "name": "ECObackscattering700",
+    "units": "",
+    "title": "ECO Backscattering 700",
+    "info": []
+  },
+  {
+    "aliases": [
+      "ECObackscattering676"
+    ],
+    "name": "ECObackscattering676",
+    "units": "",
+    "title": "ECO Backscattering 676",
+    "info": []
+  },
+  {
+    "aliases": [
+      "ECObackscattering650"
+    ],
+    "name": "ECObackscattering650",
+    "units": "",
+    "title": "ECO Backscattering 650",
+    "info": []
+  },
+  {
+    "aliases": [
+      "ECObackscattering630"
+    ],
+    "name": "ECObackscattering630",
+    "units": "",
+    "title": "ECO Backscattering 630",
+    "info": []
+  },
+  {
+    "aliases": [
+      "ECObackscattering595"
+    ],
+    "name": "ECObackscattering595",
+    "units": "",
+    "title": "ECO Backscattering 595",
+    "info": []
+  },
+  {
+    "aliases": [
+      "ECObackscattering532"
+    ],
+    "name": "ECObackscattering532",
+    "units": "",
+    "title": "ECO Backscattering 532",
+    "info": []
+  },
+  {
+    "aliases": [
+      "ECObackscattering530"
+    ],
+    "name": "ECObckscattering530",
+    "units": "",
+    "title": "ECO Backscattering 530",
+    "info": []
+  },
+  {
+    "aliases": [
+      "ECObackscattering510"
+    ],
+    "name": "ECObackscattering510",
+    "units": "",
+    "title": "ECO Backscattering 510",
+    "info": []
+  },
+  {
+    "aliases": [
+      "ECObackscattering488"
+    ],
+    "name": "ECObackscattering488",
+    "units": "",
+    "title": "ECO Backscattering 488",
+    "info": []
+  },
+  {
+    "aliases": [
+      "ECObackscattering470"
+    ],
+    "name": "ECObackscattering470",
+    "units": "",
+    "title": "ECO Backscattering 470",
+    "info": []
+  },
+  {
+    "aliases": [
+      "ECObackscattering440"
+    ],
+    "name": "ECObackscattering440",
+    "units": "",
+    "title": "ECO Backscattering 440",
+    "info": []
+  },
+  {
+    "aliases": [
+      "ECObackscattering412"
+    ],
+    "name": "ECObackscattering412",
+    "units": "",
+    "title": "ECO Backscattering 412",
+    "info": []
+  },
+  {
+    "aliases": [
+      "ECOFDOM"
+    ],
+    "name": "ECOFDOM",
+    "units": "",
+    "title": "ECO FDOM",
+    "info": []
+  },
+  {
+    "aliases": [
+      "ECOFLUR"
+    ],
+    "name": "ECOFLUR",
+    "units": "",
+    "title": "ECO FLUR",
+    "info": []
+  },
+  {
+    "aliases": [
+      "ECOFLRH"
+    ],
+    "name": "ECOFLRH",
+    "units": "",
+    "title": "ECO FLRH",
+    "info": []
+  },
+  {
+    "aliases": [
+      "ECOFLPE"
+    ],
+    "name": "ECOFLPE",
+    "units": "",
+    "title": "ECO FLPE",
+    "info": []
+  },
+  {
+    "aliases": [
+      "ECOFLPC"
+    ],
+    "name": "ECOFLPC",
+    "units": "",
+    "title": "ECO FLPC",
+    "info": []
+  },
+  {
+    "aliases": [
+      "ECOCHL435"
+    ],
+    "name": "ECOCHL435",
+    "units": "",
+    "title": "ECO CHL-435",
+    "info": []
+  },
+  {
+    "aliases": [
+      "ECOCHL470"
+    ],
+    "name": "ECOCHL470",
+    "units": "",
+    "title": "ECO CHL-470",
+    "info": []
+  },
+  {
+    "aliases": [
+      "SBE911ConfirmStatus"
+    ],
+    "name": "SBE911ConfirmStatus",
+    "units": "",
+    "title": "G.O. 1015 water sampler interface confirm signal or manual pump control signal",
+    "info": []
+  },
+  {
+    "aliases": [
+      "SBE911ModemStatus"
+    ],
+    "name": "SBE911ModemStatus",
+    "units": "",
+    "title": "CTD modem carrier sensed",
+    "info": []
+  },
+  {
+    "aliases": [
+      "flag"
+    ],
+    "name": "flag",
+    "units": "",
+    "title": "Flag",
+    "info": []
+  },
+  {
+    "aliases": [
+      "scanId"
+    ],
+    "name": "scanId",
+    "units": "",
+    "title": "Scan ID",
+    "info": []
+  },
+  {
+    "aliases": [
+      "castId"
+    ],
+    "name": "castId",
+    "units": "",
+    "title": "Cast ID",
+    "info": []
+  },
+  {
+    "aliases": [
+      "bottleId"
+    ],
+    "name": "bottleId",
+    "units": "",
+    "title": "Bottle Position",
+    "info": []
+  },
+  {
+    "aliases": [
+      "bottleVerification"
+    ],
+    "name": "bottleVerification",
+    "units": "",
+    "title": "Bottle Verification",
+    "info": []
+  },
+  {
+    "aliases": [
+      "rawScan"
+    ],
+    "name": "rawScan",
+    "units": "",
+    "title": "Raw Scan",
+    "info": []
+  },
+  {
+    "aliases": [
+      "marked"
+    ],
+    "name": "marked",
+    "units": "",
+    "title": "Marked",
+    "info": []
+  },
+  {
+    "aliases": [
+      "metadata"
+    ],
+    "name": "metadata",
+    "units": "",
+    "title": "Metadata",
+    "info": []
+  }
+]
