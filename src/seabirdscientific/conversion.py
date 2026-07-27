@@ -31,9 +31,9 @@ def convert_temperature(
     :param temperature_counts_in: temperature value to convert in A/D
         counts
     :param coefs: calibration coefficients for the temperature sensor
-    :param standard: whether to use ITS90 or to use IPTS-68 calibration
+    :param standard: whether to convert to ITS90 or IPTS-68 calibration
         standard
-    :param units: whether to use celsius or to convert to fahrenheit
+    :param units: whether to convert to celsius or fahrenheit
     :param use_mv_r: true to perform extra conversion steps required by
         some instruments (check the cal sheet to see if this is required)
 
@@ -52,7 +52,7 @@ def convert_temperature(
         1 / (coefs.a0 + coefs.a1 * log_t + coefs.a2 * log_t**2 + coefs.a3 * log_t**3)
     ) - const.KELVIN_OFFSET_0C
 
-    temperature = convert_temperature_units(temperature, standard, units, "ITS90", "C")
+    temperature = convert_temperature_units(temperature, "ITS90", "C", standard, units)
 
     return temperature
 
@@ -68,14 +68,14 @@ def convert_temperature_units(
     """
     _temperature = temperature.copy()
     if from_standard == "ITS90" and to_standard == "IPTS68":
-        _temperature /= const.ITS90_TO_IPTS68
-    elif from_standard == "IPTS68" and to_standard == "ITS90":
         _temperature *= const.ITS90_TO_IPTS68
+    elif from_standard == "IPTS68" and to_standard == "ITS90":
+        _temperature /= const.ITS90_TO_IPTS68
 
     if from_units == "F" and to_units =="C":
-        _temperature = _temperature * 9 / 5 + 32
-    if from_units == "C" and to_units =="F":
         _temperature = (_temperature - 32) * 5 / 9
+    if from_units == "C" and to_units =="F":
+        _temperature = _temperature * 9 / 5 + 32
 
     return _temperature
 
@@ -98,10 +98,7 @@ def convert_temperature_frequency(
         - const.KELVIN_OFFSET_0C
     )
 
-    if standard == "IPTS68":
-        temperature *= const.ITS90_TO_IPTS68
-    if units == "F":
-        temperature = temperature * 9 / 5 + 32  # Convert C to F
+    temperature = convert_temperature_units(temperature, "ITS90", "C", standard, units)
 
     return temperature
 
