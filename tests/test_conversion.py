@@ -851,20 +851,20 @@ class TestAltimeter:
 
 
 class TestCstar:
-    def test_CSTAR_attenuation(self, request):
+    def test_cstar_attenuation(self, request):
         raw = np.array([3.7186, 4.3632, 4.2264])
         expected = np.array([0.9273, 0.2869, 0.4145])  # from SBE data processing
 
-        result = dc.convert_CSTAR_attenuation(raw, tc.CSTAR_coefs)
+        result = dc.convert_cstar_attenuation(raw, tc.CSTAR_coefs)
 
         request.node.return_value = result.tolist()
         assert np.allclose(expected, result, rtol=0, atol=1e-4)
 
-    def test_CSTAR_transmittance(self, request):
+    def test_cstar_transmittance(self, request):
         raw = np.array([3.7186, 4.3632, 4.2264])
         expected = np.array([79.3092, 93.0779, 90.1573])  # from SBE data processing
 
-        result = dc.convert_CSTAR_transmittance(raw, tc.CSTAR_coefs)
+        result = dc.convert_cstar_transmittance(raw, tc.CSTAR_coefs)
 
         request.node.return_value = result.tolist()
         assert np.allclose(expected, result, rtol=0, atol=1e-3)

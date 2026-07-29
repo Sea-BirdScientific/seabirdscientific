@@ -1179,15 +1179,15 @@ def convert_altimeter(
     return height
 
 
-def convert_CSTAR_attenuation(raw: np.ndarray, coefs: cc.CstarCoefficients):
+def convert_cstar_attenuation(raw: np.ndarray, coefs: cc.CstarCoefficients):
     """Converts C-Star raw voltage to attenuation.
 
     All equation information comes from SBE Data Processing code.
 
     See applicaiton note 91 for calculating m and b coefficients.
 
-    :param raw: raw output voltage from CSTAR sensor
-    :param coefs: m, b, and path_length [m] for C-STAR sensor
+    :param raw: raw output voltage from C-Star sensor
+    :param coefs: m, b, and path_length [m] for C-Star sensor
 
     :return: converted attenuation in %
     """
@@ -1198,15 +1198,15 @@ def convert_CSTAR_attenuation(raw: np.ndarray, coefs: cc.CstarCoefficients):
     return attenuation
 
 
-def convert_CSTAR_transmittance(raw: np.ndarray, coefs: cc.CstarCoefficients):
+def convert_cstar_transmittance(raw: np.ndarray, coefs: cc.CstarCoefficients):
     """Converts C-Star raw voltage to transmittance.
 
     All equation information comes from SBE Data Processing code.
 
     See applicaiton note 91 for calculating m and b coefficients.
 
-    :param raw: raw output voltage from CSTAR sensor
-    :param coefs: m and b coefficients for C-STAR sensor
+    :param raw: raw output voltage from C-Star sensor
+    :param coefs: m and b coefficients for C-Star sensor
 
     :return: converted transmittance in 1/m
     """
