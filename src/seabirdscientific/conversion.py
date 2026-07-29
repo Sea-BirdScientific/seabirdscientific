@@ -17,6 +17,28 @@ import seabirdscientific.constants as const
 from seabirdscientific import eos80_conversion as eos80
 
 
+def convert_temperature_units(
+    temperature: np.ndarray,
+    from_standard: Literal["ITS90", "IPTS68"],
+    from_units: Literal["C", "F"],
+    to_standard: Literal["ITS90", "IPTS68"] = "ITS90",
+    to_units: Literal["C", "F"] = "C",
+):
+    """Convert temperature units between C, F, ITS90, and IPTS68"""
+    _temperature = temperature.copy()
+    if from_standard == "ITS90" and to_standard == "IPTS68":
+        _temperature *= const.ITS90_TO_IPTS68
+    elif from_standard == "IPTS68" and to_standard == "ITS90":
+        _temperature /= const.ITS90_TO_IPTS68
+
+    if from_units == "F" and to_units == "C":
+        _temperature = (_temperature - 32) * 5 / 9
+    if from_units == "C" and to_units == "F":
+        _temperature = _temperature * 9 / 5 + 32
+
+    return _temperature
+
+
 def convert_temperature(
     temperature_counts_in: np.ndarray,
     coefs: cc.TemperatureCoefficients,
@@ -57,29 +79,6 @@ def convert_temperature(
     return temperature
 
 
-def convert_temperature_units(
-    temperature: np.ndarray,
-    from_standard: Literal["ITS90", "IPTS68"],
-    from_units: Literal["C", "F"],
-    to_standard: Literal["ITS90", "IPTS68"] = "ITS90",
-    to_units: Literal["C", "F"] = "C",
-):
-    """Convert temperature units between C, F, ITS90, and IPTS68
-    """
-    _temperature = temperature.copy()
-    if from_standard == "ITS90" and to_standard == "IPTS68":
-        _temperature *= const.ITS90_TO_IPTS68
-    elif from_standard == "IPTS68" and to_standard == "ITS90":
-        _temperature /= const.ITS90_TO_IPTS68
-
-    if from_units == "F" and to_units =="C":
-        _temperature = (_temperature - 32) * 5 / 9
-    if from_units == "C" and to_units =="F":
-        _temperature = _temperature * 9 / 5 + 32
-
-    return _temperature
-
-
 def convert_temperature_frequency(
     frequency: np.ndarray,
     coefs: cc.TemperatureFrequencyCoefficients,
@@ -103,6 +102,32 @@ def convert_temperature_frequency(
     return temperature
 
 
+def convert_pressure_units(
+    pressure: np.ndarray,
+    from_units: Literal["dbar", "psia", "psig"],
+    to_units: Literal["dbar", "psia", "psig"] = "psia",
+) -> np.ndarray:
+    _pressure = pressure.copy()
+
+    # if units == "dbar" or units == "psig":
+    #     pressure -= sea_level_pressure
+
+    # if units == "dbar":
+    #     pressure *= const.PSI_TO_DBAR
+
+    if from_units == "psia" and to_units in ("dbar", "psig"):
+        pressure -= const.SEA_LEVEL_PRESSURE
+    elif from_units in ("dbar", "psig") and to_units == "psia":
+        pressure += const.SEA_LEVEL_PRESSURE
+
+    if from_units in ("psia", "psig") and to_units == "dbar":
+        pressure *= const.PSI_TO_DBAR
+    elif from_units == "dbar" and to_units in ("psia", "psig"):
+        pressure /= const.PSI_TO_DBAR
+
+    return pressure
+
+
 def convert_pressure(
     pressure_count: np.ndarray,
     compensation_voltage: np.ndarray,
@@ -123,7 +148,6 @@ def convert_pressure(
 
     :return: sea pressure val in dbar or PSIG
     """
-    sea_level_pressure = 14.7
 
     t = (
         coefs.ptempa0
@@ -134,11 +158,7 @@ def convert_pressure(
     n = x * coefs.ptcb0 / (coefs.ptcb0 + coefs.ptcb1 * t + coefs.ptcb2 * t**2)
     pressure = coefs.pa0 + coefs.pa1 * n + coefs.pa2 * n**2
 
-    if units == "dbar" or units == "psig":
-        pressure -= sea_level_pressure
-
-    if units == "dbar":
-        pressure *= const.PSI_TO_DBAR
+    pressure = convert_pressure_units(pressure, "psia", units)
 
     return pressure
 
@@ -167,7 +187,7 @@ def convert_pressure_digiquartz(
         temperature compensation correction, in seconds
     :return: pressure val in PSIA or dbar
     """
-    sea_level_pressure = 14.7
+
     # First, average temperature compensation over 30 seconds
     max_scans_in_30_seconds = 720
     scans_in_window = math.floor(30 / sample_interval)
@@ -175,8 +195,10 @@ def convert_pressure_digiquartz(
     scans_in_window = min(scans_in_window, max_scans_in_30_seconds)
 
     rolling_sum = compensation_voltage[0] * scans_in_window
-    modified_compensation_voltage = compensation_voltage.copy()
+    # using a short name to make the equations a little easier to read
+    v = compensation_voltage.copy()
 
+    # TODO vectorize this in TKIT-200
     for i in range(0, len(compensation_voltage)):
         if i < scans_in_window:
             # remove a copy of 0-index value from rolling sum
@@ -186,34 +208,21 @@ def convert_pressure_digiquartz(
             rolling_sum -= compensation_voltage[i - scans_in_window]
 
         rolling_sum += compensation_voltage[i]
-        modified_compensation_voltage[i] = (
-            rolling_sum / scans_in_window * coefs.AD590M + coefs.AD590B
-        )
+        v[i] = rolling_sum / scans_in_window * coefs.ad590m + coefs.ad590b
 
     # Now, calculate pressure
+    t = 1 / pressure_count * 1e6  # convert to period in usec
+    c = coefs.c1 + coefs.c2 * v + coefs.c3 * v**2
+    d = coefs.d1 + coefs.d2 * v
+    t0 = coefs.t1 + coefs.t2 * v + coefs.t3 * v**2 + coefs.t4 * v**3 + coefs.t5 * v**4
 
-    t = 1 / pressure_count * 1000000  # convert to period in usec
-    c = (
-        coefs.c1
-        + coefs.c2 * modified_compensation_voltage
-        + coefs.c3 * modified_compensation_voltage**2
-    )
-    d = coefs.d1 + coefs.d2 * modified_compensation_voltage
-    t0 = (
-        coefs.t1
-        + coefs.t2 * modified_compensation_voltage
-        + coefs.t3 * modified_compensation_voltage**2
-        + coefs.t4 * modified_compensation_voltage**3
-        + coefs.t5 * modified_compensation_voltage**4
-    )
+    one_minus_t_ratio = 1 - (t0**2) / (t**2)
+    # p is absolute pressure according to Paroscientific cal sheet
+    p = c * one_minus_t_ratio * (1 - d * one_minus_t_ratio)
 
-    t0_squared_over_t_squared = (t0**2) / (t**2)
-    one_minus_ratio = 1 - t0_squared_over_t_squared
-    p = c * one_minus_ratio * (1 - d * one_minus_ratio)
-    abs_pressure = p - sea_level_pressure
-    if units == "dbar":
-        abs_pressure *= const.PSI_TO_DBAR
-    return abs_pressure
+    pressure = convert_pressure_units(p, "psia", units)
+
+    return pressure
 
 
 def convert_conductivity(
@@ -1228,7 +1237,7 @@ def buoyancy(
     window_size: float,
     use_modern_formula=True,
     flag_value=const.FLAG_VALUE,
-) -> xr.Dataset:
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """Calculates the 4 buoyancy values based off the incoming data.
 
     Data is expected to have already been binned via Bin_Average using
