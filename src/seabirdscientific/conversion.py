@@ -14,6 +14,7 @@ from scipy import stats
 # Sea-Bird imports
 import seabirdscientific.cal_coefficients as cc
 import seabirdscientific.constants as const
+import seabirdscientific.instrument_data as si
 from seabirdscientific import eos80_conversion as eos80
 
 
@@ -132,7 +133,7 @@ def convert_pressure(
     pressure_count: np.ndarray,
     compensation_voltage: np.ndarray,
     coefs: cc.PressureCoefficients,
-    units: Literal["dbar", "psia", "psig"] = "psig",
+    units: Literal["dbar", "psia", "psig"] = "psia",
 ):
     """Converts pressure counts to sea pressure (psig and dbar) and absolute pressure (psia)
 
@@ -143,10 +144,10 @@ def convert_pressure(
     :param compensation_voltage: pressure temperature compensation
         voltage, in counts or volts depending on the instrument
     :param coefs: calibration coefficients for the pressure sensor
-    :param units: whether or not to use psig or dbar as the returned
-        unit type
+    :param units: whether or not to use dbar, psig, or psia as the
+        returned unit type, defaults to psia
 
-    :return: sea pressure val in dbar or PSIG
+    :return: sea pressure val in dbar, psig, or psia according to units
     """
 
     t = (
@@ -167,25 +168,21 @@ def convert_pressure_digiquartz(
     pressure_count: np.ndarray,
     compensation_voltage: np.ndarray,
     coefs: cc.PressureDigiquartzCoefficients,
-    units: Literal["dbar", "psia"],
+    units: Literal["dbar", "psia", "psig"],
     sample_interval: float,
 ):
-    """Converts pressure counts to PSIA (pounds per square inch, abolute)
-    or dbar for a digiquartz pressure sensor.
-
-    pressure_count and compensation_voltage are expected to be raw data
-    from an instrument in A/D counts
+    """Converts pressure counts to PSIA (pounds per square inch,
+    abolute), PSIG, or dbar for a digiquartz pressure sensor.
 
     :param pressure_count: pressure value to convert, in A/D counts
-    :param compensation_voltage: pressure temperature compensation
-        voltage, in counts or volts depending on the instrument
+    :param compensation_voltage: pressure temperature, in A/D counts
     :param coefs: calibration coefficients for the digiquartz pressure
         sensor
-    :param units: whether or not to use psia or dbar as the returned
-        unit type
+    :param units: whether or not to use dbar, psig, or psia as the
+        returned unit type, defaults to psia
     :param sample_interval: sample rate of the data to be used for
         temperature compensation correction, in seconds
-    :return: pressure val in PSIA or dbar
+    :return: pressure val in dbar, psig, or psia according to units
     """
 
     # First, average temperature compensation over 30 seconds
@@ -225,14 +222,34 @@ def convert_pressure_digiquartz(
     return pressure
 
 
+def convert_conductivity_units(
+        conductivity: np.ndarray,
+        from_units: Literal["S/m", "mS/cm", "uS/cm"],
+        to_units: Literal["S/m", "mS/cm", "uS/cm"],
+) -> np.ndarray:
+    if from_units == "S/m" and to_units == "mS/cm":
+        return conductivity * 10
+    if from_units == "S/m" and to_units == "uS/cm":
+        return conductivity * 1e4
+    if from_units == "mS/cm" and to_units == "S/m":
+        return conductivity / 10
+    if from_units == "mS/cm" and to_units == "uS/cm":
+        return conductivity * 1000
+    if from_units == "uS/cm" and to_units == "S/m":
+        return conductivity / 1e4
+    if from_units == "uS/cm" and to_units == "mS/cm":
+        return conductivity / 1000
+
+
 def convert_conductivity(
     conductivity_count: np.ndarray,
     temperature: np.ndarray,
     pressure: np.ndarray,
     coefs: cc.ConductivityCoefficients,
-    scalar: float = 1.0,
+    instrument_type: si.InstrumentType,
+    units: Literal["S/m", "mS/cm", "uS/cm"] = "S/m"
 ):
-    """Converts raw conductivity counts to S/m.
+    """Converts raw conductivity counts to S/m, mS/cm, or uS/cm.
 
     Data is expected to be raw data from instrument in A/D counts
 
@@ -241,11 +258,24 @@ def convert_conductivity(
     :param temperature: reference temperature, in degrees C
     :param pressure: reference pressure, in dbar
     :param coefs: calibration coefficient for the conductivity sensor
-    :param scalar: value to multiply by at the end. For most instruments, this is 1. For SBE911, it is 1/10
+    :param instrument_type: the instrument that recorded conductivity
+    :param units: the conductivity units to convert to, defaults to S/m
 
     :return: conductivity val converted to S/m
     """
-    f = conductivity_count * np.sqrt(1 + coefs.wbotc * temperature) / 1000
+    scalar = 1
+    if instrument_type == si.InstrumentType.SBE911Plus:
+        scalar = 1/10
+
+    if instrument_type in (
+        si.InstrumentType.SBE16Plus,
+        si.InstrumentType.SBE19Plus,
+        si.InstrumentType.SBE911Plus,
+    ):
+        f = conductivity_count / 1000
+    else:
+        f = conductivity_count * np.sqrt(1 + coefs.wbotc * temperature) / 1000
+
     numerator = coefs.g + coefs.h * f**2 + coefs.i * f**3 + coefs.j * f**4
     denominator = 1 + coefs.ctcor * temperature + coefs.cpcor * pressure
     return numerator / denominator * scalar
