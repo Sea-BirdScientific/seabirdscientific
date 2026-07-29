@@ -1286,3 +1286,54 @@ def buoyancy(
 
     return (buoyancy_freq_squared, buoyancy_freq, stability, scaled_stability)
 
+def derive_descent_rate(
+        depth: np.ndarray,
+        window_size: float,
+        sample_interval: float,
+) -> np.ndarray:
+    """Derives the descent rate from the depth values.
+    
+    :param depth: Depth values in meters or feet.
+    :param window_size: Window size to use for the derivative calculation in seconds
+    :param sample_interval: Sample interval in seconds
+
+    :return: np.ndarray of descent rate values in meters per second or feet per second, depending on the input depth units.
+    """
+    # TODO: slightly different calculation from sbe data processing, but this is was more simple
+
+    # Calculate the number of samples to include in the window based on the sample interval
+    samples_per_window = max(int(window_size / sample_interval), 1)
+
+    # Calculate the descent rate using a centered difference method
+    descent_rate = np.full(len(depth), np.nan)  # Initialize with NaN for edge cases
+
+    for i in range(samples_per_window, len(depth) - samples_per_window):
+        # Centered difference calculation
+        descent_rate[i] = (depth[i + samples_per_window] - depth[i - samples_per_window]) / (2 * samples_per_window * sample_interval)
+
+    return descent_rate
+
+def derive_acceleration(
+        depth: np.ndarray,
+        window_size: float,
+        sample_interval: float,
+) -> np.ndarray:
+    """Derives the acceleration from the depth values.
+    
+    :param depth: Depth values in meters or feet.
+    :param window_size: Window size to use for the derivative calculation in seconds
+    :param sample_interval: Sample interval in seconds
+
+    :return: np.ndarray of acceleration values in meters per second squared or feet per second squared, depending on the input depth units.
+    """
+    # Calculate the number of samples to include in the window based on the sample interval
+    samples_per_window = max(int(window_size / sample_interval), 1)
+
+    # Calculate the acceleration using a centered difference method
+    acceleration = np.full(len(depth), np.nan)  # Initialize with NaN for edge cases
+
+    for i in range(samples_per_window, len(depth) - samples_per_window):
+        # Centered difference calculation for acceleration
+        acceleration[i] = (depth[i + samples_per_window] - 2 * depth[i] + depth[i - samples_per_window]) / (samples_per_window * sample_interval) ** 2
+
+    return acceleration
