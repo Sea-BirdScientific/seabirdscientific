@@ -139,16 +139,16 @@ def compute_rolling_average(compute_var: np.ndarray, window_size: float, sample_
     if window_size <= 0:
         raise ValueError("Window size must be a positive integer.")
 
+    # Calculate the number of samples in the rolling window
+    num_samples = int(window_size / sample_interval)
+
     # Determine padding needed for both ends 
-    pad_before = window_size // 2
-    pad_after = window_size - 1 - pad_before
+    pad_before = num_samples // 2
+    pad_after = num_samples - 1 - pad_before
 
     # Pad the array using the edge values
     # This prevents the ends from dropping off or pulling toward zero
     padded_data = np.pad(compute_var, (pad_before, pad_after), mode='edge')
-    
-    # Calculate the number of samples in the rolling window
-    num_samples = int(window_size / sample_interval)
     
     # Compute the rolling average using numpy's convolve function
     weights = np.ones(num_samples) / num_samples

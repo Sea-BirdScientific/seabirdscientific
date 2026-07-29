@@ -15,6 +15,7 @@ from scipy import stats
 import seabirdscientific.cal_coefficients as cc
 import seabirdscientific.constants as const
 from seabirdscientific import eos80_conversion as eos80
+from seabirdscientific.utils import compute_rolling_average
 
 
 def convert_temperature(
@@ -151,27 +152,12 @@ def convert_pressure_digiquartz(
     :return: pressure val in PSIA or dbar
     """
     sea_level_pressure = 14.7
+    
     # First, average temperature compensation over 30 seconds
-    max_scans_in_30_seconds = 720
-    scans_in_window = math.floor(30 / sample_interval)
-    scans_in_window = max(scans_in_window, 1)
-    scans_in_window = min(scans_in_window, max_scans_in_30_seconds)
+    def modification_function(x):
+        return x * coefs.AD590M + coefs.AD590B
 
-    rolling_sum = compensation_voltage[0] * scans_in_window
-    modified_compensation_voltage = compensation_voltage.copy()
-
-    for i in range(0, len(compensation_voltage)):
-        if i < scans_in_window:
-            # remove a copy of 0-index value from rolling sum
-            rolling_sum -= compensation_voltage[0]
-        else:
-            # remove oldest value from rolling sum
-            rolling_sum -= compensation_voltage[i - scans_in_window]
-
-        rolling_sum += compensation_voltage[i]
-        modified_compensation_voltage[i] = (
-            rolling_sum / scans_in_window * coefs.AD590M + coefs.AD590B
-        )
+    modified_compensation_voltage = compute_rolling_average(compensation_voltage, 30, sample_interval, modification_function)
 
     # Now, calculate pressure
 
@@ -1299,3 +1285,4 @@ def buoyancy(
         scaled_stability[i] = stability[i] * 1e8
 
     return (buoyancy_freq_squared, buoyancy_freq, stability, scaled_stability)
+
