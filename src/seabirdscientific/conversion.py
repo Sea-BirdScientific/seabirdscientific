@@ -225,20 +225,22 @@ def convert_pressure_digiquartz(
 def convert_conductivity_units(
         conductivity: np.ndarray,
         from_units: Literal["S/m", "mS/cm", "uS/cm"],
-        to_units: Literal["S/m", "mS/cm", "uS/cm"],
+        to_units: Literal["S/m", "mS/cm", "uS/cm"] = "S/m",
 ) -> np.ndarray:
     if from_units == "S/m" and to_units == "mS/cm":
         return conductivity * 10
-    if from_units == "S/m" and to_units == "uS/cm":
+    elif from_units == "S/m" and to_units == "uS/cm":
         return conductivity * 1e4
-    if from_units == "mS/cm" and to_units == "S/m":
+    elif from_units == "mS/cm" and to_units == "S/m":
         return conductivity / 10
-    if from_units == "mS/cm" and to_units == "uS/cm":
+    elif from_units == "mS/cm" and to_units == "uS/cm":
         return conductivity * 1000
-    if from_units == "uS/cm" and to_units == "S/m":
+    elif from_units == "uS/cm" and to_units == "S/m":
         return conductivity / 1e4
-    if from_units == "uS/cm" and to_units == "mS/cm":
+    elif from_units == "uS/cm" and to_units == "mS/cm":
         return conductivity / 1000
+    else:
+        return conductivity
 
 
 def convert_conductivity(
@@ -278,7 +280,8 @@ def convert_conductivity(
 
     numerator = coefs.g + coefs.h * f**2 + coefs.i * f**3 + coefs.j * f**4
     denominator = 1 + coefs.ctcor * temperature + coefs.cpcor * pressure
-    return numerator / denominator * scalar
+    conductivity = convert_conductivity_units(numerator / denominator * scalar, "S/m", units)
+    return conductivity
 
 
 def potential_density_from_t_s_p(
@@ -847,9 +850,9 @@ def _calculate_nernst(temperature: np.ndarray) -> np.ndarray:
 
 
 def convert_internal_seafet_ph(
-    raw_ph: np.ndarray = 0,
-    temperature: np.ndarray = 0,
-    coefs: cc.PHSeaFETInternalCoefficients = cc.PHSeaFETInternalCoefficients(),
+    raw_ph: np.ndarray,
+    temperature: np.ndarray,
+    coefs: cc.PHSeaFETInternalCoefficients,
     ph_units: Literal["counts", "volts"] = "counts",
 ):
     """Calculates the internal pH on the total scale given the
@@ -1068,11 +1071,11 @@ def _hso4_compressibility(temperature: np.ndarray):
 
 
 def convert_external_seafet_ph(
-    raw_ph: np.ndarray = 0,
-    temperature: np.ndarray = 0,
-    salinity: np.ndarray = 0,
-    pressure: np.ndarray = 0,
-    coefs: cc.PHSeaFETExternalCoefficients = cc.PHSeaFETExternalCoefficients(),
+    raw_ph: np.ndarray,
+    temperature: np.ndarray,
+    salinity: np.ndarray,
+    pressure: np.ndarray,
+    coefs: cc.PHSeaFETExternalCoefficients,
     ph_units: Literal["counts", "volts"] = "counts",
     formula_version: Literal["legacy", "1.3"] = "1.3",
 ):

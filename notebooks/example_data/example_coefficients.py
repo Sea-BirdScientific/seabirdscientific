@@ -83,8 +83,8 @@ pressure_coefs_sn0936 = PressureDigiquartzCoefficients(
     t3=4.039850e-006,
     t4=3.117530e-009,
     t5=0,
-    AD590M=1.281400e-002,
-    AD590B=-9.348340e000,
+    ad590m=1.281400e-002,
+    ad590b=-9.348340e000,
 )
 
 conductivity_coefs_sn6130 = ConductivityCoefficients(

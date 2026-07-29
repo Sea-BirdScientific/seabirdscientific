@@ -306,21 +306,21 @@ class PHSeaFETExternalCoefficients:
         defaults to 6
     """
 
-    k0: float
-    k2: float
-    k2f0: float
-    k2f1: float
-    k2f2: float
-    k2f3: float
-    f0: float
-    f1: float
-    f2: float
-    f3: float
-    f4: float
-    f5: float
-    f6: float
-    k2_poly_order: int = 3
-    fp_poly_order: int = 6
+    k0: float = 0
+    k2: float = 0
+    k2f0: float = 0
+    k2f1: float = 0
+    k2f2: float = 0
+    k2f3: float = 0
+    f0: float = 0
+    f1: float = 0
+    f2: float = 0
+    f3: float = 0
+    f4: float = 0
+    f5: float = 0
+    f6: float = 0
+    k2_poly_order: int = 0
+    fp_poly_order: int = 0
 
 
 @dataclass
