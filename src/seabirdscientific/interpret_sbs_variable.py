@@ -24,8 +24,7 @@ class SBSVariable(TypedDict):
 
 
 def _build_lookup() -> dict:
-    """Build a lookup table of the variables in sbs_variables.json
-    """
+    """Build a lookup table of the variables in sbs_variables.json"""
     definitions_path = Path(__file__).parent / "resources" / "sbs_variables.json"
     lookup: dict = {}
     definitions = json.loads(definitions_path.read_text(encoding="utf-8"))

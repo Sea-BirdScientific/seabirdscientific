@@ -944,6 +944,7 @@ class TestBuoyancy:
         assert np.all(stability == expected_stability)
         assert np.all(scaled_stability == expected_scaled_stability)
 
+
 class TestDeriveDescentRateAcceleration:
     cnv_path = test_data / "SBE19plus_01906398_2019_07_15_0033-seasoft-convert-speeds.cnv"
     dataset = id.read_cnv_file(cnv_path)
@@ -951,21 +952,26 @@ class TestDeriveDescentRateAcceleration:
     depth_m = dataset["depSM"].values
     depth_f = dataset["depSF"].values
     desc_m = dataset["dz/dtM"].values
-    desc_f = dataset["dz/dtF"].values * 3.28084 # TODO: for some reason the dz/dtF returns meters/s too in SBE Data Proc
+    desc_f = (
+        dataset["dz/dtF"].values * 3.28084
+    )  # TODO: for some reason the dz/dtF returns meters/s too in SBE Data Proc
     acc_m = dataset["accM"].values
     acc_f = dataset["accF"].values
+
     def test_derive_descent_rate_meters(self):
         descent_rate_m = dc.derive_descent_rate(self.depth_m, 2, 0.25)
         assert np.allclose(descent_rate_m, self.desc_m, rtol=0, atol=1e-2)
+
     def test_derive_descent_rate_feet(self):
-            descent_rate_f = dc.derive_descent_rate(self.depth_f, 2, 0.25)
-            # TODO: SBE data processing is imprecise and returns a value that is slightly different than the expected value. The atol is set to 1e-1 to account for this.
-            assert np.allclose(descent_rate_f, self.desc_f, rtol=0, atol=1e-1)
+        descent_rate_f = dc.derive_descent_rate(self.depth_f, 2, 0.25)
+        # TODO: SBE data processing is imprecise and returns a value that is slightly different than the expected value. The atol is set to 1e-1 to account for this.
+        assert np.allclose(descent_rate_f, self.desc_f, rtol=0, atol=1e-1)
+
     def test_derive_acc_meters(self):
-            acc_m = dc.derive_acceleration(self.depth_m, 2, 0.25)
-            assert np.allclose(acc_m, self.acc_m, rtol=0, atol=1e-2)
+        acc_m = dc.derive_acceleration(self.depth_m, 2, 0.25)
+        assert np.allclose(acc_m, self.acc_m, rtol=0, atol=1e-2)
+
     def test_derive_acc_feet(self):
-            acc_f = dc.derive_acceleration(self.depth_f, 2, 0.25)
-            # TODO: SBE data processing is imprecise and returns a value that is slightly different than the expected value. The atol is set to 1e-1 to account for this.
-            assert np.allclose(acc_f, self.acc_f, rtol=0, atol=1e-1)
-        
+        acc_f = dc.derive_acceleration(self.depth_f, 2, 0.25)
+        # TODO: SBE data processing is imprecise and returns a value that is slightly different than the expected value. The atol is set to 1e-1 to account for this.
+        assert np.allclose(acc_f, self.acc_f, rtol=0, atol=1e-1)

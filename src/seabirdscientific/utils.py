@@ -126,7 +126,13 @@ class WarnAllMembersMeta(EnumMeta):
             warnings.warn(f"{cls.__name__}.{name} is deprecated", DeprecationWarning, stacklevel=2)
         return obj
 
-def compute_rolling_average(compute_var: np.ndarray, window_size: float, sample_interval: float, modification_fn: callable = None) -> np.ndarray:
+
+def compute_rolling_average(
+    compute_var: np.ndarray,
+    window_size: float,
+    sample_interval: float,
+    modification_fn: callable = None,
+) -> np.ndarray:
     """Computes a rolling average of the given variable over the specified window size.
     Averages with equal number values on either side of the center of each window.
 
@@ -143,20 +149,20 @@ def compute_rolling_average(compute_var: np.ndarray, window_size: float, sample_
     # Calculate the number of samples in the rolling window
     num_samples = int(window_size / sample_interval)
 
-    # Determine padding needed for both ends 
+    # Determine padding needed for both ends
     pad_before = num_samples // 2
     pad_after = num_samples - 1 - pad_before
 
     # Pad the array using the edge values
     # This prevents the ends from dropping off or pulling toward zero
-    padded_data = np.pad(compute_var, (pad_before, pad_after), mode='edge')
-    
+    padded_data = np.pad(compute_var, (pad_before, pad_after), mode="edge")
+
     # Compute the rolling average using numpy's convolve function
     weights = np.ones(num_samples) / num_samples
-    rolling_avg = np.convolve(padded_data, weights, mode='valid')
-    
+    rolling_avg = np.convolve(padded_data, weights, mode="valid")
+
     # Apply the modification function if provided
     if modification_fn is not None:
         rolling_avg = modification_fn(rolling_avg)
-    
+
     return rolling_avg

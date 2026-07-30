@@ -152,12 +152,14 @@ def convert_pressure_digiquartz(
     :return: pressure val in PSIA or dbar
     """
     sea_level_pressure = 14.7
-    
+
     # First, average temperature compensation over 30 seconds
     def modification_function(x):
         return x * coefs.AD590M + coefs.AD590B
 
-    modified_compensation_voltage = compute_rolling_average(compensation_voltage, 30, sample_interval, modification_function)
+    modified_compensation_voltage = compute_rolling_average(
+        compensation_voltage, 30, sample_interval, modification_function
+    )
 
     # Now, calculate pressure
 
@@ -1286,13 +1288,14 @@ def buoyancy(
 
     return (buoyancy_freq_squared, buoyancy_freq, stability, scaled_stability)
 
+
 def derive_descent_rate(
-        depth: np.ndarray,
-        window_size: float,
-        sample_interval: float,
+    depth: np.ndarray,
+    window_size: float,
+    sample_interval: float,
 ) -> np.ndarray:
     """Derives the descent rate from the depth values.
-    
+
     :param depth: Depth values in meters or feet.
     :param window_size: Window size to use for the derivative calculation in seconds
     :param sample_interval: Sample interval in seconds
@@ -1311,18 +1314,22 @@ def derive_descent_rate(
 
     for i in range(samples_per_side, len(depth) - samples_per_side):
         # linear regression for descent rate on subset of depth and time
-        slope, _, _, _, _ = stats.linregress(time_array[i - samples_per_side:i + samples_per_side + 1], depth[i - samples_per_side:i + samples_per_side + 1])
+        slope, _, _, _, _ = stats.linregress(
+            time_array[i - samples_per_side : i + samples_per_side + 1],
+            depth[i - samples_per_side : i + samples_per_side + 1],
+        )
         descent_rate[i] = slope
 
     return descent_rate
 
+
 def derive_acceleration(
-        depth: np.ndarray,
-        window_size: float,
-        sample_interval: float,
+    depth: np.ndarray,
+    window_size: float,
+    sample_interval: float,
 ) -> np.ndarray:
     """Derives the acceleration from the depth values.
-    
+
     :param depth: Depth values in meters or feet.
     :param window_size: Window size to use for the derivative calculation in seconds
     :param sample_interval: Sample interval in seconds
