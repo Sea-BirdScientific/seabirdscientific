@@ -1388,15 +1388,15 @@ def derive_oxygen_saturation_w(
     # Note: SBE Data Processing returns -99 for t < -5, t > 50, s < 0, and s > 60
     t0 = temperature + const.KELVIN_OFFSET_0C
 
-    t1 = 0 if t0 < 0 else 100.0 / t0
+    t1 = np.where(t0 > 0, 100.0 / t0, 0)
     t2 = t0 / 100.0
 
     A1 = -173.4292
     A2 = 249.6339
     A3 = 143.3483
-    A4 =  -21.8492
-    B1 =  -0.033096
-    B2 =  0.014259
+    A4 = -21.8492
+    B1 = -0.033096
+    B2 = 0.014259
     B3 = -0.00170
 
     ox_sol = A1 + A2 * t1 + A3 * np.log(t2) + A4 * t2 + salinity * (B1 + B2 * t2 + B3 * t2 * t2);
