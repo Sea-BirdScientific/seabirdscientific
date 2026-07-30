@@ -1302,14 +1302,17 @@ def derive_descent_rate(
     # TODO: slightly different calculation from sbe data processing, but this is was more simple
 
     # Calculate the number of samples to include in the window based on the sample interval
-    samples_per_window = max(int(window_size / sample_interval), 1)
+    samples_per_window = max(int(window_size / sample_interval + 1), 1)
+    samples_per_side = max(int(samples_per_window // 2), 1)
+    time_array = np.arange(len(depth)) * sample_interval
 
     # Calculate the descent rate using a centered difference method
-    descent_rate = np.full(len(depth), np.nan)  # Initialize with NaN for edge cases
+    descent_rate = np.full(len(depth), 0.0)  # Initialize with 0 for edge cases
 
-    for i in range(samples_per_window, len(depth) - samples_per_window):
-        # Centered difference calculation
-        descent_rate[i] = (depth[i + samples_per_window] - depth[i - samples_per_window]) / (2 * samples_per_window * sample_interval)
+    for i in range(samples_per_side, len(depth) - samples_per_side):
+        # linear regression for descent rate on subset of depth and time
+        slope, _, _, _, _ = stats.linregress(time_array[i - samples_per_side:i + samples_per_side + 1], depth[i - samples_per_side:i + samples_per_side + 1])
+        descent_rate[i] = slope
 
     return descent_rate
 
@@ -1327,13 +1330,13 @@ def derive_acceleration(
     :return: np.ndarray of acceleration values in meters per second squared or feet per second squared, depending on the input depth units.
     """
     # Calculate the number of samples to include in the window based on the sample interval
-    samples_per_window = max(int(window_size / sample_interval), 1)
+    descent_rate = derive_descent_rate(depth, window_size, sample_interval)
 
     # Calculate the acceleration using a centered difference method
-    acceleration = np.full(len(depth), np.nan)  # Initialize with NaN for edge cases
+    acceleration = np.full(len(depth), 0.0)  # Initialize with 0 for edge cases
 
-    for i in range(samples_per_window, len(depth) - samples_per_window):
-        # Centered difference calculation for acceleration
-        acceleration[i] = (depth[i + samples_per_window] - 2 * depth[i] + depth[i - samples_per_window]) / (samples_per_window * sample_interval) ** 2
+    for i in range(1, len(depth)):
+        # Follow SBE Processing calc: Acc = (DescentRate[i] - DescentRate[i-1]) / SampleInterval
+        acceleration[i] = (descent_rate[i] - descent_rate[i - 1]) / sample_interval
 
     return acceleration

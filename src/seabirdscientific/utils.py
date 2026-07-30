@@ -128,6 +128,7 @@ class WarnAllMembersMeta(EnumMeta):
 
 def compute_rolling_average(compute_var: np.ndarray, window_size: float, sample_interval: float, modification_fn: callable = None) -> np.ndarray:
     """Computes a rolling average of the given variable over the specified window size.
+    Averages with equal number values on either side of the center of each window.
 
     :param compute_var: The variable to compute the rolling average for.
     :param window_size: The size of the rolling window (in seconds).
