@@ -943,3 +943,30 @@ class TestBuoyancy:
         assert np.all(buoyancy_freq == expected_buoyancy_freq)
         assert np.all(stability == expected_stability)
         assert np.all(scaled_stability == expected_scaled_stability)
+
+
+class TestDeriveDescentRateAcceleration:
+    cnv_path = test_data / "SBE19plus_01906398_2019_07_15_0033-seasoft-convert-speeds.cnv"
+
+    @pytest.fixture
+    def source_data(self):
+        return id.read_cnv_file(self.cnv_path)
+
+    def test_derive_descent_rate_meters(self, source_data):
+        descent_rate_m = dc.derive_descent_rate(source_data["depSM"].values, 2, 0.25)
+        assert np.allclose(descent_rate_m, source_data["dz/dtM"].values, rtol=0, atol=1e-2)
+
+    def test_derive_descent_rate_feet(self, source_data):
+        descent_rate_f = dc.derive_descent_rate(source_data["depSF"].values, 2, 0.25)
+        # TODO: SBE data processing is imprecise and returns a value that is slightly different than the expected value. The atol is set to 1e-1 to account for this.
+        expected_dzdtF = source_data["dz/dtF"].values * 3.28084  # TODO: for some reason the dz/dtF returns meters/s too in SBE Data Proc
+        assert np.allclose(descent_rate_f, expected_dzdtF, rtol=0, atol=1e-1)
+
+    def test_derive_acc_meters(self, source_data):
+        acc_m = dc.derive_acceleration(source_data["depSM"].values, 2, 0.25)
+        assert np.allclose(acc_m, source_data["accM"].values, rtol=0, atol=1e-2)
+
+    def test_derive_acc_feet(self, source_data):
+        acc_f = dc.derive_acceleration(source_data["depSF"].values, 2, 0.25)
+        # TODO: SBE data processing is imprecise and returns a value that is slightly different than the expected value. The atol is set to 1e-1 to account for this.
+        assert np.allclose(acc_f, source_data["accF"].values, rtol=0, atol=1e-1)

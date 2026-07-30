@@ -15,6 +15,7 @@ from scipy import stats
 import seabirdscientific.cal_coefficients as cc
 import seabirdscientific.constants as const
 from seabirdscientific import eos80_conversion as eos80
+from seabirdscientific.utils import compute_rolling_average
 
 
 def convert_temperature(
@@ -151,27 +152,14 @@ def convert_pressure_digiquartz(
     :return: pressure val in PSIA or dbar
     """
     sea_level_pressure = 14.7
+
     # First, average temperature compensation over 30 seconds
-    max_scans_in_30_seconds = 720
-    scans_in_window = math.floor(30 / sample_interval)
-    scans_in_window = max(scans_in_window, 1)
-    scans_in_window = min(scans_in_window, max_scans_in_30_seconds)
+    def modification_function(x):
+        return x * coefs.AD590M + coefs.AD590B
 
-    rolling_sum = compensation_voltage[0] * scans_in_window
-    modified_compensation_voltage = compensation_voltage.copy()
-
-    for i in range(0, len(compensation_voltage)):
-        if i < scans_in_window:
-            # remove a copy of 0-index value from rolling sum
-            rolling_sum -= compensation_voltage[0]
-        else:
-            # remove oldest value from rolling sum
-            rolling_sum -= compensation_voltage[i - scans_in_window]
-
-        rolling_sum += compensation_voltage[i]
-        modified_compensation_voltage[i] = (
-            rolling_sum / scans_in_window * coefs.AD590M + coefs.AD590B
-        )
+    modified_compensation_voltage = compute_rolling_average(
+        compensation_voltage, 30, sample_interval, modification_function
+    )
 
     # Now, calculate pressure
 
@@ -1299,3 +1287,63 @@ def buoyancy(
         scaled_stability[i] = stability[i] * 1e8
 
     return (buoyancy_freq_squared, buoyancy_freq, stability, scaled_stability)
+
+
+def derive_descent_rate(
+    depth: np.ndarray,
+    window_size: float,
+    sample_interval: float,
+) -> np.ndarray:
+    """Derives the descent rate from the depth values.
+
+    :param depth: Depth values in meters or feet.
+    :param window_size: Window size to use for the derivative calculation in seconds
+    :param sample_interval: Sample interval in seconds
+
+    :return: np.ndarray of descent rate values in meters per second or feet per second, depending on the input depth units.
+    """
+    # TODO: slightly different calculation from sbe data processing, but this is was more simple
+
+    # Calculate the number of samples to include in the window based on the sample interval
+    samples_per_window = max(int(window_size / sample_interval + 1), 1)
+    samples_per_side = max(int(samples_per_window // 2), 1)
+    time_array = np.arange(len(depth)) * sample_interval
+
+    # Calculate the descent rate using a centered difference method
+    descent_rate = np.full(len(depth), 0.0)  # Initialize with 0 for edge cases
+
+    for i in range(samples_per_side, len(depth) - samples_per_side):
+        # linear regression for descent rate on subset of depth and time
+        slope, _, _, _, _ = stats.linregress(
+            time_array[i - samples_per_side : i + samples_per_side + 1],
+            depth[i - samples_per_side : i + samples_per_side + 1],
+        )
+        descent_rate[i] = slope
+
+    return descent_rate
+
+
+def derive_acceleration(
+    depth: np.ndarray,
+    window_size: float,
+    sample_interval: float,
+) -> np.ndarray:
+    """Derives the acceleration from the depth values.
+
+    :param depth: Depth values in meters or feet.
+    :param window_size: Window size to use for the derivative calculation in seconds
+    :param sample_interval: Sample interval in seconds
+
+    :return: np.ndarray of acceleration values in meters per second squared or feet per second squared, depending on the input depth units.
+    """
+    # Calculate the number of samples to include in the window based on the sample interval
+    descent_rate = derive_descent_rate(depth, window_size, sample_interval)
+
+    # Calculate the acceleration using a centered difference method
+    acceleration = np.full(len(depth), 0.0)  # Initialize with 0 for edge cases
+
+    for i in range(1, len(depth)):
+        # Follow SBE Processing calc: Acc = (DescentRate[i] - DescentRate[i-1]) / SampleInterval
+        acceleration[i] = (descent_rate[i] - descent_rate[i - 1]) / sample_interval
+
+    return acceleration
