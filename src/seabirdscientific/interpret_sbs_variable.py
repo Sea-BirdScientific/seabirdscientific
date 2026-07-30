@@ -1152,6 +1152,10 @@ def interpret_sbs_variable(sbs_var):
     }:
         kvar_name = sbs_var
         kvar_units = r"%"
+    # WETLABS C-STAR RAW VOLTAGE
+    elif sbs_var in {"CStarV"}:
+        kvar_name = sbs_var
+        kvar_units = r"V"
 
     # LISST
     elif sbs_var in {"lisstBC"}:
