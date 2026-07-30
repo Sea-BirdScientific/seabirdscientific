@@ -15,7 +15,7 @@ from scipy import stats
 import seabirdscientific.cal_coefficients as cc
 import seabirdscientific.constants as const
 from seabirdscientific import eos80_conversion as eos80
-from seabirdscientific.utils import compute_rolling_average
+from seabirdscientific.utils import compute_ln_salinity_correction, compute_rolling_average, compute_scaled_temperature
 
 
 def convert_temperature(
@@ -388,17 +388,7 @@ def convert_sbe63_oxygen(
 
     ksv = coefs.c0 + coefs.c1 * temperature + coefs.c2 * temperature**2
 
-    # The following correction coefficients are all constants
-    sol_b0 = -6.24523e-3
-    sol_b1 = -7.37614e-3
-    sol_b2 = -1.0341e-2
-    sol_b3 = -8.17083e-3
-    sol_c0 = -4.88682e-7
-
-    ts = np.log((const.KELVIN_OFFSET_25C - temperature) / (const.KELVIN_OFFSET_0C + temperature))
-    s_corr_exp = (
-        salinity * (sol_b0 + sol_b1 * ts + sol_b2 * ts**2 + sol_b3 * ts**3) + sol_c0 * salinity**2
-    )
+    s_corr_exp = compute_ln_salinity_correction(temperature, salinity)
     s_corr = math.e**s_corr_exp
 
     # temperature in Kelvin
@@ -555,7 +545,7 @@ def _convert_sbe43_oxygen(
     b3 = -0.00817083
     c0 = -0.000000488682
 
-    ts = np.log((const.KELVIN_OFFSET_25C - temperature) / (const.KELVIN_OFFSET_0C + temperature))
+    ts = compute_scaled_temperature(temperature)
     a_term = a0 + a1 * ts + a2 * ts**2 + a3 * ts**3 + a4 * ts**4 + a5 * ts**5
     b_term = salinity * (b0 + b1 * ts + b2 * ts**2 + b3 * ts**3)
     c_term = c0 * salinity**2
@@ -1347,3 +1337,68 @@ def derive_acceleration(
         acceleration[i] = (descent_rate[i] - descent_rate[i - 1]) / sample_interval
 
     return acceleration
+
+def derive_oxygen_saturation_gg(
+    temperature: np.ndarray,
+    salinity: np.ndarray,
+):
+    """Calculates the oxygen saturation in ml/L.
+
+    From Garcia and Gordon L&O 37(6), 1992, 1307 - 1312
+    Provide better fit and better estimation of o2 solubility at end members
+    Note: SBE Data Processing returns -99 for t < -5, t > 50, s < 0, and s > 60
+
+    :param temperature: temperature in degrees C
+    :param salinity: salinity in PSU
+
+    :return: oxygen saturation in ml/L
+    """
+    ts = compute_scaled_temperature(temperature)
+    ts2 = ts**2
+    ts3 = ts**3
+
+    OA0 =  2.00907
+    OA1 =  3.22014
+    OA2 =  4.0501
+    OA3 =  4.94457
+    OA4 = -0.256847
+    OA5 =  3.88767
+
+    ox_sol = OA0 + OA1 * ts + OA2 * ts2 + OA3 * ts3 + OA4 * ts2 * ts2 + OA5 * ts2 * ts3
+
+    ox_sol += compute_ln_salinity_correction(temperature, salinity)
+
+    return np.exp(ox_sol)
+
+def derive_oxygen_saturation_w(
+    temperature: np.ndarray,
+    salinity: np.ndarray,
+):
+    """Calculates the oxygen saturation in ml/L.
+
+    Uses Weiss formula from 1970
+    Note: SBE Data Processing returns -99 for t < 0
+
+    :param temperature: temperature in degrees C
+    :param salinity: salinity in PSU
+
+    :return: oxygen saturation in ml/L
+    """
+
+    # Note: SBE Data Processing returns -99 for t < -5, t > 50, s < 0, and s > 60
+    t0 = temperature + const.KELVIN_OFFSET_0C
+
+    t1 = 0 if t0 < 0 else 100.0 / t0
+    t2 = t0 / 100.0
+
+    A1 = -173.4292
+    A2 = 249.6339
+    A3 = 143.3483
+    A4 =  -21.8492
+    B1 =  -0.033096
+    B2 =  0.014259
+    B3 = -0.00170
+
+    ox_sol = A1 + A2 * t1 + A3 * np.log(t2) + A4 * t2 + salinity * (B1 + B2 * t2 + B3 * t2 * t2);
+
+    return np.exp(ox_sol)
