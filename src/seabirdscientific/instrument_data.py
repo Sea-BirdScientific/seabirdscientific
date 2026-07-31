@@ -342,6 +342,9 @@ def read_hex_file(
             if line.startswith("*END*"):
                 data_lines = file.readlines()
 
+    # drop blank lines
+    data_lines = [line for line in data_lines if line.strip()]
+
     dataset = xr.Dataset({}, attrs={"file_name": Path(filepath).name})
 
     hex_data = read_hex(
@@ -358,8 +361,6 @@ def read_hex_file(
     np_data = np.empty((len(data_lines), len(keys)), dtype=object)
 
     for n, line in enumerate(data_lines):
-        if line.strip() == '':
-            continue
         hex_data = read_hex(
             instrument_type,
             line,

@@ -86,7 +86,8 @@ def convert_temperature_frequency(
     standard: Literal["ITS90", "IPTS68"] = "ITS90",
     units: Literal["C", "F"] = "C",
 ):
-    """Convert raw frequency to temperature in degrees Celsius or degrees Fahrenheit
+    """Convert raw frequency to temperature in degrees Celsius or
+    degrees Fahrenheit
 
     :param frequency: raw frequency from the temperature sensor
     :param coefs: calibration coefficients for the temperature sensor
@@ -130,7 +131,8 @@ def convert_pressure(
     coefs: cc.PressureCoefficients,
     units: Literal["dbar", "psia", "psig"] = "psia",
 ):
-    """Converts pressure counts to sea pressure (psig and dbar) and absolute pressure (psia)
+    """Converts pressure counts to sea pressure (psig and dbar) and
+    absolute pressure (psia)
 
     pressure_count and compensation_voltage are expected to be raw data
     from an instrument in A/D counts
