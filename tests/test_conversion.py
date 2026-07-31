@@ -959,7 +959,9 @@ class TestDeriveDescentRateAcceleration:
     def test_derive_descent_rate_feet(self, source_data):
         descent_rate_f = dc.derive_descent_rate(source_data["depSF"].values, 2, 0.25)
         # TODO: SBE data processing is imprecise and returns a value that is slightly different than the expected value. The atol is set to 1e-1 to account for this.
-        expected_dzdtF = source_data["dz/dtF"].values * 3.28084  # TODO: for some reason the dz/dtF returns meters/s too in SBE Data Proc
+        expected_dzdtF = (
+            source_data["dz/dtF"].values * 3.28084
+        )  # TODO: for some reason the dz/dtF returns meters/s too in SBE Data Proc
         assert np.allclose(descent_rate_f, expected_dzdtF, rtol=0, atol=1e-1)
 
     def test_derive_acc_meters(self, source_data):
@@ -970,3 +972,23 @@ class TestDeriveDescentRateAcceleration:
         acc_f = dc.derive_acceleration(source_data["depSF"].values, 2, 0.25)
         # TODO: SBE data processing is imprecise and returns a value that is slightly different than the expected value. The atol is set to 1e-1 to account for this.
         assert np.allclose(acc_f, source_data["accF"].values, rtol=0, atol=1e-1)
+
+
+class TestDeriveOxygenSaturation:
+    cnv_path = test_data / "SBE19plus_01906398_2019_07_15_0033-seasoft-convert-Ox-Sat.cnv"
+
+    @pytest.fixture
+    def source_data(self):
+        return id.read_cnv_file(self.cnv_path)
+
+    def test_derive_oxygen_saturation_gg(self, source_data):
+        ox_sat_gg = dc.derive_oxygen_saturation_gg(
+            source_data["tv290C"].values, source_data["sal00"].values
+        )
+        assert np.allclose(ox_sat_gg, source_data["oxsolML/L"].values, rtol=0, atol=1e-3)
+
+    def test_derive_oxygen_saturation_w(self, source_data):
+        ox_sat_gg = dc.derive_oxygen_saturation_w(
+            source_data["tv290C"].values, source_data["sal00"].values
+        )
+        assert np.allclose(ox_sat_gg, source_data["oxsatML/L"].values, rtol=0, atol=1e-3)
