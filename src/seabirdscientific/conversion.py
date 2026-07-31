@@ -15,11 +15,6 @@ from scipy import stats
 import seabirdscientific.cal_coefficients as cc
 import seabirdscientific.constants as const
 from seabirdscientific import eos80_conversion as eos80
-from seabirdscientific.utils import (
-    compute_ln_salinity_correction,
-    compute_rolling_average,
-    compute_scaled_temperature,
-)
 
 
 def convert_temperature(
@@ -161,7 +156,7 @@ def convert_pressure_digiquartz(
     def modification_function(x):
         return x * coefs.AD590M + coefs.AD590B
 
-    modified_compensation_voltage = compute_rolling_average(
+    modified_compensation_voltage = _compute_rolling_average(
         compensation_voltage, 30, sample_interval, modification_function
     )
 
@@ -392,7 +387,7 @@ def convert_sbe63_oxygen(
 
     ksv = coefs.c0 + coefs.c1 * temperature + coefs.c2 * temperature**2
 
-    s_corr_exp = compute_ln_salinity_correction(temperature, salinity)
+    s_corr_exp = _compute_ln_salinity_correction(temperature, salinity)
     s_corr = math.e**s_corr_exp
 
     # temperature in Kelvin
@@ -549,7 +544,7 @@ def _convert_sbe43_oxygen(
     b3 = -0.00817083
     c0 = -0.000000488682
 
-    ts = compute_scaled_temperature(temperature)
+    ts = _compute_scaled_temperature(temperature)
     a_term = a0 + a1 * ts + a2 * ts**2 + a3 * ts**3 + a4 * ts**4 + a5 * ts**5
     b_term = salinity * (b0 + b1 * ts + b2 * ts**2 + b3 * ts**3)
     c_term = c0 * salinity**2
@@ -1282,6 +1277,70 @@ def buoyancy(
 
     return (buoyancy_freq_squared, buoyancy_freq, stability, scaled_stability)
 
+def _compute_scaled_temperature(temperature: np.ndarray) -> np.ndarray:
+    return np.log((const.KELVIN_OFFSET_25C - temperature) / (const.KELVIN_OFFSET_0C + temperature))
+
+
+def _compute_ln_salinity_correction(temperature: np.ndarray, salinity: np.ndarray) -> np.ndarray:
+    """Compute natural logarithm of the salinity correction for Garcia and Gordon
+    Oxygen Solubility. Also applicable to SBE 63 Oxygen
+
+    :param temperature: Temperature in degrees Celsius
+    :param salinity: Salinity in PSU
+
+    :return: Natural logarithm of the salinity correction"""
+    sol_b0 = -6.24523e-3
+    sol_b1 = -7.37614e-3
+    sol_b2 = -1.0341e-2
+    sol_b3 = -8.17083e-3
+    sol_c0 = -4.88682e-7
+
+    ts = _compute_scaled_temperature(temperature)
+    s_corr = (
+        salinity * (sol_b0 + sol_b1 * ts + sol_b2 * ts**2 + sol_b3 * ts**3) + sol_c0 * salinity**2
+    )
+    return s_corr
+
+
+def _compute_rolling_average(
+    compute_var: np.ndarray,
+    window_size: float,
+    sample_interval: float,
+    modification_fn: callable = None,
+) -> np.ndarray:
+    """Computes a rolling average of the given variable over the specified window size.
+    Averages with equal number values on either side of the center of each window.
+
+    :param compute_var: The variable to compute the rolling average for.
+    :param window_size: The size of the rolling window (in seconds).
+    :param sample_interval: The time interval between samples (in seconds).
+    :param modification_fn: Optional function to modify the computed rolling average.
+
+    :return: An array containing the rolling average values.
+    """
+    if window_size <= 0:
+        raise ValueError("Window size must be a positive integer.")
+
+    # Calculate the number of samples in the rolling window
+    num_samples = int(window_size / sample_interval)
+
+    # Determine padding needed for both ends
+    pad_before = num_samples // 2
+    pad_after = num_samples - 1 - pad_before
+
+    # Pad the array using the edge values
+    # This prevents the ends from dropping off or pulling toward zero
+    padded_data = np.pad(compute_var, (pad_before, pad_after), mode="edge")
+
+    # Compute the rolling average using numpy's convolve function
+    weights = np.ones(num_samples) / num_samples
+    rolling_avg = np.convolve(padded_data, weights, mode="valid")
+
+    # Apply the modification function if provided
+    if modification_fn is not None:
+        rolling_avg = modification_fn(rolling_avg)
+
+    return rolling_avg
 
 def derive_descent_rate(
     depth: np.ndarray,
@@ -1346,19 +1405,21 @@ def derive_acceleration(
 def derive_oxygen_saturation_gg(
     temperature: np.ndarray,
     salinity: np.ndarray,
+    flag_value=const.FLAG_VALUE,
 ):
     """Calculates the oxygen saturation in ml/L.
 
     From Garcia and Gordon L&O 37(6), 1992, 1307 - 1312
     Provide better fit and better estimation of o2 solubility at end members
     Note: SBE Data Processing returns -99 for t < -5, t > 50, s < 0, and s > 60
+    This software sets these to flag value instead of -99
 
     :param temperature: temperature in degrees C
     :param salinity: salinity in PSU
 
     :return: oxygen saturation in ml/L
     """
-    ts = compute_scaled_temperature(temperature)
+    ts = _compute_scaled_temperature(temperature)
     ts2 = ts**2
     ts3 = ts**3
 
@@ -1371,19 +1432,28 @@ def derive_oxygen_saturation_gg(
 
     ox_sol = OA0 + OA1 * ts + OA2 * ts2 + OA3 * ts3 + OA4 * ts2 * ts2 + OA5 * ts2 * ts3
 
-    ox_sol += compute_ln_salinity_correction(temperature, salinity)
+    ox_sol += _compute_ln_salinity_correction(temperature, salinity)
+    ox_sol = np.exp(ox_sol)
 
-    return np.exp(ox_sol)
+    # clean up values from invalid inputs, as SBE Data Processing does
+    ox_sol = np.where(temperature < -5, flag_value, ox_sol)
+    ox_sol = np.where(temperature > 50, flag_value, ox_sol)
+    ox_sol = np.where(salinity < 0, flag_value, ox_sol)
+    ox_sol = np.where(salinity > 60, flag_value, ox_sol)
+
+    return ox_sol
 
 
 def derive_oxygen_saturation_w(
     temperature: np.ndarray,
     salinity: np.ndarray,
+    flag_value=const.FLAG_VALUE,
 ):
     """Calculates the oxygen saturation in ml/L.
 
     Uses Weiss formula from 1970
     Note: SBE Data Processing returns -99 for t < 0
+    This software sets these to flag value instead of -99
 
     :param temperature: temperature in degrees C
     :param salinity: salinity in PSU
@@ -1391,7 +1461,6 @@ def derive_oxygen_saturation_w(
     :return: oxygen saturation in ml/L
     """
 
-    # Note: SBE Data Processing returns -99 for t < -5, t > 50, s < 0, and s > 60
     t0 = temperature + const.KELVIN_OFFSET_0C
 
     t1 = np.where(t0 > 0, 100.0 / t0, 0)
@@ -1406,4 +1475,8 @@ def derive_oxygen_saturation_w(
     B3 = -0.00170
 
     ox_sol = A1 + A2 * t1 + A3 * np.log(t2) + A4 * t2 + salinity * (B1 + B2 * t2 + B3 * t2 * t2)
-    return np.exp(ox_sol)
+    ox_sol = np.exp(ox_sol)
+
+    # clean up values from invalid inputs, as SBE Data Processing does
+    ox_sol = np.where(temperature < 0, flag_value, ox_sol)
+    return ox_sol
