@@ -358,6 +358,8 @@ def read_hex_file(
     np_data = np.empty((len(data_lines), len(keys)), dtype=object)
 
     for n, line in enumerate(data_lines):
+        if line.strip() == '':
+            continue
         hex_data = read_hex(
             instrument_type,
             line,
@@ -367,7 +369,6 @@ def read_hex_file(
             frequency_channels_suppressed,
             voltage_words_suppressed,
         )
-
         np_data[n] = [hex_data[k] for k in keys]
 
     for n, measurand in enumerate(keys):
