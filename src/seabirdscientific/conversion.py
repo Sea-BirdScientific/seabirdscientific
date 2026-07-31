@@ -15,7 +15,11 @@ from scipy import stats
 import seabirdscientific.cal_coefficients as cc
 import seabirdscientific.constants as const
 from seabirdscientific import eos80_conversion as eos80
-from seabirdscientific.utils import compute_ln_salinity_correction, compute_rolling_average, compute_scaled_temperature
+from seabirdscientific.utils import (
+    compute_ln_salinity_correction,
+    compute_rolling_average,
+    compute_scaled_temperature,
+)
 
 
 def convert_temperature(
@@ -1338,6 +1342,7 @@ def derive_acceleration(
 
     return acceleration
 
+
 def derive_oxygen_saturation_gg(
     temperature: np.ndarray,
     salinity: np.ndarray,
@@ -1357,18 +1362,19 @@ def derive_oxygen_saturation_gg(
     ts2 = ts**2
     ts3 = ts**3
 
-    OA0 =  2.00907
-    OA1 =  3.22014
-    OA2 =  4.0501
-    OA3 =  4.94457
+    OA0 = 2.00907
+    OA1 = 3.22014
+    OA2 = 4.0501
+    OA3 = 4.94457
     OA4 = -0.256847
-    OA5 =  3.88767
+    OA5 = 3.88767
 
     ox_sol = OA0 + OA1 * ts + OA2 * ts2 + OA3 * ts3 + OA4 * ts2 * ts2 + OA5 * ts2 * ts3
 
     ox_sol += compute_ln_salinity_correction(temperature, salinity)
 
     return np.exp(ox_sol)
+
 
 def derive_oxygen_saturation_w(
     temperature: np.ndarray,
@@ -1399,6 +1405,5 @@ def derive_oxygen_saturation_w(
     B2 = 0.014259
     B3 = -0.00170
 
-    ox_sol = A1 + A2 * t1 + A3 * np.log(t2) + A4 * t2 + salinity * (B1 + B2 * t2 + B3 * t2 * t2);
-
+    ox_sol = A1 + A2 * t1 + A3 * np.log(t2) + A4 * t2 + salinity * (B1 + B2 * t2 + B3 * t2 * t2)
     return np.exp(ox_sol)

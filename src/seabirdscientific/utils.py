@@ -127,8 +127,10 @@ class WarnAllMembersMeta(EnumMeta):
             warnings.warn(f"{cls.__name__}.{name} is deprecated", DeprecationWarning, stacklevel=2)
         return obj
 
+
 def compute_scaled_temperature(temperature: np.ndarray) -> np.ndarray:
     return np.log((const.KELVIN_OFFSET_25C - temperature) / (const.KELVIN_OFFSET_0C + temperature))
+
 
 def compute_ln_salinity_correction(temperature: np.ndarray, salinity: np.ndarray) -> np.ndarray:
     """Compute natural logarithm of the salinity correction for Garcia and Gordon
@@ -136,7 +138,7 @@ def compute_ln_salinity_correction(temperature: np.ndarray, salinity: np.ndarray
 
     :param temperature: Temperature in degrees Celsius
     :param salinity: Salinity in PSU
-    
+
     :return: Natural logarithm of the salinity correction"""
     sol_b0 = -6.24523e-3
     sol_b1 = -7.37614e-3
@@ -149,6 +151,7 @@ def compute_ln_salinity_correction(temperature: np.ndarray, salinity: np.ndarray
         salinity * (sol_b0 + sol_b1 * ts + sol_b2 * ts**2 + sol_b3 * ts**3) + sol_c0 * salinity**2
     )
     return s_corr
+
 
 def compute_rolling_average(
     compute_var: np.ndarray,
