@@ -110,23 +110,18 @@ def convert_pressure_units(
 ) -> np.ndarray:
     _pressure = pressure.copy()
 
-    # if units == "dbar" or units == "psig":
-    #     pressure -= sea_level_pressure
-
-    # if units == "dbar":
-    #     pressure *= const.PSI_TO_DBAR
 
     if from_units == "psia" and to_units in ("dbar", "psig"):
-        pressure -= const.SEA_LEVEL_PRESSURE
+        _pressure -= const.SEA_LEVEL_PRESSURE
     elif from_units in ("dbar", "psig") and to_units == "psia":
-        pressure += const.SEA_LEVEL_PRESSURE
+        _pressure += const.SEA_LEVEL_PRESSURE
 
     if from_units in ("psia", "psig") and to_units == "dbar":
-        pressure *= const.PSI_TO_DBAR
+        _pressure *= const.PSI_TO_DBAR
     elif from_units == "dbar" and to_units in ("psia", "psig"):
-        pressure /= const.PSI_TO_DBAR
+        _pressure /= const.PSI_TO_DBAR
 
-    return pressure
+    return _pressure
 
 
 def convert_pressure(
