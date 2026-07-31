@@ -436,6 +436,7 @@ def convert_sbe43_oxygen(
     apply_hysteresis_correction: bool = False,
     window_size: float = 1,
     sample_interval: float = 1,
+    units: Literal["ml/l", "mg/l", "umol/kg", "umol/l", "dov/dt", "saturation_percent", "raw_voltage"] = "ml/l",
 ):
     """Returns the data after converting it to ml/l.
 
@@ -457,9 +458,15 @@ def convert_sbe43_oxygen(
         applicable, in seconds
     :param sample_interval: sample rate of the data to be used for tau
         correction, if applicable. In seconds.
+    :param units: the units to return the oxygen values in. Options are:
+        ml/l, mg/l, umol/kg, umol/l, dov/dt, saturation_percent, raw_voltage
+        Defaults to ml/l.
 
     :return: converted Oxygen values, in ml/l
     """
+    if units == "raw_voltage":
+        return voltage
+
     # start with all 0 for the dvdt
     dvdt_values = np.zeros(len(voltage))
     if apply_tau_correction:
@@ -476,6 +483,9 @@ def convert_sbe43_oxygen(
             result = stats.linregress(time_subset, ox_subset)
 
             dvdt_values[i] = result.slope
+
+    if units == "dov/dt":
+        return dvdt_values
 
     correct_ox_voltages = voltage.copy()
     if apply_hysteresis_correction:
@@ -499,7 +509,21 @@ def convert_sbe43_oxygen(
         coefs,
         dvdt_values,
     )
-    return oxygen
+    if units == "ml/l":
+        return oxygen
+    elif units == "mg/l":
+        return convert_oxygen_to_mg_per_l(oxygen)
+    elif units == "umol/kg":
+        potential_density = potential_density_from_t_s_p(temperature, salinity, pressure)
+        return convert_oxygen_to_umol_per_kg(oxygen, potential_density)
+    elif units == "umol/l":
+        return convert_oxygen_to_umol_per_ml(oxygen)
+    elif units == "saturation_percent":
+        # O2 Saturation always uses GG calc, as it is more accurate than Weiss
+        oxygen_saturation = derive_oxygen_saturation_gg(temperature, salinity)
+        oxygen_saturation_percent = oxygen * 100 / oxygen_saturation 
+        # handle cases where oxygen saturation is flagged
+        return np.where(oxygen_saturation != const.FLAG_VALUE, oxygen_saturation_percent, const.FLAG_VALUE)
 
 
 def _convert_sbe43_oxygen(
@@ -578,7 +602,7 @@ def convert_oxygen_to_mg_per_l(ox_values: np.ndarray):
 
 
 def convert_oxygen_to_umol_per_kg(ox_values: np.ndarray, potential_density: np.ndarray):
-    """Converts given oxygen values to milligrams/kg.
+    """Converts given oxygen values to micromoles/kg.
 
     Note: Sigma-Theta is expected to be calculated via gsw_sigma0,
     meaning is it technically potential density anomaly. Calculating
@@ -592,10 +616,20 @@ def convert_oxygen_to_umol_per_kg(ox_values: np.ndarray, potential_density: np.n
     :param potential_density: potential density (sigma-theta) values.
         Expected to be the same length as ox_values
 
-    :return: oxygen values converted to milligrams/Liter
+    :return: oxygen values converted to micromoles/kg
     """
 
     oxygen_umolkg = (ox_values * const.OXYGEN_MLPERL_TO_UMOLPERKG) / (potential_density + 1000)
+    return oxygen_umolkg
+
+def convert_oxygen_to_umol_per_ml(ox_values: np.ndarray):
+    """Converts given oxygen values to micromoles/ml.
+    :param ox_values: oxygen values, already converted to ml/L
+
+    :return: oxygen values converted to micromoles/ml
+    """
+
+    oxygen_umolkg = (ox_values * const.OXYGEN_MLPERL_TO_UMOLPERL)
     return oxygen_umolkg
 
 
