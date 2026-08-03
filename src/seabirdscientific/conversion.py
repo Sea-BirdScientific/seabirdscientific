@@ -355,7 +355,17 @@ def convert_sbe63_oxygen(
     coefs: cc.Oxygen63Coefficients,
     thermistor_coefs: cc.Thermistor63Coefficients,
     thermistor_units: Literal["volts", "C"] = "volts",  # Is this volts or frequency?
-    units: Literal["ml/l", "mg/l", "umol/kg", "umol/l", "saturation_percent", "ox_temperature_c", "ox_temperature_f", "raw_phase_usec", "raw_phase_v"] = "ml/l",
+    units: Literal[
+        "ml/l",
+        "mg/l",
+        "umol/kg",
+        "umol/l",
+        "saturation_percent",
+        "ox_temperature_c",
+        "ox_temperature_f",
+        "raw_phase_usec",
+        "raw_phase_v",
+    ] = "ml/l",
     external_temperature: np.ndarray | None = None,
 ):
     """Returns the data after converting it to desired units.
@@ -375,10 +385,10 @@ def convert_sbe63_oxygen(
     :param thermistor_coefs (cc.Thermistor63Coefficients): calibration coefficients for
         the SBE63 thermistor sensor
     :param thermistor_units: units of thermistor_temp input
-    :param units: the units to return the oxygen values in. Options are: 
+    :param units: the units to return the oxygen values in. Options are:
         ml/l, mg/l, umol/kg, umol/l, saturation_percent, ox_temperature_c, ox_temperature_f, raw_phase_usec, raw_phase_v. Defaults to ml/l.
     :param external_temperature: optional external temperature to use for oxygen conversion, in degrees C. Required for umol/kg and percentage saturation units. If not provided, the thermistor will be used for temperature.
-        
+
     :return: converted Oxygen value, in ml/l
     """
     if thermistor_units == "volts":
@@ -430,12 +440,14 @@ def convert_sbe63_oxygen(
     elif units == "saturation_percent":
         # O2 Saturation always uses GG calc, as it is more accurate than Weiss
         oxygen_saturation = derive_oxygen_saturation_gg(temperature_to_use, salinity)
-        oxygen_saturation_percent = oxygen * 100 / oxygen_saturation 
+        oxygen_saturation_percent = oxygen * 100 / oxygen_saturation
         print(f"oxygen_saturation: {oxygen_saturation}")
         print(f"oxygen: {oxygen}")
         print(f"oxygen_saturation_percent: {oxygen_saturation_percent}")
         # handle cases where oxygen saturation is flagged
-        return np.where(oxygen_saturation != const.FLAG_VALUE, oxygen_saturation_percent, const.FLAG_VALUE)
+        return np.where(
+            oxygen_saturation != const.FLAG_VALUE, oxygen_saturation_percent, const.FLAG_VALUE
+        )
 
 
 def convert_sbe63_thermistor(
@@ -469,7 +481,9 @@ def convert_sbe43_oxygen(
     apply_hysteresis_correction: bool = False,
     window_size: float = 1,
     sample_interval: float = 1,
-    units: Literal["ml/l", "mg/l", "umol/kg", "umol/l", "dov/dt", "saturation_percent", "raw_voltage"] = "ml/l",
+    units: Literal[
+        "ml/l", "mg/l", "umol/kg", "umol/l", "dov/dt", "saturation_percent", "raw_voltage"
+    ] = "ml/l",
 ):
     """Returns the data after converting it to desired units.
 
@@ -534,7 +548,7 @@ def convert_sbe43_oxygen(
     if units == "raw_voltage":
         # Return the corrected voltage values if the user wants raw voltage
         return correct_ox_voltages
-    
+
     oxygen = _convert_sbe43_oxygen(
         correct_ox_voltages,
         temperature,
@@ -555,9 +569,11 @@ def convert_sbe43_oxygen(
     elif units == "saturation_percent":
         # O2 Saturation always uses GG calc, as it is more accurate than Weiss
         oxygen_saturation = derive_oxygen_saturation_gg(temperature, salinity)
-        oxygen_saturation_percent = oxygen * 100 / oxygen_saturation 
+        oxygen_saturation_percent = oxygen * 100 / oxygen_saturation
         # handle cases where oxygen saturation is flagged
-        return np.where(oxygen_saturation != const.FLAG_VALUE, oxygen_saturation_percent, const.FLAG_VALUE)
+        return np.where(
+            oxygen_saturation != const.FLAG_VALUE, oxygen_saturation_percent, const.FLAG_VALUE
+        )
 
 
 def _convert_sbe43_oxygen(
@@ -656,6 +672,7 @@ def convert_oxygen_to_umol_per_kg(ox_values: np.ndarray, potential_density: np.n
     oxygen_umolkg = (ox_values * const.OXYGEN_MLPERL_TO_UMOLPERKG) / (potential_density + 1000)
     return oxygen_umolkg
 
+
 def convert_oxygen_to_umol_per_l(ox_values: np.ndarray):
     """Converts given oxygen values to micromoles/l.
     :param ox_values: oxygen values, already converted to ml/L
@@ -663,7 +680,7 @@ def convert_oxygen_to_umol_per_l(ox_values: np.ndarray):
     :return: oxygen values converted to micromoles/ml
     """
 
-    oxygen_umolkg = (ox_values * const.OXYGEN_MLPERL_TO_UMOLPERL)
+    oxygen_umolkg = ox_values * const.OXYGEN_MLPERL_TO_UMOLPERL
     return oxygen_umolkg
 
 
@@ -1345,6 +1362,7 @@ def buoyancy(
 
     return (buoyancy_freq_squared, buoyancy_freq, stability, scaled_stability)
 
+
 def _compute_scaled_temperature(temperature: np.ndarray) -> np.ndarray:
     return np.log((const.KELVIN_OFFSET_25C - temperature) / (const.KELVIN_OFFSET_0C + temperature))
 
@@ -1409,6 +1427,7 @@ def _compute_rolling_average(
         rolling_avg = modification_fn(rolling_avg)
 
     return rolling_avg
+
 
 def derive_descent_rate(
     depth: np.ndarray,
