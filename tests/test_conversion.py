@@ -13,6 +13,7 @@ from pathlib import Path
 # Internal imports
 import seabirdscientific.conversion as dc
 import seabirdscientific.instrument_data as id
+import seabirdscientific.constants as const
 
 # relative path imports
 import test_coefficients as tc
@@ -391,6 +392,13 @@ class TestDepthFromPressure:
 
 
 class TestConvertSBE43Oxygen:
+    # Some tests need to be run on complete datasets
+    cnv_path = test_data / "SBE19plus_01906398_2019_07_15_0033-seasoft-convert-o2-full.cnv"
+
+    @pytest.fixture
+    def source_data(self):
+        return id.read_cnv_file(self.cnv_path)
+
     def test_convert_sbe43_oxygen(self, request):
         # From O3287.pdf in the shared calibration folder
         raw_oxygen = np.array([0.725, 0.756, 0.803, 0.874, 0.925, 0.96, 1.332, 1.435, 1.595, 1.81])
@@ -531,6 +539,145 @@ class TestConvertSBE43Oxygen:
         result = dc.convert_oxygen_to_umol_per_kg(oxMlPerL, potentialDensity)
         request.node.return_value = result.tolist()
         assert np.allclose(expected, result, rtol=0, atol=1e-2)
+
+    def test_convert_to_umol_per_l(self, request):
+        # fmt: off
+        oxMlPerL = np.array(
+            [4.4728, 4.4722, 4.4762, 4.4828, 4.4867, 4.4879, 4.488, 4.488, 4.3707, 4.3148]
+        )
+        expected = np.array(
+            [199.757, 199.730, 199.906, 200.202, 200.375, 200.430, 200.433, 200.433, 195.194, 192.701]
+        )
+        # fmt: on
+        result = dc.convert_oxygen_to_umol_per_l(oxMlPerL)
+        request.node.return_value = result.tolist()
+        assert np.allclose(expected, result, rtol=0, atol=1e-2)
+
+    def test_convert_to_dov_dt(self, request, source_data):
+        expected = source_data["sbox1dV/dT"].values
+        result = dc.convert_sbe43_oxygen(
+            source_data["sbeox0V"].values,
+            source_data["tv290C"].values,
+            source_data["prdM"].values,
+            source_data["sal00"].values,
+            tc.oxygen_43_coefs_sn1686,
+            False,
+            False,
+            2,
+            0.25,
+            "dov/dt",
+        )
+
+        request.node.return_value = result.tolist()
+        # TODO: Fix this test
+        assert np.allclose(expected, result, rtol=0, atol=1e-5)
+
+    def test_convert_to_pct_saturation(self, request, source_data):
+        expected = source_data["sbeox0PS"].values
+        result = dc.convert_sbe43_oxygen(
+            source_data["sbeox0V"].values,
+            source_data["tv290C"].values,
+            source_data["prdM"].values,
+            source_data["sal00"].values,
+            tc.oxygen_43_coefs_sn1686,
+            False,
+            False,
+            2,
+            0.25,
+            "saturation_percent",
+        )
+        request.node.return_value = result.tolist()
+        assert np.allclose(expected, result, rtol=0, atol=1e-2)
+
+    @pytest.mark.parametrize(
+        "from_units,to_units",
+        [
+            ("ml/l", "ml/l"),
+            ("ml/l", "mg/l"),
+            ("ml/l", "umol/kg"),
+            ("ml/l", "umol/l"),
+            ("ml/l", "saturation_percent"),
+            ("mg/l", "ml/l"),
+            ("mg/l", "mg/l"),
+            ("mg/l", "umol/kg"),
+            ("mg/l", "umol/l"),
+            ("mg/l", "saturation_percent"),
+            ("umol/kg", "ml/l"),
+            ("umol/kg", "mg/l"),
+            ("umol/kg", "umol/kg"),
+            ("umol/kg", "umol/l"),
+            ("umol/kg", "saturation_percent"),
+            ("umol/l", "ml/l"),
+            ("umol/l", "mg/l"),
+            ("umol/l", "umol/kg"),
+            ("umol/l", "umol/l"),
+            ("umol/l", "saturation_percent"),
+            ("saturation_percent", "ml/l"),
+            ("saturation_percent", "mg/l"),
+            ("saturation_percent", "umol/kg"),
+            ("saturation_percent", "umol/l"),
+            ("saturation_percent", "saturation_percent"),
+        ],
+    )
+    def test_convert_oxygen_units_all_combinations(self, source_data, from_units, to_units):
+        temperature = source_data["tv290C"].values
+        pressure = source_data["prdM"].values
+        salinity = source_data["sal00"].values
+
+        oxygen_ml_per_l = source_data["sbeox0ML/L"].values
+        oxygen_mg_per_l = source_data["sbeox0Mg/L"].values
+        oxygen_umol_per_l = source_data["sbeox0Mm/L"].values
+        oxygen_umol_per_kg = source_data["sbox0Mm/Kg"].values
+        oxygen_saturation_percent = source_data["sbeox0PS"].values
+
+        # Convert to oxygen_in units from source data, otherwise we start from rounded data and lose precision in the conversions.
+        oxygen_in = dc.convert_sbe43_oxygen(
+            source_data["sbeox0V"].values,
+            source_data["tv290C"].values,
+            source_data["prdM"].values,
+            source_data["sal00"].values,
+            tc.oxygen_43_coefs_sn1686,
+            False,
+            False,
+            2,
+            0.25,
+            from_units,
+        )
+
+        # Step 2: convert expected ml/l values to the target units.
+        if to_units == "ml/l":
+            expected = oxygen_ml_per_l
+        elif to_units == "mg/l":
+            expected = oxygen_mg_per_l
+        elif to_units == "umol/l":
+            expected = oxygen_umol_per_l
+        elif to_units == "umol/kg":
+            expected = oxygen_umol_per_kg
+        elif to_units == "saturation_percent":
+            expected = oxygen_saturation_percent
+        else:
+            raise ValueError(f"unsupported to_units in test: {to_units}")
+
+        # Function preserves explicit bad flags from input.
+        expected = np.where(oxygen_in == const.FLAG_VALUE, const.FLAG_VALUE, expected)
+
+        result = dc.convert_oxygen_units(
+            oxygen_in,
+            temperature,
+            pressure,
+            salinity,
+            from_units,
+            to_units,
+        )
+
+        atol_by_to_units = {
+            "ml/l": 1e-3,
+            "mg/l": 1e-3,
+            "umol/kg": 1e-2,
+            "umol/l": 1e-2,
+            "saturation_percent": 1e-2,
+        }
+        assert np.allclose(expected, result, rtol=0, atol=atol_by_to_units[to_units])
 
 
 class TestConvertChlorophylla:
@@ -775,6 +922,13 @@ class TestConvertSBE63Oxygen:
     salinity = np.array([0, 0, 0, 0, 0, 0, 0, 35])  #  salinity is 0 PSU during calibration
     expected_oxygen = np.array([0.706, 0.74, 0.799, 0.892, 1.005, 1.095, 1.1398, 0.8647])
 
+    # Some tests need to be run on complete datasets
+    cnv_path = test_data / "SBE37SMP-ODO-RS232_03711459_2023_08_11-seasoft-convert-o2-full.cnv"
+
+    @pytest.fixture
+    def source_data(self):
+        return id.read_cnv_file(self.cnv_path)
+
     def test_convert_sbe63_oxygen(self, request):
         oxygen = dc.convert_sbe63_oxygen(
             self.raw_oxygen,
@@ -835,6 +989,151 @@ class TestConvertSBE63Oxygen:
         )
         request.node.return_value = result.tolist()
         assert np.allclose(expected, result, rtol=0, atol=1e-3)
+
+    def test_convert_sbe63_oxygen_ml_per_l(self, request, source_data):
+        expected = source_data["sbeopoxML/L"].values
+        result = dc.convert_sbe63_oxygen(
+            source_data["sbeoxpd"].values,
+            source_data["sbeoxtv"].values,
+            source_data["prdM"].values,
+            source_data["sal00"].values,
+            tc.oxygen_63_coefs_sn11459,
+            tc.thermistor_63_coefs_sn11459,
+            "volts",
+            "ml/l",
+        )
+        request.node.return_value = result.tolist()
+        assert np.allclose(expected, result, rtol=0, atol=1e-3)
+
+    def test_convert_sbe63_oxygen_mg_per_l(self, request, source_data):
+        expected = source_data["sbeopoxMg/L"].values
+        result = dc.convert_sbe63_oxygen(
+            source_data["sbeoxpd"].values,
+            source_data["sbeoxtv"].values,
+            source_data["prdM"].values,
+            source_data["sal00"].values,
+            tc.oxygen_63_coefs_sn11459,
+            tc.thermistor_63_coefs_sn11459,
+            "volts",
+            "mg/l",
+        )
+        request.node.return_value = result.tolist()
+        assert np.allclose(expected, result, rtol=0, atol=1e-3)
+
+    def test_convert_sbe63_oxygen_saturation_percent(self, request, source_data):
+        expected = source_data["sbeopoxPS"].values
+        result = dc.convert_sbe63_oxygen(
+            source_data["sbeoxpd"].values,
+            source_data["sbeoxtv"].values,
+            source_data["prdM"].values,
+            source_data["sal00"].values,
+            tc.oxygen_63_coefs_sn11459,
+            tc.thermistor_63_coefs_sn11459,
+            "volts",
+            "saturation_percent",
+            source_data["tv290C"].values,
+        )
+        request.node.return_value = result.tolist()
+        print(f"Expected: {expected}")
+        assert np.allclose(expected, result, rtol=0, atol=1e-2)
+
+    def test_convert_sbe63_oxygen_umol_per_kg(self, request, source_data):
+        expected = source_data["sbeopoxMm/Kg"].values
+        result = dc.convert_sbe63_oxygen(
+            source_data["sbeoxpd"].values,
+            source_data["sbeoxtv"].values,
+            source_data["prdM"].values,
+            source_data["sal00"].values,
+            tc.oxygen_63_coefs_sn11459,
+            tc.thermistor_63_coefs_sn11459,
+            "volts",
+            "umol/kg",
+            source_data["tv290C"].values,
+        )
+        request.node.return_value = result.tolist()
+        assert np.allclose(expected, result, rtol=0, atol=1e-2)
+
+    def test_convert_sbe63_oxygen_umol_per_l(self, request, source_data):
+        expected = source_data["sbeopoxMm/L"].values
+        result = dc.convert_sbe63_oxygen(
+            source_data["sbeoxpd"].values,
+            source_data["sbeoxtv"].values,
+            source_data["prdM"].values,
+            source_data["sal00"].values,
+            tc.oxygen_63_coefs_sn11459,
+            tc.thermistor_63_coefs_sn11459,
+            "volts",
+            "umol/l",
+        )
+        request.node.return_value = result.tolist()
+        assert np.allclose(expected, result, rtol=0, atol=1e-2)
+
+    def test_convert_sbe63_oxygen_raw_pd(self, request, source_data):
+        expected = source_data["sbeoxpd"].values
+        result = dc.convert_sbe63_oxygen(
+            source_data["sbeoxpd"].values,
+            source_data["sbeoxtv"].values,
+            source_data["prdM"].values,
+            source_data["sal00"].values,
+            tc.oxygen_63_coefs_sn11459,
+            tc.thermistor_63_coefs_sn11459,
+            "volts",
+            "raw_phase_usec",
+        )
+        request.node.return_value = result.tolist()
+        assert np.allclose(expected, result, rtol=0, atol=1e-2)
+
+    def test_convert_sbe63_oxygen_raw_pd_v(self, request, source_data):
+        expected = source_data["sbeoxpdv"].values
+        result = dc.convert_sbe63_oxygen(
+            source_data["sbeoxpd"].values,
+            source_data["sbeoxtv"].values,
+            source_data["prdM"].values,
+            source_data["sal00"].values,
+            tc.oxygen_63_coefs_sn11459,
+            tc.thermistor_63_coefs_sn11459,
+            "volts",
+            "raw_phase_v",
+        )
+        request.node.return_value = result.tolist()
+        assert np.allclose(expected, result, rtol=0, atol=1e-3)
+
+    def test_convert_sbe63_oxygen_ox_temp_c(self, request, source_data):
+        expected = source_data["sbeoxTC"].values
+        result = dc.convert_sbe63_oxygen(
+            source_data["sbeoxpd"].values,
+            source_data["sbeoxtv"].values,
+            source_data["prdM"].values,
+            source_data["sal00"].values,
+            tc.oxygen_63_coefs_sn11459,
+            tc.thermistor_63_coefs_sn11459,
+            "volts",
+            "ox_temperature_c",
+        )
+        request.node.return_value = result.tolist()
+        assert np.allclose(expected, result, rtol=0, atol=1e-3)
+
+    def test_convert_sbe63_oxygen_ox_temp_f(self, request, source_data):
+        expected = source_data["sbeoxTF"].values
+        result = dc.convert_sbe63_oxygen(
+            source_data["sbeoxpd"].values,
+            source_data["sbeoxtv"].values,
+            source_data["prdM"].values,
+            source_data["sal00"].values,
+            tc.oxygen_63_coefs_sn11459,
+            tc.thermistor_63_coefs_sn11459,
+            "volts",
+            "ox_temperature_f",
+        )
+        request.node.return_value = result.tolist()
+        assert np.allclose(expected, result, rtol=0, atol=1e-3)
+
+    def test_oxygen_saturation_percent_gg(self, request, source_data):
+        result = dc.derive_oxygen_saturation_gg(
+            source_data["tv290C"].values, source_data["sal00"].values
+        )
+        request.node.return_value = result.tolist()
+        assert np.allclose(result, source_data["oxsolML/L"].values, rtol=0, atol=1e-4)
 
 
 class TestSPAR:
