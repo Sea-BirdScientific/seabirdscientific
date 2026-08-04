@@ -630,15 +630,19 @@ class TestConvertSBE43Oxygen:
         oxygen_umol_per_kg = source_data["sbox0Mm/Kg"].values
         oxygen_saturation_percent = source_data["sbeox0PS"].values
 
-        oxygen_by_unit = {
-            "ml/l": oxygen_ml_per_l,
-            "mg/l": oxygen_mg_per_l,
-            "umol/kg": oxygen_umol_per_kg,
-            "umol/l": oxygen_umol_per_l,
-            "saturation_percent": oxygen_saturation_percent,
-        }
-
-        oxygen_in = oxygen_by_unit[from_units]
+        # Convert to oxygen_in units from source data, otherwise we start from rounded data and lose precision in the conversions.
+        oxygen_in = dc.convert_sbe43_oxygen(
+            source_data["sbeox0V"].values,
+            source_data["tv290C"].values,
+            source_data["prdM"].values,
+            source_data["sal00"].values,
+            tc.oxygen_43_coefs_sn1686,
+            False,
+            False,
+            2,
+            0.25,
+            from_units,
+        )
 
         # Step 2: convert expected ml/l values to the target units.
         if to_units == "ml/l":
@@ -666,12 +670,11 @@ class TestConvertSBE43Oxygen:
             to_units,
         )
 
-        # Note: Precision in these conversions is inherently limited due to starting from rounded values in the source data.
         atol_by_to_units = {
-            "ml/l": 1e-2,
-            "mg/l": 1e-2,
-            "umol/kg": 1e-1,
-            "umol/l": 1e-1,
+            "ml/l": 1e-3,
+            "mg/l": 1e-3,
+            "umol/kg": 1e-2,
+            "umol/l": 1e-2,
             "saturation_percent": 1e-2,
         }
         assert np.allclose(expected, result, rtol=0, atol=atol_by_to_units[to_units])
