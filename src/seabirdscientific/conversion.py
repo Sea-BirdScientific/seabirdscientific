@@ -638,6 +638,76 @@ def _convert_sbe43_oxygen(
     return oxygen
 
 
+def convert_oxygen_units(
+    oxygen: np.ndarray,
+    temperature: np.ndarray,
+    pressure: np.ndarray,
+    salinity: np.ndarray,
+    from_units: Literal["ml/l", "mg/l", "umol/kg", "umol/l", "saturation_percent"],
+    to_units: Literal["ml/l", "mg/l", "umol/kg", "umol/l", "saturation_percent"]
+):
+    """Convert oxygen values between supported oxygen units.
+
+    Conversion is always done in two steps:
+    1) convert input values to ml/L
+    2) convert ml/L values to the target units
+
+    :param oxygen: oxygen values in ``from_units``
+    :param temperature: temperature in degrees C (used for saturation and density)
+    :param pressure: pressure in dbar (used for density)
+    :param salinity: salinity in PSU (used for saturation and density)
+    :param from_units: source oxygen units
+    :param to_units: destination oxygen units
+
+    :return: oxygen values in ``to_units``
+    """
+    if from_units == to_units:
+        return oxygen.copy()
+
+    potential_density = None
+
+    # Step 1: normalize to ml/l
+    if from_units == "ml/l":
+        oxygen_ml_per_l = oxygen
+    elif from_units == "mg/l":
+        oxygen_ml_per_l = oxygen / const.OXYGEN_MLPERL_TO_MGPERL
+    elif from_units == "umol/l":
+        oxygen_ml_per_l = oxygen / const.OXYGEN_MLPERL_TO_UMOLPERL
+    elif from_units == "umol/kg":
+        potential_density = potential_density_from_t_s_p(temperature, salinity, pressure)
+        oxygen_ml_per_l = oxygen * (potential_density + 1000) / const.OXYGEN_MLPERL_TO_UMOLPERKG
+    elif from_units == "saturation_percent":
+        oxygen_saturation = derive_oxygen_saturation_gg(temperature, salinity)
+        oxygen_ml_per_l = oxygen_saturation * oxygen / 100.0
+    else:
+        raise ValueError(f"Unsupported from_units: {from_units}")
+
+    # Step 2: convert from ml/l to target units
+    if to_units == "ml/l":
+        converted = oxygen_ml_per_l
+    elif to_units == "mg/l":
+        converted = convert_oxygen_to_mg_per_l(oxygen_ml_per_l)
+    elif to_units == "umol/l":
+        converted = convert_oxygen_to_umol_per_l(oxygen_ml_per_l)
+    elif to_units == "umol/kg":
+        if potential_density is None:
+            potential_density = potential_density_from_t_s_p(temperature, salinity, pressure)
+        converted = convert_oxygen_to_umol_per_kg(oxygen_ml_per_l, potential_density)
+    elif to_units == "saturation_percent":
+        oxygen_saturation = derive_oxygen_saturation_gg(temperature, salinity)
+        oxygen_saturation_percent = oxygen_ml_per_l * 100 / oxygen_saturation
+        converted = np.where(
+            oxygen_saturation != const.FLAG_VALUE,
+            oxygen_saturation_percent,
+            const.FLAG_VALUE,
+        )
+    else:
+        raise ValueError(f"Unsupported to_units: {to_units}")
+
+    # Preserve explicit input bad flags where present.
+    return np.where(oxygen == const.FLAG_VALUE, const.FLAG_VALUE, converted)
+
+
 def convert_oxygen_to_mg_per_l(ox_values: np.ndarray):
     """Converts given oxygen values to milligrams/Liter.
 
