@@ -13,6 +13,7 @@ from pathlib import Path
 # Internal imports
 import seabirdscientific.conversion as dc
 import seabirdscientific.instrument_data as id
+import seabirdscientific.constants as const
 
 # relative path imports
 import test_coefficients as tc
@@ -587,6 +588,93 @@ class TestConvertSBE43Oxygen:
         )
         request.node.return_value = result.tolist()
         assert np.allclose(expected, result, rtol=0, atol=1e-2)
+
+    @pytest.mark.parametrize(
+        "from_units,to_units",
+        [
+            ("ml/l", "ml/l"),
+            ("ml/l", "mg/l"),
+            ("ml/l", "umol/kg"),
+            ("ml/l", "umol/l"),
+            ("ml/l", "saturation_percent"),
+            ("mg/l", "ml/l"),
+            ("mg/l", "mg/l"),
+            ("mg/l", "umol/kg"),
+            ("mg/l", "umol/l"),
+            ("mg/l", "saturation_percent"),
+            ("umol/kg", "ml/l"),
+            ("umol/kg", "mg/l"),
+            ("umol/kg", "umol/kg"),
+            ("umol/kg", "umol/l"),
+            ("umol/kg", "saturation_percent"),
+            ("umol/l", "ml/l"),
+            ("umol/l", "mg/l"),
+            ("umol/l", "umol/kg"),
+            ("umol/l", "umol/l"),
+            ("umol/l", "saturation_percent"),
+            ("saturation_percent", "ml/l"),
+            ("saturation_percent", "mg/l"),
+            ("saturation_percent", "umol/kg"),
+            ("saturation_percent", "umol/l"),
+            ("saturation_percent", "saturation_percent"),
+        ],
+    )
+    def test_convert_oxygen_units_all_combinations(self, source_data, from_units, to_units):
+        temperature = source_data["tv290C"].values
+        pressure = source_data["prdM"].values
+        salinity = source_data["sal00"].values
+
+        oxygen_ml_per_l = source_data["sbeox0ML/L"].values
+        oxygen_mg_per_l = source_data["sbeox0Mg/L"].values
+        oxygen_umol_per_l = source_data["sbeox0Mm/L"].values
+        oxygen_umol_per_kg = source_data["sbox0Mm/Kg"].values
+        oxygen_saturation_percent = source_data["sbeox0PS"].values
+
+        oxygen_by_unit = {
+            "ml/l": oxygen_ml_per_l,
+            "mg/l": oxygen_mg_per_l,
+            "umol/kg": oxygen_umol_per_kg,
+            "umol/l": oxygen_umol_per_l,
+            "saturation_percent": oxygen_saturation_percent,
+        }
+
+        oxygen_in = oxygen_by_unit[from_units]
+
+        # Step 2: convert expected ml/l values to the target units.
+        if to_units == "ml/l":
+            expected = oxygen_ml_per_l
+        elif to_units == "mg/l":
+            expected = oxygen_mg_per_l
+        elif to_units == "umol/l":
+            expected = oxygen_umol_per_l
+        elif to_units == "umol/kg":
+            expected = oxygen_umol_per_kg
+        elif to_units == "saturation_percent":
+            expected = oxygen_saturation_percent
+        else:
+            raise ValueError(f"unsupported to_units in test: {to_units}")
+
+        # Function preserves explicit bad flags from input.
+        expected = np.where(oxygen_in == const.FLAG_VALUE, const.FLAG_VALUE, expected)
+
+        result = dc.convert_oxygen_units(
+            oxygen_in,
+            temperature,
+            pressure,
+            salinity,
+            from_units,
+            to_units,
+        )
+
+        # Note: Precision in these conversions is inherently limited due to starting from rounded values in the source data.
+        atol_by_to_units = {
+            "ml/l": 1e-2,
+            "mg/l": 1e-2,
+            "umol/kg": 1e-1,
+            "umol/l": 1e-1,
+            "saturation_percent": 1e-2,
+        }
+        assert np.allclose(expected, result, rtol=0, atol=atol_by_to_units[to_units])
 
 
 class TestConvertChlorophylla:
