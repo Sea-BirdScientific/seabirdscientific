@@ -969,7 +969,7 @@
     "aliases": [
       "depFF"
     ],
-    "name": "depSM",
+    "name": "depFF",
     "units": "depth fresh water, ft",
     "title": "Depth",
     "info": []
@@ -1196,7 +1196,41 @@
   },
   {
     "aliases": [
-      "sal00"
+      "pta090F"
+    ],
+    "name": "pta090F",
+    "units": "deg F",
+    "title": "Potential-Temperature-Anomaly",
+    "info": [
+      "ITS-90"
+    ]
+  },
+  {
+    "aliases": [
+      "pta068C"
+    ],
+    "name": "pta068C",
+    "units": "deg C",
+    "title": "Potential-Temperature-Anomaly",
+    "info": [
+      "IPTS-68"
+    ]
+  },
+  {
+    "aliases": [
+      "pta068F"
+    ],
+    "name": "pta068F",
+    "units": "deg F",
+    "title": "Potential-Temperature-Anomaly",
+    "info": [
+      "IPTS-68"
+    ]
+  },
+  {
+    "aliases": [
+      "sal00",
+      "psal0"
     ],
     "name": "psal0",
     "units": "PSU",
@@ -1242,7 +1276,8 @@
   },
   {
     "aliases": [
-      "density00"
+      "density00",
+      "rho0"
     ],
     "name": "rho0",
     "units": "density, kg/m^3",
@@ -1253,7 +1288,8 @@
   },
   {
     "aliases": [
-      "sigma-é00"
+      "sigma-é00",
+      "sgth0"
     ],
     "name": "sgth0",
     "units": "sigma-theta (p=0 db), kg/m^3-1000",
@@ -1264,7 +1300,8 @@
   },
   {
     "aliases": [
-      "sigma-t00"
+      "sigma-t00",
+      "sgt0"
     ],
     "name": "sgt0",
     "units": "sigma-t (p=0 db), kg/m^3-1000",
@@ -1275,7 +1312,8 @@
   },
   {
     "aliases": [
-      "sigma-100"
+      "sigma-100",
+      "sg10"
     ],
     "name": "sg10",
     "units": "sigma-1 (p=1000 db), kg/m^3-1000",
@@ -1286,7 +1324,8 @@
   },
   {
     "aliases": [
-      "sigma-200"
+      "sigma-200",
+      "sg20"
     ],
     "name": "sg20",
     "units": "sigma-2 (p=2000 db), kg/m^3-1000",
@@ -1297,7 +1336,8 @@
   },
   {
     "aliases": [
-      "sigma-300"
+      "sigma-300",
+      "sg30"
     ],
     "name": "sg30",
     "units": "sigma-3 (p=3000 db), kg/m^3-1000",
@@ -1308,7 +1348,8 @@
   },
   {
     "aliases": [
-      "sigma-400"
+      "sigma-400",
+      "sg40"
     ],
     "name": "sg40",
     "units": "sigma-4 (p=4000 db), kg/m^3-1000",
@@ -1459,7 +1500,8 @@
   },
   {
     "aliases": [
-      "svCM"
+      "svCM",
+      "sv0CM"
     ],
     "name": "sv0CM",
     "units": "Chen-Millero, m/s",
@@ -1468,7 +1510,8 @@
   },
   {
     "aliases": [
-      "svCF"
+      "svCF",
+      "sv0CF"
     ],
     "name": "sv0CF",
     "units": "Chen-Millero, ft/s",
@@ -1477,7 +1520,8 @@
   },
   {
     "aliases": [
-      "svDM"
+      "svDM",
+      "sv0DM"
     ],
     "name": "sv0DM",
     "units": "Delgrosso, m/s",
@@ -1486,7 +1530,8 @@
   },
   {
     "aliases": [
-      "svDF"
+      "svDF",
+      "sv0DF"
     ],
     "name": "sv0DF",
     "units": "Delgrosso, ft/s",
@@ -1495,7 +1540,8 @@
   },
   {
     "aliases": [
-      "svWM"
+      "svWM",
+      "sv0WM"
     ],
     "name": "sv0WM",
     "units": "Wilson, m/s",
@@ -1504,7 +1550,8 @@
   },
   {
     "aliases": [
-      "svWF"
+      "svWF",
+      "sv0WF"
     ],
     "name": "sv0WF",
     "units": "Wilson, ft/s",
@@ -1675,7 +1722,8 @@
   },
   {
     "aliases": [
-      "dz/dtM"
+      "dz/dtM",
+      "dzdtM"
     ],
     "name": "dzdtM",
     "units": "m/s",
@@ -1684,7 +1732,8 @@
   },
   {
     "aliases": [
-      "dz/dtF"
+      "dz/dtF",
+      "dzdtF"
     ],
     "name": "dzdtF",
     "units": "ft/s",
@@ -3715,6 +3764,61 @@
     ],
     "name": "gsw_densityA0",
     "units": "kg/m^3",
+    "title": "Density",
+    "info": [
+      "TEOS-10"
+    ]
+  },
+  {
+    "aliases": [
+      "gsw_sigma0A0"
+    ],
+    "name": "gsw_sigma0A0",
+    "units": "sigma-0, kg/m^3",
+    "title": "Density",
+    "info": [
+      "TEOS-10"
+    ]
+  },
+  {
+    "aliases": [
+      "gsw_sigma1A0"
+    ],
+    "name": "gsw_sigma1A0",
+    "units": "sigma-1, kg/m^3",
+    "title": "Density",
+    "info": [
+      "TEOS-10"
+    ]
+  },
+  {
+    "aliases": [
+      "gsw_sigma2A0"
+    ],
+    "name": "gsw_sigma2A0",
+    "units": "sigma-2, kg/m^3",
+    "title": "Density",
+    "info": [
+      "TEOS-10"
+    ]
+  },
+  {
+    "aliases": [
+      "gsw_sigma3A0"
+    ],
+    "name": "gsw_sigma3A0",
+    "units": "sigma-3, kg/m^3",
+    "title": "Density",
+    "info": [
+      "TEOS-10"
+    ]
+  },
+  {
+    "aliases": [
+      "gsw_sigma4A0"
+    ],
+    "name": "gsw_sigma4A0",
+    "units": "sigma-4, kg/m^3",
     "title": "Density",
     "info": [
       "TEOS-10"
