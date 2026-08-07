@@ -1,6 +1,5 @@
 import seabirdscientific.cal_coefficients as cc
 
-
 # cal coefficients for example 19pV2 data SN6130
 temperature_coefs_sn6130 = cc.TemperatureCoefficients(
     a0=1.28015621e-003,

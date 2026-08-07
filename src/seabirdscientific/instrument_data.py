@@ -1,22 +1,17 @@
 """Functions for processing instrument data."""
 
-# Native imports
-from enum import Enum
-from datetime import datetime, timedelta
-from logging import getLogger
-from typing import List, Dict, Union
-from pathlib import Path
 import warnings
+from datetime import datetime, timedelta
+from enum import Enum
+from logging import getLogger
+from pathlib import Path
 
-# Third-party imports
 import numpy as np
 import pandas as pd
 import xarray as xr
 
-# Sea-Bird imports
 from seabirdscientific.constants import COUNTS_TO_VOLTS, SECONDS_BETWEEN_EPOCH_AND_2000
 from seabirdscientific.utils import WarnAllMembersMeta
-
 
 logger = getLogger(__name__)
 
@@ -217,7 +212,7 @@ class HexDataTypes(Enum, metaclass=WarnAllMembersMeta):
     systemTime = "system time"
 
 
-def read_cnv_file(filepath: Union[Path, str]) -> xr.Dataset:
+def read_cnv_file(filepath: Path | str) -> xr.Dataset:
     """Import the data from a .cnv file and put it into an xarray
     Dataset. Duplicate varioable names will have a number appended. For
     example, the second "depSM" becomes "depSM_1".
@@ -305,15 +300,15 @@ def read_cnv_file(filepath: Union[Path, str]) -> xr.Dataset:
     return dataset
 
 
-def cnv_to_instrument_data(filepath: Union[Path, str]) -> xr.Dataset:
+def cnv_to_instrument_data(filepath: Path | str) -> xr.Dataset:
     warnings.warn("Deprecated, use read_cnv_file", DeprecationWarning)
     return read_cnv_file(filepath)
 
 
 def read_hex_file(
-    filepath: Union[Path, str],
+    filepath: Path | str,
     instrument_type: InstrumentType,
-    enabled_sensors: List[Sensors] = [],
+    enabled_sensors: list[Sensors],
     moored_mode=False,
     is_shallow=True,
     frequency_channels_suppressed=0,
@@ -418,7 +413,7 @@ def _preallocate_dataset(
 def read_hex(
     instrument_type: InstrumentType,
     hex_segment: str = "",
-    enabled_sensors: Union[List[Sensors], None] = None,
+    enabled_sensors: list[Sensors] | None = None,
     moored_mode=False,
     is_shallow=True,
     frequency_channels_suppressed=0,
@@ -480,8 +475,8 @@ def read_hex(
 
 def read_sbe39plus_data(
     hex_segment: str = "",
-    enabled_sensors: Union[List[Sensors], None] = None,
-) -> Dict[str, Union[int, float, datetime]]:
+    enabled_sensors: list[Sensors] | None = None,
+) -> dict[str, int | float | datetime]:
     """Converts a 39plus data hex string into engineering units.
 
     :param hex_segment: one line from a hex data file
@@ -491,7 +486,7 @@ def read_sbe39plus_data(
         extracted from the input hex string
     """
 
-    results: Dict[str, Union[int, float, datetime]] = {}
+    results: dict[str, int | float | datetime] = {}
     n = 0
 
     # Datetime (naive, no timezone conversion)
@@ -530,7 +525,7 @@ def read_seafet_data(
     hex_segment: str,
     instrument_type: InstrumentType,
     is_shallow: bool = True,
-) -> Dict[str, Union[int, float, datetime]]:
+) -> dict[str, int | float | datetime]:
     """Converts a SeaFET2 or SeapHox2 hex string into engineering units.
 
     :param hex_segment: one line from a hex data file
@@ -545,7 +540,7 @@ def read_seafet_data(
             f"In read_seafet_data {instrument_type} is not recognized as a SeaFET2 or SeapHox2"
         )
 
-    results: Dict[str, Union[int, float, datetime]] = {}
+    results: dict[str, int | float | datetime] = {}
     n = 0
 
     # SeapHox2 specific values
@@ -632,10 +627,10 @@ def read_seafet_format_0(*args, **kwargs):
 
 def read_sbe911plus_data(
     hex_segment: str = "",
-    enabled_sensors: Union[List[Sensors], None] = None,
+    enabled_sensors: list[Sensors] | None = None,
     frequency_channels_suppressed: int = 0,
     voltage_words_suppressed: int = 0,
-) -> dict[str, Union[int, float, datetime]]:
+) -> dict[str, int | float | datetime]:
     """Converts a 911Plus hex string into engineering units.
 
     :param hex_segment: one line from a hex data file
@@ -648,7 +643,7 @@ def read_sbe911plus_data(
     if enabled_sensors is None:
         enabled_sensors = []
 
-    results: dict[str, Union[int, float, datetime]] = {}
+    results: dict[str, int | float | datetime] = {}
     n = 0
 
     # Temperature
@@ -807,9 +802,9 @@ def read_SBE911plus_format_0(*args, **kwargs):
 
 def read_sbe19plus_data(
     hex_segment: str = "",
-    enabled_sensors: Union[List[Sensors], None] = None,
+    enabled_sensors: list[Sensors] | None = None,
     moored_mode=False,
-) -> Dict[str, Union[float, datetime]]:
+) -> dict[str, float | datetime]:
     """Converts a 19plus V2 data hex string into engineering units.
 
     :param hex_segment: one line from a hex data file
@@ -825,7 +820,7 @@ def read_sbe19plus_data(
 
     """
 
-    results: Dict[str, Union[int, float, datetime]] = {}
+    results: dict[str, int | float | datetime] = {}
     n = 0
     for sensor in Sensors:
         if enabled_sensors and sensor in enabled_sensors:
@@ -978,7 +973,7 @@ def read_sbe19plus_data(
 
             if sensor == Sensors.statusAndSign:
                 signs = read_status_sign(hex_segment[n : n + HEX_LEN_NMEA_STATUS_AND_SIGN])
-                if signs is np.nan:
+                if pd.isna(signs):
                     results[HEX_TYPE_NMEA_LATITUDE] *= np.nan
                     results[HEX_TYPE_NMEA_LONGITUDE] *= np.nan
                 else:
@@ -1012,8 +1007,8 @@ def read_sbe19plus_data(
 
     # Final validation to check if any values have been set to NaN, and if so,
     # set all values to NaN
-    for key in results:
-        if pd.isna(results[key]):
+    for key, value in results.items():
+        if pd.isna(value):
             logger.warning("Invalid scan detected, values set to NaN")
             for key in results:
                 results[key] = np.nan
@@ -1028,8 +1023,8 @@ def read_SBE19plus_format_0(*args, **kwargs):
 
 def read_sbe37sm_data(
     hex_segment: str = "",
-    enabled_sensors: Union[List[Sensors], None] = None,
-) -> Dict[str, Union[int, float, datetime]]:
+    enabled_sensors: list[Sensors] | None = None,
+) -> dict[str, int | float | datetime]:
     """Converts a 37 family data hex string into engineering units.
 
     :param hex_segment: one line from a hex data file
@@ -1041,7 +1036,7 @@ def read_sbe37sm_data(
         extracted from the input hex string
     """
 
-    results: Dict[str, Union[int, float, datetime]] = {}
+    results: dict[str, int | float | datetime] = {}
     n = 0
     results[HEX_TYPE_TEMPERATURE] = int(hex_segment[n:HEX_LEN_TEMPERATURE], 16)
     n += HEX_LEN_TEMPERATURE

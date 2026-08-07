@@ -1,17 +1,13 @@
 """A collection of raw data conversion functions."""
 
-# Native imports
 import math
 from typing import Literal
 
-# Third-party imports
 import gsw
 import numpy as np
-import xarray as xr
 from numpy.polynomial import Polynomial
 from scipy import stats
 
-# Sea-Bird imports
 import seabirdscientific.cal_coefficients as cc
 import seabirdscientific.constants as const
 import seabirdscientific.instrument_data as si
@@ -111,7 +107,6 @@ def convert_pressure_units(
 ) -> np.ndarray:
     _pressure = pressure.copy()
 
-
     if from_units == "psia" and to_units in ("dbar", "psig"):
         _pressure -= const.SEA_LEVEL_PRESSURE
     elif from_units in ("dbar", "psig") and to_units == "psia":
@@ -193,7 +188,7 @@ def convert_pressure_digiquartz(
     v = compensation_voltage.copy()
 
     # TODO vectorize this in TKIT-200
-    for i in range(0, len(compensation_voltage)):
+    for i in range(len(compensation_voltage)):
         if i < scans_in_window:
             # remove a copy of 0-index value from rolling sum
             rolling_sum -= compensation_voltage[0]
@@ -220,9 +215,9 @@ def convert_pressure_digiquartz(
 
 
 def convert_conductivity_units(
-        conductivity: np.ndarray,
-        from_units: Literal["S/m", "mS/cm", "uS/cm"],
-        to_units: Literal["S/m", "mS/cm", "uS/cm"] = "S/m",
+    conductivity: np.ndarray,
+    from_units: Literal["S/m", "mS/cm", "uS/cm"],
+    to_units: Literal["S/m", "mS/cm", "uS/cm"] = "S/m",
 ) -> np.ndarray:
     if from_units == "S/m" and to_units == "mS/cm":
         return conductivity * 10
@@ -246,7 +241,7 @@ def convert_conductivity(
     pressure: np.ndarray,
     coefs: cc.ConductivityCoefficients,
     instrument_type: si.InstrumentType,
-    units: Literal["S/m", "mS/cm", "uS/cm"] = "S/m"
+    units: Literal["S/m", "mS/cm", "uS/cm"] = "S/m",
 ):
     """Converts raw conductivity counts to S/m, mS/cm, or uS/cm.
 
@@ -264,7 +259,7 @@ def convert_conductivity(
     """
     scalar = 1
     if instrument_type == si.InstrumentType.SBE911Plus:
-        scalar = 1/10
+        scalar = 1 / 10
 
     if instrument_type in (
         si.InstrumentType.SBE16Plus,

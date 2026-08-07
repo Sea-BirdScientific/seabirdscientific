@@ -1,22 +1,14 @@
 """Data conversion unit tests."""
 
-# Native imports
+from pathlib import Path
 
-# Third-party imports
 import numpy as np
 import pandas as pd
 import pytest
-from pathlib import Path
 
-# Sea-Bird imports
-
-# Internal imports
 import seabirdscientific.conversion as dc
 import seabirdscientific.instrument_data as id
-
-# relative path imports
 import test_coefficients as tc
-
 
 test_data = Path("./tests/resources/test-data")
 
@@ -238,7 +230,7 @@ class TestConductivity19plus:
             tc.conductivity_coefs_sn6130,
             id.InstrumentType.SBE19Plus,
         )
-        
+
         assert np.allclose(expected, result, rtol=0, atol=1e-6)
 
 

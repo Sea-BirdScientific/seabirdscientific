@@ -1,22 +1,19 @@
 """Functions to support data visualization."""
 
-# Native imports
 import json
 import warnings
 from dataclasses import dataclass
 from datetime import timedelta
 from logging import getLogger
 from pathlib import Path
-from typing import Dict, List, Literal, Optional, Union
+from typing import Literal
 
-# Third-party imports
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 import xarray as xr
 from plotly import subplots
 
-# Internal imports
 from seabirdscientific.interpret_sbs_variable import interpret_sbs_variable
 
 # TODO: check python version
@@ -36,20 +33,18 @@ class AxisSettings:
     name: str  # e.g. "tv290C", "c0S/m"
     title: str  # e.g. "Temperature", "Conductivity"
     units: str  # e.g. "ITS-90 deg C", "S/m"
-    range: List[float]  # e.g. [0, 50], [20, 100] one pair per variable
+    range: list[float]  # e.g. [0, 50], [20, 100] one pair per variable
     marker: str  # e.g. "circle", "square"
     color: str  #  e.g. "#00576d", "#0083a4", "#8ae7ff"
-    color_scale: List[
-        List[Union[float, str]]
-    ]  # e.g. [[0, "#00576d"],[0.4, "#0083a4"],[1, "#8ae7ff"]]
+    color_scale: list[list[float | str]]  # e.g. [[0, "#00576d"],[0.4, "#0083a4"],[1, "#8ae7ff"]]
     transform: Transform
 
 
 @dataclass
 class Axes:
-    x: List[AxisSettings]
-    y: List[AxisSettings]
-    z: List[AxisSettings]
+    x: list[AxisSettings]
+    y: list[AxisSettings]
+    z: list[AxisSettings]
 
 
 @dataclass
@@ -64,7 +59,7 @@ class PlotSettings:
     title_font_size: float
     label_font_size: float
     marker_size: float
-    series_names: List[str]
+    series_names: list[str]
     annotate: bool
     background_color: str
     height: int
@@ -82,14 +77,14 @@ class ChartConfig:
     def __init__(
         self,
         title: str,
-        x_names: List[str],
-        y_names: List[str],
-        z_names: List[str],
+        x_names: list[str],
+        y_names: list[str],
+        z_names: list[str],
         chart_type: Literal["overlay", "subplots"],
-        bounds: Optional[Dict[Literal["x", "y", "z"], Dict[int, List[int]]]] = None,
-        x_titles: Optional[List[str]] = None,
-        y_titles: Optional[List[str]] = None,
-        z_titles: Optional[List[str]] = None,
+        bounds: dict[Literal["x", "y", "z"], dict[int, list[int]]] | None = None,
+        x_titles: list[str] | None = None,
+        y_titles: list[str] | None = None,
+        z_titles: list[str] | None = None,
         plot_loop_edit_flags=False,
         lift_pen_over_bad_data=False,
         flag_value=-9.99e-29,
@@ -144,9 +139,9 @@ class ChartConfig:
         self.lift_pen_over_bad_data = lift_pen_over_bad_data
         self.flag_value = flag_value
 
-        axes: List[Literal["x", "y", "z"]] = ["x", "y", "z"]
+        axes: list[Literal["x", "y", "z"]] = ["x", "y", "z"]
         for axis in axes:
-            if axis not in self.bounds.keys():
+            if axis not in self.bounds:
                 self.bounds[axis] = {}
 
 
@@ -165,7 +160,7 @@ def _mask_dataset(dataset: xr.Dataset, config: ChartConfig) -> xr.Dataset:
     return masked
 
 
-def parse_instrument_data(source: Union[str, Path, pd.DataFrame, xr.Dataset]) -> xr.Dataset:
+def parse_instrument_data(source: str | Path | pd.DataFrame | xr.Dataset) -> xr.Dataset:
     """Top level function for converting instrument data to numpy array.
 
     Currently supports pandas dataframes, json strings, or a Path to the

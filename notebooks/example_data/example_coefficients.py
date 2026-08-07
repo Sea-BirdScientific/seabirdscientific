@@ -1,21 +1,20 @@
 from seabirdscientific.cal_coefficients import (
+    AltimeterCoefficients,
     ConductivityCoefficients,
+    ECOCoefficients,
     Oxygen43Coefficients,
     Oxygen63Coefficients,
     PH18Coefficients,
     PHSeaFETExternalCoefficients,
     PHSeaFETInternalCoefficients,
-    TemperatureSeaFETCoefficients,
     PressureCoefficients,
     PressureDigiquartzCoefficients,
+    SPARCoefficients,
     TemperatureCoefficients,
     TemperatureFrequencyCoefficients,
+    TemperatureSeaFETCoefficients,
     Thermistor63Coefficients,
-    ECOCoefficients,
-    AltimeterCoefficients,
-    SPARCoefficients,
 )
-
 
 # @dataclass
 # class SN6130:  # cal coefficients for example 19pV2 data

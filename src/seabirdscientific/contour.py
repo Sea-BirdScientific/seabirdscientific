@@ -2,22 +2,10 @@
 and salinity (TS) contours.
 """
 
-# Classes:
-#   ContourData
-# Functions:
-#   contour_from_t_s_p (np.ndarray, np.ndarray, np.ndarray, float, float, float) -> ContourData
-#   contour_from_t_c_p (np.ndarray, np.ndarray, np.ndarray, float, float, float) -> ContourData
-
-# Native imports
 from dataclasses import dataclass
 
-# Third-party imports
 import gsw
 import numpy as np
-
-# Sea-Bird imports
-
-# Internal imports
 
 
 @dataclass
@@ -90,7 +78,7 @@ def contour_from_t_s_p(
 
     # Loop to fill in density
     potential_density_matrix = np.zeros((y_cells, x_cells))
-    for j in range(0, y_cells):
+    for j in range(y_cells):
         potential_density_matrix[j, :] = gsw.rho(salinity_vector, temperature_vector[j], 0)
 
     # Subtract 1000 to convert to sigma-t

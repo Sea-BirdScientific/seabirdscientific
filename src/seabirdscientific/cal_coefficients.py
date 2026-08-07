@@ -1,14 +1,6 @@
 """Calibration coefficient dataclasses for data conversion."""
 
-# Native imports
 from dataclasses import dataclass
-from typing import Optional
-
-# Third-party imports
-
-# Sea-Bird imports
-
-# Internal imports
 
 
 @dataclass

@@ -1,17 +1,12 @@
 """Visualization unit tests"""
 
-# Native imports
 from pathlib import Path
 
-# Third-party imports
 import numpy as np
-import pytest
 import plotly.graph_objects as go
+import pytest
 import xarray as xr
 
-# Sea-Bird imports
-
-# Internal imports
 import seabirdscientific.visualization as sv
 
 test_resources = Path("./tests/resources")
@@ -119,14 +114,12 @@ class TestDatasetInput:
 
     def test_chart_data_y_error(self, config):
         with pytest.raises(KeyError):
-            config = config
             config.y_names = ["Col999"]
             data = sv.parse_instrument_data(self.data_path)
             sv.plot_xy_chart(data, config)
 
     def test_chart_data_z_error(self, config):
         with pytest.raises(KeyError):
-            config = config
             config.z_names = ["Col999"]
             data = sv.parse_instrument_data(self.data_path)
             sv.select_subset(config.z_names, data)

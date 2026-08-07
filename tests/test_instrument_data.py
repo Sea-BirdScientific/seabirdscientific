@@ -1,16 +1,11 @@
 """instrument data conversion unit tests."""
 
-# Native imports
 from datetime import datetime
 from pathlib import Path
 
-# Third-party imports
 import pandas as pd
 import pytest
 
-# Sea-Bird imports
-
-# Internal imports
 import seabirdscientific.instrument_data as si
 
 test_data = Path("./tests/resources/test-data")
@@ -21,18 +16,16 @@ class TestCnvToInstrumentData:
         file_path = test_data / "SBE37SM.cnv"
         dataset = si.read_cnv_file(file_path)
 
-        expected_variables = set(
-            [
-                "tv290C",
-                "cond0S/m",
-                "prdM",
-                "prdE",
-                "depSM",
-                "depSF",
-                "sal00",
-                "flag",
-            ]
-        )
+        expected_variables = {
+            "tv290C",
+            "cond0S/m",
+            "prdM",
+            "prdE",
+            "depSM",
+            "depSF",
+            "sal00",
+            "flag",
+        }
         assert expected_variables == set(dataset.data_vars)
         assert dataset.attrs["sample_interval"] == 120
         assert dataset["tv290C"].name == "tv290C"
@@ -49,27 +42,25 @@ class TestCnvToInstrumentData:
         file_path = test_data / "WQR086CFACLWDB.cnv"
         dataset = si.read_cnv_file(file_path)
 
-        expected_variables = set(
-            [
-                "prDM",
-                "t090C",
-                "c0S/m",
-                "scan_count",
-                "depSM",
-                "timeS",
-                "cpar",
-                "spar",
-                "turbWETntu0",
-                "flECO-AFL",
-                "par",
-                "t190C",
-                "c1S/m",
-                "depSM_1",  # this duplicate "depSM" was a problem, increments to "depSM_1"
-                "sal00",
-                "nbin",
-                "flag",
-            ]
-        )
+        expected_variables = {
+            "prDM",
+            "t090C",
+            "c0S/m",
+            "scan_count",
+            "depSM",
+            "timeS",
+            "cpar",
+            "spar",
+            "turbWETntu0",
+            "flECO-AFL",
+            "par",
+            "t190C",
+            "c1S/m",
+            "depSM_1",  # this duplicate "depSM" was a problem, increments to "depSM_1"
+            "sal00",
+            "nbin",
+            "flag",
+        }
 
         assert expected_variables == set(dataset.data_vars)
 
