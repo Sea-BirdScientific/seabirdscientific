@@ -1513,7 +1513,7 @@ def _compute_rolling_average(
     compute_var: np.ndarray,
     window_size: float,
     sample_interval: float,
-    modification_fn: callable = None,
+    modification_fn: callable | None = None,
 ) -> np.ndarray:
     """Computes a rolling average of the given variable over the specified window size.
     Averages with equal number values on either side of the center of each window.

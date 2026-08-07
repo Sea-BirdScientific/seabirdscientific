@@ -25,5 +25,5 @@ jobs:
 
       - name: Run ruff check and ruff format
         run: |
-          uv run ruff check . --ignore I001
+          uv run ruff check .
           uv run ruff format --check .

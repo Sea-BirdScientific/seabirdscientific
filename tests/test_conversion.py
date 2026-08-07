@@ -6,11 +6,9 @@ import numpy as np
 import pandas as pd
 import pytest
 
+import seabirdscientific.constants as const
 import seabirdscientific.conversion as dc
 import seabirdscientific.instrument_data as id
-import seabirdscientific.constants as const
-
-# relative path imports
 import test_coefficients as tc
 
 test_data = Path("./tests/resources/test-data")
