@@ -10,6 +10,7 @@ import numpy as np
 from line_profiler import LineProfiler
 
 # Sea-Bird imports
+import seabirdscientific.constants as const
 
 
 def close_enough(
