@@ -230,9 +230,10 @@
   },
   {
     "aliases": [
-      "T2-T190C"
+      "T2-T190C",
+      "tdiff90C"
     ],
-    "name": "tdiff90C",
+    "name": "T2-T190C",
     "units": "deg C",
     "title": "Temperature-Difference",
     "info": [
@@ -241,9 +242,10 @@
   },
   {
     "aliases": [
-      "T2-T190F"
+      "T2-T190F",
+      "tdiff90F"
     ],
-    "name": "tdiff90F",
+    "name": "T2-T190F",
     "units": "deg F",
     "title": "Temperature-Difference",
     "info": [
@@ -252,9 +254,10 @@
   },
   {
     "aliases": [
-      "T2-T168C"
+      "T2-T168C",
+      "tdiff68C"
     ],
-    "name": "tdiff68C",
+    "name": "T2-T168C",
     "units": "deg C",
     "title": "Temperature-Difference",
     "info": [
@@ -263,9 +266,10 @@
   },
   {
     "aliases": [
-      "T2-T168F"
+      "T2-T168F",
+      "tdiff68F"
     ],
-    "name": "tdiff68F",
+    "name": "T2-T168F",
     "units": "deg F",
     "title": "Temperature-Difference",
     "info": [
@@ -287,9 +291,10 @@
     "aliases": [
       "c_S/m",
       "cond0S/m",
-      "c0S/m"
+      "c0S/m",
+      "c0Sm"
     ],
-    "name": "c0Sm",
+    "name": "c0S/m",
     "units": "S/m",
     "title": "Conductivity",
     "info": []
@@ -298,9 +303,10 @@
     "aliases": [
       "c_mS/cm",
       "cond0mS/cm",
-      "c0mS/cm"
+      "c0mS/cm",
+      "c0mScm"
     ],
-    "name": "c0mScm",
+    "name": "c0mS/cm",
     "units": "mS/cm",
     "title": "Conductivity",
     "info": []
@@ -309,9 +315,10 @@
     "aliases": [
       "c_uS/cm",
       "cond0uS/cm",
-      "c0uS/cm"
+      "c0uS/cm",
+      "c0uScm"
     ],
-    "name": "c0uScm",
+    "name": "c0uS/cm",
     "units": "μS/cm",
     "title": "Conductivity",
     "info": []
@@ -320,9 +327,10 @@
     "aliases": [
       "c1S/m",
       "c0S/m_1",
-      "c0S_m_1"
+      "c0S_m_1",
+      "c1Sm"
     ],
-    "name": "c1Sm",
+    "name": "c1S/m",
     "units": "S/m",
     "title": "Conductivity",
     "info": [
@@ -333,9 +341,10 @@
     "aliases": [
       "c1mS/cm",
       "c0mS/cm_1",
-      "c0mS_cm_1"
+      "c0mS_cm_1",
+      "c1mScm"
     ],
-    "name": "c1mScm",
+    "name": "c1mS/cm",
     "units": "mS/cm",
     "title": "Conductivity",
     "info": [
@@ -346,9 +355,10 @@
     "aliases": [
       "c1uS/cm",
       "c0uS/cm_1",
-      "c0uS_cm_1"
+      "c0uS_cm_1",
+      "c1uScm"
     ],
-    "name": "c1uScm",
+    "name": "c1uS/cm",
     "units": "μS/cm",
     "title": "Conductivity",
     "info": [
@@ -357,27 +367,30 @@
   },
   {
     "aliases": [
-      "C2-C1S/m"
+      "C2-C1S/m",
+      "cdiffSm"
     ],
-    "name": "cdiffSm",
+    "name": "C2-C1S/m",
     "units": "S/m",
     "title": "Conductivity-Difference",
     "info": []
   },
   {
     "aliases": [
-      "C2-C1mS/cm"
+      "C2-C1mS/cm",
+      "cdiffmScm"
     ],
-    "name": "cdiffmScm",
+    "name": "C2-C1mS/cm",
     "units": "mS/cm",
     "title": "Conductivity-Difference",
     "info": []
   },
   {
     "aliases": [
-      "C2-C1uS/cm"
+      "C2-C1uS/cm",
+      "cdiffuScm"
     ],
-    "name": "cdiffuScm",
+    "name": "C2-C1uS/cm",
     "units": "μS/cm",
     "title": "Conductivity-Difference",
     "info": []
@@ -985,67 +998,30 @@
   },
   {
     "aliases": [
-      "potemp090C"
+      "potemp090C",
+      "th090C"
     ],
-    "name": "th090C",
+    "name": "potemp090C",
     "units": "deg C",
     "title": "Potential-Temperature",
     "info": []
   },
   {
     "aliases": [
-      "potemp090F"
+      "potemp090F",
+      "th090F"
     ],
-    "name": "th090F",
+    "name": "potemp090F",
     "units": "deg F",
     "title": "Potential-Temperature",
     "info": []
   },
   {
     "aliases": [
-      "potemp068C"
+      "potemp068C",
+      "th068C"
     ],
-    "name": "th068C",
-    "units": "deg C",
-    "title": "Potential-Temperature",
-    "info": [
-      "ITS-68"
-    ]
-  },
-  {
-    "aliases": [
-      "potemp068F"
-    ],
-    "name": "th068F",
-    "units": "deg F",
-    "title": "Potential-Temperature",
-    "info": [
-      "ITS-68"
-    ]
-  },
-  {
-    "aliases": [
-      "potemp190C"
-    ],
-    "name": "th190C",
-    "units": "deg C",
-    "title": "Potential-Temperature",
-    "info": []
-  },
-  {
-    "aliases": [
-      "potemp190F"
-    ],
-    "name": "th190F",
-    "units": "deg F",
-    "title": "Potential-Temperature",
-    "info": []
-  },
-  {
-    "aliases": [
-      "potemp168C"
-    ],
-    "name": "th168C",
+    "name": "potemp068C",
     "units": "deg C",
     "title": "Potential-Temperature",
     "info": [
@@ -1054,9 +1030,10 @@
   },
   {
     "aliases": [
-      "potemp168F"
+      "potemp068F",
+      "th068F"
     ],
-    "name": "th168F",
+    "name": "potemp068F",
     "units": "deg F",
     "title": "Potential-Temperature",
     "info": [
@@ -1065,27 +1042,74 @@
   },
   {
     "aliases": [
-      "potemp90Cdiff"
+      "potemp190C",
+      "th190C"
     ],
-    "name": "th090Cdiff",
+    "name": "potemp190C",
+    "units": "deg C",
+    "title": "Potential-Temperature",
+    "info": []
+  },
+  {
+    "aliases": [
+      "potemp190F",
+      "th190F"
+    ],
+    "name": "potemp190F",
+    "units": "deg F",
+    "title": "Potential-Temperature",
+    "info": []
+  },
+  {
+    "aliases": [
+      "potemp168C",
+      "th168C"
+    ],
+    "name": "potemp168C",
+    "units": "deg C",
+    "title": "Potential-Temperature",
+    "info": [
+      "ITS-68"
+    ]
+  },
+  {
+    "aliases": [
+      "potemp168F",
+      "th168F"
+    ],
+    "name": "potemp168F",
+    "units": "deg F",
+    "title": "Potential-Temperature",
+    "info": [
+      "ITS-68"
+    ]
+  },
+  {
+    "aliases": [
+      "potemp90Cdiff",
+      "th090Cdiff"
+    ],
+    "name": "potemp90Cdiff",
     "units": "deg C",
     "title": "Potential-Temperature-Difference",
     "info": []
   },
   {
     "aliases": [
-      "potemp90Fdiff"
+      "potemp90Fdiff",
+      "th090Fdiff"
     ],
-    "name": "th090Fdiff",
+    "name": "potemp90Fdiff",
     "units": "deg F",
     "title": "Potential-Temperature-Difference",
     "info": []
   },
   {
     "aliases": [
-      "potemp68Cdiff"
+      "potemp68Cdiff",
+      "th068Cdiff"
     ],
-    "name": "th068Cdiff",
+    "name": "potemp68Cdiff",
     "units": "deg C",
     "title": "Potential-Temperature-Difference",
     "info": [
@@ -1094,9 +1118,10 @@
   },
   {
     "aliases": [
-      "potemp68Fdiff"
+      "potemp68Fdiff",
+      "th068Fdiff"
     ],
-    "name": "th068Fdiff",
+    "name": "potemp68Fdiff",
     "units": "deg F",
     "title": "Potential-Temperature-Difference",
     "info": [
@@ -1229,10 +1254,11 @@
   },
   {
     "aliases": [
+      "practicalSalinity",
       "sal00",
       "psal0"
     ],
-    "name": "psal0",
+    "name": "sal00",
     "units": "PSU",
     "title": "Salinity",
     "info": [
@@ -1241,9 +1267,10 @@
   },
   {
     "aliases": [
-      "sal11"
+      "sal11",
+      "psal1"
     ],
-    "name": "psal1",
+    "name": "sal11",
     "units": "PSU",
     "title": "Salinity",
     "info": [
@@ -1252,9 +1279,10 @@
   },
   {
     "aliases": [
-      "secS-priS"
+      "secS-priS",
+      "psaldiff"
     ],
-    "name": "psaldiff",
+    "name": "secS-priS",
     "units": "PSU",
     "title": "Salinity",
     "info": [
