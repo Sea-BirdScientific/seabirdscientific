@@ -182,9 +182,7 @@ def convert_pressure_digiquartz(
         return x * coefs.AD590M + coefs.AD590B
 
     # using a short name to make the equations a little easier to read
-    v = _compute_rolling_average(
-        compensation_voltage, 30, sample_interval, modification_function
-    )
+    v = _compute_rolling_average(compensation_voltage, 30, sample_interval, modification_function)
 
     # Now, calculate pressure
     t = 1 / pressure_count * 1e6  # convert to period in usec
@@ -695,7 +693,7 @@ def convert_oxygen_units(
     pressure: np.ndarray,
     salinity: np.ndarray,
     from_units: Literal["ml/l", "mg/l", "umol/kg", "umol/l", "saturation_percent"],
-    to_units: Literal["ml/l", "mg/l", "umol/kg", "umol/l", "saturation_percent"]
+    to_units: Literal["ml/l", "mg/l", "umol/kg", "umol/l", "saturation_percent"],
 ):
     """Convert oxygen values between supported oxygen units.
 

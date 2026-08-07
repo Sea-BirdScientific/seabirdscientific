@@ -1,11 +1,11 @@
 """Utility functions related to processing SBS instrument data."""
+
 import warnings
 from enum import EnumMeta
 
 import matplotlib.pyplot as plt
 import numpy as np
 from line_profiler import LineProfiler
-
 
 
 def close_enough(
