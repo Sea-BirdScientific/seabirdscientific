@@ -1307,7 +1307,7 @@
       "density00",
       "rho0"
     ],
-    "name": "rho0",
+    "name": "density00",
     "units": "density, kg/m^3",
     "title": "Density",
     "info": [
@@ -1319,7 +1319,7 @@
       "sigma-é00",
       "sgth0"
     ],
-    "name": "sgth0",
+    "name": "sigma-é00",
     "units": "sigma-theta (p=0 db), kg/m^3-1000",
     "title": "Density",
     "info": [
@@ -1331,7 +1331,7 @@
       "sigma-t00",
       "sgt0"
     ],
-    "name": "sgt0",
+    "name": "sigma-t00",
     "units": "sigma-t (p=0 db), kg/m^3-1000",
     "title": "Density",
     "info": [
@@ -1343,7 +1343,7 @@
       "sigma-100",
       "sg10"
     ],
-    "name": "sg10",
+    "name": "sigma-100",
     "units": "sigma-1 (p=1000 db), kg/m^3-1000",
     "title": "Density",
     "info": [
@@ -1355,7 +1355,7 @@
       "sigma-200",
       "sg20"
     ],
-    "name": "sg20",
+    "name": "sigma-200",
     "units": "sigma-2 (p=2000 db), kg/m^3-1000",
     "title": "Density",
     "info": [
@@ -1367,7 +1367,7 @@
       "sigma-300",
       "sg30"
     ],
-    "name": "sg30",
+    "name": "sigma-300",
     "units": "sigma-3 (p=3000 db), kg/m^3-1000",
     "title": "Density",
     "info": [
@@ -1379,7 +1379,7 @@
       "sigma-400",
       "sg40"
     ],
-    "name": "sg40",
+    "name": "sigma-400",
     "units": "sigma-4 (p=4000 db), kg/m^3-1000",
     "title": "Density",
     "info": [
@@ -1388,9 +1388,10 @@
   },
   {
     "aliases": [
-      "density11"
+      "density11",
+      "rho1"
     ],
-    "name": "rho1",
+    "name": "density11",
     "units": "density, kg/m^3",
     "title": "Density",
     "info": [
@@ -1399,9 +1400,10 @@
   },
   {
     "aliases": [
-      "sigma-é11"
+      "sigma-é11",
+      "sgth1"
     ],
-    "name": "sgth1",
+    "name": "sigma-é11",
     "units": "sigma-theta (p=0 db), kg/m^3-1000",
     "title": "Density",
     "info": [
@@ -1410,9 +1412,10 @@
   },
   {
     "aliases": [
-      "sigma-t11"
+      "sigma-t11",
+      "sgt1"
     ],
-    "name": "sgt1",
+    "name": "sigma-t11",
     "units": "sigma-t (p=0 db), kg/m^3-1000",
     "title": "Density",
     "info": [
@@ -1421,9 +1424,10 @@
   },
   {
     "aliases": [
-      "sigma-111"
+      "sigma-111",
+      "sg11"
     ],
-    "name": "sg11",
+    "name": "sigma-111",
     "units": "sigma-1 (p=1000 db), kg/m^3-1000",
     "title": "Density",
     "info": [
@@ -1432,9 +1436,10 @@
   },
   {
     "aliases": [
-      "sigma-211"
+      "sigma-211",
+      "sg21"
     ],
-    "name": "sg21",
+    "name": "sigma-211",
     "units": "sigma-2 (p=2000 db), kg/m^3-1000",
     "title": "Density",
     "info": [
@@ -1443,9 +1448,10 @@
   },
   {
     "aliases": [
-      "sigma-311"
+      "sigma-311",
+      "sg31"
     ],
-    "name": "sg31",
+    "name": "sigma-311",
     "units": "sigma-3 (p=3000 db), kg/m^3-1000",
     "title": "Density",
     "info": [
@@ -1454,9 +1460,10 @@
   },
   {
     "aliases": [
-      "sigma-411"
+      "sigma-411",
+      "sg41"
     ],
-    "name": "sg41",
+    "name": "sigma-411",
     "units": "sigma-4 (p=4000 db), kg/m^3-1000",
     "title": "Density",
     "info": [
@@ -1465,63 +1472,70 @@
   },
   {
     "aliases": [
-      "D2-D1, d"
+      "D2-D1, d",
+      "rhodiff"
     ],
-    "name": "rhodiff",
+    "name": "D2-D1, d",
     "units": "density, kg/m^3",
     "title": "Density-Difference",
     "info": []
   },
   {
     "aliases": [
-      "D2-D1,th"
+      "D2-D1,th",
+      "sgthdiff"
     ],
-    "name": "sgthdiff",
+    "name": "D2-D1,th",
     "units": "sigma-theta, kg/m^3",
     "title": "Density-Difference",
     "info": []
   },
   {
     "aliases": [
-      "D2-D1,t"
+      "D2-D1,t",
+      "sgtdiff"
     ],
-    "name": "sgtdiff",
+    "name": "D2-D1,t",
     "units": "sigma-t, kg/m^3",
     "title": "Density-Difference",
     "info": []
   },
   {
     "aliases": [
-      "D2-D1,1"
+      "D2-D1,1",
+      "sg1diff"
     ],
-    "name": "sg1diff",
+    "name": "D2-D1,1",
     "units": "sigma-1 (p=1000 db), kg/m^3",
     "title": "Density-Difference",
     "info": []
   },
   {
     "aliases": [
-      "D2-D1,2"
+      "D2-D1,2",
+      "sg2diff"
     ],
-    "name": "sg2diff",
+    "name": "D2-D1,2",
     "units": "sigma-2 (p=1000 db), kg/m^3",
     "title": "Density-Difference",
     "info": []
   },
   {
     "aliases": [
-      "D2-D1,3"
+      "D2-D1,3",
+      "sg3diff"
     ],
-    "name": "sg3diff",
+    "name": "D2-D1,3",
     "units": "sigma-3 (p=1000 db), kg/m^3",
     "title": "Density-Difference",
     "info": []
   },
   {
     "aliases": [
-      "D2-D1,4"
+      "D2-D1,4",
+      "sg4diff"
     ],
-    "name": "sg4diff",
+    "name": "D2-D1,4",
     "units": "sigma-4 (p=1000 db), kg/m^3",
     "title": "Density-Difference",
     "info": []
@@ -1531,7 +1545,7 @@
       "svCM",
       "sv0CM"
     ],
-    "name": "sv0CM",
+    "name": "svCM",
     "units": "Chen-Millero, m/s",
     "title": "Sound-Velocity",
     "info": []
@@ -1541,7 +1555,7 @@
       "svCF",
       "sv0CF"
     ],
-    "name": "sv0CF",
+    "name": "svCF",
     "units": "Chen-Millero, ft/s",
     "title": "Sound-Velocity",
     "info": []
@@ -1551,7 +1565,7 @@
       "svDM",
       "sv0DM"
     ],
-    "name": "sv0DM",
+    "name": "svDM",
     "units": "Delgrosso, m/s",
     "title": "Sound-Velocity",
     "info": []
@@ -1561,7 +1575,7 @@
       "svDF",
       "sv0DF"
     ],
-    "name": "sv0DF",
+    "name": "svDF",
     "units": "Delgrosso, ft/s",
     "title": "Sound-Velocity",
     "info": []
@@ -1571,7 +1585,7 @@
       "svWM",
       "sv0WM"
     ],
-    "name": "sv0WM",
+    "name": "svWM",
     "units": "Wilson, m/s",
     "title": "Sound-Velocity",
     "info": []
@@ -1581,61 +1595,67 @@
       "svWF",
       "sv0WF"
     ],
-    "name": "sv0WF",
+    "name": "svWF",
     "units": "Wilson, ft/s",
     "title": "Sound-Velocity",
     "info": []
   },
   {
     "aliases": [
-      "svCM1"
+      "svCM1",
+      "sv1CM"
     ],
-    "name": "sv1CM",
+    "name": "svCM1",
     "units": "Chen-Millero, m/s",
     "title": "Sound-Velocity-Secondary",
     "info": []
   },
   {
     "aliases": [
-      "svCF1"
+      "svCF1",
+      "sv1CF"
     ],
-    "name": "sv1CF",
+    "name": "svCF1",
     "units": "Chen-Millero, ft/s",
     "title": "Sound-Velocity-Secondary",
     "info": []
   },
   {
     "aliases": [
-      "svDM1"
+      "svDM1",
+      "sv1DM"
     ],
-    "name": "sv1DM",
+    "name": "svDM1",
     "units": "Delgrosso, m/s",
     "title": "Sound-Velocity-Secondary",
     "info": []
   },
   {
     "aliases": [
-      "svDF1"
+      "svDF1",
+      "sv1DF"
     ],
-    "name": "sv1DF",
+    "name": "svDF1",
     "units": "Delgrosso, ft/s",
     "title": "Sound-Velocity-Secondary",
     "info": []
   },
   {
     "aliases": [
-      "svWM1"
+      "svWM1",
+      "sv1WM"
     ],
-    "name": "sv1WM",
+    "name": "svWM1",
     "units": "Wilson, m/s",
     "title": "",
     "info": []
   },
   {
     "aliases": [
-      "svWF1"
+      "svWF1",
+      "sv1WF"
     ],
-    "name": "sv1WF",
+    "name": "svWF1",
     "units": "Wilson, ft/s",
     "title": "Sound-Velocity-Secondary",
     "info": []
@@ -1651,9 +1671,10 @@
   },
   {
     "aliases": [
-      "sbeSv-iowSv"
+      "sbeSv-iowSv",
+      "svdiff"
     ],
-    "name": "svdiff",
+    "name": "sbeSv-iowSv",
     "units": "SBE CTD - IOW SV sensor, m/s",
     "title": "Sound-Velocity-IOW",
     "info": []
@@ -1753,7 +1774,7 @@
       "dz/dtM",
       "dzdtM"
     ],
-    "name": "dzdtM",
+    "name": "dz/dtM",
     "units": "m/s",
     "title": "Descent-Rate",
     "info": []
@@ -1763,7 +1784,7 @@
       "dz/dtF",
       "dzdtF"
     ],
-    "name": "dzdtF",
+    "name": "dz/dtF",
     "units": "ft/s",
     "title": "Descent-Rate",
     "info": []
@@ -1953,7 +1974,7 @@
       "sbeox0ML/L",
       "sbeox0mL_L"
     ],
-    "name": "sbeox0mL_L",
+    "name": "sbeox0ML/L",
     "units": "mL/L",
     "title": "Oxygen",
     "info": [
@@ -1965,7 +1986,7 @@
       "sbeox0Mg/L",
       "sbeox0mg_L"
     ],
-    "name": "sbeox0mg_L",
+    "name": "sbeox0Mg/L",
     "units": "mg/L",
     "title": "Oxygen",
     "info": [
@@ -1985,9 +2006,10 @@
   },
   {
     "aliases": [
-      "sbeox0Mm/Kg"
+      "sbeox0Mm/Kg",
+      "sbeox0mum_kg"
     ],
-    "name": "sbeox0mum_kg",
+    "name": "sbeox0Mm/Kg",
     "units": "micromol/kg",
     "title": "Oxygen",
     "info": [
@@ -1996,9 +2018,10 @@
   },
   {
     "aliases": [
-      "sbeox0Mm/L"
+      "sbeox0Mm/L",
+      "sbeox0mum_L"
     ],
-    "name": "sbeox0mum_L",
+    "name": "sbeox0Mm/L",
     "units": "micromole/L",
     "title": "Oxygen",
     "info": [
@@ -2007,9 +2030,10 @@
   },
   {
     "aliases": [
-      "sbeox0dOV/dT"
+      "sbeox0dOV/dT",
+      "sbeox0dOV_dT"
     ],
-    "name": "sbeox0dOV_dT",
+    "name": "sbeox0dOV/dT",
     "units": "V/s",
     "title": "Oxygen",
     "info": [
@@ -2020,9 +2044,10 @@
     "aliases": [
       "sbeox1ML/L",
       "sbeox1ML/L_1",
-      "sbeox1ML_L_1"
+      "sbeox1ML_L_1",
+      "sbeox1mL_L"
     ],
-    "name": "sbeox1mL_L",
+    "name": "sbeox1ML/L",
     "units": "mL/L",
     "title": "Oxygen",
     "info": [
@@ -2033,9 +2058,10 @@
     "aliases": [
       "sbeox1Mg/L",
       "sbeox1Mg/L_1",
-      "sbeox1Mg_L_1"
+      "sbeox1Mg_L_1",
+      "sbeox1mg_L"
     ],
-    "name": "sbeox1mg_L",
+    "name": "sbeox1Mg/L",
     "units": "mg/L",
     "title": "Oxygen",
     "info": [
@@ -2058,9 +2084,10 @@
     "aliases": [
       "sbeox1Mm/Kg",
       "sbeox1Mm/Kg_1",
-      "sbeox1Mm_Kg_1"
+      "sbeox1Mm_Kg_1",
+      "sbeox1mum_kg"
     ],
-    "name": "sbeox1mum_kg",
+    "name": "sbeox1Mm/Kg",
     "units": "micromol/kg",
     "title": "Oxygen",
     "info": [
@@ -2070,9 +2097,10 @@
   {
     "aliases": [
       "sbeox1Mm/L",
-      "sbeox1Mm/L_1"
+      "sbeox1Mm/L_1",
+      "sbeox1mum_L"
     ],
-    "name": "sbeox1mum_L",
+    "name": "sbeox1Mm/L",
     "units": "micromole/L",
     "title": "Oxygen",
     "info": [
@@ -2081,9 +2109,10 @@
   },
   {
     "aliases": [
-      "sbeox1dOV/dT"
+      "sbeox1dOV/dT",
+      "sbeox1dOV_dT"
     ],
-    "name": "sbeox1dOV_dT",
+    "name": "sbeox1dOV/dT",
     "units": "V/s",
     "title": "Oxygen",
     "info": [
@@ -2092,9 +2121,10 @@
   },
   {
     "aliases": [
-      "sbeox0ML/Ldiff"
+      "sbeox0ML/Ldiff",
+      "sbeox0ML_Ldiff"
     ],
-    "name": "sbeox0ML_Ldiff",
+    "name": "sbeox0ML/Ldiff",
     "units": "ml/l",
     "title": "Oxygen",
     "info": [
@@ -2104,9 +2134,10 @@
   },
   {
     "aliases": [
-      "sbeox0Mg/Ldiff"
+      "sbeox0Mg/Ldiff",
+      "sbeox0Mg_Ldiff"
     ],
-    "name": "sbeox0Mg_Ldiff",
+    "name": "sbeox0Mg/Ldiff",
     "units": "mg/l",
     "title": "Oxygen",
     "info": [
@@ -2128,9 +2159,10 @@
   },
   {
     "aliases": [
-      "sbeox0Mm/Kgdiff"
+      "sbeox0Mm/Kgdiff",
+      "sbeox0Mm_Kgdiff"
     ],
-    "name": "sbeox0Mm_Kgdiff",
+    "name": "sbeox0Mm/Kgdiff",
     "units": "umol/kg",
     "title": "Oxygen",
     "info": [
@@ -2140,9 +2172,10 @@
   },
   {
     "aliases": [
-      "sbeox0Mm/Ldiff"
+      "sbeox0Mm/Ldiff",
+      "sbeox0Mm_Ldiff"
     ],
-    "name": "sbeox0Mm_Ldiff",
+    "name": "sbeox0Mm/Ldiff",
     "units": "umol/l",
     "title": "Oxygen",
     "info": [
@@ -2575,54 +2608,60 @@
   },
   {
     "aliases": [
-      "oxsolML/L"
+      "oxsolML/L",
+      "oxsolML_L"
     ],
-    "name": "oxsolML_L",
+    "name": "oxsolML/L",
     "units": "ml/l",
     "title": "Oxygen-Saturation-Garcia-Gordon",
     "info": []
   },
   {
     "aliases": [
-      "oxsolMg/L"
+      "oxsolMg/L",
+      "oxsolMg_L"
     ],
-    "name": "oxsolMg_L",
+    "name": "oxsolMg/L",
     "units": "mg/l",
     "title": "Oxygen-Saturation-Garcia-Gordon",
     "info": []
   },
   {
     "aliases": [
-      "oxsolMm/Kg"
+      "oxsolMm/Kg",
+      "oxsolMm_Kg"
     ],
-    "name": "oxsolMm_Kg",
+    "name": "oxsolMm/Kg",
     "units": "umol/kg",
     "title": "Oxygen-Saturation-Garcia-Gordon",
     "info": []
   },
   {
     "aliases": [
-      "oxsatML/L"
+      "oxsatML/L",
+      "oxsatML_L"
     ],
-    "name": "oxsatML_L",
+    "name": "oxsatML/L",
     "units": "ml/l",
     "title": "Oxygen-Saturation-Weiss",
     "info": []
   },
   {
     "aliases": [
-      "oxsatMg/L"
+      "oxsatMg/L",
+      "oxsatMg_L"
     ],
-    "name": "oxsatMg_L",
+    "name": "oxsatMg/L",
     "units": "mg/l",
     "title": "Oxygen-Saturation-Weiss",
     "info": []
   },
   {
     "aliases": [
-      "oxsatMm/Kg"
+      "oxsatMm/Kg",
+      "oxsatMm_Kg"
     ],
-    "name": "oxsatMm_Kg",
+    "name": "oxsatMm_/Kg",
     "units": "umol/kg",
     "title": "Oxygen-Saturation-Weiss",
     "info": []
@@ -2916,63 +2955,70 @@
   },
   {
     "aliases": [
-      "flECO-AFL"
+      "flECO-AFL",
+      "flECO_AFL"
     ],
-    "name": "flECO_AFL",
+    "name": "flECO-AFL",
     "units": "mg/m^3",
     "title": "Chlorophyll-a",
     "info": []
   },
   {
     "aliases": [
-      "flECO-AFL1"
+      "flECO-AFL1",
+      "flECO_AFL1"
     ],
-    "name": "flECO_AFL1",
+    "name": "flECO-AFL1",
     "units": "mg/m^3",
     "title": "Chlorophyll-a",
     "info": []
   },
   {
     "aliases": [
-      "flECO-AFL2"
+      "flECO-AFL2",
+      "flECO_AFL2"
     ],
-    "name": "flECO_AFL2",
+    "name": "flECO-AFL2",
     "units": "mg/m^3",
     "title": "Chlorophyll-a",
     "info": []
   },
   {
     "aliases": [
-      "flECO-AFL3"
+      "flECO-AFL3",
+      "flECO_AFL3"
     ],
-    "name": "flECO_AFL3",
+    "name": "flECO-AFL3",
     "units": "mg/m^3",
     "title": "Chlorophyll-a",
     "info": []
   },
   {
     "aliases": [
-      "flECO-AFL4"
+      "flECO-AFL4",
+      "flECO_AFL4"
     ],
-    "name": "flECO_AFL4",
+    "name": "flECO-AFL4",
     "units": "mg/m^3",
     "title": "Chlorophyll-a",
     "info": []
   },
   {
     "aliases": [
-      "flECO-AFL5"
+      "flECO-AFL5",
+      "flECO_AFL5"
     ],
-    "name": "flECO_AFL5",
+    "name": "flECO-AFL5",
     "units": "mg/m^3",
     "title": "Chlorophyll-a",
     "info": []
   },
   {
     "aliases": [
-      "flECO-AFLdiff"
+      "flECO-AFLdiff",
+      "flECO_AFLdiff"
     ],
-    "name": "flECO_AFLdiff",
+    "name": "flECO-AFLdiff",
     "units": "mg/m^3",
     "title": "Chlorophyll-a",
     "info": []
@@ -3947,16 +3993,6 @@
   },
   {
     "aliases": [
-      "practicalSalinity",
-      "gsw_spA0"
-    ],
-    "name": "gsw_spA0",
-    "units": "PSU",
-    "title": "Practical Salinity",
-    "info": []
-  },
-  {
-    "aliases": [
       "preformedSalinity",
       "gsw_sstarA0"
     ],
@@ -4054,7 +4090,8 @@
   },
   {
     "aliases": [
-      "SUNAmgN/L"
+      "SUNAmgN/L",
+      "SUNAmgNL"
     ],
     "name": "SUNAmgNL",
     "units": "mgN/L",
