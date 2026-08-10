@@ -973,9 +973,9 @@ def read_sbe19plus_data(
 
             if sensor == Sensors.statusAndSign:
                 signs = read_status_sign(hex_segment[n : n + HEX_LEN_NMEA_STATUS_AND_SIGN])
-                if pd.isna(signs):
-                    results[HEX_TYPE_NMEA_LATITUDE] *= np.nan
-                    results[HEX_TYPE_NMEA_LONGITUDE] *= np.nan
+                if np.any(pd.isna(signs)):
+                    results[HEX_TYPE_NMEA_LATITUDE] = np.nan
+                    results[HEX_TYPE_NMEA_LONGITUDE] = np.nan
                 else:
                     results[HEX_TYPE_NMEA_LATITUDE] *= signs[0]
                     results[HEX_TYPE_NMEA_LONGITUDE] *= signs[1]

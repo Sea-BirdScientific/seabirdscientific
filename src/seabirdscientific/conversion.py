@@ -1,6 +1,7 @@
 """A collection of raw data conversion functions."""
 
 import math
+from collections.abc import Callable
 from typing import Literal
 
 import gsw
@@ -179,7 +180,7 @@ def convert_pressure_digiquartz(
 
     # First, average temperature compensation over 30 seconds
     def modification_function(x):
-        return x * coefs.AD590M + coefs.AD590B
+        return x * coefs.ad590m + coefs.ad590b
 
     # using a short name to make the equations a little easier to read
     v = _compute_rolling_average(compensation_voltage, 30, sample_interval, modification_function)
@@ -1511,7 +1512,7 @@ def _compute_rolling_average(
     compute_var: np.ndarray,
     window_size: float,
     sample_interval: float,
-    modification_fn: callable | None = None,
+    modification_fn: Callable | None = None,
 ) -> np.ndarray:
     """Computes a rolling average of the given variable over the specified window size.
     Averages with equal number values on either side of the center of each window.
