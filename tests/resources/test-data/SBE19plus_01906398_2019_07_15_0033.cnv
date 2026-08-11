@@ -1,0 +1,212 @@
+* Sea-Bird SBE19plus  Data File:
+* FileName = SBE19plus.hex
+* Software version 2.8.0.119
+* Temperature SN = 99999
+* Conductivity SN = 99999
+* System UpLoad Time = Jan 1 2000 00:00:00
+* <ApplicationData>
+* <Seaterm232>
+* <SoftwareVersion>2.8.0.119</SoftwareVersion>
+* <BuildDate>07-Nov-2018</BuildDate>
+* </Seaterm232>
+* </ApplicationData>
+* 
+* Seasoft header removed
+* 
+# <FathomProcessing Version="5.1.0" ProcessingDate='Aug 10 2026 13:57:46' XMLVersion='1.0.0'>
+# <InputFile>SBE19plus_01999999_0033.hex</InputFile>
+# <ConfigFile>SBE19plusV2_99999.xmlcon</ConfigFile>
+#   <Modules>
+#     <DataConversion Step='1'>
+#       <NumScans>10</NumScans>
+#       <Interval Value='0.25' Units='s'/>
+#       <StartTime DateTime='unknown' Source='Instrument timestamp'/>
+#       <BadFlag>-9.99e-29</BadFlag>
+#       <CalibrationCoefficients>
+#         <SensorArray Size="5">
+#           <Sensor Index="0" Name="Temperature" SensorID="58">
+#             <SerialNumber>6398</SerialNumber>
+#             <CommunicationType>internal</CommunicationType>
+#             <CoefficientsArray>
+#               <Coefficients Index="0">
+#                 <CalibrationDate>28-Jul-18</CalibrationDate>
+#                 <A0>1.26095907e-003</A0>
+#                 <A1>2.59137989e-004</A1>
+#                 <A2>-1.76761879e-007</A2>
+#                 <A3>1.43699673e-007</A3>
+#                 <Slope>1.00000000</Slope>
+#                 <Offset>0.0000</Offset>
+#               </Coefficients>
+#             </CoefficientsArray>
+#           </Sensor>
+#           <Sensor Index="1" Name="Conductivity" SensorID="3">
+#             <SerialNumber>6398</SerialNumber>
+#             <CommunicationType>internal</CommunicationType>
+#             <CoefficientsArray>
+#               <Coefficients Index="0">
+#                 <G>-1.03206551e+000</G>
+#                 <H>1.61853283e-001</H>
+#                 <I>-6.16269794e-004</I>
+#                 <J>6.88114987e-005</J>
+#                 <CPcor>-9.57000000e-008</CPcor>
+#                 <CTcor>3.2500e-006</CTcor>
+#                 <WBOTC>0.00000000e+000</WBOTC>
+#                 <Slope>1.00000000</Slope>
+#                 <Offset>0.00000</Offset>
+#                 <CalibrationDate>28-Jul-18</CalibrationDate>
+#               </Coefficients>
+#             </CoefficientsArray>
+#           </Sensor>
+#           <Sensor Index="2" Name="Pressure" SensorID="46">
+#             <SerialNumber>6398</SerialNumber>
+#             <CommunicationType>internal</CommunicationType>
+#             <CoefficientsArray>
+#               <Coefficients Index="0">
+#                 <CalibrationDate>26-Jul-18</CalibrationDate>
+#                 <PA0>-2.38440127e-001</PA0>
+#                 <PA1>4.87833137e-004</PA1>
+#                 <PA2>-5.82191388e-012</PA2>
+#                 <PTEMPA0>-6.74363150e+001</PTEMPA0>
+#                 <PTEMPA1>5.32265012e+001</PTEMPA1>
+#                 <PTEMPA2>-5.03377089e-001</PTEMPA2>
+#                 <PTCA0>5.24442060e+005</PTCA0>
+#                 <PTCA1>-2.99672123e+001</PTCA1>
+#                 <PTCA2>3.56337762e-001</PTCA2>
+#                 <PTCB0>2.50061250e+001</PTCB0>
+#                 <PTCB1>-7.75000000e-004</PTCB1>
+#                 <PTCB2>0.00000000e+000</PTCB2>
+#                 <Offset>0.000000</Offset>
+#               </Coefficients>
+#             </CoefficientsArray>
+#           </Sensor>
+#           <Sensor Index="3" Name="Oxygen" SensorID="38">
+#             <SerialNumber>431686</SerialNumber>
+#             <CommunicationType Channel="0">volt</CommunicationType>
+#             <CoefficientsArray>
+#               <Coefficients Index="0">
+#                 <Boc>0.0000</Boc>
+#                 <Soc>0.0000e+000</Soc>
+#                 <offset>0.0000</offset>
+#                 <Pcor>0.00e+000</Pcor>
+#                 <Tcor>0.0000</Tcor>
+#                 <Tau>0.0</Tau>
+#                 <CalibrationDate></CalibrationDate>
+#               </Coefficients>
+#               <Coefficients Index="1">
+#                 <Soc>3.8980e-001</Soc>
+#                 <offset>-0.4980</offset>
+#                 <A>-3.3982e-003</A>
+#                 <B>1.5817e-004</B>
+#                 <C>-2.6651e-006</C>
+#                 <D0>2.5826e+000</D0>
+#                 <D1>1.92634e-004</D1>
+#                 <D2>-4.64803e-002</D2>
+#                 <E>3.6000e-002</E>
+#                 <Tau20>1.0800</Tau20>
+#                 <H1>-3.3000e-002</H1>
+#                 <H2>5.0000e+003</H2>
+#                 <H3>1.4500e+003</H3>
+#                 <CalibrationDate></CalibrationDate>
+#               </Coefficients>
+#             </CoefficientsArray>
+#           </Sensor>
+#           <Sensor Index="4" Name="pH" SensorID="43">
+#             <SerialNumber>180726</SerialNumber>
+#             <CommunicationType Channel="1">volt</CommunicationType>
+#             <CoefficientsArray>
+#               <Coefficients Index="0">
+#                 <CalibrationDate></CalibrationDate>
+#                 <Slope>4.6067</Slope>
+#                 <Offset>2.5157</Offset>
+#               </Coefficients>
+#             </CoefficientsArray>
+#           </Sensor>
+#         </SensorArray>
+#       </CalibrationCoefficients>
+#       <Columns>
+#         <Column Number='0' ID='c0S/m'>
+#           <Name>Conductivity</Name>
+#           <Units>S/m</Units>
+#           <Span Min='0.04981861674512121' Max='2.77389215198456'></Span>
+#         </Column>
+#         <Column Number='1' ID='prdM'>
+#           <Name>Pressure</Name>
+#           <Units>db</Units>
+#           <Span Min='-0.02108305859611742' Max='22.512771864423897'></Span>
+#           <Type>Strain Gauge</Type>
+#         </Column>
+#         <Column Number='2' ID='sbeox0ML/L'>
+#           <Name>Oxygen</Name>
+#           <Units>mL/L</Units>
+#           <Span Min='0.13830859178733007' Max='6.329742791161566'></Span>
+#           <Type>Derived</Type>
+#           <OxTauCorrection>true</OxTauCorrection>
+#           <OxHysteresisCorrection>true</OxHysteresisCorrection>
+#           <OxTauCorrectionWindowSize>2</OxTauCorrectionWindowSize>
+#         </Column>
+#         <Column Number='3' ID='flag'>
+#           <Name>Flag</Name>
+#           <Units></Units>
+#           <Span Min='0' Max='0'></Span>
+#         </Column>
+#         <Column Number='4' ID='conservativeTemperature'>
+#           <Name>Conservative Temperature</Name>
+#           <Units>deg C</Units>
+#           <Span Min='0.23445494529826577' Max='17.86907892274278'></Span>
+#           <Type> ITS-90</Type>
+#         </Column>
+#         <Column Number='5' ID='absoluteSalinity'>
+#           <Name>Absolute Salinity</Name>
+#           <Units>g/kg</Units>
+#           <Span Min='23.519678005470738' Max='27.91475670046359'></Span>
+#           <Type>TEOS-10</Type>
+#         </Column>
+#         <Column Number='6' ID='potentialDensity'>
+#           <Name>Potential Density</Name>
+#           <Units>kg/m^3</Units>
+#           <Span Min='-3.1084572847333902' Max='10.92023959581104'></Span>
+#           <Type>TEOS-10</Type>
+#         </Column>
+#         <Column Number='7' ID='t090C'>
+#           <Name>Temperature</Name>
+#           <Units>deg C</Units>
+#           <Span Min='22.908025415424333' Max='26.79683118765331'></Span>
+#           <Type>ITS-90</Type>
+#         </Column>
+#         <Column Number='8' ID='sbeox0V'>
+#           <Name>Oxygen-Raw-43</Name>
+#           <Units>V</Units>
+#           <Span Min='0.5646601052872511' Max='3.5873197528038454'></Span>
+#           <Type>Raw</Type>
+#         </Column>
+#         <Column Number='9' ID='pH'>
+#           <Name>pH</Name>
+#           <Units></Units>
+#           <Span Min='7.480612115040046' Max='8.62861779530685'></Span>
+#         </Column>
+#         <Column Number='10' ID='timeS'>
+#           <Name>Time</Name>
+#           <Units>seconds</Units>
+#           <Span Min='0' Max='245.25'></Span>
+#           <Type>Elapsed</Type>
+#         </Column>
+#         <Column Number='11' ID='scan'>
+#           <Name>Scan-Count</Name>
+#           <Units></Units>
+#           <Span Min='0' Max='981'></Span>
+#         </Column>
+#       </Columns>
+#     </DataConversion>
+#   </Modules>
+# </FathomProcessing>
+*END*
+0.0896673177452 -0.011822187311 4.4728553341557               0 0.4385545665619 26.625551825916 -2.710283012954 25.342661249108 2.5574883649958 7.6503600680937               0               0
+0.1136483317050 -0.011807893014 4.4722439974784               0 0.5612119370031 26.618908706951 -2.617585149376 25.340763975679 2.5585564965285 7.6526013213525            0.25               1
+0.1189664056877 -0.012494981627 4.4761980599383               0 0.5886456330661 26.615694711741 -2.596426367446 25.338686148642 2.5606164644846 7.6509280129644             0.5               2
+0.1038949531553 -0.011457205192 4.4828230761444               0 0.5111866046605 26.616172893982 -2.654032534143 25.336337475773 2.5626764324406 7.6520517111648            0.75               3
+0.0945613390268 -0.010784410762 4.4867034462634               0 0.4635323529267 26.615618635174 -2.689268866215 25.334079311669 2.5638208590829 7.6495398285063               1               4
+0.0846089079061 -0.011765032339 4.4879371032321               0 0.4129894343611 26.616027942834 -2.726895136836 25.332634176767 2.5637445639734 7.6456279076935            1.25               5
+0.0809561173146 -0.011765032339 4.4879984438099               0 0.3945207359994 26.615596350749 -2.740501060272 25.331550371748 2.5635156786449 7.6453506034483             1.5               6
+0.0714907751597 -0.010755840438 4.4879923137158               0 0.3468563895956 26.615994108436 -2.775995123215 25.330195671103 2.5629053177691 7.6526244280431            1.75               7
+0.8902940033862 0.1069970116479 4.3706608294923               0 4.9530126889075 26.453268689110 0.6683479182599 25.337692456677 2.5620660715648 7.8961769206783               2               8
+1.1574933709080 0.3508952402161 4.3148373475234               0 6.5405633529218 26.608794059826 1.7961501430933 25.543280701227 2.5618371862363 8.1129724457749            2.25               9
