@@ -330,7 +330,7 @@ def _read_fathom_cnv_file(filepath: Path | str) -> xr.Dataset:
                 "units": column.find("Units").text or "",
             }
 
-            # update the scan coord if there is a scan variable in teh data
+            # update the scan coord if there is a scan variable in the data
             if name in dataset.coords:
                 dataset[name].attrs.update(attrs)
                 column_names.append(name)
@@ -358,7 +358,7 @@ def _read_fathom_cnv_file(filepath: Path | str) -> xr.Dataset:
         data = np.array([[float(v) for v in line.split()] for line in list(f) if line.strip()])
 
         for n, name in enumerate(column_names):
-            if name == "scan":
+            if name == dataset.coords:
                 # update the scan coord if it's one of the variables
                 dataset[name] = dataset[name].copy(data=data[:, n].astype(np.int64))
             else:
