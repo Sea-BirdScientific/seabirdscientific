@@ -11,10 +11,10 @@ import seabirdscientific.instrument_data as si
 test_data = Path("./tests/resources/test-data")
 
 
-class TestCnvToInstrumentData:
-    def test_read_cnv_file_pass(self):
+class TestReadCnvFile:
+    def test_read_cnv_file_seasoft(self):
         file_path = test_data / "SBE37SM.cnv"
-        dataset = si.read_cnv_file(file_path)
+        dataset = si.read_cnv_file(file_path, "seasoft")
 
         expected_variables = {
             "tv290C",
@@ -34,13 +34,13 @@ class TestCnvToInstrumentData:
         assert dataset["tv290C"][0] == 20.8989
         assert dataset["tv290C"][-1] == -45.7713
 
-    def test_duplicate_labels(self):
+    def test_duplicate_labels_seasoft(self):
         """
         Verify that duplicate labels are handled correctly.
         This .cnv file is from the Australian Institute of Marine Science
         """
         file_path = test_data / "WQR086CFACLWDB.cnv"
-        dataset = si.read_cnv_file(file_path)
+        dataset = si.read_cnv_file(file_path, "seasoft")
 
         expected_variables = {
             "prDM",
@@ -71,6 +71,10 @@ class TestCnvToInstrumentData:
         first_data_line = "1.006 28.0831 5.811991 5248 0.998 218.616 6.9285e+01 3.9379e+02 11.8057 0.8223 2.7316e+02 28.0829 5.811250 1.000 36.2666 31 0.0000e+00"
         expected_first_values = [float(v) for v in first_data_line.split()]
         assert first_values == expected_first_values
+
+    def test_read_cnv_fathom(self):
+        filepath = test_data / "SBE19plus_01906398_2019_07_15_0033.cnv"
+        dataset = si.read_cnv_file(filepath)
 
 
 class TestReadHex19plus:

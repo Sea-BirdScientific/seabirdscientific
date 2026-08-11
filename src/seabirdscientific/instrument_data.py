@@ -1,10 +1,13 @@
 """Functions for processing instrument data."""
 
 import warnings
+import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta
 from enum import Enum
+from itertools import dropwhile, takewhile
 from logging import getLogger
 from pathlib import Path
+from typing import Literal
 
 import numpy as np
 import pandas as pd
@@ -212,7 +215,7 @@ class HexDataTypes(Enum, metaclass=WarnAllMembersMeta):
     systemTime = "system time"
 
 
-def read_cnv_file(filepath: Path | str) -> xr.Dataset:
+def _read_seasoft_cnv_file(filepath: Path | str) -> xr.Dataset:
     """Import the data from a .cnv file and put it into an xarray
     Dataset. Duplicate varioable names will have a number appended. For
     example, the second "depSM" becomes "depSM_1".
@@ -298,6 +301,83 @@ def read_cnv_file(filepath: Path | str) -> xr.Dataset:
         dataset[measurand].data = np_data[:, n]
 
     return dataset
+
+
+def _read_fathom_cnv_file(filepath: Path | str) -> xr.Dataset:
+    dataset = xr.Dataset({}, attrs={"file_name": Path(filepath).name})
+    with open(filepath) as f:
+        block = takewhile(
+            lambda line: not line.startswith("*END*"),
+            dropwhile(lambda line: not line.startswith("# <FathomProcessing"), f),
+        )
+        fathom_xml = ET.fromstring("".join(line.lstrip("#* ") for line in block))
+        dc_tag = fathom_xml.find("Modules").find("DataConversion")
+        total_scans = int(dc_tag.find("NumScans").text)
+        dataset = dataset.assign_coords(scan=np.arange(total_scans))
+        start_time = dc_tag.find("StartTime").get("DateTime")
+        ds_attrs = {
+            "sample_interval": float(dc_tag.find("Interval").get("Value")),
+            "start_time": None if start_time == "unknown" else datetime.fromisoformat(start_time),
+        }
+        dataset.attrs.update(ds_attrs)
+
+        column_names = []
+        for column in dc_tag.find("Columns"):
+            name = column.attrib["ID"]
+            attrs = {
+                "sbs_name": name,
+                "long_name": column.find("Name").text,
+                "units": column.find("Units").text or "",
+            }
+
+            # update the scan coord if there is a scan variable in teh data
+            if name in dataset.coords:
+                dataset[name].attrs.update(attrs)
+                column_names.append(name)
+                continue
+
+            safe_name = name
+            # check for label collision
+            # if collision, increment until an available key is found
+            n_name = 1
+            while safe_name in dataset.data_vars:
+                safe_name = f"{name}_{n_name}"
+                n_name += 1
+
+            if safe_name != name:
+                logger.warning(f'Duplicate measurand "{name}" will use key "{safe_name}"')
+
+            dataset[safe_name] = xr.DataArray(
+                data=np.full(total_scans, np.nan),
+                dims=["scan"],
+                attrs=attrs,
+            )
+
+            column_names.append(safe_name)
+
+        data = np.array([[float(v) for v in line.split()] for line in list(f) if line.strip()])
+
+        for n, name in enumerate(column_names):
+            values = data[:, n]
+            dataset[name] = ("scan", values.astype(np.int64) if name == "scan" else values)
+
+        if data.shape != (total_scans, len(column_names)):
+            raise ValueError(
+                f"expected {total_scans}x{len(column_names)} data block, got {data.shape}"
+            )
+
+    return dataset
+
+
+def read_cnv_file(
+    filepath: Path | str, software: Literal["fathom", "seasoft"] = "fathom"
+) -> xr.Dataset:
+    if software == "fathom":
+        return _read_fathom_cnv_file(filepath)
+    elif software == "seasoft":
+        return _read_seasoft_cnv_file(filepath)
+    else:
+        raise ValueError(f"Unknown software: {software} (must be fathom or seasoft)")
 
 
 def cnv_to_instrument_data(filepath: Path | str) -> xr.Dataset:
