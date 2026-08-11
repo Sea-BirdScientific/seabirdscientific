@@ -1637,3 +1637,39 @@ def derive_oxygen_saturation_w(
     # clean up values from invalid inputs, as SBE Data Processing does
     ox_sol = np.where(temperature < 0, flag_value, ox_sol)
     return ox_sol
+
+
+def convert_cstar_attenuation(raw: np.ndarray, coefs: cc.CstarCoefficients):
+    """Converts C-Star raw voltage to attenuation.
+
+    All equation information comes from SBE Data Processing code.
+
+    See applicaiton note 91 for calculating m and b coefficients.
+
+    :param raw: raw output voltage from C-Star sensor
+    :param coefs: m, b, and path_length [m] for C-Star sensor
+
+    :return: converted attenuation in %
+    """
+    im = (raw * coefs.m + coefs.b) / 100
+    im = np.maximum(im, 0.000001)
+    attenuation = (-1 / coefs.path_length) * np.log(im)
+
+    return attenuation
+
+
+def convert_cstar_transmittance(raw: np.ndarray, coefs: cc.CstarCoefficients):
+    """Converts C-Star raw voltage to transmittance.
+
+    All equation information comes from SBE Data Processing code.
+
+    See applicaiton note 91 for calculating m and b coefficients.
+
+    :param raw: raw output voltage from C-Star sensor
+    :param coefs: m and b coefficients for C-Star sensor
+
+    :return: converted transmittance in 1/m
+    """
+    transmittance = raw * coefs.m + coefs.b
+
+    return transmittance
