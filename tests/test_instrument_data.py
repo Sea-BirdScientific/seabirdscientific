@@ -86,7 +86,7 @@ class TestReadCnvFile:
             "t090C",
             "sbeox0V",
             "pH",
-            "timeS"
+            "timeS",
         }
 
         assert dataset.attrs.get("sample_interval") == 0.25
