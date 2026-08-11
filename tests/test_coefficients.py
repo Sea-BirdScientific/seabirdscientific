@@ -266,3 +266,5 @@ external_ph_k2_poly_coefs = cc.PHSeaFETExternalCoefficients(
 )
 
 altimeter_coefs = cc.AltimeterCoefficients(slope=15, offset=0)
+
+CSTAR_coefs = cc.CstarCoefficients(m=21.362, b=-0.128, path_length=0.25)

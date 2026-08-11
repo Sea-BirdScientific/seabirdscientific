@@ -1150,7 +1150,7 @@ class TestSPAR:
 class TestAltimeter:
     def test_altimeter(self, request):
         altimeter_raw = np.array([3.1893, 1.1807, 2.3797])
-        expected = np.array([63.79, 23.61, 47.59])  ## meters, from SBE data processing
+        expected = np.array([63.79, 23.61, 47.59])  # meters, from SBE data processing
 
         height = dc.convert_altimeter(altimeter_raw, tc.altimeter_coefs)
 
@@ -1286,3 +1286,23 @@ class TestDeriveOxygenSaturation:
             source_data["tv290C"].values, source_data["sal00"].values
         )
         assert np.allclose(ox_sat_gg, source_data["oxsatML/L"].values, rtol=0, atol=1e-3)
+
+
+class TestCstar:
+    def test_cstar_attenuation(self, request):
+        raw = np.array([3.7186, 4.3632, 4.2264])
+        expected = np.array([0.9273, 0.2869, 0.4145])  # from SBE data processing
+
+        result = dc.convert_cstar_attenuation(raw, tc.CSTAR_coefs)
+
+        request.node.return_value = result.tolist()
+        assert np.allclose(expected, result, rtol=0, atol=1e-4)
+
+    def test_cstar_transmittance(self, request):
+        raw = np.array([3.7186, 4.3632, 4.2264])
+        expected = np.array([79.3092, 93.0779, 90.1573])  # from SBE data processing
+
+        result = dc.convert_cstar_transmittance(raw, tc.CSTAR_coefs)
+
+        request.node.return_value = result.tolist()
+        assert np.allclose(expected, result, rtol=0, atol=1e-3)

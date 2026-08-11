@@ -154,6 +154,30 @@ class TestReadHex16plusDigiquartz:
         assert hex_data["temperature compensation"][-1].item() == 1566
 
 
+class TestReadHex16plusDigiquartz:
+    filepath = test_data / "16plus_digiquartz.hex"
+
+    raw = si.read_hex_file(
+        filepath,
+        si.InstrumentType.SBE16Plus,
+        [
+            si.Sensors.Temperature,
+            si.Sensors.Conductivity,
+            si.Sensors.DigiquartzPressure,
+        ],
+    )
+
+    def test_read_16plus_hex_digiquartz(self):
+        assert self.raw["temperature"][0].item() == 407128
+        assert self.raw["temperature"][-1].item() == 468996
+        assert self.raw["conductivity"][0].item() == 687669 / 256
+        assert self.raw["conductivity"][-1].item() == 687669 / 256
+        assert self.raw["digiquartz pressure"][0].item() == 8906797 / 256
+        assert self.raw["digiquartz pressure"][-1].item() == 8905702 / 256
+        assert self.raw["temperature compensation"][0].item() == 1571
+        assert self.raw["temperature compensation"][-1].item() == 1566
+
+
 class TestReadHex39plus:
     filepath = test_data / "SBE39plus.hex"
 

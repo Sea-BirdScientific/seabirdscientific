@@ -3194,6 +3194,13 @@
     "info": []
   },
   {
+    "aliases": ["CStarV"],
+    "name": null,
+    "units": "V",
+    "title": "CStar-Voltage",
+    "info": ["Raw Voltage"]
+  },
+  {
     "aliases": [
       "lisstBC"
     ],

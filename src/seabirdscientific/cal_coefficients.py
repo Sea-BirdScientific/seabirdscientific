@@ -324,3 +324,15 @@ class AltimeterCoefficients:
 
     slope: float
     offset: float
+
+
+@dataclass
+class CstarCoefficients:
+    """
+    :param m: slope coefficient
+    :param b: offset coefficient
+    """
+
+    m: float
+    b: float
+    path_length: float
