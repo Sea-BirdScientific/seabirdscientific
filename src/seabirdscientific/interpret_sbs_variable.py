@@ -29,6 +29,8 @@ def _build_lookup() -> dict:
     lookup: dict = {}
     definitions = json.loads(definitions_path.read_text(encoding="utf-8"))
     for entry in definitions:
+        if entry["name"] is not None and entry["name"] not in entry["aliases"]:
+            lookup[entry["name"]] = entry
         for alias in entry["aliases"]:
             lookup[alias] = entry
     return lookup
