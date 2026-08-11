@@ -141,25 +141,25 @@ class TestReadHex16plusDigiquartz:
 class TestReadHex16plusDigiquartz:
     filepath = test_data / "16plus_digiquartz.hex"
 
-    raw = id.read_hex_file(
+    raw = si.read_hex_file(
         filepath,
-        id.InstrumentType.SBE16Plus,
+        si.InstrumentType.SBE16Plus,
         [
-            id.Sensors.Temperature,
-            id.Sensors.Conductivity,
-            id.Sensors.DigiquartzPressure,
+            si.Sensors.Temperature,
+            si.Sensors.Conductivity,
+            si.Sensors.DigiquartzPressure,
         ],
     )
 
     def test_read_16plus_hex_digiquartz(self):
-        assert self.raw["temperature"].iloc[0] == 407128
-        assert self.raw["temperature"].iloc[-1] == 468996
-        assert self.raw["conductivity"].iloc[0] == 687669 / 256
-        assert self.raw["conductivity"].iloc[-1] == 687669 / 256
-        assert self.raw["digiquartz pressure"].iloc[0] == 8906797 / 256
-        assert self.raw["digiquartz pressure"].iloc[-1] == 8905702 / 256
-        assert self.raw["temperature compensation"].iloc[0] == 1571
-        assert self.raw["temperature compensation"].iloc[-1] == 1566
+        assert self.raw["temperature"][0].item() == 407128
+        assert self.raw["temperature"][-1].item() == 468996
+        assert self.raw["conductivity"][0].item() == 687669 / 256
+        assert self.raw["conductivity"][-1].item() == 687669 / 256
+        assert self.raw["digiquartz pressure"][0].item() == 8906797 / 256
+        assert self.raw["digiquartz pressure"][-1].item() == 8905702 / 256
+        assert self.raw["temperature compensation"][0].item() == 1571
+        assert self.raw["temperature compensation"][-1].item() == 1566
 
 
 class TestReadHex39plus:
