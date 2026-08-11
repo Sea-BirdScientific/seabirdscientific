@@ -311,18 +311,17 @@ def _read_fathom_cnv_file(filepath: Path | str) -> xr.Dataset:
             dropwhile(lambda line: not line.startswith("# <FathomProcessing"), f),
         )
         fathom_xml = ET.fromstring("".join(line.lstrip("#* ") for line in block))
-        dc_tag = fathom_xml.find("Modules").find("DataConversion")
-        total_scans = int(dc_tag.find("NumScans").text)
+        dc_element = fathom_xml.find("Modules").find("DataConversion")
+        total_scans = int(dc_element.find("NumScans").text)
         dataset = dataset.assign_coords(scan=np.arange(total_scans))
-        start_time = dc_tag.find("StartTime").get("DateTime")
         ds_attrs = {
-            "sample_interval": float(dc_tag.find("Interval").get("Value")),
-            "start_time": None if start_time == "unknown" else datetime.fromisoformat(start_time),
+            "sample_interval": float(dc_element.find("Interval").get("Value")),
+            "start_time": dc_element.find("StartTime").get("DateTime"),
         }
         dataset.attrs.update(ds_attrs)
 
         column_names = []
-        for column in dc_tag.find("Columns"):
+        for column in dc_element.find("Columns"):
             name = column.attrib["ID"]
             attrs = {
                 "sbs_name": name,
@@ -358,7 +357,7 @@ def _read_fathom_cnv_file(filepath: Path | str) -> xr.Dataset:
         data = np.array([[float(v) for v in line.split()] for line in list(f) if line.strip()])
 
         for n, name in enumerate(column_names):
-            if name == dataset.coords:
+            if name in dataset.coords:
                 # update the scan coord if it's one of the variables
                 dataset[name] = dataset[name].copy(data=data[:, n].astype(np.int64))
             else:
