@@ -358,8 +358,11 @@ def _read_fathom_cnv_file(filepath: Path | str) -> xr.Dataset:
         data = np.array([[float(v) for v in line.split()] for line in list(f) if line.strip()])
 
         for n, name in enumerate(column_names):
-            values = data[:, n]
-            dataset[name] = ("scan", values.astype(np.int64) if name == "scan" else values)
+            if name == "scan":
+                # update the scan coord if it's one of the variables
+                dataset[name] = dataset[name].copy(data=data[:, n].astype(np.int64))
+            else:
+                dataset[name][:] = data[:, n]
 
         if data.shape != (total_scans, len(column_names)):
             raise ValueError(

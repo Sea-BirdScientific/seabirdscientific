@@ -75,6 +75,27 @@ class TestReadCnvFile:
     def test_read_cnv_fathom(self):
         filepath = test_data / "SBE19plus_01906398_2019_07_15_0033.cnv"
         dataset = si.read_cnv_file(filepath)
+        expected_variables = {
+            "c0S/m",
+            "prdM",
+            "sbeox0ML/L",
+            "flag",
+            "conservativeTemperature",
+            "absoluteSalinity",
+            "potentialDensity",
+            "t090C",
+            "sbeox0V",
+            "pH",
+            "timeS"
+        }
+
+        assert dataset.attrs.get("sample_interval") == 0.25
+        assert set(dataset.data_vars) == expected_variables
+        assert dataset["c0S/m"].attrs.get("sbs_name") == "c0S/m"
+        assert dataset["c0S/m"].attrs.get("long_name") == "Conductivity"
+        assert dataset["c0S/m"].attrs.get("units") == "S/m"
+        assert dataset["c0S/m"][0] == 0.0896673177452
+        assert dataset["c0S/m"][-1] == 1.1574933709080
 
 
 class TestReadHex19plus:
