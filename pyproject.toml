@@ -1,6 +1,6 @@
 [project]
 name = "seabirdscientific"
-version = "3.0.0a17"
+version = "3.0.0a19"
 description = "Sea-Bird Scientific Community Toolkit"
 readme = "README.md"
 license = "MIT"
