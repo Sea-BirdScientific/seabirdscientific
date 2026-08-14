@@ -320,19 +320,30 @@ def _read_fathom_cnv_file(filepath: Path | str) -> xr.Dataset:
         }
         dataset.attrs.update(ds_attrs)
 
-        column_names = []
-        for column in dc_element.find("Columns"):
+        rows = [line.split() for line in f if line.strip()]
+        columns = list(dc_element.find("Columns"))
+
+        if len(rows) != total_scans or any(len(row) != len(columns) for row in rows):
+            raise ValueError(
+                f"expected {total_scans}x{len(columns)} data block, "
+                f"got {len(rows)}x{len(rows[0]) if rows else 0}"
+            )
+        
+        data = list(zip(*rows))
+
+        for n, column in enumerate(columns):
             name = column.attrib["ID"]
             attrs = {
                 "sbs_name": name,
                 "long_name": column.find("Name").text,
                 "units": column.find("Units").text or "",
             }
+            values = data[n]
 
             # update the scan coord if there is a scan variable in the data
             if name in dataset.coords:
+                dataset[name] = dataset[name].copy(data=np.array(values, dtype=np.int64))
                 dataset[name].attrs.update(attrs)
-                column_names.append(name)
                 continue
 
             safe_name = name
@@ -346,26 +357,16 @@ def _read_fathom_cnv_file(filepath: Path | str) -> xr.Dataset:
             if safe_name != name:
                 logger.warning(f'Duplicate measurand "{name}" will use key "{safe_name}"')
 
+            def column_array(values: list[str]) -> np.ndarray:
+                try:
+                    return np.array(values, dtype=float)
+                except ValueError:
+                    return np.array(values, dtype=object)
+
             dataset[safe_name] = xr.DataArray(
-                data=np.full(total_scans, np.nan),
+                data=column_array(values),
                 dims=["scan"],
                 attrs=attrs,
-            )
-
-            column_names.append(safe_name)
-
-        data = np.array([[float(v) for v in line.split()] for line in list(f) if line.strip()])
-
-        for n, name in enumerate(column_names):
-            if name in dataset.coords:
-                # update the scan coord if it's one of the variables
-                dataset[name] = dataset[name].copy(data=data[:, n].astype(np.int64))
-            else:
-                dataset[name][:] = data[:, n]
-
-        if data.shape != (total_scans, len(column_names)):
-            raise ValueError(
-                f"expected {total_scans}x{len(column_names)} data block, got {data.shape}"
             )
 
     return dataset
