@@ -328,7 +328,7 @@ def _read_fathom_cnv_file(filepath: Path | str) -> xr.Dataset:
                 f"expected {total_scans}x{len(columns)} data block, "
                 f"got {len(rows)}x{len(rows[0]) if rows else 0}"
             )
-        
+
         data = list(zip(*rows))
 
         for n, column in enumerate(columns):
