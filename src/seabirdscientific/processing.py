@@ -1,21 +1,17 @@
 """Functions for processing converted SBS instrument data."""
 
-# Native imports
 import warnings
 from enum import Enum
 from logging import getLogger
 from typing import Literal
 
-# Third-party imports
 import numpy as np
 import pandas as pd
 import xarray as xr
 from scipy import signal
 
-# Sea-Bird imports
 from seabirdscientific import conversion as c
 from seabirdscientific.constants import FLAG_VALUE
-
 
 logger = getLogger(__name__)
 
@@ -106,8 +102,8 @@ def align_ctd(
 
 
 def cell_thermal_mass(
-    temperature: np.ndarray = [],
-    conductivity: np.ndarray = [],
+    temperature: np.ndarray = None,
+    conductivity: np.ndarray = None,
     amplitude: float = 1,
     time_constant: float = 1,
     sample_interval: float = 1,
@@ -579,7 +575,7 @@ def bin_average(
 
     if bin_variable == "nScan" and "nScan" not in df.columns:
         # We want to bin by scans, ensure it's a column
-        df.insert(0, "nScan", range(0, len(df)))
+        df.insert(0, "nScan", range(len(df)))
 
     # pd series containing the variable we want to bin for, converted to ndarray
     control = df[bin_variable].to_numpy()

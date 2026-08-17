@@ -319,8 +319,8 @@
   {
     "aliases": [
       "c1S/m",
-      "c0S/m_1",
-      "c0S_m_1"
+      "c1S/m_1",
+      "c1S_m_1"
     ],
     "name": "c1Sm",
     "units": "S/m",
@@ -332,8 +332,8 @@
   {
     "aliases": [
       "c1mS/cm",
-      "c0mS/cm_1",
-      "c0mS_cm_1"
+      "c1mS/cm_1",
+      "c1mS_cm_1"
     ],
     "name": "c1mScm",
     "units": "mS/cm",
@@ -345,8 +345,8 @@
   {
     "aliases": [
       "c1uS/cm",
-      "c0uS/cm_1",
-      "c0uS_cm_1"
+      "c1uS/cm_1",
+      "c1uS_cm_1"
     ],
     "name": "c1uScm",
     "units": "μS/cm",

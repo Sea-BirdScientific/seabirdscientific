@@ -1,6 +1,7 @@
 """EOS80 functions to support legacy processing"""
 
 import warnings
+
 import numpy as np
 
 import seabirdscientific.eos80_conversion as ec

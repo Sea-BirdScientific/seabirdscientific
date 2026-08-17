@@ -1,14 +1,6 @@
 """Calibration coefficient dataclasses for data conversion."""
 
-# Native imports
 from dataclasses import dataclass
-from typing import Optional
-
-# Third-party imports
-
-# Sea-Bird imports
-
-# Internal imports
 
 
 @dataclass
@@ -24,6 +16,7 @@ class TemperatureCoefficients:
     a1: float
     a2: float
     a3: float
+    offset: float = 0
 
 
 @dataclass
@@ -77,18 +70,20 @@ class PressureCoefficients:
 @dataclass
 class PressureDigiquartzCoefficients:
     """
-    :param a0: coefficient
-    :param a1: coefficient
-    :param a2: coefficient
-    :param b0: coefficient
-    :param b1: coefficient
-    :param b2: coefficient
-    :param c0: coefficient
     :param c1: coefficient
     :param c2: coefficient
-    :param d0: coefficient
+    :param c2: coefficient
     :param d1: coefficient
     :param d2: coefficient
+    :param t1: coefficient
+    :param t2: coefficient
+    :param t3: coefficient
+    :param t4: coefficient
+    :param t5: coefficient
+    :param ad590m: coefficient, defaults to 0.028927
+    :param ad590b: coefficient, defaults to -41.1733
+    :param slope: defaults to 1
+    :param offset: defaults to 0
     """
 
     c1: float
@@ -101,43 +96,10 @@ class PressureDigiquartzCoefficients:
     t3: float
     t4: float
     t5: float
-    AD590M: float
-    AD590B: float
-
-    def __init__(
-        self,
-        c1: float,
-        c2: float,
-        c3: float,
-        d1: float,
-        d2: float,
-        t1: float,
-        t2: float,
-        t3: float,
-        t4: float,
-        t5: float,
-        AD590M: Optional[float] = None,
-        AD590B: Optional[float] = None,
-    ):
-        self.c1 = c1
-        self.c2 = c2
-        self.c3 = c3
-        self.d1 = d1
-        self.d2 = d2
-        self.t1 = t1
-        self.t2 = t2
-        self.t3 = t3
-        self.t4 = t4
-        self.t5 = t5
-        if AD590M is not None:
-            self.AD590M = AD590M
-        else:
-            self.AD590M = 0.028927  # default value for SBE16plus V2 and SBE19plus V2
-
-        if AD590B is not None:
-            self.AD590B = AD590B
-        else:
-            self.AD590B = -41.1733  # default value for SBE16plus V2 and SBE19plus V2
+    ad590m: float = 0.028927  # default value for SBE16plus V2 and SBE19plus V2
+    ad590b: float = -41.1733  # default value for SBE16plus V2 and SBE19plus V2
+    slope: float = 1
+    offset: float = 0
 
 
 @dataclass
@@ -291,10 +253,10 @@ class SPARCoefficients:
 @dataclass
 class TemperatureSeaFETCoefficients:
     """
-    :param tdfa0: temeperature coefficient
-    :param tdfa1: temeperature coefficient
-    :param tdfa2: temeperature coefficient
-    :param tdfa3: temeperature coefficient
+    :param tdfa0: temperature coefficient
+    :param tdfa1: temperature coefficient
+    :param tdfa2: temperature coefficient
+    :param tdfa3: temperature coefficient
     """
 
     tdfa0: float
@@ -303,31 +265,26 @@ class TemperatureSeaFETCoefficients:
     tdfa3: float
 
 
+@dataclass
 class PHSeaFETInternalCoefficients:
     """
     :param kdf0: internal K0 coefficient
     :param kdf2: internal K2 coefficient
     """
 
-    def __init__(
-        self,
-        kdf0: float = 0,
-        kdf2: float = 0,
-    ):
-        self.kdf0 = kdf0
-        self.kdf2 = kdf2
+    kdf0: float
+    kdf2: float
 
 
+@dataclass
 class PHSeaFETExternalCoefficients:
     """
     :param k0: external K0 coefficient
     :param k2: external K2 coefficient
-    :param k2_poly_order: order of K2 pressure compensation calculation
     :param k2f0: f(P) coefficient
     :param k2f1: f(P) coefficient
     :param k2f2: f(P) coefficient
     :param k2f3: f(P) coefficient
-    :param fp_poly_order: order of pressure compensation calculation
     :param f0: f(P) coefficient
     :param f1: f(P) coefficient
     :param f2: f(P) coefficient
@@ -335,41 +292,27 @@ class PHSeaFETExternalCoefficients:
     :param f4: f(P) coefficient
     :param f5: f(P) coefficient
     :param f6: f(P) coefficient
+    :param k2_poly_order: order of K2 pressure compensation calculation,
+        defaults to 3
+    :param fp_poly_order: order of pressure compensation calculation,
+        defaults to 6
     """
 
-    def __init__(
-        self,
-        k0: float = 0,
-        k2: float = 0,
-        k2_poly_order=0,
-        k2f0: float = 0,
-        k2f1: float = 0,
-        k2f2: float = 0,
-        k2f3: float = 0,
-        fp_poly_order: float = 0,
-        f0: float = 0,
-        f1: float = 0,
-        f2: float = 0,
-        f3: float = 0,
-        f4: float = 0,
-        f5: float = 0,
-        f6: float = 0,
-    ):
-        self.k0 = k0
-        self.k2 = k2
-        self.k2_poly_order = k2_poly_order
-        self.k2f0 = k2f0
-        self.k2f1 = k2f1
-        self.k2f2 = k2f2
-        self.k2f3 = k2f3
-        self.fp_poly_order = fp_poly_order
-        self.f0 = f0
-        self.f1 = f1
-        self.f2 = f2
-        self.f3 = f3
-        self.f4 = f4
-        self.f5 = f5
-        self.f6 = f6
+    k0: float = 0
+    k2: float = 0
+    k2f0: float = 0
+    k2f1: float = 0
+    k2f2: float = 0
+    k2f3: float = 0
+    f0: float = 0
+    f1: float = 0
+    f2: float = 0
+    f3: float = 0
+    f4: float = 0
+    f5: float = 0
+    f6: float = 0
+    k2_poly_order: int = 0
+    fp_poly_order: int = 0
 
 
 @dataclass

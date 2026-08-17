@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import UTC, datetime
 from importlib.metadata import version as get_version
 
 # Configuration file for the Sphinx documentation builder.
@@ -11,7 +11,7 @@ from importlib.metadata import version as get_version
 
 
 project = "Community Toolkit"
-copyright = f"{datetime.now().year}, Sea-Bird Scientific"
+copyright = f"{datetime.now(tz=UTC).year}, Sea-Bird Scientific"
 author = "Sea-Bird Scientific"
 release = get_version("seabirdscientific")
 version = release

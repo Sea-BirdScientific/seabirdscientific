@@ -1,20 +1,40 @@
 """A collection of raw data conversion functions."""
 
-# Native imports
 import math
+from collections.abc import Callable
 from typing import Literal
 
-# Third-party imports
 import gsw
 import numpy as np
-import xarray as xr
 from numpy.polynomial import Polynomial
 from scipy import stats
 
-# Sea-Bird imports
 import seabirdscientific.cal_coefficients as cc
 import seabirdscientific.constants as const
+import seabirdscientific.instrument_data as si
 from seabirdscientific import eos80_conversion as eos80
+
+
+def convert_temperature_units(
+    temperature: np.ndarray,
+    from_standard: Literal["ITS90", "IPTS68"],
+    from_units: Literal["C", "F"],
+    to_standard: Literal["ITS90", "IPTS68"] = "ITS90",
+    to_units: Literal["C", "F"] = "C",
+):
+    """Convert temperature units between C, F, ITS90, and IPTS68"""
+    _temperature = temperature.copy()
+    if from_standard == "ITS90" and to_standard == "IPTS68":
+        _temperature *= const.ITS90_TO_IPTS68
+    elif from_standard == "IPTS68" and to_standard == "ITS90":
+        _temperature /= const.ITS90_TO_IPTS68
+
+    if from_units == "F" and to_units == "C":
+        _temperature = (_temperature - 32) * 5 / 9
+    if from_units == "C" and to_units == "F":
+        _temperature = _temperature * 9 / 5 + 32
+
+    return _temperature
 
 
 def convert_temperature(
@@ -31,9 +51,9 @@ def convert_temperature(
     :param temperature_counts_in: temperature value to convert in A/D
         counts
     :param coefs: calibration coefficients for the temperature sensor
-    :param standard: whether to use ITS90 or to use IPTS-68 calibration
+    :param standard: whether to convert to ITS90 or IPTS-68 calibration
         standard
-    :param units: whether to use celsius or to convert to fahrenheit
+    :param units: whether to convert to celsius or fahrenheit
     :param use_mv_r: true to perform extra conversion steps required by
         some instruments (check the cal sheet to see if this is required)
 
@@ -52,10 +72,7 @@ def convert_temperature(
         1 / (coefs.a0 + coefs.a1 * log_t + coefs.a2 * log_t**2 + coefs.a3 * log_t**3)
     ) - const.KELVIN_OFFSET_0C
 
-    if standard == "IPTS68":
-        temperature *= const.ITS90_TO_IPTS68
-    if units == "F":
-        temperature = temperature * 9 / 5 + 32  # Convert C to F
+    temperature = convert_temperature_units(temperature, "ITS90", "C", standard, units)
 
     return temperature
 
@@ -66,7 +83,8 @@ def convert_temperature_frequency(
     standard: Literal["ITS90", "IPTS68"] = "ITS90",
     units: Literal["C", "F"] = "C",
 ):
-    """Convert raw frequency to temperature in degrees Celsius or degrees Fahrenheit
+    """Convert raw frequency to temperature in degrees Celsius or
+    degrees Fahrenheit
 
     :param frequency: raw frequency from the temperature sensor
     :param coefs: calibration coefficients for the temperature sensor
@@ -78,21 +96,39 @@ def convert_temperature_frequency(
         - const.KELVIN_OFFSET_0C
     )
 
-    if standard == "IPTS68":
-        temperature *= const.ITS90_TO_IPTS68
-    if units == "F":
-        temperature = temperature * 9 / 5 + 32  # Convert C to F
+    temperature = convert_temperature_units(temperature, "ITS90", "C", standard, units)
 
     return temperature
+
+
+def convert_pressure_units(
+    pressure: np.ndarray,
+    from_units: Literal["dbar", "psia", "psig"],
+    to_units: Literal["dbar", "psia", "psig"] = "psia",
+) -> np.ndarray:
+    _pressure = pressure.copy()
+
+    if from_units == "psia" and to_units in ("dbar", "psig"):
+        _pressure -= const.SEA_LEVEL_PRESSURE
+    elif from_units in ("dbar", "psig") and to_units == "psia":
+        _pressure += const.SEA_LEVEL_PRESSURE
+
+    if from_units in ("psia", "psig") and to_units == "dbar":
+        _pressure *= const.PSI_TO_DBAR
+    elif from_units == "dbar" and to_units in ("psia", "psig"):
+        _pressure /= const.PSI_TO_DBAR
+
+    return _pressure
 
 
 def convert_pressure(
     pressure_count: np.ndarray,
     compensation_voltage: np.ndarray,
     coefs: cc.PressureCoefficients,
-    units: Literal["dbar", "psia", "psig"] = "psig",
+    units: Literal["dbar", "psia", "psig"] = "psia",
 ):
-    """Converts pressure counts to sea pressure (psig and dbar) and absolute pressure (psia)
+    """Converts pressure counts to sea pressure (psig and dbar) and
+    absolute pressure (psia)
 
     pressure_count and compensation_voltage are expected to be raw data
     from an instrument in A/D counts
@@ -101,12 +137,11 @@ def convert_pressure(
     :param compensation_voltage: pressure temperature compensation
         voltage, in counts or volts depending on the instrument
     :param coefs: calibration coefficients for the pressure sensor
-    :param units: whether or not to use psig or dbar as the returned
-        unit type
+    :param units: whether or not to use dbar, psig, or psia as the
+        returned unit type, defaults to psia
 
-    :return: sea pressure val in dbar or PSIG
+    :return: sea pressure val in dbar, psig, or psia according to units
     """
-    sea_level_pressure = 14.7
 
     t = (
         coefs.ptempa0
@@ -117,11 +152,7 @@ def convert_pressure(
     n = x * coefs.ptcb0 / (coefs.ptcb0 + coefs.ptcb1 * t + coefs.ptcb2 * t**2)
     pressure = coefs.pa0 + coefs.pa1 * n + coefs.pa2 * n**2
 
-    if units == "dbar" or units == "psig":
-        pressure -= sea_level_pressure
-
-    if units == "dbar":
-        pressure *= const.PSI_TO_DBAR
+    pressure = convert_pressure_units(pressure, "psia", units)
 
     return pressure
 
@@ -130,60 +161,64 @@ def convert_pressure_digiquartz(
     pressure_count: np.ndarray,
     compensation_voltage: np.ndarray,
     coefs: cc.PressureDigiquartzCoefficients,
-    units: Literal["dbar", "psia"],
+    units: Literal["dbar", "psia", "psig"],
     sample_interval: float,
 ):
-    """Converts pressure counts to PSIA (pounds per square inch, abolute)
-    or dbar for a digiquartz pressure sensor.
-
-    pressure_count and compensation_voltage are expected to be raw data
-    from an instrument in A/D counts
+    """Converts pressure counts to PSIA (pounds per square inch,
+    abolute), PSIG, or dbar for a digiquartz pressure sensor.
 
     :param pressure_count: pressure value to convert, in A/D counts
-    :param compensation_voltage: pressure temperature compensation
-        voltage, in counts or volts depending on the instrument
+    :param compensation_voltage: pressure temperature, in A/D counts
     :param coefs: calibration coefficients for the digiquartz pressure
         sensor
-    :param units: whether or not to use psia or dbar as the returned
-        unit type
+    :param units: whether or not to use dbar, psig, or psia as the
+        returned unit type, defaults to psia
     :param sample_interval: sample rate of the data to be used for
         temperature compensation correction, in seconds
-    :return: pressure val in PSIA or dbar
+    :return: pressure val in dbar, psig, or psia according to units
     """
-    sea_level_pressure = 14.7
 
     # First, average temperature compensation over 30 seconds
     def modification_function(x):
-        return x * coefs.AD590M + coefs.AD590B
+        return x * coefs.ad590m + coefs.ad590b
 
-    modified_compensation_voltage = _compute_rolling_average(
-        compensation_voltage, 30, sample_interval, modification_function
-    )
+    # using a short name to make the equations a little easier to read
+    v = _compute_rolling_average(compensation_voltage, 30, sample_interval, modification_function)
 
     # Now, calculate pressure
+    t = 1 / pressure_count * 1e6  # convert to period in usec
+    c = coefs.c1 + coefs.c2 * v + coefs.c3 * v**2
+    d = coefs.d1 + coefs.d2 * v
+    t0 = coefs.t1 + coefs.t2 * v + coefs.t3 * v**2 + coefs.t4 * v**3 + coefs.t5 * v**4
 
-    t = 1 / pressure_count * 1000000  # convert to period in usec
-    c = (
-        coefs.c1
-        + coefs.c2 * modified_compensation_voltage
-        + coefs.c3 * modified_compensation_voltage**2
-    )
-    d = coefs.d1 + coefs.d2 * modified_compensation_voltage
-    t0 = (
-        coefs.t1
-        + coefs.t2 * modified_compensation_voltage
-        + coefs.t3 * modified_compensation_voltage**2
-        + coefs.t4 * modified_compensation_voltage**3
-        + coefs.t5 * modified_compensation_voltage**4
-    )
+    one_minus_t_ratio = 1 - (t0**2) / (t**2)
+    # p is absolute pressure according to Paroscientific cal sheet
+    p = c * one_minus_t_ratio * (1 - d * one_minus_t_ratio)
 
-    t0_squared_over_t_squared = (t0**2) / (t**2)
-    one_minus_ratio = 1 - t0_squared_over_t_squared
-    p = c * one_minus_ratio * (1 - d * one_minus_ratio)
-    abs_pressure = p - sea_level_pressure
-    if units == "dbar":
-        abs_pressure *= const.PSI_TO_DBAR
-    return abs_pressure
+    pressure = convert_pressure_units(p, "psia", units)
+
+    return pressure
+
+
+def convert_conductivity_units(
+    conductivity: np.ndarray,
+    from_units: Literal["S/m", "mS/cm", "uS/cm"],
+    to_units: Literal["S/m", "mS/cm", "uS/cm"] = "S/m",
+) -> np.ndarray:
+    if from_units == "S/m" and to_units == "mS/cm":
+        return conductivity * 10
+    elif from_units == "S/m" and to_units == "uS/cm":
+        return conductivity * 1e4
+    elif from_units == "mS/cm" and to_units == "S/m":
+        return conductivity / 10
+    elif from_units == "mS/cm" and to_units == "uS/cm":
+        return conductivity * 1000
+    elif from_units == "uS/cm" and to_units == "S/m":
+        return conductivity / 1e4
+    elif from_units == "uS/cm" and to_units == "mS/cm":
+        return conductivity / 1000
+    else:
+        return conductivity
 
 
 def convert_conductivity(
@@ -191,9 +226,10 @@ def convert_conductivity(
     temperature: np.ndarray,
     pressure: np.ndarray,
     coefs: cc.ConductivityCoefficients,
-    scalar: float = 1.0,
+    instrument_type: si.InstrumentType,
+    units: Literal["S/m", "mS/cm", "uS/cm"] = "S/m",
 ):
-    """Converts raw conductivity counts to S/m.
+    """Converts raw conductivity counts to S/m, mS/cm, or uS/cm.
 
     Data is expected to be raw data from instrument in A/D counts
 
@@ -202,14 +238,28 @@ def convert_conductivity(
     :param temperature: reference temperature, in degrees C
     :param pressure: reference pressure, in dbar
     :param coefs: calibration coefficient for the conductivity sensor
-    :param scalar: value to multiply by at the end. For most instruments, this is 1. For SBE911, it is 1/10
+    :param instrument_type: the instrument that recorded conductivity
+    :param units: the conductivity units to convert to, defaults to S/m
 
     :return: conductivity val converted to S/m
     """
-    f = conductivity_count * np.sqrt(1 + coefs.wbotc * temperature) / 1000
+    scalar = 1
+    if instrument_type == si.InstrumentType.SBE911Plus:
+        scalar = 1 / 10
+
+    if instrument_type in (
+        si.InstrumentType.SBE16Plus,
+        si.InstrumentType.SBE19Plus,
+        si.InstrumentType.SBE911Plus,
+    ):
+        f = conductivity_count / 1000
+    else:
+        f = conductivity_count * np.sqrt(1 + coefs.wbotc * temperature) / 1000
+
     numerator = coefs.g + coefs.h * f**2 + coefs.i * f**3 + coefs.j * f**4
     denominator = 1 + coefs.ctcor * temperature + coefs.cpcor * pressure
-    return numerator / denominator * scalar
+    conductivity = convert_conductivity_units(numerator / denominator * scalar, "S/m", units)
+    return conductivity
 
 
 def potential_density_from_t_s_p(
@@ -644,7 +694,7 @@ def convert_oxygen_units(
     pressure: np.ndarray,
     salinity: np.ndarray,
     from_units: Literal["ml/l", "mg/l", "umol/kg", "umol/l", "saturation_percent"],
-    to_units: Literal["ml/l", "mg/l", "umol/kg", "umol/l", "saturation_percent"]
+    to_units: Literal["ml/l", "mg/l", "umol/kg", "umol/l", "saturation_percent"],
 ):
     """Convert oxygen values between supported oxygen units.
 
@@ -923,9 +973,9 @@ def _calculate_nernst(temperature: np.ndarray) -> np.ndarray:
 
 
 def convert_internal_seafet_ph(
-    raw_ph: np.ndarray = 0,
-    temperature: np.ndarray = 0,
-    coefs: cc.PHSeaFETInternalCoefficients = cc.PHSeaFETInternalCoefficients(),
+    raw_ph: np.ndarray,
+    temperature: np.ndarray,
+    coefs: cc.PHSeaFETInternalCoefficients,
     ph_units: Literal["counts", "volts"] = "counts",
 ):
     """Calculates the internal pH on the total scale given the
@@ -1144,11 +1194,11 @@ def _hso4_compressibility(temperature: np.ndarray):
 
 
 def convert_external_seafet_ph(
-    raw_ph: np.ndarray = 0,
-    temperature: np.ndarray = 0,
-    salinity: np.ndarray = 0,
-    pressure: np.ndarray = 0,
-    coefs: cc.PHSeaFETExternalCoefficients = cc.PHSeaFETExternalCoefficients(),
+    raw_ph: np.ndarray,
+    temperature: np.ndarray,
+    salinity: np.ndarray,
+    pressure: np.ndarray,
+    coefs: cc.PHSeaFETExternalCoefficients,
     ph_units: Literal["counts", "volts"] = "counts",
     formula_version: Literal["legacy", "1.3"] = "1.3",
 ):
@@ -1343,7 +1393,7 @@ def buoyancy(
     window_size: float,
     use_modern_formula=True,
     flag_value=const.FLAG_VALUE,
-) -> xr.Dataset:
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """Calculates the 4 buoyancy values based off the incoming data.
 
     Data is expected to have already been binned via Bin_Average using
@@ -1462,7 +1512,7 @@ def _compute_rolling_average(
     compute_var: np.ndarray,
     window_size: float,
     sample_interval: float,
-    modification_fn: callable = None,
+    modification_fn: Callable | None = None,
 ) -> np.ndarray:
     """Computes a rolling average of the given variable over the specified window size.
     Averages with equal number values on either side of the center of each window.

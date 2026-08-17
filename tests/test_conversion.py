@@ -1,23 +1,15 @@
 """Data conversion unit tests."""
 
-# Native imports
+from pathlib import Path
 
-# Third-party imports
 import numpy as np
 import pandas as pd
 import pytest
-from pathlib import Path
 
-# Sea-Bird imports
-
-# Internal imports
+import seabirdscientific.constants as const
 import seabirdscientific.conversion as dc
 import seabirdscientific.instrument_data as id
-import seabirdscientific.constants as const
-
-# relative path imports
 import test_coefficients as tc
-
 
 test_data = Path("./tests/resources/test-data")
 
@@ -196,7 +188,7 @@ class TestConductivity19plus:
     cnv_path = test_data / "19plus_V2_CTD-processing_example.cnv"
     hex_path = test_data / "19plus_V2.hex"
 
-    def test_convert_conductivity(self, request):
+    def test_convert_conductivity(self):
         # expected_data = id.read_cnv_file(self.cnv_path)
 
         raw = id.read_hex_file(
@@ -237,8 +229,9 @@ class TestConductivity19plus:
             temperature,
             pressure,
             tc.conductivity_coefs_sn6130,
+            id.InstrumentType.SBE19Plus,
         )
-        request.node.return_value = result.tolist()
+
         assert np.allclose(expected, result, rtol=0, atol=1e-6)
 
 
@@ -246,7 +239,7 @@ class TestConductivity37SM:
     cnv_path = test_data / "SBE37SM-RS232_03716125_2017_11_16.cnv"
     hex_path = test_data / "SBE37SM-RS232_03716125_2017_11_16.hex"
 
-    def test_convert_conductivity(self, request):
+    def test_convert_conductivity(self):
         # expected_data = id.read_cnv_file(self.cnv_path)
 
         raw = id.read_hex_file(
@@ -279,8 +272,9 @@ class TestConductivity37SM:
             temperature,
             pressure,
             tc.conductivity_coefs_sn16125,
+            id.InstrumentType.SBE37SM,
         )
-        request.node.return_value = result.tolist()
+
         assert np.allclose(expected, result, rtol=0, atol=1e-4)
 
 
@@ -808,6 +802,7 @@ class TestSeaFETPH:
             raw_ph=-0.965858,
             temperature=15.8735,
             salinity=36.817,
+            pressure=0,
             coefs=tc.external_shallow_ph_coefs,
             ph_units="volts",
         )

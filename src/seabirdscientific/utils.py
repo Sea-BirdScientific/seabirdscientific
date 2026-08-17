@@ -1,16 +1,11 @@
 """Utility functions related to processing SBS instrument data."""
 
-# Native imports
 import warnings
 from enum import EnumMeta
 
-# Third-party imports
 import matplotlib.pyplot as plt
 import numpy as np
 from line_profiler import LineProfiler
-
-# Sea-Bird imports
-import seabirdscientific.constants as const
 
 
 def close_enough(

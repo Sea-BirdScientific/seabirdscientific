@@ -1,6 +1,6 @@
 [project]
 name = "seabirdscientific"
-version = "3.0.0a7"
+version = "3.0.0a14"
 description = "Sea-Bird Scientific Community Toolkit"
 readme = "README.md"
 license = "MIT"
@@ -52,6 +52,7 @@ dev = [
   "nbconvert[webpdf] ~= 7.17",
   "nbformat ~= 5.10",
   "notebook ~= 7.6",
+  "ruff ~= 0.16",
   "pytest ~= 9.1",
   "pytest-cov ~= 7.1",
 ]
@@ -83,6 +84,13 @@ line-length=99
 extend-exclude = [
   ".github",
 ]
+src = [
+  "src",
+  "tests"
+]
+
+[tool.ruff.lint]
+ignore = ["DTZ"]
 
 [tool.pytest.ini_options]
 testpaths = [

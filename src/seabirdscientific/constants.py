@@ -14,6 +14,7 @@ OXYGEN_PHASE_TO_VOLTS = 39.457071
 PSI_TO_DBAR = 0.6894759
 # [J K^{-1} mol^{-1}] Gas constant from SBS application note 99
 R = 8.3144621
+SEA_LEVEL_PRESSURE = 14.7
 SECONDS_BETWEEN_EPOCH_AND_2000 = 946684800
 # micro moles of nitrate to milligrams of nitrogen per liter
 UMNO3_TO_MGNL = 0.014007

@@ -1,17 +1,12 @@
 """Data processing unit tests."""
 
-# Native imports
 from logging import getLogger
 from pathlib import Path
 
-# Third-party imports
 import numpy as np
 import pandas as pd
 import pytest
 
-# Sea-Bird imports
-
-# Internal imports
 import seabirdscientific.conversion as sc
 import seabirdscientific.instrument_data as si
 import seabirdscientific.processing as sp
