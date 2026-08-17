@@ -2580,7 +2580,8 @@
   },
   {
     "aliases": [
-      "sbeopoxML/L1"
+      "sbeopoxML/L1",
+      "sbeopoxML_L1"
     ],
     "name": "sbeopoxML_L1",
     "units": "ml/l",
@@ -2588,11 +2589,12 @@
     "info": [
       "Derived"
     ],
-    "sbs_name": "sbeopoxML_L1"
+    "sbs_name": "sbeopoxML/L1"
   },
   {
     "aliases": [
-      "sbeopoxMg/L1"
+      "sbeopoxMg/L1",
+      "sbeopoxMg_L1"
     ],
     "name": "sbeopoxMg_L1",
     "units": "mg/l",
@@ -2600,7 +2602,7 @@
     "info": [
       "Derived"
     ],
-    "sbs_name": "sbeopoxMg_L1"
+    "sbs_name": "sbeopoxMg/L1"
   },
   {
     "aliases": [
@@ -2616,7 +2618,8 @@
   },
   {
     "aliases": [
-      "SbeopoxMm/Kg1"
+      "SbeopoxMm/Kg1",
+      "SbeopoxMm_Kg1"
     ],
     "name": "SbeopoxMm_Kg1",
     "units": "umol/kg",
@@ -2624,13 +2627,14 @@
     "info": [
       "Derived"
     ],
-    "sbs_name": "SbeopoxMm_Kg1"
+    "sbs_name": "SbeopoxMm/Kg1"
   },
   {
     "aliases": [
-      "sbeopoxMm/L1"
+      "sbeopoxMm/L1",
+      "sbeopoxMm_L1"
     ],
-    "name": "sbeopoxMm/L1",
+    "name": "sbeopoxMm_L1",
     "units": "umol/l",
     "title": "Oxygen",
     "info": [
@@ -2640,23 +2644,25 @@
   },
   {
     "aliases": [
-      "opoxML/L"
+      "opoxML/L",
+      "opoxML_L"
     ],
     "name": "opoxML_L",
     "units": "ml/l",
     "title": "Optode-Aanderaa",
     "info": [],
-    "sbs_name": "opoxML_L"
+    "sbs_name": "opoxML/L"
   },
   {
     "aliases": [
-      "opoxMg/L"
+      "opoxMg/L",
+      "opoxMg_L"
     ],
     "name": "opoxMg_L",
     "units": "mg/l",
     "title": "Optode-Aanderaa",
     "info": [],
-    "sbs_name": "opoxMg_L"
+    "sbs_name": "opoxMg/L"
   },
   {
     "aliases": [
@@ -2670,13 +2676,14 @@
   },
   {
     "aliases": [
-      "opoxMm/L"
+      "opoxMm/L",
+      "opoxMg/L"
     ],
     "name": "opoxMm_L",
     "units": "umol/l",
     "title": "Optode-Aanderaa",
     "info": [],
-    "sbs_name": "opoxMm_L"
+    "sbs_name": "opoxMm/L"
   },
   {
     "aliases": [
@@ -2740,23 +2747,25 @@
   },
   {
     "aliases": [
-      "oxML/L"
+      "oxML/L",
+      "oxML_L"
     ],
     "name": "oxML_L",
     "units": "ml/l",
     "title": "Beckman-YSI",
     "info": [],
-    "sbs_name": "oxML_L"
+    "sbs_name": "oxML/L"
   },
   {
     "aliases": [
-      "oxMg/L"
+      "oxMg/L",
+      "oxMg_L"
     ],
     "name": "oxMg_L",
     "units": "mg/l",
     "title": "Beckman-YSI",
     "info": [],
-    "sbs_name": "oxMg_L"
+    "sbs_name": "oxMg/L"
   },
   {
     "aliases": [
@@ -2770,43 +2779,47 @@
   },
   {
     "aliases": [
-      "oxMm/Kg"
+      "oxMm/Kg",
+      "oxMm_Kg"
     ],
     "name": "oxMm_Kg",
     "units": "umol/kg",
     "title": "Beckman-YSI",
     "info": [],
-    "sbs_name": "oxMm_Kg"
+    "sbs_name": "oxMm/Kg"
   },
   {
     "aliases": [
-      "oxdOC/dT"
+      "oxdOC/dT",
+      "oxdOC_dT"
     ],
     "name": "oxdOC_dT",
     "units": "doc/dt",
     "title": "Beckman-YSI",
     "info": [],
-    "sbs_name": "oxdOC_dT"
+    "sbs_name": "oxdOC/dT"
   },
   {
     "aliases": [
-      "oxsML/L"
+      "oxsML/L",
+      "oxsML_L"
     ],
     "name": "oxsML_L",
     "units": "ml/l",
     "title": "Beckman-YSI",
     "info": [],
-    "sbs_name": "oxsML_L"
+    "sbs_name": "oxsML/L"
   },
   {
     "aliases": [
-      "oxsMg/L"
+      "oxsMg/L",
+      "oxsMg_L"
     ],
     "name": "oxsMg_L",
     "units": "mg/l",
     "title": "Beckman-YSI",
     "info": [],
-    "sbs_name": "oxsMg_L"
+    "sbs_name": "oxsMg/L"
   },
   {
     "aliases": [
@@ -2820,29 +2833,32 @@
   },
   {
     "aliases": [
-      "oxsMm/Kg"
+      "oxsMm/Kg",
+      "oxsMm_Kg"
     ],
     "name": "oxsMm_Kg",
     "units": "umol/kg",
     "title": "",
     "info": [],
-    "sbs_name": "oxsMm_Kg"
+    "sbs_name": "oxsMm/Kg"
   },
   {
     "aliases": [
-      "oxsdOC/dT"
+      "oxsdOC/dT",
+      "oxsdOC_dT"
     ],
     "name": "oxsdOC_dT",
     "units": "doc/dt",
     "title": "",
     "info": [],
-    "sbs_name": "oxsdOC_dT"
+    "sbs_name": "oxsdOC/dT"
   },
   {
     "aliases": [
-      "iowOxML/L"
+      "iowOxML/L",
+      "iowOxML_L"
     ],
-    "name": "iowOxML/L",
+    "name": "iowOxML_L",
     "units": "ml/l",
     "title": "Oxygen-Saturation-IOW",
     "info": [],
@@ -2853,7 +2869,7 @@
       "oxsolML/L",
       "oxsolML_L"
     ],
-    "name": "oxsolML/L",
+    "name": "oxsolML_L",
     "units": "ml/l",
     "title": "Oxygen-Saturation-Garcia-Gordon",
     "info": [],
@@ -2864,7 +2880,7 @@
       "oxsolMg/L",
       "oxsolMg_L"
     ],
-    "name": "oxsolMg/L",
+    "name": "oxsolMg_L",
     "units": "mg/l",
     "title": "Oxygen-Saturation-Garcia-Gordon",
     "info": [],
@@ -2875,7 +2891,7 @@
       "oxsolMm/Kg",
       "oxsolMm_Kg"
     ],
-    "name": "oxsolMm/Kg",
+    "name": "oxsolMm_Kg",
     "units": "umol/kg",
     "title": "Oxygen-Saturation-Garcia-Gordon",
     "info": [],
@@ -2886,7 +2902,7 @@
       "oxsatML/L",
       "oxsatML_L"
     ],
-    "name": "oxsatML/L",
+    "name": "oxsatML_L",
     "units": "ml/l",
     "title": "Oxygen-Saturation-Weiss",
     "info": [],
@@ -2897,7 +2913,7 @@
       "oxsatMg/L",
       "oxsatMg_L"
     ],
-    "name": "oxsatMg/L",
+    "name": "oxsatMg_L",
     "units": "mg/l",
     "title": "Oxygen-Saturation-Weiss",
     "info": [],
@@ -2908,11 +2924,11 @@
       "oxsatMm/Kg",
       "oxsatMm_Kg"
     ],
-    "name": "oxsatMm_/Kg",
+    "name": "oxsatMm_Kg",
     "units": "umol/kg",
     "title": "Oxygen-Saturation-Weiss",
     "info": [],
-    "sbs_name": "oxsatMm_/Kg"
+    "sbs_name": "oxsatMm/Kg"
   },
   {
     "aliases": [
@@ -3233,7 +3249,7 @@
       "flECO-AFL",
       "flECO_AFL"
     ],
-    "name": "flECO-AFL",
+    "name": "flECO_AFL",
     "units": "mg/m^3",
     "title": "Chlorophyll-a",
     "info": [],
@@ -3244,7 +3260,7 @@
       "flECO-AFL1",
       "flECO_AFL1"
     ],
-    "name": "flECO-AFL1",
+    "name": "flECO_AFL1",
     "units": "mg/m^3",
     "title": "Chlorophyll-a",
     "info": [],
@@ -3255,7 +3271,7 @@
       "flECO-AFL2",
       "flECO_AFL2"
     ],
-    "name": "flECO-AFL2",
+    "name": "flECO_AFL2",
     "units": "mg/m^3",
     "title": "Chlorophyll-a",
     "info": [],
@@ -3266,7 +3282,7 @@
       "flECO-AFL3",
       "flECO_AFL3"
     ],
-    "name": "flECO-AFL3",
+    "name": "flECO_AFL3",
     "units": "mg/m^3",
     "title": "Chlorophyll-a",
     "info": [],
@@ -3277,7 +3293,7 @@
       "flECO-AFL4",
       "flECO_AFL4"
     ],
-    "name": "flECO-AFL4",
+    "name": "flECO_AFL4",
     "units": "mg/m^3",
     "title": "Chlorophyll-a",
     "info": [],
@@ -3288,7 +3304,7 @@
       "flECO-AFL5",
       "flECO_AFL5"
     ],
-    "name": "flECO-AFL5",
+    "name": "flECO_AFL5",
     "units": "mg/m^3",
     "title": "Chlorophyll-a",
     "info": [],
@@ -3299,7 +3315,7 @@
       "flECO-AFLdiff",
       "flECO_AFLdiff"
     ],
-    "name": "flECO-AFLdiff",
+    "name": "flECO_AFLdiff",
     "units": "mg/m^3",
     "title": "Chlorophyll-a",
     "info": [],
@@ -3726,7 +3742,7 @@
     "units": "μmol photons * m^-2 * s^-1",
     "title": "PAR",
     "info": [],
-    "sbs_name": "par_log"
+    "sbs_name": "par/log"
   },
   {
     "aliases": [
@@ -3760,33 +3776,36 @@
   },
   {
     "aliases": [
-      "n2satML/L"
+      "n2satML/L",
+      "n2satML_L"
     ],
     "name": "n2satML_L",
     "units": "ml/l",
     "title": "Nitrogen",
     "info": [],
-    "sbs_name": "n2satML_L"
+    "sbs_name": "n2satML/L"
   },
   {
     "aliases": [
-      "n2satMg/L"
+      "n2satMg/L",
+      "n2satMg_L"
     ],
     "name": "n2satMg_L",
     "units": "mg/l",
     "title": "Nitrogen",
     "info": [],
-    "sbs_name": "n2satMg_L"
+    "sbs_name": "n2satMg/L"
   },
   {
     "aliases": [
-      "n2satumol/kg"
+      "n2satumol/kg",
+      "n2satumol_kg"
     ],
     "name": "n2satumol_kg",
     "units": "umol/kg",
     "title": "Nitrogen",
     "info": [],
-    "sbs_name": "n2satumol_kg"
+    "sbs_name": "n2satumol/kg"
   },
   {
     "aliases": [
