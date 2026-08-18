@@ -2008,9 +2008,10 @@
   {
     "aliases": [
       "sbeox0Mm/Kg",
+      "sbeox0um_kg",
       "sbeox0mum_kg"
     ],
-    "name": "sbeox0mum_kg",
+    "name": "sbeox0um_kg",
     "units": "micromol/kg",
     "title": "Oxygen",
     "info": [
@@ -2020,9 +2021,10 @@
   {
     "aliases": [
       "sbeox0Mm/L",
+      "sbeox0um_L",
       "sbeox0mum_L"
     ],
-    "name": "sbeox0mum_L",
+    "name": "sbeox0um_L",
     "units": "micromole/L",
     "title": "Oxygen",
     "info": [
@@ -2086,9 +2088,10 @@
       "sbeox1Mm/Kg",
       "sbeox1Mm/Kg_1",
       "sbeox1Mm_Kg_1",
+      "sbeox1um_kg",
       "sbeox1mum_kg"
     ],
-    "name": "sbeox1mum_kg",
+    "name": "sbeox1um_kg",
     "units": "micromol/kg",
     "title": "Oxygen",
     "info": [
@@ -2099,9 +2102,10 @@
     "aliases": [
       "sbeox1Mm/L",
       "sbeox1Mm/L_1",
+      "sbeox1um_L",
       "sbeox1mum_L"
     ],
-    "name": "sbeox1mum_L",
+    "name": "sbeox1um_L",
     "units": "micromole/L",
     "title": "Oxygen",
     "info": [
@@ -2347,9 +2351,9 @@
     "aliases": [
       "sbeopoxMm/Kg",
       "sbeopoxMm_Kg",
-      "sbeopoxmum_Kg"
+      "sbeopoxum_Kg"
     ],
-    "name": "sbeopoxmum_Kg",
+    "name": "sbeopoxum_Kg",
     "units": "umol/kg",
     "title": "Oxygen",
     "info": [
@@ -2360,9 +2364,9 @@
     "aliases": [
       "sbeopoxMm/L",
       "sbeopoxMm_L",
-      "sbeopoxmum_L"
+      "sbeopoxum_L"
     ],
-    "name": "sbeopoxmum_L",
+    "name": "sbeopoxum_L",
     "units": "umol/l",
     "title": "Oxygen",
     "info": [
@@ -2408,9 +2412,9 @@
     "aliases": [
       "SbeopoxMm/Kg1",
       "SbeopoxMm_Kg1",
-      "sbeopoxmum_Kg1"
+      "sbeopoxum_Kg1"
     ],
-    "name": "sbeopoxmum_Kg1",
+    "name": "sbeopoxum_Kg1",
     "units": "umol/kg",
     "title": "Oxygen",
     "info": [
@@ -2421,7 +2425,7 @@
     "aliases": [
       "sbeopoxMm/L1",
       "sbeopoxMm_L1",
-      "sbeopoxmum_L1"
+      "sbeopoxum_L1"
     ],
     "name": "sbeopoxMm_L1",
     "units": "umol/l",
@@ -2462,9 +2466,9 @@
   {
     "aliases": [
       "opoxMm/L",
-      "opoxmum_L"
+      "opoxum_L"
     ],
-    "name": "opoxmum_L",
+    "name": "opoxum_L",
     "units": "umol/l",
     "title": "Optode-Aanderaa",
     "info": []
@@ -2556,9 +2560,9 @@
     "aliases": [
       "oxMm/Kg",
       "oxMm_Kg",
-      "oxmum_Kg"
+      "oxum_Kg"
     ],
-    "name": "oxmum_Kg",
+    "name": "oxum_Kg",
     "units": "umol/kg",
     "title": "Beckman-YSI",
     "info": []
@@ -2606,9 +2610,9 @@
     "aliases": [
       "oxsMm/Kg",
       "oxsMm_Kg",
-      "oxsmum_Kg"
+      "oxsum_Kg"
     ],
-    "name": "oxsmum_Kg",
+    "name": "oxsum_Kg",
     "units": "umol/kg",
     "title": "",
     "info": []
@@ -2657,9 +2661,9 @@
     "aliases": [
       "oxsolMm/Kg",
       "oxsolMm_Kg",
-      "oxsolmum_Kg"
+      "oxsolum_Kg"
     ],
-    "name": "oxsolmum_Kg",
+    "name": "oxsolum_Kg",
     "units": "umol/kg",
     "title": "Oxygen-Saturation-Garcia-Gordon",
     "info": []
@@ -2688,9 +2692,9 @@
     "aliases": [
       "oxsatMm/Kg",
       "oxsatMm_Kg",
-      "oxsatmum_Kg"
+      "oxsatum_Kg"
     ],
-    "name": "oxsatmum_Kg",
+    "name": "oxsatum_Kg",
     "units": "umol/kg",
     "title": "Oxygen-Saturation-Weiss",
     "info": []
@@ -3491,9 +3495,9 @@
     "aliases": [
       "n2satumol/kg",
       "n2satumol_kg",
-      "n2satmum_kg"
+      "n2satum_kg"
     ],
-    "name": "n2satmum_kg",
+    "name": "n2satum_kg",
     "units": "umol/kg",
     "title": "Nitrogen",
     "info": []
