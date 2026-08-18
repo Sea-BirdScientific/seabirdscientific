@@ -15,8 +15,7 @@
       "t090Cm",
       "t4990C",
       "tnc90C",
-      "tv290C",
-      "t090C"
+      "tv290C"
     ],
     "name": "t090C",
     "units": "deg C",
@@ -27,7 +26,6 @@
   },
   {
     "aliases": [
-      "t090F",
       "t4990F",
       "tnc90F",
       "tv290F"
@@ -41,7 +39,6 @@
   },
   {
     "aliases": [
-      "t068C",
       "t4968C",
       "tnc68C",
       "tv268C"
@@ -55,7 +52,6 @@
   },
   {
     "aliases": [
-      "t068F",
       "t4968F",
       "tnc68F",
       "tv268F"
@@ -80,7 +76,6 @@
   },
   {
     "aliases": [
-      "t190C",
       "tnc290C",
       "t090C_1"
     ],
@@ -94,7 +89,6 @@
   },
   {
     "aliases": [
-      "t190F",
       "tnc290F",
       "t090F_1"
     ],
@@ -108,7 +102,6 @@
   },
   {
     "aliases": [
-      "t168C",
       "tnc268C",
       "t068C_1"
     ],
@@ -122,7 +115,6 @@
   },
   {
     "aliases": [
-      "t168F",
       "tnc268F",
       "t068F_1"
     ],
@@ -230,8 +222,7 @@
   },
   {
     "aliases": [
-      "T2-T190C",
-      "tdiff90C"
+      "T2-T190C"
     ],
     "name": "tdiff90C",
     "units": "deg C",
@@ -242,8 +233,7 @@
   },
   {
     "aliases": [
-      "T2-T190F",
-      "tdiff90F"
+      "T2-T190F"
     ],
     "name": "tdiff90F",
     "units": "deg F",
@@ -254,8 +244,7 @@
   },
   {
     "aliases": [
-      "T2-T168C",
-      "tdiff68C"
+      "T2-T168C"
     ],
     "name": "tdiff68C",
     "units": "deg C",
@@ -266,8 +255,7 @@
   },
   {
     "aliases": [
-      "T2-T168F",
-      "tdiff68F"
+      "T2-T168F"
     ],
     "name": "tdiff68F",
     "units": "deg F",
@@ -291,8 +279,7 @@
     "aliases": [
       "c_S/m",
       "cond0S/m",
-      "c0S/m",
-      "c0Sm"
+      "c0S/m"
     ],
     "name": "c0Sm",
     "units": "S/m",
@@ -303,8 +290,7 @@
     "aliases": [
       "c_mS/cm",
       "cond0mS/cm",
-      "c0mS/cm",
-      "c0mScm"
+      "c0mS/cm"
     ],
     "name": "c0mScm",
     "units": "mS/cm",
@@ -315,8 +301,7 @@
     "aliases": [
       "c_uS/cm",
       "cond0uS/cm",
-      "c0uS/cm",
-      "c0uScm"
+      "c0uS/cm"
     ],
     "name": "c0uScm",
     "units": "μS/cm",
@@ -327,8 +312,7 @@
     "aliases": [
       "c1S/m",
       "c0S/m_1",
-      "c0S_m_1",
-      "c1Sm"
+      "c0S_m_1"
     ],
     "name": "c1Sm",
     "units": "S/m",
@@ -341,8 +325,7 @@
     "aliases": [
       "c1mS/cm",
       "c0mS/cm_1",
-      "c0mS_cm_1",
-      "c1mScm"
+      "c0mS_cm_1"
     ],
     "name": "c1mScm",
     "units": "mS/cm",
@@ -355,8 +338,7 @@
     "aliases": [
       "c1uS/cm",
       "c0uS/cm_1",
-      "c0uS_cm_1",
-      "c1uScm"
+      "c0uS_cm_1"
     ],
     "name": "c1uScm",
     "units": "μS/cm",
@@ -367,8 +349,7 @@
   },
   {
     "aliases": [
-      "C2-C1S/m",
-      "cdiffSm"
+      "C2-C1S/m"
     ],
     "name": "cdiffSm",
     "units": "S/m",
@@ -377,8 +358,7 @@
   },
   {
     "aliases": [
-      "C2-C1mS/cm",
-      "cdiffmScm"
+      "C2-C1mS/cm"
     ],
     "name": "cdiffmScm",
     "units": "mS/cm",
@@ -387,8 +367,7 @@
   },
   {
     "aliases": [
-      "C2-C1uS/cm",
-      "cdiffuScm"
+      "C2-C1uS/cm"
     ],
     "name": "cdiffuScm",
     "units": "μS/cm",
@@ -463,8 +442,7 @@
   },
   {
     "aliases": [
-      "prSM",
-      "prdM"
+      "prSM"
     ],
     "name": "prdM",
     "units": "db",
@@ -475,8 +453,7 @@
   },
   {
     "aliases": [
-      "prSE",
-      "prdE"
+      "prSE"
     ],
     "name": "prdE",
     "units": "psi",
@@ -998,7 +975,6 @@
   },
   {
     "aliases": [
-      "potemp090C",
       "th090C"
     ],
     "name": "potemp090C",
@@ -1008,7 +984,6 @@
   },
   {
     "aliases": [
-      "potemp090F",
       "th090F"
     ],
     "name": "potemp090F",
@@ -1018,7 +993,6 @@
   },
   {
     "aliases": [
-      "potemp068C",
       "th068C"
     ],
     "name": "potemp068C",
@@ -1030,7 +1004,6 @@
   },
   {
     "aliases": [
-      "potemp068F",
       "th068F"
     ],
     "name": "potemp068F",
@@ -1042,7 +1015,6 @@
   },
   {
     "aliases": [
-      "potemp190C",
       "th190C"
     ],
     "name": "potemp190C",
@@ -1052,7 +1024,6 @@
   },
   {
     "aliases": [
-      "potemp190F",
       "th190F"
     ],
     "name": "potemp190F",
@@ -1062,7 +1033,6 @@
   },
   {
     "aliases": [
-      "potemp168C",
       "th168C"
     ],
     "name": "potemp168C",
@@ -1074,7 +1044,6 @@
   },
   {
     "aliases": [
-      "potemp168F",
       "th168F"
     ],
     "name": "potemp168F",
@@ -1086,7 +1055,6 @@
   },
   {
     "aliases": [
-      "potemp90Cdiff",
       "th090Cdiff"
     ],
     "name": "potemp90Cdiff",
@@ -1096,7 +1064,6 @@
   },
   {
     "aliases": [
-      "potemp90Fdiff",
       "th090Fdiff"
     ],
     "name": "potemp90Fdiff",
@@ -1106,7 +1073,6 @@
   },
   {
     "aliases": [
-      "potemp68Cdiff",
       "th068Cdiff"
     ],
     "name": "potemp68Cdiff",
@@ -1118,7 +1084,6 @@
   },
   {
     "aliases": [
-      "potemp68Fdiff",
       "th068Fdiff"
     ],
     "name": "potemp68Fdiff",
@@ -1255,7 +1220,6 @@
   {
     "aliases": [
       "practicalSalinity",
-      "sal00",
       "psal0"
     ],
     "name": "sal00",
@@ -1267,7 +1231,6 @@
   },
   {
     "aliases": [
-      "sal11",
       "psal1"
     ],
     "name": "sal11",
@@ -1279,8 +1242,7 @@
   },
   {
     "aliases": [
-      "secS-priS",
-      "psaldiff"
+      "secS-priS"
     ],
     "name": "psaldiff",
     "units": "PSU",
@@ -1292,7 +1254,6 @@
   {
     "aliases": [
       "sigma-theta",
-      "sgth",
       "potentialDensity"
     ],
     "name": "sgth",
@@ -1304,7 +1265,6 @@
   },
   {
     "aliases": [
-      "density00",
       "rho0"
     ],
     "name": "density00",
@@ -1316,8 +1276,7 @@
   },
   {
     "aliases": [
-      "sigma-é00",
-      "sgth0"
+      "sigma-é00"
     ],
     "name": "sgth0",
     "units": "sigma-theta (p=0 db), kg/m^3-1000",
@@ -1328,8 +1287,7 @@
   },
   {
     "aliases": [
-      "sigma-t00",
-      "sgt0"
+      "sigma-t00"
     ],
     "name": "sgt0",
     "units": "sigma-t (p=0 db), kg/m^3-1000",
@@ -1352,8 +1310,7 @@
   },
   {
     "aliases": [
-      "sigma-200",
-      "sg20"
+      "sigma-200"
     ],
     "name": "sg20",
     "units": "sigma-2 (p=2000 db), kg/m^3-1000",
@@ -1364,8 +1321,7 @@
   },
   {
     "aliases": [
-      "sigma-300",
-      "sg30"
+      "sigma-300"
     ],
     "name": "sg30",
     "units": "sigma-3 (p=3000 db), kg/m^3-1000",
@@ -1376,8 +1332,7 @@
   },
   {
     "aliases": [
-      "sigma-400",
-      "sg40"
+      "sigma-400"
     ],
     "name": "sg40",
     "units": "sigma-4 (p=4000 db), kg/m^3-1000",
@@ -1388,7 +1343,6 @@
   },
   {
     "aliases": [
-      "density11",
       "rho1"
     ],
     "name": "density11",
@@ -1400,8 +1354,7 @@
   },
   {
     "aliases": [
-      "sigma-é11",
-      "sgth1"
+      "sigma-é11"
     ],
     "name": "sgth1",
     "units": "sigma-theta (p=0 db), kg/m^3-1000",
@@ -1412,8 +1365,7 @@
   },
   {
     "aliases": [
-      "sigma-t11",
-      "sgt1"
+      "sigma-t11"
     ],
     "name": "sgt1",
     "units": "sigma-t (p=0 db), kg/m^3-1000",
@@ -1424,8 +1376,7 @@
   },
   {
     "aliases": [
-      "sigma-111",
-      "sg11"
+      "sigma-111"
     ],
     "name": "sg11",
     "units": "sigma-1 (p=1000 db), kg/m^3-1000",
@@ -1436,8 +1387,7 @@
   },
   {
     "aliases": [
-      "sigma-211",
-      "sg21"
+      "sigma-211"
     ],
     "name": "sg21",
     "units": "sigma-2 (p=2000 db), kg/m^3-1000",
@@ -1448,8 +1398,7 @@
   },
   {
     "aliases": [
-      "sigma-311",
-      "sg31"
+      "sigma-311"
     ],
     "name": "sg31",
     "units": "sigma-3 (p=3000 db), kg/m^3-1000",
@@ -1460,8 +1409,7 @@
   },
   {
     "aliases": [
-      "sigma-411",
-      "sg41"
+      "sigma-411"
     ],
     "name": "sg41",
     "units": "sigma-4 (p=4000 db), kg/m^3-1000",
@@ -1472,8 +1420,7 @@
   },
   {
     "aliases": [
-      "D2-D1, d",
-      "rhodiff"
+      "D2-D1, d"
     ],
     "name": "rhodiff",
     "units": "density, kg/m^3",
@@ -1482,8 +1429,7 @@
   },
   {
     "aliases": [
-      "D2-D1,th",
-      "sgthdiff"
+      "D2-D1,th"
     ],
     "name": "sgthdiff",
     "units": "sigma-theta, kg/m^3",
@@ -1492,8 +1438,7 @@
   },
   {
     "aliases": [
-      "D2-D1,t",
-      "sgtdiff"
+      "D2-D1,t"
     ],
     "name": "sgtdiff",
     "units": "sigma-t, kg/m^3",
@@ -1502,8 +1447,7 @@
   },
   {
     "aliases": [
-      "D2-D1,1",
-      "sg1diff"
+      "D2-D1,1"
     ],
     "name": "sg1diff",
     "units": "sigma-1 (p=1000 db), kg/m^3",
@@ -1512,8 +1456,7 @@
   },
   {
     "aliases": [
-      "D2-D1,2",
-      "sg2diff"
+      "D2-D1,2"
     ],
     "name": "sg2diff",
     "units": "sigma-2 (p=1000 db), kg/m^3",
@@ -1522,8 +1465,7 @@
   },
   {
     "aliases": [
-      "D2-D1,3",
-      "sg3diff"
+      "D2-D1,3"
     ],
     "name": "sg3diff",
     "units": "sigma-3 (p=1000 db), kg/m^3",
@@ -1532,8 +1474,7 @@
   },
   {
     "aliases": [
-      "D2-D1,4",
-      "sg4diff"
+      "D2-D1,4"
     ],
     "name": "sg4diff",
     "units": "sigma-4 (p=1000 db), kg/m^3",
@@ -1542,7 +1483,6 @@
   },
   {
     "aliases": [
-      "svCM",
       "sv0CM"
     ],
     "name": "svCM",
@@ -1552,7 +1492,6 @@
   },
   {
     "aliases": [
-      "svCF",
       "sv0CF"
     ],
     "name": "svCF",
@@ -1562,7 +1501,6 @@
   },
   {
     "aliases": [
-      "svDM",
       "sv0DM"
     ],
     "name": "svDM",
@@ -1572,7 +1510,6 @@
   },
   {
     "aliases": [
-      "svDF",
       "sv0DF"
     ],
     "name": "svDF",
@@ -1582,7 +1519,6 @@
   },
   {
     "aliases": [
-      "svWM",
       "sv0WM"
     ],
     "name": "svWM",
@@ -1592,7 +1528,6 @@
   },
   {
     "aliases": [
-      "svWF",
       "sv0WF"
     ],
     "name": "svWF",
@@ -1602,7 +1537,6 @@
   },
   {
     "aliases": [
-      "svCM1",
       "sv1CM"
     ],
     "name": "svCM1",
@@ -1612,7 +1546,6 @@
   },
   {
     "aliases": [
-      "svCF1",
       "sv1CF"
     ],
     "name": "svCF1",
@@ -1622,7 +1555,6 @@
   },
   {
     "aliases": [
-      "svDM1",
       "sv1DM"
     ],
     "name": "svDM1",
@@ -1632,7 +1564,6 @@
   },
   {
     "aliases": [
-      "svDF1",
       "sv1DF"
     ],
     "name": "svDF1",
@@ -1642,7 +1573,6 @@
   },
   {
     "aliases": [
-      "svWM1",
       "sv1WM"
     ],
     "name": "svWM1",
@@ -1652,7 +1582,6 @@
   },
   {
     "aliases": [
-      "svWF1",
       "sv1WF"
     ],
     "name": "svWF1",
@@ -1671,8 +1600,7 @@
   },
   {
     "aliases": [
-      "sbeSv-iowSv",
-      "svdiff"
+      "sbeSv-iowSv"
     ],
     "name": "svdiff",
     "units": "SBE CTD - IOW SV sensor, m/s",
@@ -1771,8 +1699,7 @@
   },
   {
     "aliases": [
-      "dz/dtM",
-      "dzdtM"
+      "dz/dtM"
     ],
     "name": "dzdtM",
     "units": "m/s",
@@ -1781,8 +1708,7 @@
   },
   {
     "aliases": [
-      "dz/dtF",
-      "dzdtF"
+      "dz/dtF"
     ],
     "name": "dzdtF",
     "units": "ft/s",
@@ -1872,8 +1798,7 @@
   },
   {
     "aliases": [
-      "E10^-8",
-      "E8"
+      "E10^-8"
     ],
     "name": "E8",
     "units": "10^-8 *rad^2/m",
@@ -1949,7 +1874,6 @@
   },
   {
     "aliases": [
-      "sbeox1V",
       "sbeox1V_1"
     ],
     "name": "sbeox1V",
@@ -1972,8 +1896,7 @@
   },
   {
     "aliases": [
-      "sbeox0ML/L",
-      "sbeox0mL_L"
+      "sbeox0ML/L"
     ],
     "name": "sbeox0mL_L",
     "units": "mL/L",
@@ -1984,8 +1907,7 @@
   },
   {
     "aliases": [
-      "sbeox0Mg/L",
-      "sbeox0mg_L"
+      "sbeox0Mg/L"
     ],
     "name": "sbeox0mg_L",
     "units": "mg/L",
@@ -2008,7 +1930,6 @@
   {
     "aliases": [
       "sbeox0Mm/Kg",
-      "sbeox0um_kg",
       "sbeox0mum_kg"
     ],
     "name": "sbeox0um_kg",
@@ -2021,7 +1942,6 @@
   {
     "aliases": [
       "sbeox0Mm/L",
-      "sbeox0um_L",
       "sbeox0mum_L"
     ],
     "name": "sbeox0um_L",
@@ -2033,8 +1953,7 @@
   },
   {
     "aliases": [
-      "sbeox0dOV/dT",
-      "sbeox0dOV_dT"
+      "sbeox0dOV/dT"
     ],
     "name": "sbeox0dOV_dT",
     "units": "V/s",
@@ -2047,8 +1966,7 @@
     "aliases": [
       "sbeox1ML/L",
       "sbeox1ML/L_1",
-      "sbeox1ML_L_1",
-      "sbeox1mL_L"
+      "sbeox1ML_L_1"
     ],
     "name": "sbeox1mL_L",
     "units": "mL/L",
@@ -2061,8 +1979,7 @@
     "aliases": [
       "sbeox1Mg/L",
       "sbeox1Mg/L_1",
-      "sbeox1Mg_L_1",
-      "sbeox1mg_L"
+      "sbeox1Mg_L_1"
     ],
     "name": "sbeox1mg_L",
     "units": "mg/L",
@@ -2073,7 +1990,6 @@
   },
   {
     "aliases": [
-      "sbeox1PS",
       "sbeox1PS_1"
     ],
     "name": "sbeox1PS",
@@ -2088,7 +2004,6 @@
       "sbeox1Mm/Kg",
       "sbeox1Mm/Kg_1",
       "sbeox1Mm_Kg_1",
-      "sbeox1um_kg",
       "sbeox1mum_kg"
     ],
     "name": "sbeox1um_kg",
@@ -2102,7 +2017,6 @@
     "aliases": [
       "sbeox1Mm/L",
       "sbeox1Mm/L_1",
-      "sbeox1um_L",
       "sbeox1mum_L"
     ],
     "name": "sbeox1um_L",
@@ -2114,8 +2028,7 @@
   },
   {
     "aliases": [
-      "sbeox1dOV/dT",
-      "sbeox1dOV_dT"
+      "sbeox1dOV/dT"
     ],
     "name": "sbeox1dOV_dT",
     "units": "V/s",
@@ -2126,8 +2039,7 @@
   },
   {
     "aliases": [
-      "sbeox0ML/Ldiff",
-      "sbeox0ML_Ldiff"
+      "sbeox0ML/Ldiff"
     ],
     "name": "sbeox0ML_Ldiff",
     "units": "ml/l",
@@ -2139,8 +2051,7 @@
   },
   {
     "aliases": [
-      "sbeox0Mg/Ldiff",
-      "sbeox0Mg_Ldiff"
+      "sbeox0Mg/Ldiff"
     ],
     "name": "sbeox0Mg_Ldiff",
     "units": "mg/l",
@@ -2164,8 +2075,7 @@
   },
   {
     "aliases": [
-      "sbeox0Mm/Kgdiff",
-      "sbeox0Mm_Kgdiff"
+      "sbeox0Mm/Kgdiff"
     ],
     "name": "sbeox0Mm_Kgdiff",
     "units": "umol/kg",
@@ -2177,8 +2087,7 @@
   },
   {
     "aliases": [
-      "sbeox0Mm/Ldiff",
-      "sbeox0Mm_Ldiff"
+      "sbeox0Mm/Ldiff"
     ],
     "name": "sbeox0Mm_Ldiff",
     "units": "umol/l",
@@ -2314,8 +2223,7 @@
   },
   {
     "aliases": [
-      "sbeopoxML/L",
-      "sbeopoxML_L"
+      "sbeopoxML/L"
     ],
     "name": "sbeopoxML_L",
     "units": "ml/l",
@@ -2326,8 +2234,7 @@
   },
   {
     "aliases": [
-      "sbeopoxMg/L",
-      "sbeopoxMg_L"
+      "sbeopoxMg/L"
     ],
     "name": "sbeopoxMg_L",
     "units": "mg/l",
@@ -2350,8 +2257,7 @@
   {
     "aliases": [
       "sbeopoxMm/Kg",
-      "sbeopoxMm_Kg",
-      "sbeopoxum_Kg"
+      "sbeopoxMm_Kg"
     ],
     "name": "sbeopoxum_Kg",
     "units": "umol/kg",
@@ -2363,8 +2269,7 @@
   {
     "aliases": [
       "sbeopoxMm/L",
-      "sbeopoxMm_L",
-      "sbeopoxum_L"
+      "sbeopoxMm_L"
     ],
     "name": "sbeopoxum_L",
     "units": "umol/l",
@@ -2375,8 +2280,7 @@
   },
   {
     "aliases": [
-      "sbeopoxML/L1",
-      "sbeopoxML_L1"
+      "sbeopoxML/L1"
     ],
     "name": "sbeopoxML_L1",
     "units": "ml/l",
@@ -2387,8 +2291,7 @@
   },
   {
     "aliases": [
-      "sbeopoxMg/L1",
-      "sbeopoxMg_L1"
+      "sbeopoxMg/L1"
     ],
     "name": "sbeopoxMg_L1",
     "units": "mg/l",
@@ -2411,8 +2314,7 @@
   {
     "aliases": [
       "SbeopoxMm/Kg1",
-      "SbeopoxMm_Kg1",
-      "sbeopoxum_Kg1"
+      "SbeopoxMm_Kg1"
     ],
     "name": "sbeopoxum_Kg1",
     "units": "umol/kg",
@@ -2424,7 +2326,6 @@
   {
     "aliases": [
       "sbeopoxMm/L1",
-      "sbeopoxMm_L1",
       "sbeopoxum_L1"
     ],
     "name": "sbeopoxMm_L1",
@@ -2436,8 +2337,7 @@
   },
   {
     "aliases": [
-      "opoxML/L",
-      "opoxML_L"
+      "opoxML/L"
     ],
     "name": "opoxML_L",
     "units": "ml/l",
@@ -2446,8 +2346,7 @@
   },
   {
     "aliases": [
-      "opoxMg/L",
-      "opoxMg_L"
+      "opoxMg/L"
     ],
     "name": "opoxMg_L",
     "units": "mg/l",
@@ -2465,8 +2364,7 @@
   },
   {
     "aliases": [
-      "opoxMm/L",
-      "opoxum_L"
+      "opoxMm/L"
     ],
     "name": "opoxum_L",
     "units": "umol/l",
@@ -2529,8 +2427,7 @@
   },
   {
     "aliases": [
-      "oxML/L",
-      "oxML_L"
+      "oxML/L"
     ],
     "name": "oxML_L",
     "units": "ml/l",
@@ -2539,8 +2436,7 @@
   },
   {
     "aliases": [
-      "oxMg/L",
-      "oxMg_L"
+      "oxMg/L"
     ],
     "name": "oxMg_L",
     "units": "mg/l",
@@ -2559,8 +2455,7 @@
   {
     "aliases": [
       "oxMm/Kg",
-      "oxMm_Kg",
-      "oxum_Kg"
+      "oxMm_Kg"
     ],
     "name": "oxum_Kg",
     "units": "umol/kg",
@@ -2569,8 +2464,7 @@
   },
   {
     "aliases": [
-      "oxdOC/dT",
-      "oxdOC_dT"
+      "oxdOC/dT"
     ],
     "name": "oxdOC_dT",
     "units": "doc/dt",
@@ -2579,8 +2473,7 @@
   },
   {
     "aliases": [
-      "oxsML/L",
-      "oxsML_L"
+      "oxsML/L"
     ],
     "name": "oxsML_L",
     "units": "ml/l",
@@ -2589,8 +2482,7 @@
   },
   {
     "aliases": [
-      "oxsMg/L",
-      "oxsMg_L"
+      "oxsMg/L"
     ],
     "name": "oxsMg_L",
     "units": "mg/l",
@@ -2609,8 +2501,7 @@
   {
     "aliases": [
       "oxsMm/Kg",
-      "oxsMm_Kg",
-      "oxsum_Kg"
+      "oxsMm_Kg"
     ],
     "name": "oxsum_Kg",
     "units": "umol/kg",
@@ -2619,8 +2510,7 @@
   },
   {
     "aliases": [
-      "oxsdOC/dT",
-      "oxsdOC_dT"
+      "oxsdOC/dT"
     ],
     "name": "oxsdOC_dT",
     "units": "doc/dt",
@@ -2629,8 +2519,7 @@
   },
   {
     "aliases": [
-      "iowOxML/L",
-      "iowOxML_L"
+      "iowOxML/L"
     ],
     "name": "iowOxML_L",
     "units": "ml/l",
@@ -2639,8 +2528,7 @@
   },
   {
     "aliases": [
-      "oxsolML/L",
-      "oxsolML_L"
+      "oxsolML/L"
     ],
     "name": "oxsolML_L",
     "units": "ml/l",
@@ -2649,8 +2537,7 @@
   },
   {
     "aliases": [
-      "oxsolMg/L",
-      "oxsolMg_L"
+      "oxsolMg/L"
     ],
     "name": "oxsolMg_L",
     "units": "mg/l",
@@ -2660,8 +2547,7 @@
   {
     "aliases": [
       "oxsolMm/Kg",
-      "oxsolMm_Kg",
-      "oxsolum_Kg"
+      "oxsolMm_Kg"
     ],
     "name": "oxsolum_Kg",
     "units": "umol/kg",
@@ -2670,8 +2556,7 @@
   },
   {
     "aliases": [
-      "oxsatML/L",
-      "oxsatML_L"
+      "oxsatML/L"
     ],
     "name": "oxsatML_L",
     "units": "ml/l",
@@ -2680,8 +2565,7 @@
   },
   {
     "aliases": [
-      "oxsatMg/L",
-      "oxsatMg_L"
+      "oxsatMg/L"
     ],
     "name": "oxsatMg_L",
     "units": "mg/l",
@@ -2691,8 +2575,7 @@
   {
     "aliases": [
       "oxsatMm/Kg",
-      "oxsatMm_Kg",
-      "oxsatum_Kg"
+      "oxsatMm_Kg"
     ],
     "name": "oxsatum_Kg",
     "units": "umol/kg",
@@ -2988,8 +2871,7 @@
   },
   {
     "aliases": [
-      "flECO-AFL",
-      "flECO_AFL"
+      "flECO-AFL"
     ],
     "name": "flECO_AFL",
     "units": "mg/m^3",
@@ -2998,8 +2880,7 @@
   },
   {
     "aliases": [
-      "flECO-AFL1",
-      "flECO_AFL1"
+      "flECO-AFL1"
     ],
     "name": "flECO_AFL1",
     "units": "mg/m^3",
@@ -3008,8 +2889,7 @@
   },
   {
     "aliases": [
-      "flECO-AFL2",
-      "flECO_AFL2"
+      "flECO-AFL2"
     ],
     "name": "flECO_AFL2",
     "units": "mg/m^3",
@@ -3018,8 +2898,7 @@
   },
   {
     "aliases": [
-      "flECO-AFL3",
-      "flECO_AFL3"
+      "flECO-AFL3"
     ],
     "name": "flECO_AFL3",
     "units": "mg/m^3",
@@ -3028,8 +2907,7 @@
   },
   {
     "aliases": [
-      "flECO-AFL4",
-      "flECO_AFL4"
+      "flECO-AFL4"
     ],
     "name": "flECO_AFL4",
     "units": "mg/m^3",
@@ -3038,8 +2916,7 @@
   },
   {
     "aliases": [
-      "flECO-AFL5",
-      "flECO_AFL5"
+      "flECO-AFL5"
     ],
     "name": "flECO_AFL5",
     "units": "mg/m^3",
@@ -3048,8 +2925,7 @@
   },
   {
     "aliases": [
-      "flECO-AFLdiff",
-      "flECO_AFLdiff"
+      "flECO-AFLdiff"
     ],
     "name": "flECO_AFLdiff",
     "units": "mg/m^3",
@@ -3436,8 +3312,7 @@
   },
   {
     "aliases": [
-      "par/log",
-      "par_log"
+      "par/log"
     ],
     "name": "par_log",
     "units": "μmol photons * m^-2 * s^-1",
@@ -3473,8 +3348,7 @@
   },
   {
     "aliases": [
-      "n2satML/L",
-      "n2satML_L"
+      "n2satML/L"
     ],
     "name": "n2satML_L",
     "units": "ml/l",
@@ -3483,8 +3357,7 @@
   },
   {
     "aliases": [
-      "n2satMg/L",
-      "n2satMg_L"
+      "n2satMg/L"
     ],
     "name": "n2satMg_L",
     "units": "mg/l",
@@ -3494,8 +3367,7 @@
   {
     "aliases": [
       "n2satumol/kg",
-      "n2satumol_kg",
-      "n2satum_kg"
+      "n2satumol_kg"
     ],
     "name": "n2satum_kg",
     "units": "umol/kg",
@@ -3813,8 +3685,7 @@
   },
   {
     "aliases": [
-      "absoluteSalinity",
-      "gsw_saA0"
+      "absoluteSalinity"
     ],
     "name": "gsw_saA0",
     "units": "g/kg",
@@ -3825,8 +3696,7 @@
   },
   {
     "aliases": [
-      "absoluteSalinityAnomaly",
-      "gsw_deltasaA0"
+      "absoluteSalinityAnomaly"
     ],
     "name": "gsw_deltasaA0",
     "units": "g/kg",
@@ -3837,8 +3707,7 @@
   },
   {
     "aliases": [
-      "adiabaticLapseRate",
-      "gsw_adlrA0"
+      "adiabaticLapseRate"
     ],
     "name": "gsw_adlrA0",
     "units": "K/Pa",
@@ -3847,8 +3716,7 @@
   },
   {
     "aliases": [
-      "conservativeTemperature",
-      "gsw_ctA0"
+      "conservativeTemperature"
     ],
     "name": "gsw_ctA0",
     "units": "deg C",
@@ -3859,8 +3727,7 @@
   },
   {
     "aliases": [
-      "conservativeTemperatureFreezing",
-      "gsw_ctfA0"
+      "conservativeTemperatureFreezing"
     ],
     "name": "gsw_ctfA0",
     "units": "deg C",
@@ -3871,8 +3738,7 @@
   },
   {
     "aliases": [
-      "density",
-      "gsw_densityA0"
+      "density"
     ],
     "name": "gsw_densityA0",
     "units": "kg/m^3",
@@ -3938,8 +3804,7 @@
   },
   {
     "aliases": [
-      "dynamicEnthalpy",
-      "gsw_dynenthA0"
+      "dynamicEnthalpy"
     ],
     "name": "gsw_dynenthA0",
     "units": "J/kg",
@@ -3948,8 +3813,7 @@
   },
   {
     "aliases": [
-      "enthalpy",
-      "gsw_enthalpyA0"
+      "enthalpy"
     ],
     "name": "gsw_enthalpyA0",
     "units": "J/kg",
@@ -3958,8 +3822,7 @@
   },
   {
     "aliases": [
-      "entropy",
-      "gsw_entropyA0"
+      "entropy"
     ],
     "name": "gsw_entropyA0",
     "units": "J/kg/K",
@@ -3969,7 +3832,6 @@
   {
     "aliases": [
       "gravity",
-      "gsw_gravA0",
       "gsw_gravA"
     ],
     "name": "gsw_gravA0",
@@ -3979,8 +3841,7 @@
   },
   {
     "aliases": [
-      "internalEnergy",
-      "gsw_ieA0"
+      "internalEnergy"
     ],
     "name": "gsw_ieA0",
     "units": "J/kg",
@@ -3989,8 +3850,7 @@
   },
   {
     "aliases": [
-      "isentropicCompressibility",
-      "gsw_icA0"
+      "isentropicCompressibility"
     ],
     "name": "gsw_icA0",
     "units": "1/Pa",
@@ -3999,8 +3859,7 @@
   },
   {
     "aliases": [
-      "latentHeatEvaporation",
-      "gsw_lheA0"
+      "latentHeatEvaporation"
     ],
     "name": "gsw_lheA0",
     "units": "J/kg",
@@ -4009,8 +3868,7 @@
   },
   {
     "aliases": [
-      "latentHeatMelting",
-      "gsw_lhmA0"
+      "latentHeatMelting"
     ],
     "name": "gsw_lhmA0",
     "units": "J/kg",
@@ -4019,8 +3877,7 @@
   },
   {
     "aliases": [
-      "potentialTemperature",
-      "gsw_ptA0"
+      "potentialTemperature"
     ],
     "name": "gsw_ptA0",
     "units": "deg C",
@@ -4031,8 +3888,7 @@
   },
   {
     "aliases": [
-      "preformedSalinity",
-      "gsw_sstarA0"
+      "preformedSalinity"
     ],
     "name": "gsw_sstarA0",
     "units": "g/kg",
@@ -4041,8 +3897,7 @@
   },
   {
     "aliases": [
-      "referenceSalinity",
-      "gsw_srA0"
+      "referenceSalinity"
     ],
     "name": "gsw_srA0",
     "units": "g/kg",
@@ -4051,8 +3906,7 @@
   },
   {
     "aliases": [
-      "salineContractionCoefficient",
-      "gsw_betaA0"
+      "salineContractionCoefficient"
     ],
     "name": "gsw_betaA0",
     "units": "kg/g",
@@ -4061,8 +3915,7 @@
   },
   {
     "aliases": [
-      "soundSpeed",
-      "gsw_ssA0"
+      "soundSpeed"
     ],
     "name": "gsw_ssA0",
     "units": "m/s",
@@ -4073,8 +3926,7 @@
   },
   {
     "aliases": [
-      "specificVolume",
-      "gsw_specvolA0"
+      "specificVolume"
     ],
     "name": "gsw_specvolA0",
     "units": "m^3/kg",
@@ -4085,8 +3937,7 @@
   },
   {
     "aliases": [
-      "specificVolumeAnomaly",
-      "gsw_svolanomA0"
+      "specificVolumeAnomaly"
     ],
     "name": "gsw_svolanomA0",
     "units": "m^3/kg",
@@ -4097,8 +3948,7 @@
   },
   {
     "aliases": [
-      "temperatureFreezing",
-      "gsw_tfA0"
+      "temperatureFreezing"
     ],
     "name": "gsw_tfA0",
     "units": "deg C",
@@ -4109,8 +3959,7 @@
   },
   {
     "aliases": [
-      "thermalExpansionCoefficient",
-      "gsw_alphaA0"
+      "thermalExpansionCoefficient"
     ],
     "name": "gsw_alphaA0",
     "units": "1/K",
@@ -4128,8 +3977,7 @@
   },
   {
     "aliases": [
-      "SUNAmgN/L",
-      "SUNAmgNL"
+      "SUNAmgN/L"
     ],
     "name": "SUNAmgNL",
     "units": "mgN/L",

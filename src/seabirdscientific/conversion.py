@@ -644,7 +644,7 @@ def convert_oxygen_units(
     pressure: np.ndarray,
     salinity: np.ndarray,
     from_units: Literal["ml/l", "mg/l", "umol/kg", "umol/l", "saturation_percent"],
-    to_units: Literal["ml/l", "mg/l", "umol/kg", "umol/l", "saturation_percent"]
+    to_units: Literal["ml/l", "mg/l", "umol/kg", "umol/l", "saturation_percent"],
 ):
     """Convert oxygen values between supported oxygen units.
 
