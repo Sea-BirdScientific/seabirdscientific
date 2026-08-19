@@ -1,4 +1,3 @@
-<!-- markdownlint-configure-file {"MD033":{"allowed_elements": ["table","tr","th","td","a"]}} -->
 # Contributors
 
 ## Core Developers
@@ -22,3 +21,4 @@ accept and merge pull requests.
 | Keegan Wright | [ONC-KWright](https://github.com/ONC-KWright) |
 | Arlo White | [arlowhite](https://github.com/arlowhite) |
 | Peter Jansen | [petejan](https://github.com/petejan) |
+| Eleanor Frajka-Williams | [eleanorfrajka](https://github.com/eleanorfrajka) |
