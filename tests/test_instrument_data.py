@@ -272,3 +272,12 @@ class TestReadNMEAHex:
         assert self.raw["NMEA Longitude"].iloc[-1] == -123.49994000
         assert self.raw["NMEA Date Time"].iloc[0] == datetime(2023, 3, 18, 12, 15, 19)
         assert self.raw["NMEA Date Time"].iloc[-1] == datetime(2023, 3, 18, 12, 36, 2)
+
+
+class TestReadHexNoDataRows:
+    def test_read_hex_file_without_scans(self, tmp_path):
+        """A .hex file whose header is not followed by any scans gives an empty frame."""
+        filepath = tmp_path / "header_only.hex"
+        filepath.write_text("* Sea-Bird SBE19plus Data File:\n*END*\n")
+        raw = id.read_hex_file(filepath, id.InstrumentType.SBE19Plus, [], False, True)
+        assert raw.empty
