@@ -4201,7 +4201,7 @@ wheels = [
 
 [[package]]
 name = "seabirdscientific"
-version = "2.7.10"
+version = "2.8.1"
 source = { editable = "." }
 dependencies = [
     { name = "gsw", version = "3.6.20", source = { registry = "http://pypi.sbs.ewqg.com/simple/" }, marker = "python_full_version < '3.11'" },

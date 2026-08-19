@@ -12,7 +12,6 @@ instrument data.
 #   cnv_to_instrument_data (Path) -> InstrumentData
 #   fix_exponents (List[str]) -> List[str]
 #   read_hex_file (str, InstrumentType, List[Sensors], bool) -> pd.DataFrame
-#   preallocate_dataframe (InstrumentType, str, List[Sensors], bool, int) -> pd.DataFrame
 #   read_hex (InstrumentType, str, List[Sensors], bool) -> dict
 #   read_SBE19plus_format_0
 #   read_SBE37SM_format_0
@@ -410,79 +409,56 @@ def read_hex_file(
         mode, defaults to False
     :return: a pandas DataFrame with the hex data
     """
-    data_count = 0
+    # Collect the data lines in a single pass, so the row count is known before any
+    # array is allocated.  Replaces reading the file twice.
+    data_lines = []
     is_data = False
+    with open(filepath, mode="r") as file:
+        for line in file:
+            if is_data and not (line == "" or line.startswith("\n") or line.startswith("\r")):
+                data_lines.append(line)
+            if line.startswith("*END*"):
+                is_data = True
 
-    # iterating over file twice in order to preallocate arrays
-    # TODO: Fix this
-    file = open(filepath, mode="r")
-    for line in file:
-        if is_data and not (line == "" or line.startswith("\n") or line.startswith("\r")):
-            data_count += 1
-        if line.startswith("*END*"):
-            is_data = True
+    if not data_lines:
+        return pd.DataFrame()
 
-    data_length = data_count
-    file.seek(0)
-    data = pd.DataFrame()
-    data_count = 0
-    is_data = False
+    # Parse the first scan to discover the column names and their types, then fill
+    # preallocated arrays column-wise.  Replaces per-scan, per-column DataFrame.loc
+    # assignment, which reallocates on every write.
+    first_scan = read_hex(
+        instrument_type,
+        data_lines[0],
+        enabled_sensors,
+        moored_mode,
+        is_shallow,
+        frequency_channels_suppressed,
+        voltage_words_suppressed,
+    )
 
-    for line in file:
-        if is_data and not (line == "" or line.startswith("\n") or line.startswith("\r")):
-            if data_count == 0:
-                data = preallocate_dataframe(
-                    instrument_type, line, enabled_sensors, moored_mode, data_length
-                )
-            hex_data = read_hex(
-                instrument_type,
-                line,
-                enabled_sensors,
-                moored_mode,
-                is_shallow,
-                frequency_channels_suppressed,
-                voltage_words_suppressed,
-            )
-            for key, value in hex_data.items():
-                data.loc[data_count, key] = value
-            data_count += 1
-        if line.startswith("*END*"):
-            is_data = True
-
-    file.close()
-
-    return data
-
-
-def preallocate_dataframe(
-    instrument_type: InstrumentType,
-    line: str,
-    enabled_sensors: List[Sensors],
-    moored_mode: bool,
-    data_length: int,
-) -> pd.DataFrame:
-    """Prefills a pandas DataFrame with zeros for the instrument data
-
-    :param instrument_type: the instrument type
-    :param line: TODO: remove in TKIT-63
-    :param enabled_sensors: list of sensors that were enabled on the
-        instrument
-    :param moored_mode: whether the 19 plus was in moored or profiling
-        mode
-    :param data_length: the number of rows of data in the hex file
-
-    :return: a dataframe fill of zeros
-    """
-    sensors = {}
-    hex_data = read_hex(instrument_type, line, enabled_sensors, moored_mode)
-    # hex_keys = pd.DataFrame(hex_data, index=[0]).columns
-    for key, value in hex_data.items():
-        if isinstance(value, datetime):
-            sensors[key] = pd.date_range(start="2000-01-01", end="2000-01-02", periods=data_length)
+    data_length = len(data_lines)
+    columns: dict = {}
+    for key, value in first_scan.items():
+        if isinstance(value, (int, float)) and not isinstance(value, bool):
+            columns[key] = np.zeros(data_length, dtype=float)
         else:
-            sensors[key] = np.zeros(data_length)
+            columns[key] = [None] * data_length
+        columns[key][0] = value
 
-    return pd.DataFrame(sensors)
+    for data_count, line in enumerate(data_lines[1:], start=1):
+        hex_data = read_hex(
+            instrument_type,
+            line,
+            enabled_sensors,
+            moored_mode,
+            is_shallow,
+            frequency_channels_suppressed,
+            voltage_words_suppressed,
+        )
+        for key, value in hex_data.items():
+            columns[key][data_count] = value
+
+    return pd.DataFrame(columns)
 
 
 def read_hex(
