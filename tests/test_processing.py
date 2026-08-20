@@ -453,7 +453,9 @@ class TestLoopEdit:
         assert np.all(result_flags == expected_flags)
 
     def test_loop_edit_pressure_min_velocity_pass_2(self):
-        expected_data = si.read_cnv_file(test_data / "SBE19plus_loop_edit_corrected.cnv", "seasoft")
+        expected_data = si.read_cnv_file(
+            test_data / "SBE19plus_loop_edit_corrected.cnv", "seasoft"
+        )
         data = si.read_cnv_file(test_data / "SBE19plus.cnv", "seasoft")
 
         result_flags = sp.loop_edit(
@@ -478,8 +480,7 @@ class TestLoopEdit:
 
     def test_loop_edit_pressure_min_velocity_remove_soak(self):
         expected_data = si.read_cnv_file(
-            test_data / "CAST0002_mod_filt_loop_min_v_remove_soak.cnv",
-            software = "seasoft"
+            test_data / "CAST0002_mod_filt_loop_min_v_remove_soak.cnv", software="seasoft"
         )
         data = si.read_cnv_file(test_data / "CAST0002_mod_filt.cnv", "seasoft")
 
@@ -504,8 +505,7 @@ class TestLoopEdit:
 
     def test_loop_edit_pressure_min_velocity_exclude_flags(self):
         expected_data = si.read_cnv_file(
-            test_data / "CAST0002_mod_filt_loop_min_v_exclude_flags.cnv",
-            software = "seasoft"
+            test_data / "CAST0002_mod_filt_loop_min_v_exclude_flags.cnv", software="seasoft"
         )
         data = si.read_cnv_file(test_data / "CAST0002_mod_filt.cnv", "seasoft")
 
@@ -531,7 +531,7 @@ class TestLoopEdit:
     def test_loop_edit_pressure_min_velocity_exclude_flags_remove_soak(self):
         expected_data = si.read_cnv_file(
             test_data / "CAST0002_mod_filt_loop_min_v_exclude_flags_remove_soak.cnv",
-            software = "seasoft"
+            software="seasoft",
         )
         data = si.read_cnv_file(test_data / "CAST0002_mod_filt.cnv", "seasoft")
 
@@ -559,7 +559,7 @@ class TestLoopEdit:
     def test_loop_edit_pressure_mean_speed_percent_remove_soak(self):
         expected_data = si.read_cnv_file(
             test_data / "CAST0002_mod_filt_loop_percent_remove_soak_corrected.cnv",
-            software = "seasoft"
+            software="seasoft",
         )
         data = si.read_cnv_file(test_data / "CAST0002_mod_filt.cnv", "seasoft")
 
@@ -585,8 +585,7 @@ class TestLoopEdit:
 
     def test_loop_edit_pressure_mean_speed_percent(self):
         expected_data = si.read_cnv_file(
-            test_data / "CAST0002_mod_filt_loop_percent_corrected.cnv",
-            software = "seasoft"
+            test_data / "CAST0002_mod_filt_loop_percent_corrected.cnv", software="seasoft"
         )
         data = si.read_cnv_file(test_data / "CAST0002_mod_filt.cnv", "seasoft")
 
@@ -611,7 +610,9 @@ class TestLoopEdit:
         assert np.all(result_flags == expected_flags)
 
     def test_loop_edit_pressure_fake_cast_percent(self):
-        expected_data = si.read_cnv_file(test_data / "fake_cast_loop_percent_corrected.cnv", "seasoft")
+        expected_data = si.read_cnv_file(
+            test_data / "fake_cast_loop_percent_corrected.cnv", "seasoft"
+        )
         data = si.read_cnv_file(test_data / "fake_cast.cnv", "seasoft")
 
         result_flags = sp.loop_edit(
@@ -1064,7 +1065,9 @@ class TestWindowFilter:
         assert close_enough(filtered_pressure, expected_pressure, 3, 1e-12)
 
     def test_triangle_filter_exclude_flags(self, cnvdata, request):
-        expected_dataset = si.read_cnv_file(f"{self.file_prefix}_triangle_5_excluded.cnv", "seasoft")
+        expected_dataset = si.read_cnv_file(
+            f"{self.file_prefix}_triangle_5_excluded.cnv", "seasoft"
+        )
         expected_pressure = expected_dataset["prdM"].values
 
         filtered_pressure = sp.window_filter(
@@ -1100,7 +1103,9 @@ class TestWindowFilter:
         assert close_enough(filtered_pressure, expected_pressure, 3, 1e-12)
 
     def test_gaussian_filter_exclude_flags(self, cnvdata, request):
-        expected_dataset = si.read_cnv_file(f"{self.file_prefix}_gaussian_5_1_025_excluded.cnv", "seasoft")
+        expected_dataset = si.read_cnv_file(
+            f"{self.file_prefix}_gaussian_5_1_025_excluded.cnv", "seasoft"
+        )
         expected_pressure = expected_dataset["prdM"].values
 
         filtered_pressure = sp.window_filter(
