@@ -291,6 +291,7 @@ class TestReadNMEAHex:
             2023, 3, 18, 12, 36, 2
         )
 
+
 class TestReadHexNoDataRows:
     def test_read_hex_file_without_scans(self, tmp_path):
         """A .hex file whose header is not followed by any scans gives an empty dataset."""
