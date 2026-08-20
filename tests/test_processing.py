@@ -154,7 +154,7 @@ class TestAlignCtdFathomCases:
 
 class TestAlignCtd:
     expected_data_path = test_data / "SBE37SM-align.cnv"
-    # expected_data = si.read_cnv_file(expected_data_path)
+    # expected_data = si.read_cnv_file(expected_data_path, "seasoft")
     # expected data was algined with:
     #   sample_interval=120,
     #   tv290C + 12s
@@ -164,15 +164,15 @@ class TestAlignCtd:
     #   sal00 - 240s
 
     source_data_path = test_data / "SBE37SM.cnv"
-    # source_data = si.read_cnv_file(source_data_path)
+    # source_data = si.read_cnv_file(source_data_path, "seasoft)
 
     @pytest.fixture
     def expected_data(self):
-        return si.read_cnv_file(self.expected_data_path)
+        return si.read_cnv_file(self.expected_data_path, "seasoft")
 
     @pytest.fixture
     def source_data(self):
-        return si.read_cnv_file(self.source_data_path)
+        return si.read_cnv_file(self.source_data_path, "seasoft")
 
     def test_align_ctd_add_simple_pass(self, expected_data, source_data, request):
         # Fix last valid scan
@@ -207,9 +207,9 @@ class TestAlignCtd:
 class TestCellThermalMass:
     def test_cell_thermal_mass_pass(self, request):
         expected_data_path = test_data / "SBE37SM-ctm.cnv"
-        expected_data = si.read_cnv_file(expected_data_path)
+        expected_data = si.read_cnv_file(expected_data_path, "seasoft")
         source_data_path = test_data / "SBE37SM.cnv"
-        source_data = si.read_cnv_file(source_data_path)
+        source_data = si.read_cnv_file(source_data_path, "seasoft")
         corrected_conductivity = sp.cell_thermal_mass(
             source_data["tv290C"].values,
             source_data["cond0S/m"].values,
@@ -430,8 +430,8 @@ class TestFlagByMinimaMaxima:
 
 class TestLoopEdit:
     def test_loop_edit_pressure_min_velocity(self):
-        expected_data = si.read_cnv_file(test_data / "CAST0002_mod_filt_loop_min_v.cnv")
-        data = si.read_cnv_file(test_data / "CAST0002_mod_filt.cnv")
+        expected_data = si.read_cnv_file(test_data / "CAST0002_mod_filt_loop_min_v.cnv", "seasoft")
+        data = si.read_cnv_file(test_data / "CAST0002_mod_filt.cnv", "seasoft")
 
         result_flags = sp.loop_edit(
             measurand=data["prSM"].values,
@@ -453,8 +453,8 @@ class TestLoopEdit:
         assert np.all(result_flags == expected_flags)
 
     def test_loop_edit_pressure_min_velocity_pass_2(self):
-        expected_data = si.read_cnv_file(test_data / "SBE19plus_loop_edit_corrected.cnv")
-        data = si.read_cnv_file(test_data / "SBE19plus.cnv")
+        expected_data = si.read_cnv_file(test_data / "SBE19plus_loop_edit_corrected.cnv", "seasoft")
+        data = si.read_cnv_file(test_data / "SBE19plus.cnv", "seasoft")
 
         result_flags = sp.loop_edit(
             measurand=data["prdM"].values,
@@ -478,9 +478,10 @@ class TestLoopEdit:
 
     def test_loop_edit_pressure_min_velocity_remove_soak(self):
         expected_data = si.read_cnv_file(
-            test_data / "CAST0002_mod_filt_loop_min_v_remove_soak.cnv"
+            test_data / "CAST0002_mod_filt_loop_min_v_remove_soak.cnv",
+            software = "seasoft"
         )
-        data = si.read_cnv_file(test_data / "CAST0002_mod_filt.cnv")
+        data = si.read_cnv_file(test_data / "CAST0002_mod_filt.cnv", "seasoft")
 
         result_flags = sp.loop_edit(
             measurand=data["prSM"].values,
@@ -503,9 +504,10 @@ class TestLoopEdit:
 
     def test_loop_edit_pressure_min_velocity_exclude_flags(self):
         expected_data = si.read_cnv_file(
-            test_data / "CAST0002_mod_filt_loop_min_v_exclude_flags.cnv"
+            test_data / "CAST0002_mod_filt_loop_min_v_exclude_flags.cnv",
+            software = "seasoft"
         )
-        data = si.read_cnv_file(test_data / "CAST0002_mod_filt.cnv")
+        data = si.read_cnv_file(test_data / "CAST0002_mod_filt.cnv", "seasoft")
 
         result_flags = sp.loop_edit(
             measurand=data["prSM"].values,
@@ -528,9 +530,10 @@ class TestLoopEdit:
 
     def test_loop_edit_pressure_min_velocity_exclude_flags_remove_soak(self):
         expected_data = si.read_cnv_file(
-            test_data / "CAST0002_mod_filt_loop_min_v_exclude_flags_remove_soak.cnv"
+            test_data / "CAST0002_mod_filt_loop_min_v_exclude_flags_remove_soak.cnv",
+            software = "seasoft"
         )
-        data = si.read_cnv_file(test_data / "CAST0002_mod_filt.cnv")
+        data = si.read_cnv_file(test_data / "CAST0002_mod_filt.cnv", "seasoft")
 
         result_flags = sp.loop_edit(
             measurand=data["prSM"].values,
@@ -555,9 +558,10 @@ class TestLoopEdit:
 
     def test_loop_edit_pressure_mean_speed_percent_remove_soak(self):
         expected_data = si.read_cnv_file(
-            test_data / "CAST0002_mod_filt_loop_percent_remove_soak_corrected.cnv"
+            test_data / "CAST0002_mod_filt_loop_percent_remove_soak_corrected.cnv",
+            software = "seasoft"
         )
-        data = si.read_cnv_file(test_data / "CAST0002_mod_filt.cnv")
+        data = si.read_cnv_file(test_data / "CAST0002_mod_filt.cnv", "seasoft")
 
         result_flags = sp.loop_edit(
             measurand=data["prSM"].values,
@@ -581,9 +585,10 @@ class TestLoopEdit:
 
     def test_loop_edit_pressure_mean_speed_percent(self):
         expected_data = si.read_cnv_file(
-            test_data / "CAST0002_mod_filt_loop_percent_corrected.cnv"
+            test_data / "CAST0002_mod_filt_loop_percent_corrected.cnv",
+            software = "seasoft"
         )
-        data = si.read_cnv_file(test_data / "CAST0002_mod_filt.cnv")
+        data = si.read_cnv_file(test_data / "CAST0002_mod_filt.cnv", "seasoft")
 
         result_flags = sp.loop_edit(
             measurand=data["prSM"].values,
@@ -606,8 +611,8 @@ class TestLoopEdit:
         assert np.all(result_flags == expected_flags)
 
     def test_loop_edit_pressure_fake_cast_percent(self):
-        expected_data = si.read_cnv_file(test_data / "fake_cast_loop_percent_corrected.cnv")
-        data = si.read_cnv_file(test_data / "fake_cast.cnv")
+        expected_data = si.read_cnv_file(test_data / "fake_cast_loop_percent_corrected.cnv", "seasoft")
+        data = si.read_cnv_file(test_data / "fake_cast.cnv", "seasoft")
 
         result_flags = sp.loop_edit(
             measurand=data["prSM"].values,
@@ -634,14 +639,14 @@ class TestLoopEdit:
 class TestBinAverage:
     # fmt: off
     # I think the extra wide lines here are less annoying than the
-    # extra tall lines formatted by black. Feel free to enable black
-    # here if you disagree
+    # extra tall lines formatted by the linter. Feel free to enable the
+    # linter here if you disagree
 
     def test_bin_average_interp_bin_3(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
         source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_binavg_interp_bin3.cnv"
-        result = si.read_cnv_file(source_in)
-        expected = si.read_cnv_file(source_out)
+        result = si.read_cnv_file(source_in, "seasoft")
+        expected = si.read_cnv_file(source_out, "seasoft")
         binavg = sp.bin_average(
             dataset=result,
             bin_variable='prdM',
@@ -655,8 +660,8 @@ class TestBinAverage:
     def test_bin_average_interp_bin_5(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
         source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_binavg_interp_bin5.cnv"
-        result = si.read_cnv_file(source_in)
-        expected = si.read_cnv_file(source_out)
+        result = si.read_cnv_file(source_in, "seasoft")
+        expected = si.read_cnv_file(source_out, "seasoft")
         binavg = sp.bin_average(
             dataset=result,
             bin_variable='prdM',
@@ -672,10 +677,10 @@ class TestBinAverage:
         source_in2 = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped2.cnv"
         source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_binavg.cnv"
         source_out2 = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped2_binavg.cnv"
-        result = si.read_cnv_file(source_in)
-        data2 = si.read_cnv_file(source_in2)
-        expected = si.read_cnv_file(source_out)
-        expected2 = si.read_cnv_file(source_out2)
+        result = si.read_cnv_file(source_in, "seasoft")
+        data2 = si.read_cnv_file(source_in2, "seasoft")
+        expected = si.read_cnv_file(source_out, "seasoft")
+        expected2 = si.read_cnv_file(source_out2, "seasoft")
         binavg = sp.bin_average(
             dataset = result,
             bin_variable = 'prdM',
@@ -694,8 +699,8 @@ class TestBinAverage:
     def test_bin_average_include_surface(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
         source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_binavg_surface.cnv"
-        result = si.read_cnv_file(source_in)
-        expected = si.read_cnv_file(source_out)
+        result = si.read_cnv_file(source_in, "seasoft")
+        expected = si.read_cnv_file(source_out, "seasoft")
         binavg = sp.bin_average(
             dataset = result,
             bin_variable = 'prdM',
@@ -711,8 +716,8 @@ class TestBinAverage:
     def test_bin_average_interpolate(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
         source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_binavg_interp.cnv"
-        result = si.read_cnv_file(source_in)
-        expected = si.read_cnv_file(source_out)
+        result = si.read_cnv_file(source_in, "seasoft")
+        expected = si.read_cnv_file(source_out, "seasoft")
         binavg = sp.bin_average(
             dataset = result,
             bin_variable = 'prdM',
@@ -726,8 +731,8 @@ class TestBinAverage:
     def test_bin_average_interpolate_surface(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
         source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_binavg_interp_surface.cnv"
-        result = si.read_cnv_file(source_in)
-        expected = si.read_cnv_file(source_out)
+        result = si.read_cnv_file(source_in, "seasoft")
+        expected = si.read_cnv_file(source_out, "seasoft")
         binavg = sp.bin_average(
             dataset = result,
             bin_variable = 'prdM',
@@ -745,8 +750,8 @@ class TestBinAverage:
     def test_bin_average_downcast(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
         source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_binavg_downcast.cnv"
-        result = si.read_cnv_file(source_in)
-        expected = si.read_cnv_file(source_out)
+        result = si.read_cnv_file(source_in, "seasoft")
+        expected = si.read_cnv_file(source_out, "seasoft")
         binavg = sp.bin_average(
             dataset = result,
             bin_variable = 'prdM',
@@ -760,8 +765,8 @@ class TestBinAverage:
     def test_bin_average_downcast_interp(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
         source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_binavg_downcast_interp.cnv"
-        result = si.read_cnv_file(source_in)
-        expected = si.read_cnv_file(source_out)
+        result = si.read_cnv_file(source_in, "seasoft")
+        expected = si.read_cnv_file(source_out, "seasoft")
         binavg = sp.bin_average(
             dataset = result,
             bin_variable = 'prdM',
@@ -776,8 +781,8 @@ class TestBinAverage:
     def test_bin_average_downcast_interp_surface(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
         source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_binavg_downcast_interp_surface.cnv"
-        result = si.read_cnv_file(source_in)
-        expected = si.read_cnv_file(source_out)
+        result = si.read_cnv_file(source_in, "seasoft")
+        expected = si.read_cnv_file(source_out, "seasoft")
         binavg = sp.bin_average(
             dataset = result,
             bin_variable = 'prdM',
@@ -796,8 +801,8 @@ class TestBinAverage:
     def test_bin_average_upcast(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
         source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_binavg_upcast.cnv"
-        result = si.read_cnv_file(source_in)
-        expected = si.read_cnv_file(source_out)
+        result = si.read_cnv_file(source_in, "seasoft")
+        expected = si.read_cnv_file(source_out, "seasoft")
         binavg = sp.bin_average(
             dataset = result,
             bin_variable = 'prdM',
@@ -811,8 +816,8 @@ class TestBinAverage:
     def test_bin_average_upcast_interp(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
         source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_binavg_upcast_interp.cnv"
-        result = si.read_cnv_file(source_in)
-        expected = si.read_cnv_file(source_out)
+        result = si.read_cnv_file(source_in, "seasoft")
+        expected = si.read_cnv_file(source_out, "seasoft")
         binavg = sp.bin_average(
             dataset = result,
             bin_variable = 'prdM',
@@ -827,8 +832,8 @@ class TestBinAverage:
     def test_bin_average_upcast_interp_surface(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
         source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_binavg_upcast_interp_surface.cnv"
-        result = si.read_cnv_file(source_in)
-        expected = si.read_cnv_file(source_out)
+        result = si.read_cnv_file(source_in, "seasoft")
+        expected = si.read_cnv_file(source_out, "seasoft")
         binavg = sp.bin_average(
             dataset = result,
             bin_variable = 'prdM',
@@ -847,8 +852,8 @@ class TestBinAverage:
     def test_bin_average_exclude_flags(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_loopedit_wildedit.cnv"
         source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_loopedit_wildedit_binavg_exclude.cnv"
-        result = si.read_cnv_file(source_in)
-        expected = si.read_cnv_file(source_out)
+        result = si.read_cnv_file(source_in, "seasoft")
+        expected = si.read_cnv_file(source_out, "seasoft")
         binavg = sp.bin_average(
             dataset = result,
             bin_variable = 'prdM',
@@ -861,8 +866,8 @@ class TestBinAverage:
     def test_bin_average_include_flags(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_loopedit_wildedit.cnv"
         source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_loopedit_wildedit_binavg_include.cnv"
-        result = si.read_cnv_file(source_in)
-        expected = si.read_cnv_file(source_out)
+        result = si.read_cnv_file(source_in, "seasoft")
+        expected = si.read_cnv_file(source_out, "seasoft")
         binavg = sp.bin_average(
             dataset = result,
             bin_variable = 'prdM',
@@ -876,8 +881,8 @@ class TestBinAverage:
     def test_bin_average_include_flags_interp(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_loopedit_wildedit.cnv"
         source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_loopedit_wildedit_binavg_include_interp.cnv"
-        result = si.read_cnv_file(source_in)
-        expected = si.read_cnv_file(source_out)
+        result = si.read_cnv_file(source_in, "seasoft")
+        expected = si.read_cnv_file(source_out, "seasoft")
         binavg = sp.bin_average(
             dataset = result,
             bin_variable = 'prdM',
@@ -892,8 +897,8 @@ class TestBinAverage:
     def test_bin_average_exclude_flags_interp(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_loopedit_wildedit.cnv"
         source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_loopedit_wildedit_binavg_exclude_interp.cnv"
-        result = si.read_cnv_file(source_in)
-        expected = si.read_cnv_file(source_out)
+        result = si.read_cnv_file(source_in, "seasoft")
+        expected = si.read_cnv_file(source_out, "seasoft")
         binavg = sp.bin_average(
             dataset = result,
             bin_variable = 'prdM',
@@ -907,8 +912,8 @@ class TestBinAverage:
     def test_bin_average_time(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
         source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_binavg_time.cnv"
-        result = si.read_cnv_file(source_in)
-        expected = si.read_cnv_file(source_out)
+        result = si.read_cnv_file(source_in, "seasoft")
+        expected = si.read_cnv_file(source_out, "seasoft")
         binavg = sp.bin_average(
             dataset = result,
             bin_variable = 'timeS',
@@ -922,8 +927,8 @@ class TestBinAverage:
     def test_bin_average_scan(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
         source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_binavg_scan.cnv"
-        result = si.read_cnv_file(source_in)
-        expected = si.read_cnv_file(source_out)
+        result = si.read_cnv_file(source_in, "seasoft")
+        expected = si.read_cnv_file(source_out, "seasoft")
         binavg = sp.bin_average(
             dataset = result,
             bin_variable = 'nScan',
@@ -940,11 +945,11 @@ class TestBinAverage:
 class TestWildEdit:
     def test_wild_edit_pass(self, request):
         expected_dataset = si.read_cnv_file(
-            test_data / "19plus_V2_CTD-processing_example_wild_edit.cnv"
+            test_data / "19plus_V2_CTD-processing_example_wild_edit.cnv", "seasoft"
         )
         expected_conductivity = expected_dataset["c0S/m"].values
 
-        dataset = si.read_cnv_file(test_data / "19plus_V2_CTD-processing_example.cnv")
+        dataset = si.read_cnv_file(test_data / "19plus_V2_CTD-processing_example.cnv", "seasoft")
         conductivity = dataset["c0S/m"].values
         flags = dataset["flag"].values
 
@@ -966,10 +971,10 @@ class TestWindowFilter:
 
     @pytest.fixture
     def cnvdata(self):
-        return si.read_cnv_file(f"{self.file_prefix}.cnv")
+        return si.read_cnv_file(f"{self.file_prefix}.cnv", "seasoft")
 
     def test_boxcar_filter(self, cnvdata, request):
-        expected_dataset = si.read_cnv_file(f"{self.file_prefix}_boxcar_5.cnv")
+        expected_dataset = si.read_cnv_file(f"{self.file_prefix}_boxcar_5.cnv", "seasoft")
         expected_pressure = expected_dataset["prdM"].values
 
         filtered_pressure = sp.window_filter(
@@ -987,7 +992,7 @@ class TestWindowFilter:
         assert close_enough(filtered_pressure, expected_pressure, 3, 1e-12)
 
     def test_boxcar_filter_exclude_flags(self, cnvdata, request):
-        expected_dataset = si.read_cnv_file(f"{self.file_prefix}_boxcar_5_excluded.cnv")
+        expected_dataset = si.read_cnv_file(f"{self.file_prefix}_boxcar_5_excluded.cnv", "seasoft")
         expected_pressure = expected_dataset["prdM"].values
 
         filtered_pressure = sp.window_filter(
@@ -1005,7 +1010,7 @@ class TestWindowFilter:
         assert close_enough(filtered_pressure, expected_pressure, 3, 1e-12)
 
     def test_cosine_filter(self, cnvdata, request):
-        expected_dataset = si.read_cnv_file(f"{self.file_prefix}_cosine_5.cnv")
+        expected_dataset = si.read_cnv_file(f"{self.file_prefix}_cosine_5.cnv", "seasoft")
         expected_pressure = expected_dataset["prdM"].values
 
         filtered_pressure = sp.window_filter(
@@ -1023,7 +1028,7 @@ class TestWindowFilter:
         assert close_enough(filtered_pressure, expected_pressure, 3, 1e-12)
 
     def test_cosine_filter_exclude_flags(self, cnvdata, request):
-        expected_dataset = si.read_cnv_file(f"{self.file_prefix}_cosine_5_excluded.cnv")
+        expected_dataset = si.read_cnv_file(f"{self.file_prefix}_cosine_5_excluded.cnv", "seasoft")
         expected_pressure = expected_dataset["prdM"].values
 
         filtered_pressure = sp.window_filter(
@@ -1041,7 +1046,7 @@ class TestWindowFilter:
         assert close_enough(filtered_pressure, expected_pressure, 3, 1e-12)
 
     def test_triangle_filter(self, cnvdata, request):
-        expected_dataset = si.read_cnv_file(f"{self.file_prefix}_triangle_5.cnv")
+        expected_dataset = si.read_cnv_file(f"{self.file_prefix}_triangle_5.cnv", "seasoft")
         expected_pressure = expected_dataset["prdM"].values
 
         filtered_pressure = sp.window_filter(
@@ -1059,7 +1064,7 @@ class TestWindowFilter:
         assert close_enough(filtered_pressure, expected_pressure, 3, 1e-12)
 
     def test_triangle_filter_exclude_flags(self, cnvdata, request):
-        expected_dataset = si.read_cnv_file(f"{self.file_prefix}_triangle_5_excluded.cnv")
+        expected_dataset = si.read_cnv_file(f"{self.file_prefix}_triangle_5_excluded.cnv", "seasoft")
         expected_pressure = expected_dataset["prdM"].values
 
         filtered_pressure = sp.window_filter(
@@ -1077,7 +1082,7 @@ class TestWindowFilter:
         assert close_enough(filtered_pressure, expected_pressure, 3, 1e-12)
 
     def test_gaussian_filter(self, cnvdata, request):
-        expected_dataset = si.read_cnv_file(f"{self.file_prefix}_gaussian_5_1_025.cnv")
+        expected_dataset = si.read_cnv_file(f"{self.file_prefix}_gaussian_5_1_025.cnv", "seasoft")
         expected_pressure = expected_dataset["prdM"].values
 
         filtered_pressure = sp.window_filter(
@@ -1095,7 +1100,7 @@ class TestWindowFilter:
         assert close_enough(filtered_pressure, expected_pressure, 3, 1e-12)
 
     def test_gaussian_filter_exclude_flags(self, cnvdata, request):
-        expected_dataset = si.read_cnv_file(f"{self.file_prefix}_gaussian_5_1_025_excluded.cnv")
+        expected_dataset = si.read_cnv_file(f"{self.file_prefix}_gaussian_5_1_025_excluded.cnv", "seasoft")
         expected_pressure = expected_dataset["prdM"].values
 
         filtered_pressure = sp.window_filter(
@@ -1113,7 +1118,7 @@ class TestWindowFilter:
         assert close_enough(filtered_pressure, expected_pressure, 3, 1e-12)
 
     def test_median_filter(self, cnvdata, request):
-        expected_dataset = si.read_cnv_file(f"{self.file_prefix}_median_5.cnv")
+        expected_dataset = si.read_cnv_file(f"{self.file_prefix}_median_5.cnv", "seasoft")
         expected_pressure = expected_dataset["prdM"].values
 
         filtered_pressure = sp.window_filter(
@@ -1130,7 +1135,7 @@ class TestWindowFilter:
         assert close_enough(filtered_pressure, expected_pressure, 3, 1e-12)
 
     def test_median_filter_exclude_flags(self, cnvdata, request):
-        expected_dataset = si.read_cnv_file(f"{self.file_prefix}_median_5_excluded.cnv")
+        expected_dataset = si.read_cnv_file(f"{self.file_prefix}_median_5_excluded.cnv", "seasoft")
         expected_pressure = expected_dataset["prdM"].values
 
         filtered_pressure = sp.window_filter(
@@ -1177,10 +1182,10 @@ class TestSplit:
     )
     def test_split(self, source_path, cast_type, request):
         expected_source = test_data / source_path
-        expected = si.read_cnv_file(expected_source)
+        expected = si.read_cnv_file(expected_source, "seasoft")
 
         source = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
-        result = si.read_cnv_file(source)
+        result = si.read_cnv_file(source, "seasoft")
         result = sp.split(result, "prdM", cast_type=cast_type, drop=True)
 
         for variable in list(expected.data_vars):
@@ -1201,10 +1206,10 @@ class TestSplit:
     )
     def test_split_with_flags(self, source_path, cast_type, request):
         expected_source = test_data / source_path
-        expected = si.read_cnv_file(expected_source)
+        expected = si.read_cnv_file(expected_source, "seasoft")
 
         source = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_loopedit.cnv"
-        result = si.read_cnv_file(source)
+        result = si.read_cnv_file(source, "seasoft")
         result = sp.split(result, "prdM", exclude_bad_scans=True, cast_type=cast_type, drop=True)
 
         for variable in list(expected.data_vars):

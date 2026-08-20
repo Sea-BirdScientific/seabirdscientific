@@ -385,7 +385,7 @@ def read_cnv_file(
 
 def cnv_to_instrument_data(filepath: Path | str) -> xr.Dataset:
     warnings.warn("Deprecated, use read_cnv_file", DeprecationWarning)
-    return read_cnv_file(filepath)
+    return read_cnv_file(filepath, "seasoft")
 
 
 def read_hex_file(
