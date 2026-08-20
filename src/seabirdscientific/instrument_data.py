@@ -303,6 +303,23 @@ def _read_seasoft_cnv_file(filepath: Path | str) -> xr.Dataset:
     return dataset
 
 
+def _column_array(values: list | tuple) -> np.ndarray:
+    """Converts one column of parsed values to a numpy array
+
+    Numeric columns become float64. ValueError covers strings that do not
+    parse as floats, TypeError covers values that are already Python objects
+    (datetimes), and both fall back to an object array.
+
+    :param values: every value for a single measurand, in scan order
+
+    :return: a 1D array of the column
+    """
+    try:
+        return np.array(values, dtype=float)
+    except (ValueError, TypeError):
+        return np.array(values, dtype=object)
+
+
 def _read_fathom_cnv_file(filepath: Path | str) -> xr.Dataset:
     dataset = xr.Dataset({}, attrs={"file_name": Path(filepath).name})
     with open(filepath) as f:
@@ -357,14 +374,8 @@ def _read_fathom_cnv_file(filepath: Path | str) -> xr.Dataset:
             if safe_name != name:
                 logger.warning(f'Duplicate measurand "{name}" will use key "{safe_name}"')
 
-            def column_array(values: list[str]) -> np.ndarray:
-                try:
-                    return np.array(values, dtype=float)
-                except ValueError:
-                    return np.array(values, dtype=object)
-
             dataset[safe_name] = xr.DataArray(
-                data=column_array(values),
+                data=_column_array(values),
                 dims=["scan"],
                 attrs=attrs,
             )
@@ -419,29 +430,22 @@ def read_hex_file(
         for line in file:
             if line.startswith("*END*"):
                 data_lines = file.readlines()
+                break
 
     # drop blank lines
-    data_lines = [line for line in data_lines if line.strip()]
+    data_lines = [line for line in data_lines if not line.isspace()]
 
-    dataset = xr.Dataset({}, attrs={"file_name": Path(filepath).name})
+    attrs = {"file_name": Path(filepath).name}
 
     if not data_lines:
-        return dataset
+        return xr.Dataset({}, attrs=attrs)
 
-    hex_data = read_hex(
-        instrument_type,
-        data_lines[0],
-        enabled_sensors,
-        moored_mode,
-        is_shallow,
-        frequency_channels_suppressed,
-        voltage_words_suppressed,
-    )
-    keys = hex_data.keys()
-    dataset.update(_preallocate_dataset(hex_data, len(data_lines)))
-    np_data = np.empty((len(data_lines), len(keys)), dtype=object)
+    # Accumulate one list per measurand, then convert each column in a single
+    # pass. Appending is cheaper than writing into a preallocated array cell by
+    # cell, and avoids holding a scans x measurands array of boxed values.
+    columns: dict[str, list] = {}
 
-    for n, line in enumerate(data_lines):
+    for line in data_lines:
         hex_data = read_hex(
             instrument_type,
             line,
@@ -451,49 +455,25 @@ def read_hex_file(
             frequency_channels_suppressed,
             voltage_words_suppressed,
         )
-        np_data[n] = [hex_data[k] for k in keys]
+        if not columns:
+            columns = {key: [] for key in hex_data}
+        for key, column in columns.items():
+            column.append(hex_data[key])
 
-    for n, measurand in enumerate(keys):
-        dtype = np.dtype(type(hex_data[measurand]))
-        dataset[measurand].data = np_data[:, n].astype(dtype)
-
-    return dataset
-
-
-def _preallocate_dataset(
-    hex_data: dict,
-    data_length: int,
-) -> xr.Dataset:
-    """Creates an xarray dataset prefilled with zeros or arbitrary dates
-    to replace with instrument data
-
-    :param hex_data: a scan from a hex file converted to a dict
-    :param data_length: the number of samples in the hex file
-
-    :return: a dataset fill of zeros or arbitrary dates
-    """
-    dataset = xr.Dataset()
-    for key, value in hex_data.items():
-        if isinstance(value, datetime):
-            # fill with arbitrary dates converted to regular datetimes
-            date_range = pd.date_range(start="2000-01-01", end="2000-01-02", periods=data_length)
-            empty_data = date_range.to_pydatetime().tolist()
-        else:
-            empty_data = np.zeros(data_length)
-
-        data_array = xr.DataArray(
-            data=empty_data,
-            dims=["scan"],
-            coords={"scan": np.arange(len(empty_data))},
-            attrs={
-                "sbs_name": key,
-                "long_name": "",
-                "units": "",
-            },
-        )
-        dataset[key] = data_array
-
-    return dataset
+    # Build the Dataset in one construction so the scan coord is allocated once
+    # and aligned once, rather than per measurand.
+    return xr.Dataset(
+        data_vars={
+            key: xr.DataArray(
+                data=_column_array(column),
+                dims=["scan"],
+                attrs={"sbs_name": key, "long_name": "", "units": ""},
+            )
+            for key, column in columns.items()
+        },
+        coords={"scan": np.arange(len(data_lines))},
+        attrs=attrs,
+    )
 
 
 def read_hex(
