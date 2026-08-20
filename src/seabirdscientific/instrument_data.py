@@ -425,6 +425,9 @@ def read_hex_file(
 
     dataset = xr.Dataset({}, attrs={"file_name": Path(filepath).name})
 
+    if not data_lines:
+        return dataset
+
     hex_data = read_hex(
         instrument_type,
         data_lines[0],
