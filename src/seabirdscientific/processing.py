@@ -282,10 +282,6 @@ def loop_edit(
         _flag[:] = 0.0
 
     if use_deck_pressure_offset:
-        # Depth is measured relative to the deck reading (depth[0]), so a sample
-        # reaches a soak depth D when (depth - depth[0]) >= D, i.e. depth >= D +
-        # depth[0]. The thresholds compared against raw depth must therefore be
-        # offset by + depth[0], not - depth[0].
         min_soak_depth += depth[0]
         max_soak_depth += depth[0]
 
