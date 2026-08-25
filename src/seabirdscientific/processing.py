@@ -887,6 +887,10 @@ def window_filter(
     if isinstance(window_type, WindowFilterType):
         warnings.warn("WindowFilterType Enum is deprecated, use Literals", DeprecationWarning)
 
+    # make odd window width if it is not so there is a center point
+    if window_width % 2 == 0:
+        window_width += 1
+
     # convert flags to nan for processing
     data = [d if d != flag_value else np.nan for d in data_in]
 
