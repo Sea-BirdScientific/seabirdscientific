@@ -1,10 +1,13 @@
 """Functions for processing instrument data."""
 
 import warnings
+import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta
 from enum import Enum
+from itertools import dropwhile, takewhile
 from logging import getLogger
 from pathlib import Path
+from typing import Literal
 
 import numpy as np
 import pandas as pd
@@ -212,7 +215,7 @@ class HexDataTypes(Enum, metaclass=WarnAllMembersMeta):
     systemTime = "system time"
 
 
-def read_cnv_file(filepath: Path | str) -> xr.Dataset:
+def _read_seasoft_cnv_file(filepath: Path | str) -> xr.Dataset:
     """Import the data from a .cnv file and put it into an xarray
     Dataset. Duplicate varioable names will have a number appended. For
     example, the second "depSM" becomes "depSM_1".
@@ -300,9 +303,100 @@ def read_cnv_file(filepath: Path | str) -> xr.Dataset:
     return dataset
 
 
+def _column_array(values: list | tuple) -> np.ndarray:
+    """Converts one column of parsed values to a numpy array
+
+    Numeric columns become float64. ValueError covers strings that do not
+    parse as floats, TypeError covers values that are already Python objects
+    (datetimes), and both fall back to an object array.
+
+    :param values: every value for a single measurand, in scan order
+
+    :return: a 1D array of the column
+    """
+    try:
+        return np.array(values, dtype=float)
+    except (ValueError, TypeError):
+        return np.array(values, dtype=object)
+
+
+def _read_fathom_cnv_file(filepath: Path | str) -> xr.Dataset:
+    dataset = xr.Dataset({}, attrs={"file_name": Path(filepath).name})
+    with open(filepath) as f:
+        block = takewhile(
+            lambda line: not line.startswith("*END*"),
+            dropwhile(lambda line: not line.startswith("# <FathomProcessing"), f),
+        )
+        fathom_xml = ET.fromstring("".join(line.lstrip("#* ") for line in block))
+        dc_element = fathom_xml.find("Modules").find("DataConversion")
+        total_scans = int(dc_element.find("NumScans").text)
+        dataset = dataset.assign_coords(scan=np.arange(total_scans))
+        ds_attrs = {
+            "sample_interval": float(dc_element.find("Interval").get("Value")),
+            "start_time": dc_element.find("StartTime").get("DateTime"),
+        }
+        dataset.attrs.update(ds_attrs)
+
+        rows = [line.split() for line in f if line.strip()]
+        columns = list(dc_element.find("Columns"))
+
+        if len(rows) != total_scans or any(len(row) != len(columns) for row in rows):
+            raise ValueError(
+                f"expected {total_scans}x{len(columns)} data block, "
+                f"got {len(rows)}x{len(rows[0]) if rows else 0}"
+            )
+
+        data = list(zip(*rows))
+
+        for n, column in enumerate(columns):
+            name = column.attrib["ID"]
+            attrs = {
+                "sbs_name": name,
+                "long_name": column.find("Name").text,
+                "units": column.find("Units").text or "",
+            }
+            values = data[n]
+
+            # update the scan coord if there is a scan variable in the data
+            if name in dataset.coords:
+                dataset[name] = dataset[name].copy(data=np.array(values, dtype=np.int64))
+                dataset[name].attrs.update(attrs)
+                continue
+
+            safe_name = name
+            # check for label collision
+            # if collision, increment until an available key is found
+            n_name = 1
+            while safe_name in dataset.data_vars:
+                safe_name = f"{name}_{n_name}"
+                n_name += 1
+
+            if safe_name != name:
+                logger.warning(f'Duplicate measurand "{name}" will use key "{safe_name}"')
+
+            dataset[safe_name] = xr.DataArray(
+                data=_column_array(values),
+                dims=["scan"],
+                attrs=attrs,
+            )
+
+    return dataset
+
+
+def read_cnv_file(
+    filepath: Path | str, software: Literal["fathom", "seasoft"] = "fathom"
+) -> xr.Dataset:
+    if software == "fathom":
+        return _read_fathom_cnv_file(filepath)
+    elif software == "seasoft":
+        return _read_seasoft_cnv_file(filepath)
+    else:
+        raise ValueError(f"Unknown software: {software} (must be fathom or seasoft)")
+
+
 def cnv_to_instrument_data(filepath: Path | str) -> xr.Dataset:
     warnings.warn("Deprecated, use read_cnv_file", DeprecationWarning)
-    return read_cnv_file(filepath)
+    return read_cnv_file(filepath, "seasoft")
 
 
 def read_hex_file(
@@ -336,26 +430,22 @@ def read_hex_file(
         for line in file:
             if line.startswith("*END*"):
                 data_lines = file.readlines()
+                break
 
     # drop blank lines
-    data_lines = [line for line in data_lines if line.strip()]
+    data_lines = [line for line in data_lines if not line.isspace()]
 
-    dataset = xr.Dataset({}, attrs={"file_name": Path(filepath).name})
+    attrs = {"file_name": Path(filepath).name}
 
-    hex_data = read_hex(
-        instrument_type,
-        data_lines[0],
-        enabled_sensors,
-        moored_mode,
-        is_shallow,
-        frequency_channels_suppressed,
-        voltage_words_suppressed,
-    )
-    keys = hex_data.keys()
-    dataset.update(_preallocate_dataset(hex_data, len(data_lines)))
-    np_data = np.empty((len(data_lines), len(keys)), dtype=object)
+    if not data_lines:
+        return xr.Dataset({}, attrs=attrs)
 
-    for n, line in enumerate(data_lines):
+    # Accumulate one list per measurand, then convert each column in a single
+    # pass. Appending is cheaper than writing into a preallocated array cell by
+    # cell, and avoids holding a scans x measurands array of boxed values.
+    columns: dict[str, list] = {}
+
+    for line in data_lines:
         hex_data = read_hex(
             instrument_type,
             line,
@@ -365,49 +455,25 @@ def read_hex_file(
             frequency_channels_suppressed,
             voltage_words_suppressed,
         )
-        np_data[n] = [hex_data[k] for k in keys]
+        if not columns:
+            columns = {key: [] for key in hex_data}
+        for key, column in columns.items():
+            column.append(hex_data[key])
 
-    for n, measurand in enumerate(keys):
-        dtype = np.dtype(type(hex_data[measurand]))
-        dataset[measurand].data = np_data[:, n].astype(dtype)
-
-    return dataset
-
-
-def _preallocate_dataset(
-    hex_data: dict,
-    data_length: int,
-) -> xr.Dataset:
-    """Creates an xarray dataset prefilled with zeros or arbitrary dates
-    to replace with instrument data
-
-    :param hex_data: a scan from a hex file converted to a dict
-    :param data_length: the number of samples in the hex file
-
-    :return: a dataset fill of zeros or arbitrary dates
-    """
-    dataset = xr.Dataset()
-    for key, value in hex_data.items():
-        if isinstance(value, datetime):
-            # fill with arbitrary dates converted to regular datetimes
-            date_range = pd.date_range(start="2000-01-01", end="2000-01-02", periods=data_length)
-            empty_data = date_range.to_pydatetime().tolist()
-        else:
-            empty_data = np.zeros(data_length)
-
-        data_array = xr.DataArray(
-            data=empty_data,
-            dims=["scan"],
-            coords={"scan": np.arange(len(empty_data))},
-            attrs={
-                "sbs_name": key,
-                "long_name": "",
-                "units": "",
-            },
-        )
-        dataset[key] = data_array
-
-    return dataset
+    # Build the Dataset in one construction so the scan coord is allocated once
+    # and aligned once, rather than per measurand.
+    return xr.Dataset(
+        data_vars={
+            key: xr.DataArray(
+                data=_column_array(column),
+                dims=["scan"],
+                attrs={"sbs_name": key, "long_name": "", "units": ""},
+            )
+            for key, column in columns.items()
+        },
+        coords={"scan": np.arange(len(data_lines))},
+        attrs=attrs,
+    )
 
 
 def read_hex(

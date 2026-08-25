@@ -718,9 +718,7 @@ def convert_sbe63_oxygen(
         # O2 Saturation always uses GG calc, as it is more accurate than Weiss
         oxygen_saturation = derive_oxygen_saturation_gg(temperature_to_use, salinity)
         oxygen_saturation_percent = oxygen * 100 / oxygen_saturation
-        print(f"oxygen_saturation: {oxygen_saturation}")
-        print(f"oxygen: {oxygen}")
-        print(f"oxygen_saturation_percent: {oxygen_saturation_percent}")
+
         # handle cases where oxygen saturation is flagged
         return np.where(
             oxygen_saturation != const.FLAG_VALUE, oxygen_saturation_percent, const.FLAG_VALUE
