@@ -489,7 +489,7 @@ def derive_thermosteric_anomaly(
     :return: Thermosteric anomaly values
     """
 
-    density = sw.dens0(salinity, temperature)
+    density = sw.dens0(salinity, temperature) - 1000
     return 1.0e5 * ((1000.0 / (1000.0 + density)) - 0.97266)
 
 def derive_sound_velocity_c(

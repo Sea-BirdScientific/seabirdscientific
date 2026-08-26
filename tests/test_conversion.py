@@ -8,7 +8,7 @@ import pytest
 
 import seabirdscientific.constants as const
 import seabirdscientific.conversion as dc
-import seabirdscientific.instrument_data as si
+import seabirdscientific.instrument_data as id
 import test_coefficients as tc
 
 test_data = Path("./tests/resources/test-data")
@@ -189,19 +189,19 @@ class TestConductivity19plus:
     hex_path = test_data / "19plus_V2.hex"
 
     def test_convert_conductivity(self):
-        # expected_data = si.read_cnv_file(self.cnv_path, "seasoft")
+        # expected_data = id.read_cnv_file(self.cnv_path)
 
-        raw = si.read_hex_file(
+        raw = id.read_hex_file(
             self.hex_path,
-            si.InstrumentType.SBE19Plus,
+            id.InstrumentType.SBE19Plus,
             [
-                si.Sensors.Temperature,
-                si.Sensors.Conductivity,
-                si.Sensors.Pressure,
-                si.Sensors.ExtVolt0,
-                si.Sensors.ExtVolt1,
-                si.Sensors.ExtVolt2,
-                si.Sensors.ExtVolt4,
+                id.Sensors.Temperature,
+                id.Sensors.Conductivity,
+                id.Sensors.Pressure,
+                id.Sensors.ExtVolt0,
+                id.Sensors.ExtVolt1,
+                id.Sensors.ExtVolt2,
+                id.Sensors.ExtVolt4,
             ],
         )
 
@@ -229,7 +229,7 @@ class TestConductivity19plus:
             temperature,
             pressure,
             tc.conductivity_coefs_sn6130,
-            si.InstrumentType.SBE19Plus,
+            id.InstrumentType.SBE19Plus,
         )
 
         assert np.allclose(expected, result, rtol=0, atol=1e-6)
@@ -240,15 +240,15 @@ class TestConductivity37SM:
     hex_path = test_data / "SBE37SM-RS232_03716125_2017_11_16.hex"
 
     def test_convert_conductivity(self):
-        # expected_data = si.read_cnv_file(self.cnv_path, "seasoft")
+        # expected_data = id.read_cnv_file(self.cnv_path)
 
-        raw = si.read_hex_file(
+        raw = id.read_hex_file(
             self.hex_path,
-            si.InstrumentType.SBE37SM,
+            id.InstrumentType.SBE37SM,
             [
-                si.Sensors.Temperature,
-                si.Sensors.Conductivity,
-                si.Sensors.Pressure,
+                id.Sensors.Temperature,
+                id.Sensors.Conductivity,
+                id.Sensors.Pressure,
             ],
         )
 
@@ -272,7 +272,7 @@ class TestConductivity37SM:
             temperature,
             pressure,
             tc.conductivity_coefs_sn16125,
-            si.InstrumentType.SBE37SM,
+            id.InstrumentType.SBE37SM,
         )
 
         assert np.allclose(expected, result, rtol=0, atol=1e-4)
@@ -385,13 +385,135 @@ class TestDepthFromPressure:
         assert np.allclose(expected_depth, result_depth, atol=0.002)
 
 
+class TestComputeGpa:
+    def test_derive_gpa_vectorized_with_flags_and_nonmonotonic_pressure(self):
+        temperature = np.array([10.0, 10.0, 10.0, const.FLAG_VALUE, 10.0, 10.0, 10.0])
+        pressure = np.array([0.0, 10.0, 20.0, 15.0, 25.0, 35.0, 45.0])
+        sva = np.array([1.0, 2.0, 3.0, 4.0, 5.0, const.FLAG_VALUE, 7.0])
+
+        result = dc.derive_gpa(temperature, pressure, sva)
+        expected = np.array([0.0, 0.0015, 0.0040, 0.0040, 0.0040, 0.0040, 0.0040])
+
+        assert np.allclose(result, expected, rtol=0, atol=1e-12)
+
+
+class TestDeriveSva:
+    def test_derive_sva_vectorized_matches_formula(self):
+        density = np.array([24.0, 25.0, 26.0])
+        pressure = np.array([0.0, 1000.0, 2000.0])
+
+        p_bar = pressure / 10.0
+        val = density + 1000.0
+        spvol = 1.0 / val
+        k35 = 21582.27 + (3.35940552 * p_bar) + (5.03217e-5 * p_bar * p_bar)
+        expected = (spvol - 9.7266204e-4 * (1.0 - (p_bar / k35))) * 1.0e8
+
+        result = dc.derive_sva(density, pressure)
+
+        assert np.allclose(result, expected, rtol=0, atol=1e-12)
+
+    def test_derive_sva_broadcasts_scalar_density(self):
+        density = np.array(25.0)
+        pressure = np.array([0.0, 500.0, 1000.0])
+
+        result = dc.derive_sva(density, pressure)
+
+        assert result.shape == pressure.shape
+
+
+class TestDeriveSoundVelocity:
+    def test_derive_sound_velocity_c_matches_formula_and_clamps_salinity(self):
+        salinity = np.array([-1.0, 35.0, 36.0])
+        temperature = np.array([10.0, 10.0, 12.0])
+        pressure = np.array([0.0, 1000.0, 2000.0])
+
+        result = dc.derive_sound_velocity_c(salinity, temperature, pressure)
+
+        s = np.maximum(salinity, 0.0)
+        t = temperature
+        p = pressure / 10.0
+        sr = np.sqrt(s)
+        d = 1.727e-3 - 7.9836e-6 * p
+        b1 = 7.3637e-5 + 1.7945e-7 * t
+        b0 = -1.922e-2 - 4.42e-5 * t
+        b = b0 + b1 * p
+        a3 = (-3.389e-13 * t + 6.649e-12) * t + 1.100e-10
+        a2 = ((7.988e-12 * t - 1.6002e-10) * t + 9.1041e-9) * t - 3.9064e-7
+        a1 = (((-2.0122e-10 * t + 1.0507e-8) * t - 6.4885e-8) * t - 1.2580e-5) * t + 9.4742e-5
+        a0 = (((-3.21e-8 * t + 2.006e-6) * t + 7.164e-5) * t - 1.262e-2) * t + 1.389
+        a = ((a3 * p + a2) * p + a1) * p + a0
+        c3 = (-2.3643e-12 * t + 3.8504e-10) * t - 9.7729e-9
+        c2 = (((1.0405e-12 * t - 2.5335e-10) * t + 2.5974e-8) * t - 1.7107e-6) * t + 3.1260e-5
+        c1 = (((-6.1185e-10 * t + 1.3621e-7) * t - 8.1788e-6) * t + 6.8982e-4) * t + 0.153563
+        c0 = ((((3.1464e-9 * t - 1.47800e-6) * t + 3.3420e-4) * t - 5.80852e-2) * t + 5.03711) * t + 1402.388
+        c = ((c3 * p + c2) * p + c1) * p + c0
+        expected = c + (a + b * sr + d * s) * s
+
+        assert np.allclose(result, expected, rtol=0, atol=1e-12)
+
+    def test_derive_sound_velocity_d_matches_formula(self):
+        salinity = np.array([34.0, 35.0, 36.0])
+        temperature = np.array([5.0, 10.0, 15.0])
+        pressure = np.array([100.0, 1000.0, 3000.0])
+
+        result = dc.derive_sound_velocity_d(salinity, temperature, pressure)
+
+        s = salinity
+        t = temperature
+        p = pressure / 9.80665
+        c000 = 1402.392
+        dct = (0.501109398873e1 - (0.550946843172e-1 - 0.22153596924e-3 * t) * t) * t
+        dcs = (0.132952290781e1 + 0.128955756844e-3 * s) * s
+        dcp = (0.156059257041e0 + (0.244998688441e-4 - 0.83392332513e-8 * p) * p) * p
+        dcstp = (
+            -0.127562783426e-1 * t * s
+            + 0.635191613389e-2 * t * p
+            + 0.265484716608e-7 * t * t * p * p
+            - 0.159349479045e-5 * t * p * p
+            + 0.522116437235e-9 * t * p * p * p
+            - 0.438031096213e-6 * t * t * t * p
+            - 0.161674495909e-8 * s * s * p * p
+            + 0.968403156410e-4 * t * t * s
+            + 0.485639620015e-5 * t * s * s * p
+            - 0.340597039004e-3 * t * s * p
+        )
+        expected = c000 + dct + dcs + dcp + dcstp
+
+        assert np.allclose(result, expected, rtol=0, atol=1e-12)
+
+    def test_derive_sound_velocity_w_matches_formula(self):
+        salinity = np.array([34.0, 35.0, 36.0])
+        temperature = np.array([5.0, 10.0, 15.0])
+        pressure = np.array([100.0, 1000.0, 3000.0])
+
+        result = dc.derive_sound_velocity_w(salinity, temperature, pressure)
+
+        s = salinity
+        t = temperature
+        p = pressure
+        pr = 0.1019716 * (p + 10.1325)
+        sd = s - 35.0
+        a = (((7.9851e-6 * t - 2.6045e-4) * t - 4.4532e-2) * t + 4.5721) * t + 1449.14
+        sv = (7.7711e-7 * t - 1.1244e-2) * t + 1.39799
+        v0 = (1.69202e-3 * sd + sv) * sd + a
+        a = ((4.5283e-8 * t + 7.4812e-6) * t - 1.8607e-4) * t + 0.16072
+        sv = (1.579e-9 * t + 3.158e-8) * t + 7.7016e-5
+        v1 = sv * sd + a
+        a = (1.8563e-9 * t - 2.5294e-7) * t + 1.0268e-5
+        sv = -1.2943e-7 * sd + a
+        a = -1.9646e-10 * t + 3.5216e-9
+        expected = (((-3.3603e-12 * pr + a) * pr + sv) * pr + v1) * pr + v0
+
+        assert np.allclose(result, expected, rtol=0, atol=1e-12)
+
+
 class TestConvertSBE43Oxygen:
     # Some tests need to be run on complete datasets
     cnv_path = test_data / "SBE19plus_01906398_2019_07_15_0033-seasoft-convert-o2-full.cnv"
 
     @pytest.fixture
     def source_data(self):
-        return si.read_cnv_file(self.cnv_path, "seasoft")
+        return id.read_cnv_file(self.cnv_path)
 
     def test_convert_sbe43_oxygen(self, request):
         # From O3287.pdf in the shared calibration folder
@@ -922,7 +1044,7 @@ class TestConvertSBE63Oxygen:
 
     @pytest.fixture
     def source_data(self):
-        return si.read_cnv_file(self.cnv_path, "seasoft")
+        return id.read_cnv_file(self.cnv_path)
 
     def test_convert_sbe63_oxygen(self, request):
         oxygen = dc.convert_sbe63_oxygen(
@@ -1029,6 +1151,7 @@ class TestConvertSBE63Oxygen:
             source_data["tv290C"].values,
         )
         request.node.return_value = result.tolist()
+        print(f"Expected: {expected}")
         assert np.allclose(expected, result, rtol=0, atol=1e-2)
 
     def test_convert_sbe63_oxygen_umol_per_kg(self, request, source_data):
@@ -1199,12 +1322,10 @@ class TestBuoyancy:
         expected_scaled_stability = np.array([-9.99e-29, 1309.6979919526298, 602.8661047814034, 335.33390726433163, 218.7108575931272, 164.41328104617097, 185.74372883265428, 196.8782837049103, 148.88453614380862, -9.99e-29])
         expected_stability = np.array([-9.99e-29, 1.3096979919526299e-05, 6.028661047814034e-06, 3.353339072643316e-06, 2.187108575931272e-06, 1.6441328104617097e-06, 1.8574372883265428e-06, 1.968782837049103e-06, 1.4888453614380862e-06, -9.99e-29])
         # fmt: on
-        assert np.allclose(
-            buoyancy_freq_squared, expected_buoyancy_freq_squared, rtol=0, atol=1e-12
-        )
-        assert np.allclose(buoyancy_freq, expected_buoyancy_freq, rtol=0, atol=1e-12)
-        assert np.allclose(stability, expected_stability, rtol=0, atol=1e-12)
-        assert np.allclose(scaled_stability, expected_scaled_stability, rtol=0, atol=1e-12)
+        assert np.all(buoyancy_freq_squared == expected_buoyancy_freq_squared)
+        assert np.all(buoyancy_freq == expected_buoyancy_freq)
+        assert np.all(stability == expected_stability)
+        assert np.all(scaled_stability == expected_scaled_stability)
 
     def test_buoyancy_eos80(self):
         (buoyancy_freq_squared, buoyancy_freq, stability, scaled_stability) = dc.buoyancy(
@@ -1234,12 +1355,10 @@ class TestBuoyancy:
         expected_scaled_stability = np.array([-9.99e-29, 1334.060078386804, 605.5987165439468, 337.05660655229923, 219.41090136335237, 164.84865915481353, 185.73855980245008, 197.49110924835415, 149.12435256658875, -9.99e-29])
         expected_stability = np.array([-9.99e-29, 1.334060078386804e-05, 6.055987165439468e-06, 3.370566065522992e-06, 2.1941090136335238e-06, 1.6484865915481353e-06, 1.857385598024501e-06, 1.9749110924835414e-06, 1.4912435256658876e-06, -9.99e-29])
         # fmt: on
-        assert np.allclose(
-            buoyancy_freq_squared, expected_buoyancy_freq_squared, rtol=0, atol=1e-12
-        )
-        assert np.allclose(buoyancy_freq, expected_buoyancy_freq, rtol=0, atol=1e-12)
-        assert np.allclose(stability, expected_stability, rtol=0, atol=1e-12)
-        assert np.allclose(scaled_stability, expected_scaled_stability, rtol=0, atol=1e-12)
+        assert np.all(buoyancy_freq_squared == expected_buoyancy_freq_squared)
+        assert np.all(buoyancy_freq == expected_buoyancy_freq)
+        assert np.all(stability == expected_stability)
+        assert np.all(scaled_stability == expected_scaled_stability)
 
 
 class TestDeriveDescentRateAcceleration:
@@ -1247,7 +1366,7 @@ class TestDeriveDescentRateAcceleration:
 
     @pytest.fixture
     def source_data(self):
-        return si.read_cnv_file(self.cnv_path, "seasoft")
+        return id.read_cnv_file(self.cnv_path)
 
     def test_derive_descent_rate_meters(self, source_data):
         descent_rate_m = dc.derive_descent_rate(source_data["depSM"].values, 2, 0.25)
@@ -1276,7 +1395,7 @@ class TestDeriveOxygenSaturation:
 
     @pytest.fixture
     def source_data(self):
-        return si.read_cnv_file(self.cnv_path, "seasoft")
+        return id.read_cnv_file(self.cnv_path)
 
     def test_derive_oxygen_saturation_gg(self, source_data):
         ox_sat_gg = dc.derive_oxygen_saturation_gg(
@@ -1309,3 +1428,16 @@ class TestCstar:
 
         request.node.return_value = result.tolist()
         assert np.allclose(expected, result, rtol=0, atol=1e-3)
+
+class TestDeriveThermostericAnomaly:
+    cnv_path = test_data / "SBE19plus_derive_testing.cnv"
+
+    @pytest.fixture
+    def source_data(self):
+        return id.read_cnv_file(self.cnv_path, 'seasoft')
+
+    def test_derive_tsa(self, source_data):
+        tsa = dc.derive_thermosteric_anomaly(
+            source_data["sal00"].values, source_data["tv290C"].values
+        )
+        assert np.allclose(tsa, source_data["tsa"].values, rtol=0, atol=1e-2)
