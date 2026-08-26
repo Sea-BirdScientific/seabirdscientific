@@ -44,9 +44,11 @@ def density(
     t: np.ndarray,
     p0: np.ndarray,
 ) -> np.ndarray:
-    """Deprecated. Use eos80_conversion.density"""
+    """Deprecated. Use use the sewater library (seawater.dens) instead"""
 
-    warnings.warn("Deprecated. Use eos80_conversion.density", DeprecationWarning)
+    warnings.warn(
+        "Deprecated. Use use the sewater library (seawater.dens) instead", DeprecationWarning
+    )
 
     return ec.density(s0, t, p0)
 
@@ -54,9 +56,11 @@ def density(
 def potential_temperature(
     s: np.ndarray, t0: np.ndarray, p0: np.ndarray, pr: np.ndarray
 ) -> np.ndarray:
-    """Deprecated. Use eos80_conversion.potential_temperature"""
+    """Deprecated. Use use the sewater library (seawater.ptemp) instead"""
 
-    warnings.warn("Deprecated. Use eos80_conversion.potential_temperature", DeprecationWarning)
+    warnings.warn(
+        "Deprecated. Use use the sewater library (seawater.ptemp) instead", DeprecationWarning
+    )
 
     return ec.potential_temperature(s, t0, p0, pr)
 

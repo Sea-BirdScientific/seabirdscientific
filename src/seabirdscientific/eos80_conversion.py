@@ -1,6 +1,9 @@
 """EOS80 functions to support legacy conversions"""
 
+import warnings
+
 import numpy as np
+import seawater as sw
 from scipy import stats
 
 
@@ -19,7 +22,7 @@ def bouyancy_frequency(
     calculations for potential temp and density
 
     :param temperature: ITS-90 temperature values for the given window
-    :param salinity: practical salinity values for the given window
+    :param salinity: PSS-78 practical salinity values for the given window
     :param pressure: pressure values for the given window
     :param gravity: gravity value
 
@@ -28,18 +31,19 @@ def bouyancy_frequency(
 
     db_to_pa = 1e4
 
-    # Wrap these as a length-1 array so that GSW accepts them
+    # Wrap these as a length-1 array
     pressure_bar = np.array([np.mean(pressure)])
     temperature_bar = np.array([np.mean(temperature)])
     salinity_bar = np.array([np.mean(salinity)])
 
-    # Compute average density over the window
-    # rho_bar0 = gsw.rho(salinity_bar, temperature_bar, pressure_bar)[0]
-    rho_bar = density(salinity_bar, temperature_bar, pressure_bar)[0]
+    # EOS-80 density from the seawater library. seawater.dens returns full
+    # density; subtract 1000 to keep the sigma convention the SBE Data
+    # Processing formula (and the SeaSoft reference) are built around.
+    rho_bar = np.atleast_1d(sw.dens(salinity_bar, temperature_bar, pressure_bar))[0] - 1000.0
 
-    # Use SBE DP (EOS-80) formulas for potential temp and density
-    theta = potential_temperature(salinity, temperature, pressure, pressure_bar)
-    v_vals = 1.0 / density(salinity, theta, pressure_bar)
+    # EOS-80 potential temperature and density, referenced to the window mean.
+    theta = sw.ptmp(salinity, temperature, pressure, pressure_bar[0])
+    v_vals = 1.0 / (np.atleast_1d(sw.dens(salinity, theta, pressure_bar[0])) - 1000.0)
 
     # Estimate vertical gradient of specific volume
     dvdp_result = stats.linregress(pressure, v_vals)
@@ -57,7 +61,8 @@ def density(
 ) -> np.ndarray:
     """EOS-80 density calculation.
 
-    This was ported from CSharedCalc::Density()
+    Delegates to the seawater library (seawater.dens), returning sigma
+    (density - 1000) to match the SBE Data Processing convention.
 
     :param salinity: salinity data
     :param temperature: temperature data
@@ -66,101 +71,16 @@ def density(
     :return: resulting density data
     """
 
-    b0 = 8.24493e-1
-    b1 = -4.0899e-3
-    b2 = 7.6438e-5
-    b3 = -8.2467e-7
-    b4 = 5.3875e-9
-
-    c0 = -5.72466e-3
-    c1 = 1.0227e-4
-    c2 = -1.6546e-6
-
-    d0 = 4.8314e-4
-
-    a0 = 999.842594
-    a1 = 6.793952e-2
-    a2 = -9.095290e-3
-    a3 = 1.001685e-4
-    a4 = -1.120083e-6
-    a5 = 6.536332e-9
-
-    fq0 = 54.6746
-    fq1 = -0.603459
-    fq2 = 1.09987e-2
-    fq3 = -6.1670e-5
-
-    g0 = 7.944e-2
-    g1 = 1.6483e-2
-    g2 = -5.3009e-4
-
-    i0 = 2.2838e-3
-    i1 = -1.0981e-5
-    i2 = -1.6078e-6
-
-    j0 = 1.91075e-4
-
-    m0 = -9.9348e-7
-    m1 = 2.0816e-8
-    m2 = 9.1697e-10
-
-    e0 = 19652.21
-    e1 = 148.4206
-    e2 = -2.327105
-    e3 = 1.360477e-2
-    e4 = -5.155288e-5
-
-    h0 = 3.239908
-    h1 = 1.43713e-3
-    h2 = 1.16092e-4
-    h3 = -5.77905e-7
-
-    k0 = 8.50935e-5
-    k1 = -6.12293e-6
-    k2 = 5.2787e-8
-
-    s0, t, p0 = np.broadcast_arrays(salinity, temperature, pressure)
-    # creating copies because broadcasted arrays may share memory locations
-    s = s0.copy()
-    p = p0.copy()
-
-    t2 = t * t
-    t3 = t * t2
-    t4 = t * t3
-    t5 = t * t4
-    s[s <= 0.0] = 0.000001
-    s32 = s**1.5
-    p /= 10.0
-    sigma = (
-        a0
-        + a1 * t
-        + a2 * t2
-        + a3 * t3
-        + a4 * t4
-        + a5 * t5
-        + (b0 + b1 * t + b2 * t2 + b3 * t3 + b4 * t4) * s
-        + (c0 + c1 * t + c2 * t2) * s32
-        + d0 * s * s
+    warnings.warn(
+        "eos80_conversion.density is deprecated; use the seawater library "
+        "(seawater.dens) instead.",
+        DeprecationWarning,
+        stacklevel=2,
     )
 
-    kw = e0 + e1 * t + e2 * t2 + e3 * t3 + e4 * t4
-    aw = h0 + h1 * t + h2 * t2 + h3 * t3
-    bw = k0 + k1 * t + k2 * t2
-
-    k = (
-        kw
-        + (fq0 + fq1 * t + fq2 * t2 + fq3 * t3) * s
-        + (g0 + g1 * t + g2 * t2) * s32
-        + (aw + (i0 + i1 * t + i2 * t2) * s + (j0 * s32)) * p
-        + (bw + (m0 + m1 * t + m2 * t2) * s) * p * p
-    )
-
-    val = 1 - p / k
-
-    _density = sigma
-    _density[val != 0] = sigma / val - 1000
-
-    return _density
+    # seawater.dens returns full density; subtract 1000 to keep the sigma
+    # convention used by SBE Data Processing (and the SeaSoft reference).
+    return np.atleast_1d(sw.dens(salinity, temperature, pressure)) - 1000.0
 
 
 def potential_temperature(
@@ -171,7 +91,7 @@ def potential_temperature(
 ) -> np.ndarray:
     """EOS-80 potential temperature calculation.
 
-    This was ported from CSharedCalc::PoTemp()
+    Delegates to the seawater library (seawater.ptmp).
 
     :param salinity: sainity data
     :param temperature: temperature data
@@ -181,31 +101,14 @@ def potential_temperature(
     :return: calculated potential temperature data
     """
 
-    s, t0, p0, pr = np.broadcast_arrays(
-        salinity,
-        temperature,
-        pressure,
-        mean_pressure,
+    warnings.warn(
+        "eos80_conversion.potential_temperature is deprecated; use the seawater "
+        "library (seawater.ptmp) instead.",
+        DeprecationWarning,
+        stacklevel=2,
     )
 
-    p = p0.copy()
-    t = t0.copy()
-    h = pr - p
-    xk = h * adiabatic_temperature_gradient(s, t, p)
-    t += 0.5 * xk
-    q = xk
-    p += 0.5 * h
-    xk = h * adiabatic_temperature_gradient(s, t, p)
-    t += 0.29289322 * (xk - q)
-    q = 0.58578644 * xk + 0.121320344 * q
-    xk = h * adiabatic_temperature_gradient(s, t, p)
-    t += 1.707106781 * (xk - q)
-    q = 3.414213562 * xk - 4.121320344 * q
-    p += 0.5 * h
-    xk = h * adiabatic_temperature_gradient(s, t, p)
-    temp = t + (xk - 2.0 * q) / 6.0
-
-    return temp
+    return np.atleast_1d(sw.ptmp(salinity, temperature, pressure, mean_pressure))
 
 
 def adiabatic_temperature_gradient(
