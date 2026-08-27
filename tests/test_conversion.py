@@ -1441,3 +1441,36 @@ class TestDeriveThermostericAnomaly:
             source_data["sal00"].values, source_data["tv290C"].values
         )
         assert np.allclose(tsa, source_data["tsa"].values, rtol=0, atol=1e-2)
+
+class TestDeriveSpecificConductance:
+    cnv_path = test_data / "SBE19plus_derive_testing.cnv"
+
+    @pytest.fixture
+    def source_data(self):
+        return id.read_cnv_file(self.cnv_path, 'seasoft')
+
+    def test_derive_sc(self, source_data):
+        # TODO: no explanation for why this is so off?
+        tsa = dc.derive_specific_conductance(
+            source_data["tv290C"].values, source_data["c0S/m"].values,  to_units='uS/cm'
+        )
+
+        differences = tsa - source_data["specc"].values
+        print("\nDifferences between tsa and specc:")
+        print(differences)
+        
+        assert np.allclose(tsa, source_data["specc"].values, rtol=0, atol=1)
+
+class TestDerivePotentialTemperatureAnomaly:
+    cnv_path = test_data / "SBE19plus_derive_testing.cnv"
+
+    @pytest.fixture
+    def source_data(self):
+        return id.read_cnv_file(self.cnv_path, 'seasoft')
+
+    def test_derive_pta(self, source_data):
+        pta = dc.derive_potential_temperature_anomaly(
+            source_data["sal00"].values, source_data["tv290C"].values, source_data["prdM"].values, a0=1, a1=2
+        )
+        
+        assert np.allclose(pta, source_data["pta090C"].values, rtol=0, atol=1e-3)
