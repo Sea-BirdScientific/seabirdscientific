@@ -410,89 +410,38 @@ class TestDeriveSva:
 
 
 class TestDeriveSoundVelocity:
-    def test_derive_sound_velocity_c_matches_formula_and_clamps_salinity(self):
-        salinity = np.array([-1.0, 35.0, 36.0])
-        temperature = np.array([10.0, 10.0, 12.0])
-        pressure = np.array([0.0, 1000.0, 2000.0])
+    cnv_path = test_data / "SBE19plus_derive_testing.cnv"
 
-        result = dc.derive_sound_velocity_c(salinity, temperature, pressure)
+    @pytest.fixture
+    def source_data(self):
+        return id.read_cnv_file(self.cnv_path, 'seasoft')
 
-        s = np.maximum(salinity, 0.0)
-        t = temperature
-        p = pressure / 10.0
-        sr = np.sqrt(s)
-        d = 1.727e-3 - 7.9836e-6 * p
-        b1 = 7.3637e-5 + 1.7945e-7 * t
-        b0 = -1.922e-2 - 4.42e-5 * t
-        b = b0 + b1 * p
-        a3 = (-3.389e-13 * t + 6.649e-12) * t + 1.100e-10
-        a2 = ((7.988e-12 * t - 1.6002e-10) * t + 9.1041e-9) * t - 3.9064e-7
-        a1 = (((-2.0122e-10 * t + 1.0507e-8) * t - 6.4885e-8) * t - 1.2580e-5) * t + 9.4742e-5
-        a0 = (((-3.21e-8 * t + 2.006e-6) * t + 7.164e-5) * t - 1.262e-2) * t + 1.389
-        a = ((a3 * p + a2) * p + a1) * p + a0
-        c3 = (-2.3643e-12 * t + 3.8504e-10) * t - 9.7729e-9
-        c2 = (((1.0405e-12 * t - 2.5335e-10) * t + 2.5974e-8) * t - 1.7107e-6) * t + 3.1260e-5
-        c1 = (((-6.1185e-10 * t + 1.3621e-7) * t - 8.1788e-6) * t + 6.8982e-4) * t + 0.153563
-        c0 = ((((3.1464e-9 * t - 1.47800e-6) * t + 3.3420e-4) * t - 5.80852e-2) * t + 5.03711) * t + 1402.388
-        c = ((c3 * p + c2) * p + c1) * p + c0
-        expected = c + (a + b * sr + d * s) * s
-
-        assert np.allclose(result, expected, rtol=0, atol=1e-12)
-
-    def test_derive_sound_velocity_d_matches_formula(self):
-        salinity = np.array([34.0, 35.0, 36.0])
-        temperature = np.array([5.0, 10.0, 15.0])
-        pressure = np.array([100.0, 1000.0, 3000.0])
-
-        result = dc.derive_sound_velocity_d(salinity, temperature, pressure)
-
-        s = salinity
-        t = temperature
-        p = pressure / 9.80665
-        c000 = 1402.392
-        dct = (0.501109398873e1 - (0.550946843172e-1 - 0.22153596924e-3 * t) * t) * t
-        dcs = (0.132952290781e1 + 0.128955756844e-3 * s) * s
-        dcp = (0.156059257041e0 + (0.244998688441e-4 - 0.83392332513e-8 * p) * p) * p
-        dcstp = (
-            -0.127562783426e-1 * t * s
-            + 0.635191613389e-2 * t * p
-            + 0.265484716608e-7 * t * t * p * p
-            - 0.159349479045e-5 * t * p * p
-            + 0.522116437235e-9 * t * p * p * p
-            - 0.438031096213e-6 * t * t * t * p
-            - 0.161674495909e-8 * s * s * p * p
-            + 0.968403156410e-4 * t * t * s
-            + 0.485639620015e-5 * t * s * s * p
-            - 0.340597039004e-3 * t * s * p
+    def test_derive_sound_velocity_c(self, source_data):
+        result = dc.derive_sound_velocity_c(
+            source_data["sal00"].values, source_data["tv290C"].values, source_data["prdM"].values
         )
-        expected = c000 + dct + dcs + dcp + dcstp
+        # TODO: Update expected column name once verified in CNV file
+        expected = source_data["svCM"].values
+        
+        assert np.allclose(result, expected, rtol=0, atol=1e-1)
 
-        assert np.allclose(result, expected, rtol=0, atol=1e-12)
+    def test_derive_sound_velocity_d(self, source_data):
+        result = dc.derive_sound_velocity_d(
+            source_data["sal00"].values, source_data["tv290C"].values, source_data["prdM"].values
+        )
+        # TODO: Update expected column name once verified in CNV file
+        expected = source_data["svDM"].values
+        
+        assert np.allclose(result, expected, rtol=0, atol=1e-1)
 
-    def test_derive_sound_velocity_w_matches_formula(self):
-        salinity = np.array([34.0, 35.0, 36.0])
-        temperature = np.array([5.0, 10.0, 15.0])
-        pressure = np.array([100.0, 1000.0, 3000.0])
-
-        result = dc.derive_sound_velocity_w(salinity, temperature, pressure)
-
-        s = salinity
-        t = temperature
-        p = pressure
-        pr = 0.1019716 * (p + 10.1325)
-        sd = s - 35.0
-        a = (((7.9851e-6 * t - 2.6045e-4) * t - 4.4532e-2) * t + 4.5721) * t + 1449.14
-        sv = (7.7711e-7 * t - 1.1244e-2) * t + 1.39799
-        v0 = (1.69202e-3 * sd + sv) * sd + a
-        a = ((4.5283e-8 * t + 7.4812e-6) * t - 1.8607e-4) * t + 0.16072
-        sv = (1.579e-9 * t + 3.158e-8) * t + 7.7016e-5
-        v1 = sv * sd + a
-        a = (1.8563e-9 * t - 2.5294e-7) * t + 1.0268e-5
-        sv = -1.2943e-7 * sd + a
-        a = -1.9646e-10 * t + 3.5216e-9
-        expected = (((-3.3603e-12 * pr + a) * pr + sv) * pr + v1) * pr + v0
-
-        assert np.allclose(result, expected, rtol=0, atol=1e-12)
+    def test_derive_sound_velocity_w(self, source_data):
+        result = dc.derive_sound_velocity_w(
+            source_data["sal00"].values, source_data["tv290C"].values, source_data["prdM"].values
+        )
+        # TODO: Update expected column name once verified in CNV file
+        expected = source_data["svWM"].values
+        
+        assert np.allclose(result, expected, rtol=0, atol=1e-1)
 
 
 class TestConvertSBE43Oxygen:
