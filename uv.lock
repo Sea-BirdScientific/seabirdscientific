@@ -2905,7 +2905,7 @@ wheels = [
 
 [[package]]
 name = "seabirdscientific"
-version = "3.0.0a21"
+version = "3.0.0a24"
 source = { editable = "." }
 dependencies = [
     { name = "gsw" },
@@ -2917,6 +2917,7 @@ dependencies = [
     { name = "plotly" },
     { name = "scipy", version = "1.17.1", source = { registry = "http://pypi.sbs.ewqg.com/simple/" }, marker = "python_full_version < '3.12'" },
     { name = "scipy", version = "1.18.0", source = { registry = "http://pypi.sbs.ewqg.com/simple/" }, marker = "python_full_version >= '3.12'" },
+    { name = "seawater" },
     { name = "xarray" },
 ]
 
@@ -2956,6 +2957,7 @@ requires-dist = [
     { name = "plotly", specifier = "~=6.9" },
     { name = "sbsfuro", marker = "extra == 'docs'", specifier = "~=0.1" },
     { name = "scipy", specifier = "~=1.17" },
+    { name = "seawater", specifier = "~=3.3" },
     { name = "sphinx", marker = "extra == 'docs'", specifier = "~=9.0" },
     { name = "sphinx-mdinclude", marker = "extra == 'docs'", specifier = "~=0.6" },
     { name = "xarray", specifier = "~=2026.7" },
@@ -2972,6 +2974,21 @@ dev = [
     { name = "pytest", specifier = "~=9.1" },
     { name = "pytest-cov", specifier = "~=7.1" },
     { name = "ruff", specifier = "~=0.16" },
+]
+
+[[package]]
+name = "seawater"
+version = "3.3.5"
+source = { registry = "http://pypi.sbs.ewqg.com/simple/" }
+dependencies = [
+    { name = "numpy", version = "2.4.6", source = { registry = "http://pypi.sbs.ewqg.com/simple/" }, marker = "python_full_version < '3.12'" },
+    { name = "numpy", version = "2.5.2", source = { registry = "http://pypi.sbs.ewqg.com/simple/" }, marker = "python_full_version >= '3.12'" },
+    { name = "scipy", version = "1.17.1", source = { registry = "http://pypi.sbs.ewqg.com/simple/" }, marker = "python_full_version < '3.12'" },
+    { name = "scipy", version = "1.18.0", source = { registry = "http://pypi.sbs.ewqg.com/simple/" }, marker = "python_full_version >= '3.12'" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/dc/32/54fe53a6dd93ab298ed4f7fbcfac159f564ca3f91ae7bb2f91d44d3e5c74/seawater-3.3.5.tar.gz", hash = "sha256:ed3443330d76e5054ad6e3f60ac5a1e407f703504887be9352c35a9d77fd6fa8", size = 22746, upload-time = "2024-05-30T19:22:58.172Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/e0/a0/f627b17b66584deba76442fe5d0f11590151539603072aabad65069f6579/seawater-3.3.5-py3-none-any.whl", hash = "sha256:765aa6b6a82db3d4e9232313420e4d665218d8863a383f5bc4dd49d5f1f0c1d1", size = 25466, upload-time = "2024-05-30T19:22:55.902Z" },
 ]
 
 [[package]]

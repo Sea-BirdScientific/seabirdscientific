@@ -8,6 +8,7 @@ import pytest
 
 import seabirdscientific.constants as const
 import seabirdscientific.conversion as dc
+import seabirdscientific.eos80_conversion as eos80dc
 import seabirdscientific.instrument_data as si
 import test_coefficients as tc
 
@@ -1207,13 +1208,15 @@ class TestBuoyancy:
         assert np.allclose(scaled_stability, expected_scaled_stability, rtol=0, atol=1e-12)
 
     def test_buoyancy_eos80(self):
-        (buoyancy_freq_squared, buoyancy_freq, stability, scaled_stability) = dc.buoyancy_eos80(
-            self.temperature,
-            self.salinity,
-            self.pressure,
-            np.asarray([34.034167]),  # converted from metadata 34.02.03 N in H,M,S
-            np.asarray([121.060556]),  # converted from metadata 121 03.38 W in H, M, S
-            150,  # window size
+        (buoyancy_freq_squared, buoyancy_freq, stability, scaled_stability) = (
+            eos80dc.buoyancy_eos80(
+                self.temperature,
+                self.salinity,
+                self.pressure,
+                np.asarray([34.034167]),  # converted from metadata 34.02.03 N in H,M,S
+                np.asarray([121.060556]),  # converted from metadata 121 03.38 W in H, M, S
+                150,  # window size
+            )
         )
 
         # Comparing SBE Data Processing C++ to local Python results using the same EOS-80 calculations.

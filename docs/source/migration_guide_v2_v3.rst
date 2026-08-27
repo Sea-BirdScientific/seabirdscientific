@@ -162,22 +162,13 @@ as deprecated aliases that forward to the new functions and emit a
 The ``HexDataTypes`` enum members are now deprecated. Accessing any member
 emits a ``DeprecationWarning``.
 
-conversion and eos80_conversion
-*******************************
+conversion
+**********
 
 The signatures of the individual ``convert_*`` functions in ``conversion``
 are unchanged; they still accept and return NumPy arrays.
 
-A new ``eos80_conversion`` module now holds the EOS-80 functions that were
-previously in ``eos80_processing``:
-
-- ``bouyancy_frequency``
-- ``density``
-- ``potential_temperature``
-- ``adiabatic_temperature_gradient``
-
-The functions in ``eos80_processing`` remain as deprecated wrappers that
-forward to ``eos80_conversion`` and emit a ``DeprecationWarning``.
+The seawater library has replaced implementations of EOS-80 calculations.
 
 .. code-block:: python
 
@@ -186,15 +177,18 @@ forward to ``eos80_conversion`` and emit a ``DeprecationWarning``.
    rho = se.density(salinity, temperature, pressure)
 
    # v3
-   import seabirdscientific.eos80_conversion as se
-   rho = se.density(salinity, temperature, pressure)
+   import seawater.eos80
+   rho = seawater.eos80.dens(salinity, temperature, pressure)
 
-buoyancy moved to conversion
-============================
+buoyancy moved to conversion and was split
+==========================================
 
 The ``buoyancy`` and ``buoyancy_frequency`` functions have moved from
 ``processing`` to ``conversion``. The versions in ``processing`` remain as
 deprecated wrappers.
+
+``buoyancy`` now only uses TEOS-10 equations, a new EOS-80 based function
+is now in ``eos80_conversion ``. 
 
 .. code-block:: python
 
@@ -203,8 +197,14 @@ deprecated wrappers.
    result = p.buoyancy(...)
 
    # v3
+   # TEOS-10
    import seabirdscientific.conversion as c
    result = c.buoyancy(...)
+
+  # EOS-80
+   import seabirdscientific.eos80_conversion as eos80_conversion
+   result = eos80c.buoyancy_eos80(...)
+
 
 Note that ``conversion.buoyancy`` returns an ``xarray.Dataset``.
 
