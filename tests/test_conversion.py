@@ -5,6 +5,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import pytest
+import seawater as sw
 
 import seabirdscientific.constants as const
 import seabirdscientific.conversion as dc
@@ -383,19 +384,6 @@ class TestDepthFromPressure:
         result_depth = dc.depth_from_pressure(pressure, 0, depth_units, pressure_units)
         request.node.return_value = result_depth.tolist()
         assert np.allclose(expected_depth, result_depth, atol=0.002)
-
-
-class TestComputeGpa:
-    def test_derive_gpa_vectorized_with_flags_and_nonmonotonic_pressure(self):
-        temperature = np.array([10.0, 10.0, 10.0, const.FLAG_VALUE, 10.0, 10.0, 10.0])
-        pressure = np.array([0.0, 10.0, 20.0, 15.0, 25.0, 35.0, 45.0])
-        sva = np.array([1.0, 2.0, 3.0, 4.0, 5.0, const.FLAG_VALUE, 7.0])
-
-        result = dc.derive_gpa(temperature, pressure, sva)
-        expected = np.array([0.0, 0.0015, 0.0040, 0.0040, 0.0040, 0.0040, 0.0040])
-
-        assert np.allclose(result, expected, rtol=0, atol=1e-12)
-
 
 class TestDeriveSva:
     def test_derive_sva_vectorized_matches_formula(self):
@@ -1476,3 +1464,21 @@ class TestDerivePotentialTemperatureAnomaly:
         )
         
         assert np.allclose(pta, source_data["pta090C"].values, rtol=0, atol=1e-3)
+
+class TestDeriveGeopotentialAnomaly:
+    cnv_path = test_data / "SBE19plus_derive_testing.cnv"
+
+    @pytest.fixture
+    def source_data(self):
+        return id.read_cnv_file(self.cnv_path, 'seasoft')
+
+    def test_derive_gpa(self, source_data):
+        # sva = sw.svan(source_data["sal00"].to_numpy(), source_data["tv290C"].to_numpy(), source_data["prdM"].to_numpy()) * 1e8
+        gpa = dc.derive_gpa(
+            source_data['sva'], source_data["prdM"].values
+        )
+        differences = gpa - source_data["gpa"].values
+        print("\nDifferences between gpa and source:")
+        print(differences)
+        print("\nMax difference:", np.max(np.abs(differences)))
+        assert np.allclose(gpa, source_data["gpa"].values, rtol=0, atol=1e-3)

@@ -492,6 +492,9 @@ def derive_thermosteric_anomaly(
     density = sw.dens0(salinity, temperature) - 1000
     return 1.0e5 * ((1000.0 / (1000.0 + density)) - 0.97266)
 
+
+
+
 def derive_sound_velocity_c(
     salinity: np.ndarray,
     temperature: np.ndarray,
@@ -2084,3 +2087,41 @@ def derive_average_sound_velocity(
         out[i] = asv
 
     return out
+
+def derive_gpa(
+    sva: np.ndarray,
+    pressure: np.ndarray,
+) -> np.ndarray:
+    """Derive Geopotential Anomaly from specific volume anomaly and pressure.
+
+    This is a vectorized port of the legacy C++ ``CompGPA`` logic:
+    - For each scan, compute the change in GPA based on SVA and pressure changes
+    - GPA is accumulated when pressure increases
+    - Uses the average SVA between consecutive points and the pressure delta
+
+    :param sva: specific volume anomaly values
+    :param pressure: pressure values in dbar
+
+    :return: geopotential anomaly values
+    """
+    sva_arr, pressure_arr = np.broadcast_arrays(sva, pressure)
+
+    sva = sva_arr.astype(float, copy=False)
+    p = pressure_arr.astype(float, copy=False)
+
+    # Compute pressure differences (0 for first element)
+    p_diff = np.diff(p, prepend=p[0])
+
+    # Get previous SVA values (0 for first element)
+    sva_prev = np.concatenate(([0.0], sva[:-1]))
+
+    # Average SVA between consecutive points
+    sva_avg = (sva_prev + sva) / 2.0
+
+    # Compute delta GPA (only when pressure increases)
+    delta_gpa = np.where(p_diff > 0, sva_avg * (p_diff / 10000.0), 0.0)
+
+    # Cumulative sum to get GPA
+    gpa = np.cumsum(delta_gpa)
+
+    return gpa
