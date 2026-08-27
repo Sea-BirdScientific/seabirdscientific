@@ -162,8 +162,8 @@ as deprecated aliases that forward to the new functions and emit a
 The ``HexDataTypes`` enum members are now deprecated. Accessing any member
 emits a ``DeprecationWarning``.
 
-conversion
-**********
+conversion and eos80_conversion
+*******************************
 
 The signatures of the individual ``convert_*`` functions in ``conversion``
 are unchanged; they still accept and return NumPy arrays.
