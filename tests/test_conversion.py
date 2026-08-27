@@ -385,6 +385,7 @@ class TestDepthFromPressure:
         request.node.return_value = result_depth.tolist()
         assert np.allclose(expected_depth, result_depth, atol=0.002)
 
+
 class TestDeriveSva:
     def test_derive_sva_vectorized_matches_formula(self):
         density = np.array([24.0, 25.0, 26.0])
@@ -414,7 +415,7 @@ class TestDeriveSoundVelocity:
 
     @pytest.fixture
     def source_data(self):
-        return id.read_cnv_file(self.cnv_path, 'seasoft')
+        return id.read_cnv_file(self.cnv_path, "seasoft")
 
     def test_derive_sound_velocity_c(self, source_data):
         result = dc.derive_sound_velocity_c(
@@ -422,7 +423,7 @@ class TestDeriveSoundVelocity:
         )
         # TODO: Update expected column name once verified in CNV file
         expected = source_data["svCM"].values
-        
+
         assert np.allclose(result, expected, rtol=0, atol=1e-1)
 
     def test_derive_sound_velocity_d(self, source_data):
@@ -431,7 +432,7 @@ class TestDeriveSoundVelocity:
         )
         # TODO: Update expected column name once verified in CNV file
         expected = source_data["svDM"].values
-        
+
         assert np.allclose(result, expected, rtol=0, atol=1e-1)
 
     def test_derive_sound_velocity_w(self, source_data):
@@ -440,7 +441,7 @@ class TestDeriveSoundVelocity:
         )
         # TODO: Update expected column name once verified in CNV file
         expected = source_data["svWM"].values
-        
+
         assert np.allclose(result, expected, rtol=0, atol=1e-1)
 
 
@@ -1366,12 +1367,13 @@ class TestCstar:
         request.node.return_value = result.tolist()
         assert np.allclose(expected, result, rtol=0, atol=1e-3)
 
+
 class TestDeriveThermostericAnomaly:
     cnv_path = test_data / "SBE19plus_derive_testing.cnv"
 
     @pytest.fixture
     def source_data(self):
-        return id.read_cnv_file(self.cnv_path, 'seasoft')
+        return id.read_cnv_file(self.cnv_path, "seasoft")
 
     def test_derive_tsa(self, source_data):
         tsa = dc.derive_thermosteric_anomaly(
@@ -1379,17 +1381,18 @@ class TestDeriveThermostericAnomaly:
         )
         assert np.allclose(tsa, source_data["tsa"].values, rtol=0, atol=1e-2)
 
+
 class TestDeriveSpecificConductance:
     cnv_path = test_data / "SBE19plus_derive_testing.cnv"
 
     @pytest.fixture
     def source_data(self):
-        return id.read_cnv_file(self.cnv_path, 'seasoft')
+        return id.read_cnv_file(self.cnv_path, "seasoft")
 
     def test_derive_sc(self, source_data):
         # TODO: no explanation for why this is so off?
         tsa = dc.derive_specific_conductance(
-            source_data["tv290C"].values, source_data["c0S/m"].values,  to_units='uS/cm'
+            source_data["tv290C"].values, source_data["c0S/m"].values, to_units="uS/cm"
         )
 
         differences = tsa - source_data["specc"].values
@@ -1400,32 +1403,36 @@ class TestDeriveSpecificConductance:
         # These use large numbers, use rtol=1e-2 to allow for small relative differences
         assert np.allclose(tsa, source_data["specc"].values, rtol=1e-2, atol=0)
 
+
 class TestDerivePotentialTemperatureAnomaly:
     cnv_path = test_data / "SBE19plus_derive_testing.cnv"
 
     @pytest.fixture
     def source_data(self):
-        return id.read_cnv_file(self.cnv_path, 'seasoft')
+        return id.read_cnv_file(self.cnv_path, "seasoft")
 
     def test_derive_pta(self, source_data):
         pta = dc.derive_potential_temperature_anomaly(
-            source_data["sal00"].values, source_data["tv290C"].values, source_data["prdM"].values, a0=1, a1=2
+            source_data["sal00"].values,
+            source_data["tv290C"].values,
+            source_data["prdM"].values,
+            a0=1,
+            a1=2,
         )
-        
+
         assert np.allclose(pta, source_data["pta090C"].values, rtol=0, atol=1e-3)
+
 
 class TestDeriveGeopotentialAnomaly:
     cnv_path = test_data / "SBE19plus_derive_testing.cnv"
 
     @pytest.fixture
     def source_data(self):
-        return id.read_cnv_file(self.cnv_path, 'seasoft')
+        return id.read_cnv_file(self.cnv_path, "seasoft")
 
     def test_derive_gpa(self, source_data):
         # sva = sw.svan(source_data["sal00"].to_numpy(), source_data["tv290C"].to_numpy(), source_data["prdM"].to_numpy()) * 1e8
-        gpa = dc.derive_gpa(
-            source_data['sva'], source_data["prdM"].values
-        )
+        gpa = dc.derive_gpa(source_data["sva"], source_data["prdM"].values)
         differences = gpa - source_data["gpa"].values
         print("\nDifferences between gpa and source:")
         print(differences)

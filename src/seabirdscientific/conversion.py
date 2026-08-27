@@ -411,7 +411,7 @@ def derive_potential_temperature_anomaly(
     a1: float = 0.0,
     a1multiplier: Literal["salinity", "sigma-theta"] = "salinity",
 ) -> np.ndarray:
-    """Derive potential temperature anomaly from practical salinity, 
+    """Derive potential temperature anomaly from practical salinity,
     temperature, and pressure.
 
     Calculates potential temperature at reference pressure (0 dbar) and
@@ -428,12 +428,12 @@ def derive_potential_temperature_anomaly(
 
     :return: Potential temperature anomaly in ITS-90 degrees C (ndarray)
     """
-    
+
     # Calculate anomaly correction if coefficients are non-zero
     if a0 != 0.0 or a1 != 0.0:
         po_temp_90_c = sw.ptmp(salinity, temperature, pressure, 0)
         if a1multiplier == "sigma-theta":
-            # TODO: should we 
+            # TODO: should we
             density_ref = sw.pden(salinity, po_temp_90_c, pressure, 0)
             anomaly = po_temp_90_c - (a0 + a1 * density_ref)
         else:
@@ -441,9 +441,10 @@ def derive_potential_temperature_anomaly(
             anomaly = po_temp_90_c - (a0 + a1 * salinity)
     else:
         anomaly = np.full_like(temperature, const.FLAG_VALUE)  # No anomaly correction needed
-    
+
     # Potential temperature anomaly is the anomaly correction applied
     return anomaly
+
 
 def depth_from_pressure(
     pressure_in: np.ndarray,
@@ -477,6 +478,7 @@ def depth_from_pressure(
 
     return depth
 
+
 def derive_thermosteric_anomaly(
     salinity: np.ndarray,
     temperature: np.ndarray,
@@ -491,8 +493,6 @@ def derive_thermosteric_anomaly(
 
     density = sw.dens0(salinity, temperature) - 1000
     return 1.0e5 * ((1000.0 / (1000.0 + density)) - 0.97266)
-
-
 
 
 def derive_sound_velocity_c(
@@ -535,7 +535,9 @@ def derive_sound_velocity_c(
     c3 = (-2.3643e-12 * t + 3.8504e-10) * t - 9.7729e-9
     c2 = (((1.0405e-12 * t - 2.5335e-10) * t + 2.5974e-8) * t - 1.7107e-6) * t + 3.1260e-5
     c1 = (((-6.1185e-10 * t + 1.3621e-7) * t - 8.1788e-6) * t + 6.8982e-4) * t + 0.153563
-    c0 = ((((3.1464e-9 * t - 1.47800e-6) * t + 3.3420e-4) * t - 5.80852e-2) * t + 5.03711) * t + 1402.388
+    c0 = (
+        (((3.1464e-9 * t - 1.47800e-6) * t + 3.3420e-4) * t - 5.80852e-2) * t + 5.03711
+    ) * t + 1402.388
     c = ((c3 * p + c2) * p + c1) * p + c0
 
     return c + (a + b * sr + d * s) * s
@@ -624,7 +626,6 @@ def derive_sound_velocity_w(
     a = -1.9646e-10 * t + 3.5216e-9
 
     return (((-3.3603e-12 * pr + a) * pr + sv) * pr + v1) * pr + v0
-
 
 
 def convert_sbe63_oxygen(
@@ -1989,6 +1990,7 @@ def convert_cstar_transmittance(raw: np.ndarray, coefs: cc.CstarCoefficients):
 
     return transmittance
 
+
 def derive_specific_conductance(
     temperature: np.ndarray,
     conductivity: np.ndarray,
@@ -2053,11 +2055,7 @@ def derive_average_sound_velocity(
 
     out = np.full(n, np.nan, dtype=np.float64)
 
-    valid = (
-        (sound_velocity_mps != 0.0)
-        & (pressure >= min_pressure)
-        & (salinity >= min_salinity)
-    )
+    valid = (sound_velocity_mps != 0.0) & (pressure >= min_pressure) & (salinity >= min_salinity)
 
     valid_idx = np.flatnonzero(valid)
     if valid_idx.size == 0:
@@ -2087,6 +2085,7 @@ def derive_average_sound_velocity(
         out[i] = asv
 
     return out
+
 
 def derive_gpa(
     sva: np.ndarray,
