@@ -3,6 +3,7 @@
 import warnings
 
 import numpy as np
+import seawater as sw
 
 import seabirdscientific.eos80_conversion as ec
 
@@ -44,21 +45,38 @@ def density(
     t: np.ndarray,
     p0: np.ndarray,
 ) -> np.ndarray:
-    """Deprecated. Use eos80_conversion.density"""
+    """Deprecated. Use use the sewater library (seawater.dens) instead for EOS-80
 
-    warnings.warn("Deprecated. Use eos80_conversion.density", DeprecationWarning)
+    :param s0: salinity data
+    :param t: temperature data
+    :param p0: pressure data
+    """
 
-    return ec.density(s0, t, p0)
+    warnings.warn(
+        "Deprecated. Use use the sewater library (seawater.dens) instead", DeprecationWarning
+    )
+
+    # seawater.dens returns full density; subtract 1000 to keep the sigma
+    # convention used by SBE Data Processing (and the SeaSoft reference).
+    return np.atleast_1d(sw.dens(s0, t, p0)) - 1000.0
 
 
 def potential_temperature(
     s: np.ndarray, t0: np.ndarray, p0: np.ndarray, pr: np.ndarray
 ) -> np.ndarray:
-    """Deprecated. Use eos80_conversion.potential_temperature"""
+    """Deprecated. Use use the sewater library (seawater.ptemp) instead for EOS-80
 
-    warnings.warn("Deprecated. Use eos80_conversion.potential_temperature", DeprecationWarning)
+    :param s: sainity data
+    :param t0: temperature data
+    :param p0: subset pressure data
+    :param pr: pressure data
+    """
 
-    return ec.potential_temperature(s, t0, p0, pr)
+    warnings.warn(
+        "Deprecated. Use use the sewater library (seawater.ptemp) instead", DeprecationWarning
+    )
+
+    return np.atleast_1d(sw.ptmp(s, t0, pr))
 
 
 def adiabatic_temperature_gradient(

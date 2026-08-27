@@ -8,6 +8,7 @@ import pytest
 
 import seabirdscientific.constants as const
 import seabirdscientific.conversion as dc
+import seabirdscientific.eos80_conversion as eos80dc
 import seabirdscientific.instrument_data as si
 import test_coefficients as tc
 
@@ -1207,14 +1208,15 @@ class TestBuoyancy:
         assert np.allclose(scaled_stability, expected_scaled_stability, rtol=0, atol=1e-12)
 
     def test_buoyancy_eos80(self):
-        (buoyancy_freq_squared, buoyancy_freq, stability, scaled_stability) = dc.buoyancy(
-            self.temperature,
-            self.salinity,
-            self.pressure,
-            np.asarray([34.034167]),  # converted from metadata 34.02.03 N in H,M,S
-            np.asarray([121.060556]),  # converted from metadata 121 03.38 W in H, M, S
-            150,  # window size
-            False,
+        (buoyancy_freq_squared, buoyancy_freq, stability, scaled_stability) = (
+            eos80dc.buoyancy_eos80(
+                self.temperature,
+                self.salinity,
+                self.pressure,
+                np.asarray([34.034167]),  # converted from metadata 34.02.03 N in H,M,S
+                np.asarray([121.060556]),  # converted from metadata 121 03.38 W in H, M, S
+                150,  # window size
+            )
         )
 
         # Comparing SBE Data Processing C++ to local Python results using the same EOS-80 calculations.
@@ -1229,10 +1231,10 @@ class TestBuoyancy:
 
         # fmt: off
         # adding exact result comparisons to detect changes that still pass the tolerance tests
-        expected_buoyancy_freq_squared = np.array([-9.99e-29, 0.00013069443519014734, 5.932961410753015e-05, 3.3021309348275255e-05, 2.1495844621369152e-05, 1.6150523253891014e-05, 1.8197348677595506e-05, 1.9348996910895833e-05, 1.4610475131109874e-05, -9.99e-29])
-        expected_buoyancy_freq = np.array([-9.99e-29, 6.550149019323256, 4.4132486213213316, 3.2924544645935523, 2.6564392562582047, 2.302586378268702, 2.4441434448941073, 2.520297798385073, 2.1900538928778936, -9.99e-29])
-        expected_scaled_stability = np.array([-9.99e-29, 1334.060078386804, 605.5987165439468, 337.05660655229923, 219.41090136335237, 164.84865915481353, 185.73855980245008, 197.49110924835415, 149.12435256658875, -9.99e-29])
-        expected_stability = np.array([-9.99e-29, 1.334060078386804e-05, 6.055987165439468e-06, 3.370566065522992e-06, 2.1941090136335238e-06, 1.6484865915481353e-06, 1.857385598024501e-06, 1.9749110924835414e-06, 1.4912435256658876e-06, -9.99e-29])
+        expected_buoyancy_freq_squared = np.array([-9.99e-29, 0.00013072500166651785, 5.934350674193085e-05, 3.303155341595788e-05, 2.1503068969356434e-05, 1.615635977801661e-05, 1.8203316755516265e-05, 1.9354424319455387e-05, 1.4614084738850457e-05, -9.99e-29])
+        expected_buoyancy_freq = np.array([-9.99e-29, 6.550914940496027, 4.413765294670474, 3.2929651274293605, 2.656885608326858, 2.303002398443112, 2.444544207746793, 2.5206512463395225, 2.1903244093126477, -9.99e-29])
+        expected_scaled_stability = np.array([-9.99e-29, 1334.3617812985951, 605.7332036761078, 337.15562524399235, 219.48007436374587, 164.9040823386679, 185.79398932698678, 197.5398117231211, 149.15549026920988, -9.99e-29])
+        expected_stability = np.array([-9.99e-29, 1.3343617812985952e-05, 6.057332036761078e-06, 3.3715562524399232e-06, 2.1948007436374588e-06, 1.649040823386679e-06, 1.8579398932698679e-06, 1.975398117231211e-06, 1.4915549026920987e-06, -9.99e-29])
         # fmt: on
         assert np.allclose(
             buoyancy_freq_squared, expected_buoyancy_freq_squared, rtol=0, atol=1e-12

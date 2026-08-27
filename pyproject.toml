@@ -30,6 +30,7 @@ dependencies = [
   "pandas ~= 3.0",
   "plotly ~= 6.9",
   "scipy ~= 1.17",
+  "seawater ~= 3.3",
   "xarray ~= 2026.7",
 ]
 
