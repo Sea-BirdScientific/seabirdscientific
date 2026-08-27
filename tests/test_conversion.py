@@ -190,19 +190,19 @@ class TestConductivity19plus:
     hex_path = test_data / "19plus_V2.hex"
 
     def test_convert_conductivity(self):
-        # expected_data = id.read_cnv_file(self.cnv_path)
+        # expected_data = si.read_cnv_file(self.cnv_path)
 
-        raw = id.read_hex_file(
+        raw = si.read_hex_file(
             self.hex_path,
-            id.InstrumentType.SBE19Plus,
+            si.InstrumentType.SBE19Plus,
             [
-                id.Sensors.Temperature,
-                id.Sensors.Conductivity,
-                id.Sensors.Pressure,
-                id.Sensors.ExtVolt0,
-                id.Sensors.ExtVolt1,
-                id.Sensors.ExtVolt2,
-                id.Sensors.ExtVolt4,
+                si.Sensors.Temperature,
+                si.Sensors.Conductivity,
+                si.Sensors.Pressure,
+                si.Sensors.ExtVolt0,
+                si.Sensors.ExtVolt1,
+                si.Sensors.ExtVolt2,
+                si.Sensors.ExtVolt4,
             ],
         )
 
@@ -230,7 +230,7 @@ class TestConductivity19plus:
             temperature,
             pressure,
             tc.conductivity_coefs_sn6130,
-            id.InstrumentType.SBE19Plus,
+            si.InstrumentType.SBE19Plus,
         )
 
         assert np.allclose(expected, result, rtol=0, atol=1e-6)
@@ -241,15 +241,15 @@ class TestConductivity37SM:
     hex_path = test_data / "SBE37SM-RS232_03716125_2017_11_16.hex"
 
     def test_convert_conductivity(self):
-        # expected_data = id.read_cnv_file(self.cnv_path)
+        # expected_data = si.read_cnv_file(self.cnv_path)
 
-        raw = id.read_hex_file(
+        raw = si.read_hex_file(
             self.hex_path,
-            id.InstrumentType.SBE37SM,
+            si.InstrumentType.SBE37SM,
             [
-                id.Sensors.Temperature,
-                id.Sensors.Conductivity,
-                id.Sensors.Pressure,
+                si.Sensors.Temperature,
+                si.Sensors.Conductivity,
+                si.Sensors.Pressure,
             ],
         )
 
@@ -273,7 +273,7 @@ class TestConductivity37SM:
             temperature,
             pressure,
             tc.conductivity_coefs_sn16125,
-            id.InstrumentType.SBE37SM,
+            si.InstrumentType.SBE37SM,
         )
 
         assert np.allclose(expected, result, rtol=0, atol=1e-4)
@@ -390,7 +390,7 @@ class TestDeriveSoundVelocity:
 
     @pytest.fixture
     def source_data(self):
-        return id.read_cnv_file(self.cnv_path, "seasoft")
+        return si.read_cnv_file(self.cnv_path, "seasoft")
 
     def test_derive_sound_velocity_c(self, source_data):
         result = eos80dc.derive_sound_velocity_c(
@@ -426,7 +426,7 @@ class TestConvertSBE43Oxygen:
 
     @pytest.fixture
     def source_data(self):
-        return id.read_cnv_file(self.cnv_path, "seasoft")
+        return si.read_cnv_file(self.cnv_path, "seasoft")
 
     def test_convert_sbe43_oxygen(self, request):
         # From O3287.pdf in the shared calibration folder
@@ -957,7 +957,7 @@ class TestConvertSBE63Oxygen:
 
     @pytest.fixture
     def source_data(self):
-        return id.read_cnv_file(self.cnv_path, "seasoft")
+        return si.read_cnv_file(self.cnv_path, "seasoft")
 
     def test_convert_sbe63_oxygen(self, request):
         oxygen = dc.convert_sbe63_oxygen(
@@ -1280,7 +1280,7 @@ class TestDeriveDescentRateAcceleration:
 
     @pytest.fixture
     def source_data(self):
-        return id.read_cnv_file(self.cnv_path, "seasoft")
+        return si.read_cnv_file(self.cnv_path, "seasoft")
 
     def test_derive_descent_rate_meters(self, source_data):
         descent_rate_m = dc.derive_descent_rate(source_data["depSM"].values, 2, 0.25)
@@ -1309,7 +1309,7 @@ class TestDeriveOxygenSaturation:
 
     @pytest.fixture
     def source_data(self):
-        return id.read_cnv_file(self.cnv_path, "seasoft")
+        return si.read_cnv_file(self.cnv_path, "seasoft")
 
     def test_derive_oxygen_saturation_gg(self, source_data):
         ox_sat_gg = dc.derive_oxygen_saturation_gg(
@@ -1349,7 +1349,7 @@ class TestDeriveThermostericAnomaly:
 
     @pytest.fixture
     def source_data(self):
-        return id.read_cnv_file(self.cnv_path, "seasoft")
+        return si.read_cnv_file(self.cnv_path, "seasoft")
 
     def test_derive_tsa(self, source_data):
         tsa = eos80dc.derive_thermosteric_anomaly(
@@ -1363,7 +1363,7 @@ class TestDeriveSpecificConductance:
 
     @pytest.fixture
     def source_data(self):
-        return id.read_cnv_file(self.cnv_path, "seasoft")
+        return si.read_cnv_file(self.cnv_path, "seasoft")
 
     def test_derive_sc(self, source_data):
         # TODO: no explanation for why this is so off?
@@ -1385,7 +1385,7 @@ class TestDerivePotentialTemperatureAnomaly:
 
     @pytest.fixture
     def source_data(self):
-        return id.read_cnv_file(self.cnv_path, "seasoft")
+        return si.read_cnv_file(self.cnv_path, "seasoft")
 
     def test_derive_pta(self, source_data):
         pta = eos80dc.derive_potential_temperature_anomaly(
@@ -1404,7 +1404,7 @@ class TestDeriveGeopotentialAnomaly:
 
     @pytest.fixture
     def source_data(self):
-        return id.read_cnv_file(self.cnv_path, "seasoft")
+        return si.read_cnv_file(self.cnv_path, "seasoft")
 
     def test_derive_gpa(self, source_data):
         # sva = sw.svan(source_data["sal00"].to_numpy(), source_data["tv290C"].to_numpy(), source_data["prdM"].to_numpy()) * 1e8
