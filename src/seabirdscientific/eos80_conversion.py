@@ -256,7 +256,7 @@ def derive_thermosteric_anomaly(
     Calculates the specific volume anomaly using EOS-80 formulations.
 
     :param salinity: Measured salinity in practical salinity units (PSU)
-    :param temperature: Temperature in ITS-90 degrees C
+    :param temperature: Temperature in IPTS-68 degrees C
 
     :return: Thermosteric anomaly values
     """
@@ -411,7 +411,7 @@ def derive_specific_conductance(
     All equation information comes from SBE Data Processing code.
     It is intentional that 'uS/cm' and 'umhos/cm' map to the same value, same with 'mS/cm' and 'mmhos/cm'
 
-    :param temperature: Temperature values in ITS-90 degrees C
+    :param temperature: Temperature values in IPTS-68 degrees C
     :param conductivity: Conductivity values in S/m
     :param to_units: Target units for output (uS/cm, umhos/cm, mS/cm, or mmhos/cm)
 
