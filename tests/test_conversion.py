@@ -5,10 +5,11 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import pytest
-import seawater as sw
+
 
 import seabirdscientific.constants as const
 import seabirdscientific.conversion as dc
+import seabirdscientific.eos80_conversion as eos80
 import seabirdscientific.instrument_data as id
 import test_coefficients as tc
 
@@ -418,7 +419,7 @@ class TestDeriveSoundVelocity:
         return id.read_cnv_file(self.cnv_path, "seasoft")
 
     def test_derive_sound_velocity_c(self, source_data):
-        result = dc.derive_sound_velocity_c(
+        result = eos80.derive_sound_velocity_c(
             source_data["sal00"].values, source_data["tv290C"].values, source_data["prdM"].values
         )
         # TODO: Update expected column name once verified in CNV file
@@ -427,7 +428,7 @@ class TestDeriveSoundVelocity:
         assert np.allclose(result, expected, rtol=0, atol=1e-1)
 
     def test_derive_sound_velocity_d(self, source_data):
-        result = dc.derive_sound_velocity_d(
+        result = eos80.derive_sound_velocity_d(
             source_data["sal00"].values, source_data["tv290C"].values, source_data["prdM"].values
         )
         # TODO: Update expected column name once verified in CNV file
@@ -436,7 +437,7 @@ class TestDeriveSoundVelocity:
         assert np.allclose(result, expected, rtol=0, atol=1e-1)
 
     def test_derive_sound_velocity_w(self, source_data):
-        result = dc.derive_sound_velocity_w(
+        result = eos80.derive_sound_velocity_w(
             source_data["sal00"].values, source_data["tv290C"].values, source_data["prdM"].values
         )
         # TODO: Update expected column name once verified in CNV file
@@ -1376,7 +1377,7 @@ class TestDeriveThermostericAnomaly:
         return id.read_cnv_file(self.cnv_path, "seasoft")
 
     def test_derive_tsa(self, source_data):
-        tsa = dc.derive_thermosteric_anomaly(
+        tsa = eos80.derive_thermosteric_anomaly(
             source_data["sal00"].values, source_data["tv290C"].values
         )
         assert np.allclose(tsa, source_data["tsa"].values, rtol=0, atol=1e-2)
@@ -1391,7 +1392,7 @@ class TestDeriveSpecificConductance:
 
     def test_derive_sc(self, source_data):
         # TODO: no explanation for why this is so off?
-        tsa = dc.derive_specific_conductance(
+        tsa = eos80.derive_specific_conductance(
             source_data["tv290C"].values, source_data["c0S/m"].values, to_units="uS/cm"
         )
 
@@ -1412,7 +1413,7 @@ class TestDerivePotentialTemperatureAnomaly:
         return id.read_cnv_file(self.cnv_path, "seasoft")
 
     def test_derive_pta(self, source_data):
-        pta = dc.derive_potential_temperature_anomaly(
+        pta = eos80.derive_potential_temperature_anomaly(
             source_data["sal00"].values,
             source_data["tv290C"].values,
             source_data["prdM"].values,
@@ -1432,7 +1433,7 @@ class TestDeriveGeopotentialAnomaly:
 
     def test_derive_gpa(self, source_data):
         # sva = sw.svan(source_data["sal00"].to_numpy(), source_data["tv290C"].to_numpy(), source_data["prdM"].to_numpy()) * 1e8
-        gpa = dc.derive_gpa(source_data["sva"], source_data["prdM"].values)
+        gpa = eos80.derive_gpa(source_data["sva"], source_data["prdM"].values)
         differences = gpa - source_data["gpa"].values
         print("\nDifferences between gpa and source:")
         print(differences)
