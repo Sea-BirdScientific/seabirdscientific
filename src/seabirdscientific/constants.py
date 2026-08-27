@@ -18,3 +18,4 @@ SEA_LEVEL_PRESSURE_PSI = 14.7  # PSI
 SECONDS_BETWEEN_EPOCH_AND_2000 = 946684800
 # micro moles of nitrate to milligrams of nitrogen per liter
 UMNO3_TO_MGNL = 0.014007
+METERS_TO_FEET = 3.28084
