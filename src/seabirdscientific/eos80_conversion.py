@@ -1,10 +1,12 @@
 """EOS80 functions to support legacy conversions"""
 
+import math
 import warnings
+
 import numpy as np
 import seawater as sw
 from scipy import stats
-import math
+
 import seabirdscientific.constants as const
 
 

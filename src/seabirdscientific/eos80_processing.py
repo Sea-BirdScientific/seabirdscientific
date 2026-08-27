@@ -3,10 +3,9 @@
 import warnings
 
 import numpy as np
+import seawater as sw
 
 import seabirdscientific.eos80_conversion as ec
-
-import seawater as sw
 
 
 def bouyancy_frequency(
