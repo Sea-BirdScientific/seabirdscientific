@@ -51,6 +51,7 @@ class PressureCoefficients:
     :param ptempa0: coefficient
     :param ptempa1: coefficient
     :param ptempa2: coefficient
+    :param offset: defaults to 0
     """
 
     pa0: float
@@ -65,6 +66,7 @@ class PressureCoefficients:
     ptempa0: float
     ptempa1: float
     ptempa2: float
+    offset: float = 0
 
 
 @dataclass
