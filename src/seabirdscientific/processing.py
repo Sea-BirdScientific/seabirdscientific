@@ -666,8 +666,13 @@ def bin_average(
         if include_surface_bin:
             df = pd.concat((surface_desc, df, surface_asc))
 
-    # else cast_type == CastType.NA:
-    # do nothing
+    elif cast_type == CastType.NONE:
+        # binning by time or scan number: no upcast/downcast split
+        pass
+
+    else:
+        valid = ", ".join(repr(member.value) for member in CastType)
+        raise ValueError(f"cast_type must be a CastType (one of {valid}), got {cast_type!r}")
 
     # get the number of scans in each bin
     scans_per_bin = np.bincount(df["bin_number"])
