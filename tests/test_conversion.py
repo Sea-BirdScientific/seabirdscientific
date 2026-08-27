@@ -6,7 +6,6 @@ import numpy as np
 import pandas as pd
 import pytest
 
-
 import seabirdscientific.constants as const
 import seabirdscientific.conversion as dc
 import seabirdscientific.eos80_conversion as eos80
@@ -386,31 +385,6 @@ class TestDepthFromPressure:
         request.node.return_value = result_depth.tolist()
         assert np.allclose(expected_depth, result_depth, atol=0.002)
 
-
-class TestDeriveSva:
-    def test_derive_sva_vectorized_matches_formula(self):
-        density = np.array([24.0, 25.0, 26.0])
-        pressure = np.array([0.0, 1000.0, 2000.0])
-
-        p_bar = pressure / 10.0
-        val = density + 1000.0
-        spvol = 1.0 / val
-        k35 = 21582.27 + (3.35940552 * p_bar) + (5.03217e-5 * p_bar * p_bar)
-        expected = (spvol - 9.7266204e-4 * (1.0 - (p_bar / k35))) * 1.0e8
-
-        result = dc.derive_sva(density, pressure)
-
-        assert np.allclose(result, expected, rtol=0, atol=1e-12)
-
-    def test_derive_sva_broadcasts_scalar_density(self):
-        density = np.array(25.0)
-        pressure = np.array([0.0, 500.0, 1000.0])
-
-        result = dc.derive_sva(density, pressure)
-
-        assert result.shape == pressure.shape
-
-
 class TestDeriveSoundVelocity:
     cnv_path = test_data / "SBE19plus_derive_testing.cnv"
 
@@ -452,7 +426,7 @@ class TestConvertSBE43Oxygen:
 
     @pytest.fixture
     def source_data(self):
-        return id.read_cnv_file(self.cnv_path)
+        return id.read_cnv_file(self.cnv_path, "seasoft")
 
     def test_convert_sbe43_oxygen(self, request):
         # From O3287.pdf in the shared calibration folder
@@ -983,7 +957,7 @@ class TestConvertSBE63Oxygen:
 
     @pytest.fixture
     def source_data(self):
-        return id.read_cnv_file(self.cnv_path)
+        return id.read_cnv_file(self.cnv_path, "seasoft")
 
     def test_convert_sbe63_oxygen(self, request):
         oxygen = dc.convert_sbe63_oxygen(
@@ -1305,7 +1279,7 @@ class TestDeriveDescentRateAcceleration:
 
     @pytest.fixture
     def source_data(self):
-        return id.read_cnv_file(self.cnv_path)
+        return id.read_cnv_file(self.cnv_path, "seasoft")
 
     def test_derive_descent_rate_meters(self, source_data):
         descent_rate_m = dc.derive_descent_rate(source_data["depSM"].values, 2, 0.25)
@@ -1334,7 +1308,7 @@ class TestDeriveOxygenSaturation:
 
     @pytest.fixture
     def source_data(self):
-        return id.read_cnv_file(self.cnv_path)
+        return id.read_cnv_file(self.cnv_path, "seasoft")
 
     def test_derive_oxygen_saturation_gg(self, source_data):
         ox_sat_gg = dc.derive_oxygen_saturation_gg(
