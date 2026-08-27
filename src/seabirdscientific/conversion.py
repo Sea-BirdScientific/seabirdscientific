@@ -1,6 +1,7 @@
 """A collection of raw data conversion functions."""
 
 import math
+import warnings
 from collections.abc import Callable
 from typing import Literal
 
@@ -13,7 +14,6 @@ import seawater as sw
 import seabirdscientific.cal_coefficients as cc
 import seabirdscientific.constants as const
 import seabirdscientific.instrument_data as si
-from seabirdscientific import eos80_conversion as eos80
 
 
 def convert_temperature_units(
@@ -132,17 +132,24 @@ def convert_pressure_units(
     """
     _pressure = pressure.copy()
 
-    if from_units == "psia" and to_units in ("dbar", "psig"):
-        _pressure -= const.SEA_LEVEL_PRESSURE
-    elif from_units in ("dbar", "psig") and to_units == "psia":
-        _pressure += const.SEA_LEVEL_PRESSURE
+    # psia is absolute (gauge + atmospheric, measures 14.7 psi at ocean surface)
+    # psig and dbar are gauge (also known as sea pressure, atmosphere pressure not included, measures 0 at ocean surface)
+    # atmospheric offset must be applied in psi, not dbar
+    if from_units == to_units:
+            return _pressure
+    if from_units == "psia":
+        gauge_psi = _pressure - const.SEA_LEVEL_PRESSURE_PSI
+    elif from_units == "dbar":
+        gauge_psi = _pressure / const.PSI_TO_DBAR
+    else:  # psig
+        gauge_psi = _pressure.copy()
 
-    if from_units in ("psia", "psig") and to_units == "dbar":
-        _pressure *= const.PSI_TO_DBAR
-    elif from_units == "dbar" and to_units in ("psia", "psig"):
-        _pressure /= const.PSI_TO_DBAR
-
-    return _pressure
+    if to_units == "psia":
+        return gauge_psi + const.SEA_LEVEL_PRESSURE_PSI
+    elif to_units == "dbar":
+        return gauge_psi * const.PSI_TO_DBAR
+    else:  # psig
+        return gauge_psi
 
 
 def convert_pressure(
@@ -151,8 +158,10 @@ def convert_pressure(
     coefs: cc.PressureCoefficients,
     units: Literal["dbar", "psia", "psig"] = "psia",
 ):
-    """Converts pressure counts to sea pressure (psig and dbar) and
-    absolute pressure (psia)
+    """Converts pressure counts to:
+        dbar - sea pressure / guage pressure
+        psig - sea pressure / gauge pressure
+        psia - absolute pressure
 
     pressure_count and compensation_voltage are expected to be raw data
     from an instrument in A/D counts
@@ -161,8 +170,7 @@ def convert_pressure(
     :param compensation_voltage: pressure temperature compensation
         voltage, in counts or volts depending on the instrument
     :param coefs: calibration coefficients for the pressure sensor
-    :param units: whether or not to use dbar, psig, or psia as the
-        returned unit type, defaults to psia
+    :param units: returned unit type, defaults to psia
 
     :return: sea pressure val in dbar, psig, or psia according to units
     """
@@ -174,9 +182,12 @@ def convert_pressure(
     )
     x = pressure_count - coefs.ptca0 - coefs.ptca1 * t - coefs.ptca2 * t**2
     n = x * coefs.ptcb0 / (coefs.ptcb0 + coefs.ptcb1 * t + coefs.ptcb2 * t**2)
-    pressure = coefs.pa0 + coefs.pa1 * n + coefs.pa2 * n**2
+    p_psia = coefs.pa0 + coefs.pa1 * n + coefs.pa2 * n**2
 
-    pressure = convert_pressure_units(pressure, "psia", units)
+    # Apply offset [dbar]
+    p_dbar = convert_pressure_units(p_psia, "psia", "dbar") + coefs.offset
+
+    pressure = convert_pressure_units(p_dbar, "dbar", units)
 
     return pressure
 
@@ -188,28 +199,29 @@ def convert_pressure_digiquartz(
     units: Literal["dbar", "psia", "psig"],
     sample_interval: float,
 ):
-    """Converts pressure counts to PSIA (pounds per square inch,
-    abolute), PSIG, or dbar for a digiquartz pressure sensor.
+    """Converts pressure counts to:
+        dbar - sea pressure / guage pressure
+        psig - sea pressure / gauge pressure
+        psia - absolute pressure
 
     :param pressure_count: pressure value to convert, in A/D counts
     :param compensation_voltage: pressure temperature, in A/D counts
     :param coefs: calibration coefficients for the digiquartz pressure
         sensor
-    :param units: whether or not to use dbar, psig, or psia as the
-        returned unit type, defaults to psia
+    :param units: returned unit type, defaults to psia
     :param sample_interval: sample rate of the data to be used for
         temperature compensation correction, in seconds
     :return: pressure val in dbar, psig, or psia according to units
     """
 
-    # First, average temperature compensation over 30 seconds
+    # average temperature compensation over 30 seconds
     def modification_function(x):
         return x * coefs.ad590m + coefs.ad590b
 
     # using a short name to make the equations a little easier to read
     v = _compute_rolling_average(compensation_voltage, 30, sample_interval, modification_function)
 
-    # Now, calculate pressure
+    # calculate pressure
     t = 1 / pressure_count * 1e6  # convert to period in usec
     c = coefs.c1 + coefs.c2 * v + coefs.c3 * v**2
     d = coefs.d1 + coefs.d2 * v
@@ -217,9 +229,12 @@ def convert_pressure_digiquartz(
 
     one_minus_t_ratio = 1 - (t0**2) / (t**2)
     # p is absolute pressure according to Paroscientific cal sheet
-    p = c * one_minus_t_ratio * (1 - d * one_minus_t_ratio)
+    p_psia = c * one_minus_t_ratio * (1 - d * one_minus_t_ratio)
 
-    pressure = convert_pressure_units(p, "psia", units)
+    # Apply slope [dimensionless] and offset [dbar]
+    pressure_dbar = convert_pressure_units(p_psia, "psia", "dbar") * coefs.slope + coefs.offset
+
+    pressure = convert_pressure_units(pressure_dbar, "dbar", units)
 
     return pressure
 
@@ -1438,9 +1453,7 @@ def buoyancy(
     Data is expected to have already been binned via Bin_Average using
     decibar pressure bins. All arrays are expected to be the same
     length, except for latitude and longitude, which can be length 1.
-    Optionally can use the former calculation for buoyancy frequency
-    from the SBE Data Processing Manual, but defaults to a newer formula
-    using TEOS-10.
+    Uses TEOS-10 calculations.
 
     :param temperature_c: Temperature in ITS-90 degrees C
     :param salinity_prac: Practical salinity in PSU
@@ -1453,8 +1466,7 @@ def buoyancy(
         than the binned window size, round up to a minium of 3 scans.
         I.E. uses the center scan and one scan on each side of it at the
         very least
-    :param use_modern_formula: Whether to use a modern formula for
-        calculating buoyancy frequency. Defaults to true.
+    :param use_modern_formula: Depricated. Use buoyancy_eos80 for old calculation.
     :param flag_value: Bad Flag value to use for marking bad scans.
         Defaults to -9.99e-29
 
@@ -1465,6 +1477,21 @@ def buoyancy(
     _salinity, _temperature, _pressure, _latitude, _longitude = np.broadcast_arrays(
         salinity, temperature, pressure, latitude, longitude
     )
+
+    # create our result np.ndarrays with the flag value as default
+    buoyancy_freq_squared = np.full(len(_temperature), flag_value)
+    buoyancy_freq = np.full(len(_temperature), flag_value)
+    stability = np.full(len(_temperature), flag_value)
+    scaled_stability = np.full(len(_temperature), flag_value)
+
+    if not use_modern_formula:
+        warnings.warn(
+            "buoyancy(use_modern_formula=False) is deprecated; use buoyancy_eos80 "
+            "for the EOS-80 calculation.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return (buoyancy_freq_squared, buoyancy_freq, stability, scaled_stability)
 
     # Get the original bin size that we're working with, using the
     # second and third bin so we don't have to worry about the surface
@@ -1478,12 +1505,6 @@ def buoyancy(
     salinity_abs = gsw.SA_from_SP(_salinity, _pressure, _longitude, _latitude)
     temperature_conservative = gsw.CT_from_t(salinity_abs, _temperature, _pressure)
 
-    # create our result np.ndarrays with the flag value as default
-    buoyancy_freq_squared = np.full(len(_temperature), flag_value)
-    buoyancy_freq = np.full(len(_temperature), flag_value)
-    stability = np.full(len(_temperature), flag_value)
-    scaled_stability = np.full(len(_temperature), flag_value)
-
     # start loop at scans_per_side
     for i in range(scans_per_side, len(temperature_conservative) - scans_per_side):
         min_index = i - scans_per_side
@@ -1493,22 +1514,12 @@ def buoyancy(
 
         pressure_subset = _pressure[min_index:max_index]
         temperature_cons_subset = temperature_conservative[min_index:max_index]
-        temperature_its_subset = _temperature[min_index:max_index]
         salinity_subset = salinity_abs[min_index:max_index]
 
         mean_pressure = [np.mean(pressure_subset)]
         gravity = gsw.grav([_latitude[i]], mean_pressure)[0]
 
-        if use_modern_formula:
-            salinity_subset = salinity_abs[min_index:max_index]
-            n2 = buoyancy_frequency(
-                temperature_cons_subset, salinity_subset, pressure_subset, gravity
-            )
-        else:
-            salinity_subset = _salinity[min_index:max_index]
-            n2 = eos80.bouyancy_frequency(
-                temperature_its_subset, salinity_subset, pressure_subset, gravity
-            )
+        n2 = buoyancy_frequency(temperature_cons_subset, salinity_subset, pressure_subset, gravity)
 
         buoyancy_freq_squared[i] = n2
         if n2 >= 0:
@@ -1554,7 +1565,9 @@ def _compute_rolling_average(
     modification_fn: Callable | None = None,
 ) -> np.ndarray:
     """Computes a rolling average of the given variable over the specified window size.
-    Averages with equal number values on either side of the center of each window.
+
+    Uses a trailing (causal) window: each point is the average of itself and
+    the preceding num_samples - 1 points
 
     :param compute_var: The variable to compute the rolling average for.
     :param window_size: The size of the rolling window (in seconds).
@@ -1569,9 +1582,9 @@ def _compute_rolling_average(
     # Calculate the number of samples in the rolling window
     num_samples = int(window_size / sample_interval)
 
-    # Determine padding needed for both ends
-    pad_before = num_samples // 2
-    pad_after = num_samples - 1 - pad_before
+    # determine padding needed before
+    pad_before = num_samples - 1
+    pad_after = 0
 
     # Pad the array using the edge values
     # This prevents the ends from dropping off or pulling toward zero

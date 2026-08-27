@@ -282,8 +282,8 @@ def loop_edit(
         _flag[:] = 0.0
 
     if use_deck_pressure_offset:
-        min_soak_depth -= depth[0]
-        max_soak_depth -= depth[0]
+        min_soak_depth += depth[0]
+        max_soak_depth += depth[0]
 
     (min_depth_n, max_depth_n) = _find_depth_peaks(
         depth, _flag, remove_surface_soak, flag_value, min_soak_depth, max_soak_depth
@@ -666,8 +666,13 @@ def bin_average(
         if include_surface_bin:
             df = pd.concat((surface_desc, df, surface_asc))
 
-    # else cast_type == CastType.NA:
-    # do nothing
+    elif cast_type == CastType.NONE:
+        # binning by time or scan number: no upcast/downcast split
+        pass
+
+    else:
+        valid = ", ".join(repr(member.value) for member in CastType)
+        raise ValueError(f"cast_type must be a CastType (one of {valid}), got {cast_type!r}")
 
     # get the number of scans in each bin
     scans_per_bin = np.bincount(df["bin_number"])
@@ -886,6 +891,10 @@ def window_filter(
 
     if isinstance(window_type, WindowFilterType):
         warnings.warn("WindowFilterType Enum is deprecated, use Literals", DeprecationWarning)
+
+    # make odd window width if it is not so there is a center point
+    if window_width % 2 == 0:
+        window_width += 1
 
     # convert flags to nan for processing
     data = [d if d != flag_value else np.nan for d in data_in]
