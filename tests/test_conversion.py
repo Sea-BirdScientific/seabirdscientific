@@ -393,8 +393,11 @@ class TestDeriveSoundVelocity:
         return si.read_cnv_file(self.cnv_path, "seasoft")
 
     def test_derive_sound_velocity_c(self, source_data):
+        temp_ipts68 = dc.convert_temperature_units(
+            source_data["tv290C"].values, "IPTS68", "C", "IPTS68", "C"
+        )
         result = eos80dc.derive_sound_velocity_c(
-            source_data["sal00"].values, source_data["tv290C"].values, source_data["prdM"].values
+            source_data["sal00"].values, temp_ipts68, source_data["prdM"].values
         )
         # TODO: Update expected column name once verified in CNV file
         expected = source_data["svCM"].values
@@ -402,8 +405,11 @@ class TestDeriveSoundVelocity:
         assert np.allclose(result, expected, rtol=0, atol=1e-1)
 
     def test_derive_sound_velocity_d(self, source_data):
+        temp_ipts68 = dc.convert_temperature_units(
+                    source_data["tv290C"].values, "IPTS68", "C", "IPTS68", "C"
+                )
         result = eos80dc.derive_sound_velocity_d(
-            source_data["sal00"].values, source_data["tv290C"].values, source_data["prdM"].values
+            source_data["sal00"].values, temp_ipts68, source_data["prdM"].values
         )
         # TODO: Update expected column name once verified in CNV file
         expected = source_data["svDM"].values
@@ -411,8 +417,11 @@ class TestDeriveSoundVelocity:
         assert np.allclose(result, expected, rtol=0, atol=1e-1)
 
     def test_derive_sound_velocity_w(self, source_data):
+        temp_ipts68 = dc.convert_temperature_units(
+                    source_data["tv290C"].values, "IPTS68", "C", "IPTS68", "C"
+                )
         result = eos80dc.derive_sound_velocity_w(
-            source_data["sal00"].values, source_data["tv290C"].values, source_data["prdM"].values
+            source_data["sal00"].values, temp_ipts68, source_data["prdM"].values
         )
         # TODO: Update expected column name once verified in CNV file
         expected = source_data["svWM"].values

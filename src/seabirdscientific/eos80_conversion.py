@@ -273,10 +273,10 @@ def derive_sound_velocity_c(
     """Derive sound velocity using Chen and Millero (1977) formula with EOS-80.
 
     Calculates sound velocity in seawater from salinity, temperature,
-    and pressure using the Chen and Millero algorithm based on EOS-80.
+    and pressure using the Chen and Millero algorithm.
 
     :param salinity: Measured salinity in practical salinity units (PSU)
-    :param temperature: Temperature in ITS-90 degrees C
+    :param temperature: Temperature in IPTS-68 degrees C
     :param pressure: Measured pressure in decibars
 
     :return: Sound velocity in m/s
@@ -321,10 +321,10 @@ def derive_sound_velocity_d(
     """Derive sound velocity using Del Grosso (1974) formula with EOS-80.
 
     Calculates sound velocity in seawater from salinity, temperature,
-    and pressure using the Del Grosso algorithm based on EOS-80.
+    and pressure using the Del Grosso algorithm.
 
     :param salinity: Measured salinity in practical salinity units (PSU)
-    :param temperature: Temperature in ITS-90 degrees C
+    :param temperature: Temperature in IPTS-68 degrees C
     :param pressure: Measured pressure in decibars
 
     :return: Sound velocity in m/s
@@ -365,10 +365,10 @@ def derive_sound_velocity_w(
     """Derive sound velocity using Wilson (1960) formula with EOS-80.
 
     Calculates sound velocity in seawater from salinity, temperature,
-    and pressure using the Wilson algorithm based on EOS-80.
+    and pressure using the Wilson algorithm.
 
     :param salinity: Measured salinity in practical salinity units (PSU)
-    :param temperature: Temperature in ITS-90 degrees C
+    :param temperature: Temperature in IPTS-68 degrees C
     :param pressure: Measured pressure in decibars
 
     :return: Sound velocity in m/s
