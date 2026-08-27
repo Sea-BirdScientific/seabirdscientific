@@ -1,6 +1,7 @@
 """A collection of raw data conversion functions."""
 
 import math
+import warnings
 from collections.abc import Callable
 from typing import Literal
 
@@ -12,7 +13,6 @@ from scipy import stats
 import seabirdscientific.cal_coefficients as cc
 import seabirdscientific.constants as const
 import seabirdscientific.instrument_data as si
-from seabirdscientific import eos80_conversion as eos80
 
 
 def convert_temperature_units(
@@ -1412,9 +1412,7 @@ def buoyancy(
     Data is expected to have already been binned via Bin_Average using
     decibar pressure bins. All arrays are expected to be the same
     length, except for latitude and longitude, which can be length 1.
-    Optionally can use the former calculation for buoyancy frequency
-    from the SBE Data Processing Manual, but defaults to a newer formula
-    using TEOS-10.
+    Uses TEOS-10 calculations.
 
     :param temperature_c: Temperature in ITS-90 degrees C
     :param salinity_prac: Practical salinity in PSU
@@ -1427,8 +1425,7 @@ def buoyancy(
         than the binned window size, round up to a minium of 3 scans.
         I.E. uses the center scan and one scan on each side of it at the
         very least
-    :param use_modern_formula: Whether to use a modern formula for
-        calculating buoyancy frequency. Defaults to true.
+    :param use_modern_formula: Depricated. Use buoyancy_eos80 for old calculation.
     :param flag_value: Bad Flag value to use for marking bad scans.
         Defaults to -9.99e-29
 
@@ -1439,6 +1436,21 @@ def buoyancy(
     _salinity, _temperature, _pressure, _latitude, _longitude = np.broadcast_arrays(
         salinity, temperature, pressure, latitude, longitude
     )
+
+    # create our result np.ndarrays with the flag value as default
+    buoyancy_freq_squared = np.full(len(_temperature), flag_value)
+    buoyancy_freq = np.full(len(_temperature), flag_value)
+    stability = np.full(len(_temperature), flag_value)
+    scaled_stability = np.full(len(_temperature), flag_value)
+
+    if not use_modern_formula:
+        warnings.warn(
+            "buoyancy(use_modern_formula=False) is deprecated; use buoyancy_eos80 "
+            "for the EOS-80 calculation.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return (buoyancy_freq_squared, buoyancy_freq, stability, scaled_stability)
 
     # Get the original bin size that we're working with, using the
     # second and third bin so we don't have to worry about the surface
@@ -1452,12 +1464,6 @@ def buoyancy(
     salinity_abs = gsw.SA_from_SP(_salinity, _pressure, _longitude, _latitude)
     temperature_conservative = gsw.CT_from_t(salinity_abs, _temperature, _pressure)
 
-    # create our result np.ndarrays with the flag value as default
-    buoyancy_freq_squared = np.full(len(_temperature), flag_value)
-    buoyancy_freq = np.full(len(_temperature), flag_value)
-    stability = np.full(len(_temperature), flag_value)
-    scaled_stability = np.full(len(_temperature), flag_value)
-
     # start loop at scans_per_side
     for i in range(scans_per_side, len(temperature_conservative) - scans_per_side):
         min_index = i - scans_per_side
@@ -1467,22 +1473,12 @@ def buoyancy(
 
         pressure_subset = _pressure[min_index:max_index]
         temperature_cons_subset = temperature_conservative[min_index:max_index]
-        temperature_its_subset = _temperature[min_index:max_index]
         salinity_subset = salinity_abs[min_index:max_index]
 
         mean_pressure = [np.mean(pressure_subset)]
         gravity = gsw.grav([_latitude[i]], mean_pressure)[0]
 
-        if use_modern_formula:
-            salinity_subset = salinity_abs[min_index:max_index]
-            n2 = buoyancy_frequency(
-                temperature_cons_subset, salinity_subset, pressure_subset, gravity
-            )
-        else:
-            salinity_subset = _salinity[min_index:max_index]
-            n2 = eos80.bouyancy_frequency(
-                temperature_its_subset, salinity_subset, pressure_subset, gravity
-            )
+        n2 = buoyancy_frequency(temperature_cons_subset, salinity_subset, pressure_subset, gravity)
 
         buoyancy_freq_squared[i] = n2
         if n2 >= 0:

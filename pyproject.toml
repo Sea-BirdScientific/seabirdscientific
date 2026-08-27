@@ -1,6 +1,6 @@
 [project]
 name = "seabirdscientific"
-version = "3.0.0a24"
+version = "3.0.0a25"
 description = "Sea-Bird Scientific Community Toolkit"
 readme = "README.md"
 license = "MIT"
@@ -30,6 +30,7 @@ dependencies = [
   "pandas ~= 3.0",
   "plotly ~= 6.9",
   "scipy ~= 1.17",
+  "seawater ~= 3.3",
   "xarray ~= 2026.7",
 ]
 

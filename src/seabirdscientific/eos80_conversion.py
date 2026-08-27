@@ -1,7 +1,89 @@
 """EOS80 functions to support legacy conversions"""
 
+import math
+import warnings
+
 import numpy as np
+import seawater as sw
 from scipy import stats
+
+import seabirdscientific.constants as const
+
+
+def buoyancy_eos80(
+    temperature: np.ndarray,
+    salinity: np.ndarray,
+    pressure: np.ndarray,
+    latitude: np.ndarray,
+    longitude: np.ndarray,
+    window_size: float,
+    flag_value=const.FLAG_VALUE,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """Calculates the 4 buoyancy values using the EOS-80 formula.
+
+    Same as buoyancy, but uses eos80_conversion.bouyancy_frequency (the SBE
+    Data Processing EOS-80 calculation) instead of the TEOS-10 formula.
+
+    Data is expected to have already been binned via Bin_Average using
+    decibar pressure bins. All arrays are expected to be the same length,
+    except for latitude and longitude, which can be length 1.
+
+    :param temperature: Temperature in ITS-90 degrees C
+    :param salinity: Practical salinity in PSS-78 PSU
+    :param pressure: Pressure in dbar
+    :param latitude: latitude values. If length 1, gets applied to all values.
+    :param longitude: longitude values. If length 1, gets applied to all values.
+    :param window_size: window size to use. If this number is smaller than the
+        binned window size, round up to a minimum of 3 scans.
+    :param flag_value: Bad Flag value to use for marking bad scans.
+        Defaults to -9.99e-29
+
+    :return: a tuple of ndarrays including: buoyancy frequency squared,
+        buoyancy frequency, stability, and scaled stability
+    """
+
+    _salinity, _temperature, _pressure, _latitude, _longitude = np.broadcast_arrays(
+        salinity, temperature, pressure, latitude, longitude
+    )
+
+    # Get the original bin size using the second and third bin so we don't
+    # have to worry about the surface bin
+    original_bin_size = abs(_pressure[2] - _pressure[1])
+
+    # Number of scans on either side of the median point, minimum 1
+    scans_per_side = max(math.floor(window_size / original_bin_size / 2), 1)
+
+    # create our result np.ndarrays with the flag value as default
+    buoyancy_freq_squared = np.full(len(_temperature), flag_value)
+    buoyancy_freq = np.full(len(_temperature), flag_value)
+    stability = np.full(len(_temperature), flag_value)
+    scaled_stability = np.full(len(_temperature), flag_value)
+
+    for i in range(scans_per_side, len(_temperature) - scans_per_side):
+        min_index = i - scans_per_side
+        max_index = i + scans_per_side + 1  # + 1 because slicing excludes the max
+
+        pressure_subset = _pressure[min_index:max_index]
+        temperature_its_subset = _temperature[min_index:max_index]
+        salinity_subset = _salinity[min_index:max_index]
+
+        mean_pressure = np.mean(pressure_subset)
+        # depth is negative below the surface (0 at the surface)
+        depth = -sw.eos80.dpth(mean_pressure, _latitude[i])
+        gravity = sw.eos80.g(_latitude[i], depth)
+
+        n2 = bouyancy_frequency(temperature_its_subset, salinity_subset, pressure_subset, gravity)
+
+        buoyancy_freq_squared[i] = n2
+        if n2 >= 0:
+            buoyancy_freq[i] = math.sqrt(n2) * 3600 / (2 * np.pi)
+        else:
+            # negative root of the absolute buoyancy squared to match seasoft
+            buoyancy_freq[i] = -math.sqrt(abs(n2)) * 3600 / (2 * np.pi)
+        stability[i] = n2 / gravity
+        scaled_stability[i] = stability[i] * 1e8
+
+    return (buoyancy_freq_squared, buoyancy_freq, stability, scaled_stability)
 
 
 def bouyancy_frequency(
@@ -19,7 +101,7 @@ def bouyancy_frequency(
     calculations for potential temp and density
 
     :param temperature: ITS-90 temperature values for the given window
-    :param salinity: practical salinity values for the given window
+    :param salinity: PSS-78 practical salinity values for the given window
     :param pressure: pressure values for the given window
     :param gravity: gravity value
 
@@ -28,18 +110,19 @@ def bouyancy_frequency(
 
     db_to_pa = 1e4
 
-    # Wrap these as a length-1 array so that GSW accepts them
+    # Wrap these as a length-1 array
     pressure_bar = np.array([np.mean(pressure)])
     temperature_bar = np.array([np.mean(temperature)])
     salinity_bar = np.array([np.mean(salinity)])
 
-    # Compute average density over the window
-    # rho_bar0 = gsw.rho(salinity_bar, temperature_bar, pressure_bar)[0]
-    rho_bar = density(salinity_bar, temperature_bar, pressure_bar)[0]
+    # EOS-80 density from the seawater library. seawater.dens returns full
+    # density; subtract 1000 to keep the sigma convention the SBE Data
+    # Processing formula (and the SeaSoft reference) are built around.
+    rho_bar = np.atleast_1d(sw.dens(salinity_bar, temperature_bar, pressure_bar))[0] - 1000.0
 
-    # Use SBE DP (EOS-80) formulas for potential temp and density
-    theta = potential_temperature(salinity, temperature, pressure, pressure_bar)
-    v_vals = 1.0 / density(salinity, theta, pressure_bar)
+    # EOS-80 potential temperature and density, referenced to the window mean.
+    theta = sw.ptmp(salinity, temperature, pressure, pressure_bar[0])
+    v_vals = 1.0 / (np.atleast_1d(sw.dens(salinity, theta, pressure_bar[0])) - 1000.0)
 
     # Estimate vertical gradient of specific volume
     dvdp_result = stats.linregress(pressure, v_vals)
@@ -50,119 +133,6 @@ def bouyancy_frequency(
     return n2
 
 
-def density(
-    salinity: np.ndarray,
-    temperature: np.ndarray,
-    pressure: np.ndarray,
-) -> np.ndarray:
-    """EOS-80 density calculation.
-
-    This was ported from CSharedCalc::Density()
-
-    :param salinity: salinity data
-    :param temperature: temperature data
-    :param pressure: pressure data
-
-    :return: resulting density data
-    """
-
-    b0 = 8.24493e-1
-    b1 = -4.0899e-3
-    b2 = 7.6438e-5
-    b3 = -8.2467e-7
-    b4 = 5.3875e-9
-
-    c0 = -5.72466e-3
-    c1 = 1.0227e-4
-    c2 = -1.6546e-6
-
-    d0 = 4.8314e-4
-
-    a0 = 999.842594
-    a1 = 6.793952e-2
-    a2 = -9.095290e-3
-    a3 = 1.001685e-4
-    a4 = -1.120083e-6
-    a5 = 6.536332e-9
-
-    fq0 = 54.6746
-    fq1 = -0.603459
-    fq2 = 1.09987e-2
-    fq3 = -6.1670e-5
-
-    g0 = 7.944e-2
-    g1 = 1.6483e-2
-    g2 = -5.3009e-4
-
-    i0 = 2.2838e-3
-    i1 = -1.0981e-5
-    i2 = -1.6078e-6
-
-    j0 = 1.91075e-4
-
-    m0 = -9.9348e-7
-    m1 = 2.0816e-8
-    m2 = 9.1697e-10
-
-    e0 = 19652.21
-    e1 = 148.4206
-    e2 = -2.327105
-    e3 = 1.360477e-2
-    e4 = -5.155288e-5
-
-    h0 = 3.239908
-    h1 = 1.43713e-3
-    h2 = 1.16092e-4
-    h3 = -5.77905e-7
-
-    k0 = 8.50935e-5
-    k1 = -6.12293e-6
-    k2 = 5.2787e-8
-
-    s0, t, p0 = np.broadcast_arrays(salinity, temperature, pressure)
-    # creating copies because broadcasted arrays may share memory locations
-    s = s0.copy()
-    p = p0.copy()
-
-    t2 = t * t
-    t3 = t * t2
-    t4 = t * t3
-    t5 = t * t4
-    s[s <= 0.0] = 0.000001
-    s32 = s**1.5
-    p /= 10.0
-    sigma = (
-        a0
-        + a1 * t
-        + a2 * t2
-        + a3 * t3
-        + a4 * t4
-        + a5 * t5
-        + (b0 + b1 * t + b2 * t2 + b3 * t3 + b4 * t4) * s
-        + (c0 + c1 * t + c2 * t2) * s32
-        + d0 * s * s
-    )
-
-    kw = e0 + e1 * t + e2 * t2 + e3 * t3 + e4 * t4
-    aw = h0 + h1 * t + h2 * t2 + h3 * t3
-    bw = k0 + k1 * t + k2 * t2
-
-    k = (
-        kw
-        + (fq0 + fq1 * t + fq2 * t2 + fq3 * t3) * s
-        + (g0 + g1 * t + g2 * t2) * s32
-        + (aw + (i0 + i1 * t + i2 * t2) * s + (j0 * s32)) * p
-        + (bw + (m0 + m1 * t + m2 * t2) * s) * p * p
-    )
-
-    val = 1 - p / k
-
-    _density = sigma
-    _density[val != 0] = sigma / val - 1000
-
-    return _density
-
-
 def potential_temperature(
     salinity: np.ndarray,
     temperature: np.ndarray,
@@ -171,7 +141,7 @@ def potential_temperature(
 ) -> np.ndarray:
     """EOS-80 potential temperature calculation.
 
-    This was ported from CSharedCalc::PoTemp()
+    Delegates to the seawater library (seawater.ptmp).
 
     :param salinity: sainity data
     :param temperature: temperature data
@@ -181,31 +151,14 @@ def potential_temperature(
     :return: calculated potential temperature data
     """
 
-    s, t0, p0, pr = np.broadcast_arrays(
-        salinity,
-        temperature,
-        pressure,
-        mean_pressure,
+    warnings.warn(
+        "eos80_conversion.potential_temperature is deprecated; use the seawater "
+        "library (seawater.ptmp) instead.",
+        DeprecationWarning,
+        stacklevel=2,
     )
 
-    p = p0.copy()
-    t = t0.copy()
-    h = pr - p
-    xk = h * adiabatic_temperature_gradient(s, t, p)
-    t += 0.5 * xk
-    q = xk
-    p += 0.5 * h
-    xk = h * adiabatic_temperature_gradient(s, t, p)
-    t += 0.29289322 * (xk - q)
-    q = 0.58578644 * xk + 0.121320344 * q
-    xk = h * adiabatic_temperature_gradient(s, t, p)
-    t += 1.707106781 * (xk - q)
-    q = 3.414213562 * xk - 4.121320344 * q
-    p += 0.5 * h
-    xk = h * adiabatic_temperature_gradient(s, t, p)
-    temp = t + (xk - 2.0 * q) / 6.0
-
-    return temp
+    return np.atleast_1d(sw.ptmp(salinity, temperature, pressure, mean_pressure))
 
 
 def adiabatic_temperature_gradient(
