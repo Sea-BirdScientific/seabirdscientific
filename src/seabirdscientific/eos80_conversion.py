@@ -216,8 +216,9 @@ def derive_potential_temperature_anomaly(
 
     Calculates potential temperature at reference pressure (0 dbar) and
     applies anomaly corrections based on the provided coefficients a0 and a1.
-    Uses EOS-80 formulations for potential temperature and density calculations.
-
+    Uses EOS-80 formulas for potential temperature and density calculations.
+    Note that termperature uses ITS-90 C, as the seawater library converts it to IPTS-68 internally
+    
     :param salinity: Practical salinity in PSU (ndarray)
     :param temperature: Temperature in ITS-90 degrees C (ndarray)
     :param pressure: Pressure in decibars (ndarray)
@@ -265,7 +266,7 @@ def derive_thermosteric_anomaly(
     return 1.0e5 * ((1000.0 / (1000.0 + density_val)) - 0.97266)
 
 
-def derive_sound_velocity_c(
+def _derive_sound_velocity_c(
     salinity: np.ndarray,
     temperature: np.ndarray,
     pressure: np.ndarray,
@@ -313,7 +314,7 @@ def derive_sound_velocity_c(
     return c + (a + b * sr + d * s) * s
 
 
-def derive_sound_velocity_d(
+def _derive_sound_velocity_d(
     salinity: np.ndarray,
     temperature: np.ndarray,
     pressure: np.ndarray,
@@ -357,7 +358,7 @@ def derive_sound_velocity_d(
     return c000 + dct + dcs + dcp + dcstp
 
 
-def derive_sound_velocity_w(
+def _derive_sound_velocity_w(
     salinity: np.ndarray,
     temperature: np.ndarray,
     pressure: np.ndarray,
@@ -397,6 +398,32 @@ def derive_sound_velocity_w(
 
     return (((-3.3603e-12 * pr + a) * pr + sv) * pr + v1) * pr + v0
 
+def derive_sound_velocity(
+    salinity: np.ndarray,
+    temperature: np.ndarray,
+    pressure: np.ndarray,
+    formula: Literal["c", "d", "w"] = "c",
+) -> np.ndarray:
+    """Derive sound velocity using the specified formula with EOS-80.
+
+    Calculates sound velocity in seawater from salinity, temperature,
+    and pressure using the specified algorithm.
+
+    :param salinity: Measured salinity in practical salinity units (PSU)
+    :param temperature: Temperature in IPTS-68 degrees C
+    :param pressure: Measured pressure in decibars
+    :param formula: Formula to use for calculation ('c', 'd', or 'w')
+
+    :return: Sound velocity in m/s
+    """
+    if formula == "c":
+        return _derive_sound_velocity_c(salinity, temperature, pressure)
+    elif formula == "d":
+        return _derive_sound_velocity_d(salinity, temperature, pressure)
+    elif formula == "w":
+        return _derive_sound_velocity_w(salinity, temperature, pressure)
+    else:
+        raise ValueError("Invalid formula specified. Use 'c', 'd', or 'w'.")
 
 def derive_specific_conductance(
     temperature: np.ndarray,

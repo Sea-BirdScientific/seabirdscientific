@@ -142,7 +142,7 @@ def convert_pressure_units(
     elif from_units == "dbar":
         gauge_psi = _pressure / const.PSI_TO_DBAR
     else:  # psig
-        gauge_psi = _pressure.copy()
+        gauge_psi = _pressure
 
     if to_units == "psia":
         return gauge_psi + const.SEA_LEVEL_PRESSURE_PSI

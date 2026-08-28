@@ -396,10 +396,9 @@ class TestDeriveSoundVelocity:
         temp_ipts68 = dc.convert_temperature_units(
             source_data["tv290C"].values, "IPTS68", "C", "IPTS68", "C"
         )
-        result = eos80dc.derive_sound_velocity_c(
-            source_data["sal00"].values, temp_ipts68, source_data["prdM"].values
+        result = eos80dc.derive_sound_velocity(
+            source_data["sal00"].values, temp_ipts68, source_data["prdM"].values, "c"
         )
-        # TODO: Update expected column name once verified in CNV file
         expected = source_data["svCM"].values
 
         assert np.allclose(result, expected, rtol=0, atol=1e-1)
@@ -408,10 +407,9 @@ class TestDeriveSoundVelocity:
         temp_ipts68 = dc.convert_temperature_units(
                     source_data["tv290C"].values, "IPTS68", "C", "IPTS68", "C"
                 )
-        result = eos80dc.derive_sound_velocity_d(
-            source_data["sal00"].values, temp_ipts68, source_data["prdM"].values
+        result = eos80dc.derive_sound_velocity(
+            source_data["sal00"].values, temp_ipts68, source_data["prdM"].values, "d"
         )
-        # TODO: Update expected column name once verified in CNV file
         expected = source_data["svDM"].values
 
         assert np.allclose(result, expected, rtol=0, atol=1e-1)
@@ -420,10 +418,9 @@ class TestDeriveSoundVelocity:
         temp_ipts68 = dc.convert_temperature_units(
                     source_data["tv290C"].values, "IPTS68", "C", "IPTS68", "C"
                 )
-        result = eos80dc.derive_sound_velocity_w(
-            source_data["sal00"].values, temp_ipts68, source_data["prdM"].values
+        result = eos80dc.derive_sound_velocity(
+            source_data["sal00"].values, temp_ipts68, source_data["prdM"].values, "w"
         )
-        # TODO: Update expected column name once verified in CNV file
         expected = source_data["svWM"].values
 
         assert np.allclose(result, expected, rtol=0, atol=1e-1)
