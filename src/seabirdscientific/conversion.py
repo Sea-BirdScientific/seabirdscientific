@@ -1373,6 +1373,7 @@ def convert_seafet_relative_humidity(humidity_counts: np.ndarray, temperature: n
 def convert_altimeter(
     volts: np.ndarray,
     coefs: cc.AltimeterCoefficients,
+    units: Literal["m", "ft"] = "m",
 ):
     """Converts a raw voltage value for altimeter.
 
@@ -1380,12 +1381,16 @@ def convert_altimeter(
 
     :param volts: raw output voltage from altimeter sensor
     :param coefs: slope and offset for the altimeter sensors
+    :param units: units of output
 
-    :return: converted height in meters
+    :return: converted height in selected units
     """
     ALTIMETER_SCALAR = 300
 
     height = ALTIMETER_SCALAR * volts / coefs.slope - coefs.offset
+
+    if units == "ft":
+        height *= const.METERS_TO_FEET
 
     return height
 
