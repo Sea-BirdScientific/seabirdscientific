@@ -218,7 +218,7 @@ def derive_potential_temperature_anomaly(
     applies anomaly corrections based on the provided coefficients a0 and a1.
     Uses EOS-80 formulas for potential temperature and density calculations.
     Note that termperature uses ITS-90 C, as the seawater library converts it to IPTS-68 internally
-    
+
     :param salinity: Practical salinity in PSU (ndarray)
     :param temperature: Temperature in ITS-90 degrees C (ndarray)
     :param pressure: Pressure in decibars (ndarray)
@@ -398,6 +398,7 @@ def _derive_sound_velocity_w(
 
     return (((-3.3603e-12 * pr + a) * pr + sv) * pr + v1) * pr + v0
 
+
 def derive_sound_velocity(
     salinity: np.ndarray,
     temperature: np.ndarray,
@@ -424,6 +425,7 @@ def derive_sound_velocity(
         return _derive_sound_velocity_w(salinity, temperature, pressure)
     else:
         raise ValueError("Invalid formula specified. Use 'c', 'd', or 'w'.")
+
 
 def derive_specific_conductance(
     temperature: np.ndarray,

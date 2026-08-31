@@ -136,7 +136,7 @@ def convert_pressure_units(
     # psig and dbar are gauge (also known as sea pressure, atmosphere pressure not included, measures 0 at ocean surface)
     # atmospheric offset must be applied in psi, not dbar
     if from_units == to_units:
-            return _pressure
+        return _pressure
     if from_units == "psia":
         gauge_psi = _pressure - const.SEA_LEVEL_PRESSURE_PSI
     elif from_units == "dbar":
@@ -449,8 +449,6 @@ def depth_from_pressure(
         depth *= const.METERS_TO_FEET
 
     return depth
-
-
 
 
 def convert_sbe63_oxygen(
@@ -1817,8 +1815,3 @@ def convert_cstar_transmittance(raw: np.ndarray, coefs: cc.CstarCoefficients):
     transmittance = raw * coefs.m + coefs.b
 
     return transmittance
-
-
-
-
-

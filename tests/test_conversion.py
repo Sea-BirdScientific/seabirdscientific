@@ -385,6 +385,7 @@ class TestDepthFromPressure:
         request.node.return_value = result_depth.tolist()
         assert np.allclose(expected_depth, result_depth, atol=0.002)
 
+
 class TestDeriveSoundVelocity:
     cnv_path = test_data / "SBE19plus_derive_testing.cnv"
 
@@ -405,8 +406,8 @@ class TestDeriveSoundVelocity:
 
     def test_derive_sound_velocity_d(self, source_data):
         temp_ipts68 = dc.convert_temperature_units(
-                    source_data["tv290C"].values, "IPTS68", "C", "IPTS68", "C"
-                )
+            source_data["tv290C"].values, "IPTS68", "C", "IPTS68", "C"
+        )
         result = eos80dc.derive_sound_velocity(
             source_data["sal00"].values, temp_ipts68, source_data["prdM"].values, "d"
         )
@@ -416,8 +417,8 @@ class TestDeriveSoundVelocity:
 
     def test_derive_sound_velocity_w(self, source_data):
         temp_ipts68 = dc.convert_temperature_units(
-                    source_data["tv290C"].values, "IPTS68", "C", "IPTS68", "C"
-                )
+            source_data["tv290C"].values, "IPTS68", "C", "IPTS68", "C"
+        )
         result = eos80dc.derive_sound_velocity(
             source_data["sal00"].values, temp_ipts68, source_data["prdM"].values, "w"
         )
