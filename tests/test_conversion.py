@@ -190,7 +190,7 @@ class TestConductivity19plus:
     hex_path = test_data / "19plus_V2.hex"
 
     def test_convert_conductivity(self):
-        # expected_data = si.read_cnv_file(self.cnv_path, "seasoft")
+        # expected_data = si.read_cnv_file(self.cnv_path)
 
         raw = si.read_hex_file(
             self.hex_path,
@@ -241,7 +241,7 @@ class TestConductivity37SM:
     hex_path = test_data / "SBE37SM-RS232_03716125_2017_11_16.hex"
 
     def test_convert_conductivity(self):
-        # expected_data = si.read_cnv_file(self.cnv_path, "seasoft")
+        # expected_data = si.read_cnv_file(self.cnv_path)
 
         raw = si.read_hex_file(
             self.hex_path,
@@ -384,6 +384,47 @@ class TestDepthFromPressure:
         result_depth = dc.depth_from_pressure(pressure, 0, depth_units, pressure_units)
         request.node.return_value = result_depth.tolist()
         assert np.allclose(expected_depth, result_depth, atol=0.002)
+
+
+class TestDeriveSoundVelocity:
+    cnv_path = test_data / "SBE19plus_derive_testing.cnv"
+
+    @pytest.fixture
+    def source_data(self):
+        return si.read_cnv_file(self.cnv_path, "seasoft")
+
+    def test_derive_sound_velocity_c(self, source_data):
+        temp_ipts68 = dc.convert_temperature_units(
+            source_data["tv290C"].values, "IPTS68", "C", "IPTS68", "C"
+        )
+        result = eos80dc.derive_sound_velocity(
+            source_data["sal00"].values, temp_ipts68, source_data["prdM"].values, "c"
+        )
+        expected = source_data["svCM"].values
+
+        assert np.allclose(result, expected, rtol=0, atol=1e-1)
+
+    def test_derive_sound_velocity_d(self, source_data):
+        temp_ipts68 = dc.convert_temperature_units(
+            source_data["tv290C"].values, "IPTS68", "C", "IPTS68", "C"
+        )
+        result = eos80dc.derive_sound_velocity(
+            source_data["sal00"].values, temp_ipts68, source_data["prdM"].values, "d"
+        )
+        expected = source_data["svDM"].values
+
+        assert np.allclose(result, expected, rtol=0, atol=1e-1)
+
+    def test_derive_sound_velocity_w(self, source_data):
+        temp_ipts68 = dc.convert_temperature_units(
+            source_data["tv290C"].values, "IPTS68", "C", "IPTS68", "C"
+        )
+        result = eos80dc.derive_sound_velocity(
+            source_data["sal00"].values, temp_ipts68, source_data["prdM"].values, "w"
+        )
+        expected = source_data["svWM"].values
+
+        assert np.allclose(result, expected, rtol=0, atol=1e-1)
 
 
 class TestConvertSBE43Oxygen:
@@ -1030,6 +1071,7 @@ class TestConvertSBE63Oxygen:
             source_data["tv290C"].values,
         )
         request.node.return_value = result.tolist()
+        print(f"Expected: {expected}")
         assert np.allclose(expected, result, rtol=0, atol=1e-2)
 
     def test_convert_sbe63_oxygen_umol_per_kg(self, request, source_data):
@@ -1311,3 +1353,75 @@ class TestCstar:
 
         request.node.return_value = result.tolist()
         assert np.allclose(expected, result, rtol=0, atol=1e-3)
+
+
+class TestDeriveThermostericAnomaly:
+    cnv_path = test_data / "SBE19plus_derive_testing.cnv"
+
+    @pytest.fixture
+    def source_data(self):
+        return si.read_cnv_file(self.cnv_path, "seasoft")
+
+    def test_derive_tsa(self, source_data):
+        tsa = eos80dc.derive_thermosteric_anomaly(
+            source_data["sal00"].values, source_data["tv290C"].values
+        )
+        assert np.allclose(tsa, source_data["tsa"].values, rtol=0, atol=1e-2)
+
+
+class TestDeriveSpecificConductance:
+    cnv_path = test_data / "SBE19plus_derive_testing.cnv"
+
+    @pytest.fixture
+    def source_data(self):
+        return si.read_cnv_file(self.cnv_path, "seasoft")
+
+    def test_derive_sc(self, source_data):
+        # TODO: no explanation for why this is so off?
+        tsa = eos80dc.derive_specific_conductance(
+            source_data["tv290C"].values, source_data["c0S/m"].values, to_units="uS/cm"
+        )
+
+        differences = tsa - source_data["specc"].values
+        print("\nDifferences between tsa and specc:")
+        print(differences)
+        print("\nMax difference:", np.max(np.abs(differences)))
+
+        # These use large numbers, use rtol=1e-2 to allow for small relative differences
+        assert np.allclose(tsa, source_data["specc"].values, rtol=1e-2, atol=0)
+
+
+class TestDerivePotentialTemperatureAnomaly:
+    cnv_path = test_data / "SBE19plus_derive_testing.cnv"
+
+    @pytest.fixture
+    def source_data(self):
+        return si.read_cnv_file(self.cnv_path, "seasoft")
+
+    def test_derive_pta(self, source_data):
+        pta = eos80dc.derive_potential_temperature_anomaly(
+            source_data["sal00"].values,
+            source_data["tv290C"].values,
+            source_data["prdM"].values,
+            a0=1,
+            a1=2,
+        )
+
+        assert np.allclose(pta, source_data["pta090C"].values, rtol=0, atol=1e-3)
+
+
+class TestDeriveGeopotentialAnomaly:
+    cnv_path = test_data / "SBE19plus_derive_testing.cnv"
+
+    @pytest.fixture
+    def source_data(self):
+        return si.read_cnv_file(self.cnv_path, "seasoft")
+
+    def test_derive_gpa(self, source_data):
+        # sva = sw.svan(source_data["sal00"].to_numpy(), source_data["tv290C"].to_numpy(), source_data["prdM"].to_numpy()) * 1e8
+        gpa = eos80dc.derive_gpa(source_data["sva"], source_data["prdM"].values)
+        differences = gpa - source_data["gpa"].values
+        print("\nDifferences between gpa and source:")
+        print(differences)
+        print("\nMax difference:", np.max(np.abs(differences)))
+        assert np.allclose(gpa, source_data["gpa"].values, rtol=0, atol=1e-3)

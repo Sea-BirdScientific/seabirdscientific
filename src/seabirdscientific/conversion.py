@@ -9,6 +9,7 @@ import gsw
 import numpy as np
 from numpy.polynomial import Polynomial
 from scipy import stats
+import seawater as sw
 
 import seabirdscientific.cal_coefficients as cc
 import seabirdscientific.constants as const
@@ -21,8 +22,20 @@ def convert_temperature_units(
     from_units: Literal["C", "F"],
     to_standard: Literal["ITS90", "IPTS68"] = "ITS90",
     to_units: Literal["C", "F"] = "C",
-):
-    """Convert temperature units between C, F, ITS90, and IPTS68"""
+) -> np.ndarray:
+    """Convert temperature between different units and calibration standards.
+
+    Converts temperature values between Celsius and Fahrenheit, and between
+    ITS90 and IPTS68 calibration standards.
+
+    :param temperature: Temperature values to convert
+    :param from_standard: Input calibration standard (ITS90 or IPTS68)
+    :param from_units: Input temperature units (C or F)
+    :param to_standard: Output calibration standard, defaults to ITS90
+    :param to_units: Output temperature units, defaults to C
+
+    :return: Temperature values converted to specified units and standard
+    """
     _temperature = temperature.copy()
     if from_standard == "ITS90" and to_standard == "IPTS68":
         _temperature *= const.ITS90_TO_IPTS68
@@ -106,19 +119,30 @@ def convert_pressure_units(
     from_units: Literal["dbar", "psia", "psig"],
     to_units: Literal["dbar", "psia", "psig"] = "psia",
 ) -> np.ndarray:
-    if from_units == to_units:
-        return pressure.copy()
+    """Convert pressure between different units.
+
+    Converts pressure values between decibars (dbar), pounds per square inch
+    absolute (psia), and pounds per square inch gauge (psig).
+
+    :param pressure: Pressure values to convert
+    :param from_units: Input pressure units (dbar, psia, or psig)
+    :param to_units: Output pressure units, defaults to psia
+
+    :return: Pressure values converted to specified units
+    """
+    _pressure = pressure.copy()
 
     # psia is absolute (gauge + atmospheric, measures 14.7 psi at ocean surface)
     # psig and dbar are gauge (also known as sea pressure, atmosphere pressure not included, measures 0 at ocean surface)
     # atmospheric offset must be applied in psi, not dbar
-
+    if from_units == to_units:
+        return _pressure
     if from_units == "psia":
-        gauge_psi = pressure - const.SEA_LEVEL_PRESSURE_PSI
+        gauge_psi = _pressure - const.SEA_LEVEL_PRESSURE_PSI
     elif from_units == "dbar":
-        gauge_psi = pressure / const.PSI_TO_DBAR
+        gauge_psi = _pressure / const.PSI_TO_DBAR
     else:  # psig
-        gauge_psi = pressure.copy()
+        gauge_psi = _pressure
 
     if to_units == "psia":
         return gauge_psi + const.SEA_LEVEL_PRESSURE_PSI
@@ -220,6 +244,17 @@ def convert_conductivity_units(
     from_units: Literal["S/m", "mS/cm", "uS/cm"],
     to_units: Literal["S/m", "mS/cm", "uS/cm"] = "S/m",
 ) -> np.ndarray:
+    """Convert conductivity between different units.
+
+    Converts conductivity values between Siemens per meter (S/m),
+    milliSiemens per centimeter (mS/cm), and microSiemens per centimeter (uS/cm).
+
+    :param conductivity: Conductivity values to convert
+    :param from_units: Input conductivity units (S/m, mS/cm, or uS/cm)
+    :param to_units: Output conductivity units, defaults to S/m
+
+    :return: Conductivity values converted to specified units
+    """
     if from_units == "S/m" and to_units == "mS/cm":
         return conductivity * 10
     elif from_units == "S/m" and to_units == "uS/cm":
@@ -388,6 +423,7 @@ def depth_from_pressure(
     latitude: float,
     depth_units: Literal["m", "ft"] = "m",
     pressure_units: Literal["dbar", "psi"] = "dbar",
+    water_type: Literal["salt", "fresh"] = "salt",
 ):
     """Derive depth from pressure and latitude.
 
@@ -404,7 +440,10 @@ def depth_from_pressure(
     if pressure_units == "psi":
         pressure /= const.DBAR_TO_PSI
 
-    depth = -gsw.z_from_p(pressure, latitude)
+    if water_type == "fresh":
+        depth = pressure * const.FRESHWATER_PRESSURE_TO_DEPTH
+    else:
+        depth = -gsw.z_from_p(pressure, latitude)
 
     if depth_units == "ft":
         depth *= const.METERS_TO_FEET
@@ -1123,9 +1162,9 @@ def _log_of_hcl_activity_coefficient_of_tp(
 def _acid_dissociation_constant_of_hso4(salinity: np.ndarray, temperature: np.ndarray):
     """From SBS application note 99. Calculated as (Dickson et al. 2007)
 
-    :param salinity: Salinty in PSU
+    :param salinity: Salinity in PSU
     :param temperature: Temperature in Kelvin
-    :return: _description_
+    :return: Acid dissociation constant of HSO4
     """
     i = _sample_ionic_strength(salinity)
     term_1 = -4276.1 / temperature + 141.328 - 23.093 * np.log(temperature)
@@ -1703,6 +1742,43 @@ def derive_oxygen_saturation_w(
     # clean up values from invalid inputs, as SBE Data Processing does
     ox_sol = np.where(temperature < 0, flag_value, ox_sol)
     return ox_sol
+
+
+def derive_nitrogen_saturation(
+    temperature: np.ndarray,
+    salinity: np.ndarray,
+) -> np.ndarray:
+    """Calculate nitrogen saturation from temperature and salinity.
+
+    This is a vectorized implementation of ``N2_SaturationCalc``.
+
+    :param temperature: temperature in degrees C
+    :param salinity: salinity in PSU
+
+    :return: nitrogen saturation values
+    """
+
+    temperature_arr, salinity_arr = np.broadcast_arrays(temperature, salinity)
+
+    t = temperature_arr.astype(float, copy=False)
+    s = salinity_arr.astype(float, copy=False)
+
+    t0 = t + const.KELVIN_OFFSET_0C
+    t1 = np.divide(100.0, t0, out=np.zeros_like(t0), where=t0 != 0.0)
+    t2 = np.maximum(t0 / 100.0, 1.0e-6)
+
+    a1 = -172.4965
+    a2 = 248.4262
+    a3 = 143.0738
+    a4 = -21.7120
+    b1 = -0.049781
+    b2 = 0.025018
+    b3 = -0.0034861
+
+    n2 = a1 + a2 * t1 + a3 * np.log(t2) + a4 * t2 + s * (b1 + b2 * t2 + b3 * t2 * t2)
+    n2 = np.exp(n2)
+
+    return np.where(t0 < 0.0, 99.0, n2)
 
 
 def convert_cstar_attenuation(raw: np.ndarray, coefs: cc.CstarCoefficients):
