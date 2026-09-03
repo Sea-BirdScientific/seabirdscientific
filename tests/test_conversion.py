@@ -623,11 +623,6 @@ class TestConvertSBE43Oxygen:
             "ml/l",
         )
 
-        diff = np.abs(expected - result)
-        indices_sorted = np.argsort(diff)[::-1]  # indices sorted by diff in descending order
-        print(f"Greatest diff at indices: {indices_sorted[:10]}")  # top 10 indices with greatest diff
-        print(f"Greatest diff values: {diff[indices_sorted[:10]]}")
-
         request.node.return_value = result.tolist()
         assert np.allclose(expected, result, rtol=0, atol=1.5e-4)
 
