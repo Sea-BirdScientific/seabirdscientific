@@ -608,6 +608,29 @@ class TestConvertSBE43Oxygen:
         # TODO: Fix this test
         assert np.allclose(expected, result, rtol=0, atol=1e-5)
 
+    def test_convert_to_ml_per_l_full_file(self, request, source_data):
+        expected = source_data["sbeox0ML/L"].values
+        result = dc.convert_sbe43_oxygen(
+            source_data["sbeox0V"].values,
+            source_data["tv290C"].values,
+            source_data["prdM"].values,
+            source_data["sal00"].values,
+            tc.oxygen_43_coefs_sn1686,
+            False,
+            False,
+            2,
+            0.25,
+            "ml/l",
+        )
+
+        diff = np.abs(expected - result)
+        indices_sorted = np.argsort(diff)[::-1]  # indices sorted by diff in descending order
+        print(f"Greatest diff at indices: {indices_sorted[:10]}")  # top 10 indices with greatest diff
+        print(f"Greatest diff values: {diff[indices_sorted[:10]]}")
+
+        request.node.return_value = result.tolist()
+        assert np.allclose(expected, result, rtol=0, atol=1.5e-4)
+
     def test_convert_to_pct_saturation(self, request, source_data):
         expected = source_data["sbeox0PS"].values
         result = dc.convert_sbe43_oxygen(
