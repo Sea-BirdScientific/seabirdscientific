@@ -123,6 +123,9 @@
 #           </Sensor>
 #         </SensorArray>
 #       </CalibrationCoefficients>
+#     </DataConversion>
+#     <Export Step="2">
+#       <NumScans>10</NumScans>
 #       <Columns>
 #         <Column Number='0' ID='c0S/m'>
 #           <Name>Conductivity</Name>
@@ -196,7 +199,7 @@
 #           <Span Min='0' Max='981'></Span>
 #         </Column>
 #       </Columns>
-#     </DataConversion>
+#     </Export>
 #   </Modules>
 # </FathomProcessing>
 *END*

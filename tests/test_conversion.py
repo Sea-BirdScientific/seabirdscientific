@@ -1071,7 +1071,6 @@ class TestConvertSBE63Oxygen:
             source_data["tv290C"].values,
         )
         request.node.return_value = result.tolist()
-        print(f"Expected: {expected}")
         assert np.allclose(expected, result, rtol=0, atol=1e-2)
 
     def test_convert_sbe63_oxygen_umol_per_kg(self, request, source_data):
@@ -1382,11 +1381,6 @@ class TestDeriveSpecificConductance:
             source_data["tv290C"].values, source_data["c0S/m"].values, to_units="uS/cm"
         )
 
-        differences = tsa - source_data["specc"].values
-        print("\nDifferences between tsa and specc:")
-        print(differences)
-        print("\nMax difference:", np.max(np.abs(differences)))
-
         # These use large numbers, use rtol=1e-2 to allow for small relative differences
         assert np.allclose(tsa, source_data["specc"].values, rtol=1e-2, atol=0)
 
@@ -1418,10 +1412,5 @@ class TestDeriveGeopotentialAnomaly:
         return si.read_cnv_file(self.cnv_path, "seasoft")
 
     def test_derive_gpa(self, source_data):
-        # sva = sw.svan(source_data["sal00"].to_numpy(), source_data["tv290C"].to_numpy(), source_data["prdM"].to_numpy()) * 1e8
         gpa = eos80dc.derive_gpa(source_data["sva"], source_data["prdM"].values)
-        differences = gpa - source_data["gpa"].values
-        print("\nDifferences between gpa and source:")
-        print(differences)
-        print("\nMax difference:", np.max(np.abs(differences)))
         assert np.allclose(gpa, source_data["gpa"].values, rtol=0, atol=1e-3)
