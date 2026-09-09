@@ -9,7 +9,6 @@ import gsw
 import numpy as np
 from numpy.polynomial import Polynomial
 from scipy import stats
-import seawater as sw
 
 import seabirdscientific.cal_coefficients as cc
 import seabirdscientific.constants as const
