@@ -329,6 +329,7 @@ def _read_fathom_cnv_file(filepath: Path | str) -> xr.Dataset:
         )
         fathom_xml = ET.fromstring("".join(line.lstrip("#* ") for line in block))
         dc_element = fathom_xml.find("Modules").find("DataConversion")
+        export_element = fathom_xml.find("Modules").find("Export")
         total_scans = int(dc_element.find("NumScans").text)
         dataset = dataset.assign_coords(scan=np.arange(total_scans))
         ds_attrs = {
@@ -338,7 +339,7 @@ def _read_fathom_cnv_file(filepath: Path | str) -> xr.Dataset:
         dataset.attrs.update(ds_attrs)
 
         rows = [line.split() for line in f if line.strip()]
-        columns = list(dc_element.find("Columns"))
+        columns = list(export_element.find("Columns"))
 
         if len(rows) != total_scans or any(len(row) != len(columns) for row in rows):
             raise ValueError(

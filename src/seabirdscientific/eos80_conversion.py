@@ -2,15 +2,11 @@
 
 import math
 import warnings
+from typing import Literal
 
 import numpy as np
 import seawater as sw
 from scipy import stats
-from typing import Literal
-
-import seawater as sw
-
-from . import constants as const
 
 import seabirdscientific.constants as const
 
