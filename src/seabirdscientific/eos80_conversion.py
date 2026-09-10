@@ -487,7 +487,7 @@ def derive_average_sound_velocity(
     if not (pressure.size == salinity.size == sound_velocity_mps.size == n):
         raise ValueError("All inputs must have the same length.")
 
-    out = np.full(n, np.nan, dtype=np.float64)
+    out = np.full(n, 0, dtype=np.float64)
 
     valid = (sound_velocity_mps != 0.0) & (pressure >= min_pressure) & (salinity >= min_salinity)
 
@@ -504,7 +504,7 @@ def derive_average_sound_velocity(
 
     out[first] = asv
     if first > 0:
-        out[:first] = np.nan
+        out[:first] = 0
 
     # Hold the current ASV value on each subsequent row, updating only when
     # the depth increment threshold is met.
