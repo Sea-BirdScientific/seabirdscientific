@@ -395,13 +395,13 @@ class TestDeriveSoundVelocity:
         return si.read_cnv_file(self.cnv_path, "seasoft")
 
     @pytest.mark.parametrize(
-            "formula, expected_column",
-            [
-                ("c", "svCM"),
-                ("d", "svDM"),
-                ("w", "svWM"),
-            ],
-        )
+        "formula, expected_column",
+        [
+            ("c", "svCM"),
+            ("d", "svDM"),
+            ("w", "svWM"),
+        ],
+    )
     def test_derive_sv(self, source_data, formula, expected_column):
         temp_ipts68 = dc.convert_temperature_units(
             source_data["tv290C"].values, "IPTS68", "C", "IPTS68", "C"
@@ -411,6 +411,7 @@ class TestDeriveSoundVelocity:
         )
 
         assert np.allclose(result, source_data[expected_column].values, rtol=0, atol=1e-1)
+
 
 class TestConvertSBE43Oxygen:
     # Some tests need to be run on complete datasets
@@ -1400,13 +1401,14 @@ class TestDeriveGeopotentialAnomaly:
         gpa = eos80dc.derive_gpa(source_data["sva"], source_data["prdM"].values)
         assert np.allclose(gpa, source_data["gpa"].values, rtol=0, atol=1e-3)
 
+
 class TestDeriveAverageSoundVelocity:
     cnv_path = test_data / "SBE19plus_derive_testing_binned.cnv"
 
     @pytest.fixture
     def source_data(self):
         return si.read_cnv_file(self.cnv_path, "seasoft")
-    
+
     @pytest.mark.parametrize(
         "sv_column, expected_column",
         [
@@ -1421,5 +1423,7 @@ class TestDeriveAverageSoundVelocity:
     def test_derive_avg_sv(self, source_data, sv_column, expected_column):
         sal = source_data["sal00"].values
         depth = dc.depth_from_pressure(source_data["prdM"].values, 0)
-        avg_sv = eos80dc.derive_average_sound_velocity(depth, source_data["prdM"].values, sal, source_data[sv_column].values, 2, 2)
+        avg_sv = eos80dc.derive_average_sound_velocity(
+            depth, source_data["prdM"].values, sal, source_data[sv_column].values, 2, 2
+        )
         assert np.allclose(avg_sv, source_data[expected_column].values, rtol=0, atol=1e-2)
