@@ -3368,9 +3368,10 @@
   },
   {
     "aliases": [
-      "adiabaticLapseRate"
+      "adiabaticLapseRate",
+      "gsw_adlrA0"
     ],
-    "name": "gsw_adlrA0",
+    "name": "gsw_adlr0A",
     "units": "K/Pa",
     "title": "Adiabatic Lapse Rate",
     "info": []
@@ -3483,9 +3484,9 @@
   {
     "aliases": [
       "gravity",
-      "gsw_gravA"
+      "gsw_gravA0"
     ],
-    "name": "gsw_gravA0",
+    "name": "gsw_gravA",
     "units": "m/s^2",
     "title": "Gravity",
     "info": []
