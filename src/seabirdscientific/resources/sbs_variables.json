@@ -1,8 +1,6 @@
 [
   {
-    "aliases": [
-      "tFreq"
-    ],
+    "aliases": [],
     "name": "tFreq",
     "units": "",
     "title": "Temperature",
@@ -64,9 +62,7 @@
     ]
   },
   {
-    "aliases": [
-      "t090"
-    ],
+    "aliases": [],
     "name": "t090",
     "units": "deg C",
     "title": "Temperature",
@@ -265,9 +261,7 @@
     ]
   },
   {
-    "aliases": [
-      "cFreq"
-    ],
+    "aliases": [],
     "name": "cFreq",
     "units": "",
     "title": "Conductivity",
@@ -375,9 +369,7 @@
     "info": []
   },
   {
-    "aliases": [
-      "pFreq"
-    ],
+    "aliases": [],
     "name": "pFreq",
     "units": "",
     "title": "Pressure",
@@ -419,9 +411,7 @@
     ]
   },
   {
-    "aliases": [
-      "prDM"
-    ],
+    "aliases": [],
     "name": "prDM",
     "units": "db",
     "title": "Pressure",
@@ -430,9 +420,7 @@
     ]
   },
   {
-    "aliases": [
-      "prDE"
-    ],
+    "aliases": [],
     "name": "prDE",
     "units": "psi",
     "title": "Pressure",
@@ -463,18 +451,14 @@
     ]
   },
   {
-    "aliases": [
-      "ptempC"
-    ],
+    "aliases": [],
     "name": "ptempC",
     "units": "deg C",
     "title": "Pressure-Temperature",
     "info": []
   },
   {
-    "aliases": [
-      "ptempF"
-    ],
+    "aliases": [],
     "name": "ptempF",
     "units": "deg F",
     "title": "Pressure-Temperature",
@@ -482,72 +466,16 @@
   },
   {
     "aliases": [
-      "fgp0"
-    ],
-    "name": "fgp0",
-    "units": "KPa",
-    "title": "Pressure-FGP",
-    "info": []
-  },
-  {
-    "aliases": [
-      "fgp1"
-    ],
-    "name": "fgp1",
-    "units": "KPa",
-    "title": "Pressure-FGP",
-    "info": []
-  },
-  {
-    "aliases": [
-      "fgp2"
-    ],
-    "name": "fgp2",
-    "units": "KPa",
-    "title": "Pressure-FGP",
-    "info": []
-  },
-  {
-    "aliases": [
-      "fgp3"
-    ],
-    "name": "fgp3",
-    "units": "KPa",
-    "title": "Pressure-FGP",
-    "info": []
-  },
-  {
-    "aliases": [
-      "fgp4"
-    ],
-    "name": "fgp4",
-    "units": "KPa",
-    "title": "Pressure-FGP",
-    "info": []
-  },
-  {
-    "aliases": [
-      "fgp5"
-    ],
-    "name": "fgp5",
-    "units": "KPa",
-    "title": "Pressure-FGP",
-    "info": []
-  },
-  {
-    "aliases": [
-      "fgp6"
-    ],
-    "name": "fgp6",
-    "units": "KPa",
-    "title": "Pressure-FGP",
-    "info": []
-  },
-  {
-    "aliases": [
+      "fgp0",
+      "fgp1",
+      "fgp2",
+      "fgp3",
+      "fgp4",
+      "fgp5",
+      "fgp6",
       "fgp7"
     ],
-    "name": "fgp7",
+    "name": null,
     "units": "KPa",
     "title": "Pressure-FGP",
     "info": []
@@ -712,9 +640,7 @@
     "info": []
   },
   {
-    "aliases": [
-      "timeS"
-    ],
+    "aliases": [],
     "name": "timeS",
     "units": "seconds",
     "title": "Time",
@@ -723,9 +649,7 @@
     ]
   },
   {
-    "aliases": [
-      "timeM"
-    ],
+    "aliases": [],
     "name": "timeM",
     "units": "minutes",
     "title": "Time",
@@ -734,9 +658,7 @@
     ]
   },
   {
-    "aliases": [
-      "timeH"
-    ],
+    "aliases": [],
     "name": "timeH",
     "units": "hours",
     "title": "Time",
@@ -745,9 +667,7 @@
     ]
   },
   {
-    "aliases": [
-      "timeJ"
-    ],
+    "aliases": [],
     "name": "timeJ",
     "units": "Julian Days",
     "title": "Time",
@@ -756,9 +676,7 @@
     ]
   },
   {
-    "aliases": [
-      "timeN"
-    ],
+    "aliases": [],
     "name": "timeN",
     "units": "seconds since January 1, 2000",
     "title": "Time",
@@ -767,9 +685,7 @@
     ]
   },
   {
-    "aliases": [
-      "timeQ"
-    ],
+    "aliases": [],
     "name": "timeQ",
     "units": "seconds since January 1, 1970",
     "title": "Time",
@@ -778,9 +694,7 @@
     ]
   },
   {
-    "aliases": [
-      "timeK"
-    ],
+    "aliases": [],
     "name": "timeK",
     "units": "seconds since January 1, 2000",
     "title": "Time",
@@ -801,9 +715,7 @@
     ]
   },
   {
-    "aliases": [
-      "timeY"
-    ],
+    "aliases": [],
     "name": "timeY",
     "units": "seconds since January 1, 1970",
     "title": "Time",
@@ -812,9 +724,7 @@
     ]
   },
   {
-    "aliases": [
-      "time"
-    ],
+    "aliases": [],
     "name": "time",
     "units": "",
     "title": "Date Time",
@@ -823,9 +733,7 @@
     ]
   },
   {
-    "aliases": [
-      "date"
-    ],
+    "aliases": [],
     "name": "date",
     "units": "",
     "title": "Date",
@@ -834,9 +742,7 @@
     ]
   },
   {
-    "aliases": [
-      "timeI"
-    ],
+    "aliases": [],
     "name": "timeI",
     "units": "",
     "title": "Date Time",
@@ -845,9 +751,7 @@
     ]
   },
   {
-    "aliases": [
-      "timeNMEA"
-    ],
+    "aliases": [],
     "name": "timeNMEA",
     "units": "",
     "title": "Date Time",
@@ -856,9 +760,7 @@
     ]
   },
   {
-    "aliases": [
-      "dateI"
-    ],
+    "aliases": [],
     "name": "dateI",
     "units": "",
     "title": "Date",
@@ -867,9 +769,7 @@
     ]
   },
   {
-    "aliases": [
-      "dateN"
-    ],
+    "aliases": [],
     "name": "dateN",
     "units": "",
     "title": "Date",
@@ -878,9 +778,7 @@
     ]
   },
   {
-    "aliases": [
-      "timeIiso"
-    ],
+    "aliases": [],
     "name": "timeIiso",
     "units": "",
     "title": "Date Time ISO",
@@ -889,9 +787,7 @@
     ]
   },
   {
-    "aliases": [
-      "timeSiso"
-    ],
+    "aliases": [],
     "name": "timeSiso",
     "units": "",
     "title": "Date Time ISO",
@@ -900,9 +796,7 @@
     ]
   },
   {
-    "aliases": [
-      "timeNiso"
-    ],
+    "aliases": [],
     "name": "timeNiso",
     "units": "",
     "title": "Date Time ISO",
@@ -911,63 +805,49 @@
     ]
   },
   {
-    "aliases": [
-      "latitude"
-    ],
+    "aliases": [],
     "name": "latitude",
     "units": "deg",
     "title": "Latitude",
     "info": []
   },
   {
-    "aliases": [
-      "longitude"
-    ],
+    "aliases": [],
     "name": "longitude",
     "units": "deg",
     "title": "Longitude",
     "info": []
   },
   {
-    "aliases": [
-      "depSM"
-    ],
+    "aliases": [],
     "name": "depSM",
     "units": "depth salt water, m",
     "title": "Depth",
     "info": []
   },
   {
-    "aliases": [
-      "depSF"
-    ],
+    "aliases": [],
     "name": "depSF",
     "units": "depth salt water, ft",
     "title": "Depth",
     "info": []
   },
   {
-    "aliases": [
-      "depFM"
-    ],
+    "aliases": [],
     "name": "depFM",
     "units": "depth fresh water, m",
     "title": "Depth",
     "info": []
   },
   {
-    "aliases": [
-      "depFF"
-    ],
+    "aliases": [],
     "name": "depFF",
     "units": "depth fresh water, ft",
     "title": "Depth",
     "info": []
   },
   {
-    "aliases": [
-      "dNMEA"
-    ],
+    "aliases": [],
     "name": "dNMEA",
     "units": "depth from NMEA salt water, m",
     "title": "Depth",
@@ -1094,27 +974,21 @@
     ]
   },
   {
-    "aliases": [
-      "tha090C"
-    ],
+    "aliases": [],
     "name": "tha090C",
     "units": "deg C",
     "title": "Potential-Temperature-Anomaly",
     "info": []
   },
   {
-    "aliases": [
-      "tha090F"
-    ],
+    "aliases": [],
     "name": "tha090F",
     "units": "deg F",
     "title": "Potential-Temperature-Anomaly",
     "info": []
   },
   {
-    "aliases": [
-      "tha068C"
-    ],
+    "aliases": [],
     "name": "tha068C",
     "units": "deg C",
     "title": "Potential-Temperature-Anomaly",
@@ -1123,9 +997,7 @@
     ]
   },
   {
-    "aliases": [
-      "tha068F"
-    ],
+    "aliases": [],
     "name": "tha068F",
     "units": "deg F",
     "title": "Potential-Temperature-Anomaly",
@@ -1134,27 +1006,21 @@
     ]
   },
   {
-    "aliases": [
-      "tha190C"
-    ],
+    "aliases": [],
     "name": "tha190C",
     "units": "deg C",
     "title": "Potential-Temperature-Anomaly",
     "info": []
   },
   {
-    "aliases": [
-      "tha190F"
-    ],
+    "aliases": [],
     "name": "tha190F",
     "units": "deg F",
     "title": "Potential-Temperature-Anomaly",
     "info": []
   },
   {
-    "aliases": [
-      "tha168C"
-    ],
+    "aliases": [],
     "name": "tha168C",
     "units": "deg C",
     "title": "Potential-Temperature-Anomaly",
@@ -1163,9 +1029,7 @@
     ]
   },
   {
-    "aliases": [
-      "tha168F"
-    ],
+    "aliases": [],
     "name": "tha168F",
     "units": "deg F",
     "title": "Potential-Temperature-Anomaly",
@@ -1174,9 +1038,7 @@
     ]
   },
   {
-    "aliases": [
-      "pta090C"
-    ],
+    "aliases": [],
     "name": "pta090C",
     "units": "deg C",
     "title": "Potential-Temperature-Anomaly",
@@ -1185,9 +1047,7 @@
     ]
   },
   {
-    "aliases": [
-      "pta090F"
-    ],
+    "aliases": [],
     "name": "pta090F",
     "units": "deg F",
     "title": "Potential-Temperature-Anomaly",
@@ -1196,9 +1056,7 @@
     ]
   },
   {
-    "aliases": [
-      "pta068C"
-    ],
+    "aliases": [],
     "name": "pta068C",
     "units": "deg C",
     "title": "Potential-Temperature-Anomaly",
@@ -1207,9 +1065,7 @@
     ]
   },
   {
-    "aliases": [
-      "pta068F"
-    ],
+    "aliases": [],
     "name": "pta068F",
     "units": "deg F",
     "title": "Potential-Temperature-Anomaly",
@@ -1590,9 +1446,7 @@
     "info": []
   },
   {
-    "aliases": [
-      "iowSv"
-    ],
+    "aliases": [],
     "name": "iowSv",
     "units": "IOW sound velocity sensor, m/s",
     "title": "Sound-Velocity-IOW",
@@ -1608,63 +1462,49 @@
     "info": []
   },
   {
-    "aliases": [
-      "avgsvCM"
-    ],
+    "aliases": [],
     "name": "avgsvCM",
     "units": "Chen-Millero, m/s",
     "title": "Sound-Velocity-Average",
     "info": []
   },
   {
-    "aliases": [
-      "avgsvCF"
-    ],
+    "aliases": [],
     "name": "avgsvCF",
     "units": "Chen-Millero, ft/s",
     "title": "Sound-Velocity-Average",
     "info": []
   },
   {
-    "aliases": [
-      "avgsvDM"
-    ],
+    "aliases": [],
     "name": "avgsvDM",
     "units": "Delgrosso, m/s",
     "title": "Sound-Velocity-Average",
     "info": []
   },
   {
-    "aliases": [
-      "avgsvDF"
-    ],
+    "aliases": [],
     "name": "avgsvDF",
     "units": "Delgrosso, ft/s",
     "title": "Sound-Velocity-Average",
     "info": []
   },
   {
-    "aliases": [
-      "avgsvWM"
-    ],
+    "aliases": [],
     "name": "avgsvWM",
     "units": "Wilson, m/s",
     "title": "Sound-Velocity-Average",
     "info": []
   },
   {
-    "aliases": [
-      "avgsvWF"
-    ],
+    "aliases": [],
     "name": "avgsvWF",
     "units": "Wilson, ft/s",
     "title": "Sound-Velocity-Average",
     "info": []
   },
   {
-    "aliases": [
-      "N"
-    ],
+    "aliases": [],
     "name": "N",
     "units": "cycles/hour",
     "title": "Buoyancy",
@@ -1680,18 +1520,14 @@
     "info": []
   },
   {
-    "aliases": [
-      "accM"
-    ],
+    "aliases": [],
     "name": "accM",
     "units": "m/s^2",
     "title": "Acceleration",
     "info": []
   },
   {
-    "aliases": [
-      "accF"
-    ],
+    "aliases": [],
     "name": "accF",
     "units": "ft/s^2",
     "title": "Acceleration",
@@ -1716,81 +1552,63 @@
     "info": []
   },
   {
-    "aliases": [
-      "sfdSM"
-    ],
+    "aliases": [],
     "name": "sfdSM",
     "units": "salt water, m",
     "title": "Seafloor-Depth",
     "info": []
   },
   {
-    "aliases": [
-      "sfdSF"
-    ],
+    "aliases": [],
     "name": "sfdSF",
     "units": "salt water, ft",
     "title": "Seafloor-Depth",
     "info": []
   },
   {
-    "aliases": [
-      "sfdFM"
-    ],
+    "aliases": [],
     "name": "sfdFM",
     "units": "fresh water, m",
     "title": "Seafloor-Depth",
     "info": []
   },
   {
-    "aliases": [
-      "sfdFF"
-    ],
+    "aliases": [],
     "name": "sfdFF",
     "units": "fresh water, ft",
     "title": "Seafloor-Depth",
     "info": []
   },
   {
-    "aliases": [
-      "dm"
-    ],
+    "aliases": [],
     "name": "dm",
     "units": "10 J/kg",
     "title": "Dynamic-Meters",
     "info": []
   },
   {
-    "aliases": [
-      "gpa"
-    ],
+    "aliases": [],
     "name": "gpa",
     "units": "J/kg",
     "title": "Geopotential-Anomaly",
     "info": []
   },
   {
-    "aliases": [
-      "pla"
-    ],
+    "aliases": [],
     "name": "pla",
     "units": "?",
     "title": "Plume-Anomaly",
     "info": []
   },
   {
-    "aliases": [
-      "sva"
-    ],
+    "aliases": [],
     "name": "sva",
     "units": "10^-8 *m^3/kg",
     "title": "Specific-Volume-Anomaly",
     "info": []
   },
   {
-    "aliases": [
-      "E"
-    ],
+    "aliases": [],
     "name": "E",
     "units": "rad^2/m",
     "title": "Stability",
@@ -1806,54 +1624,42 @@
     "info": []
   },
   {
-    "aliases": [
-      "tsa"
-    ],
+    "aliases": [],
     "name": "tsa",
     "units": "10^-8 *m^3/kg",
     "title": "Thermosteric-Anomaly",
     "info": []
   },
   {
-    "aliases": [
-      "specc"
-    ],
+    "aliases": [],
     "name": "specc",
     "units": "uS/cm",
     "title": "Specific-Conductance",
     "info": []
   },
   {
-    "aliases": [
-      "speccumhoscm"
-    ],
+    "aliases": [],
     "name": "speccumhoscm",
     "units": "umhos/cm",
     "title": "Specific-Conductance",
     "info": []
   },
   {
-    "aliases": [
-      "speccmsm"
-    ],
+    "aliases": [],
     "name": "speccmsm",
     "units": "mS/cm",
     "title": "Specific-Conductance",
     "info": []
   },
   {
-    "aliases": [
-      "speccmmhoscm"
-    ],
+    "aliases": [],
     "name": "speccmmhoscm",
     "units": "mmhos/cm",
     "title": "Specific-Conductance",
     "info": []
   },
   {
-    "aliases": [
-      "sbeox0V"
-    ],
+    "aliases": [],
     "name": "sbeox0V",
     "units": "V",
     "title": "Oxygen-Raw-43",
@@ -1862,9 +1668,7 @@
     ]
   },
   {
-    "aliases": [
-      "sbeox0F"
-    ],
+    "aliases": [],
     "name": "sbeox0F",
     "units": "Hz",
     "title": "Oxygen-Raw-43",
@@ -1884,9 +1688,7 @@
     ]
   },
   {
-    "aliases": [
-      "sbeox1F"
-    ],
+    "aliases": [],
     "name": "sbeox1F",
     "units": "Hz",
     "title": "Oxygen-Raw-43",
@@ -1896,7 +1698,8 @@
   },
   {
     "aliases": [
-      "sbeox0mL/L"
+      "sbeox0ML/L",
+      "sbeox0mL_L"
     ],
     "name": "sbeox0ML_L",
     "units": "mL/L",
@@ -1907,7 +1710,8 @@
   },
   {
     "aliases": [
-      "sbeox0mg/L"
+      "sbeox0Mg/L",
+      "sbeox0mg_L"
     ],
     "name": "sbeox0Mg_L",
     "units": "mg/L",
@@ -1917,9 +1721,7 @@
     ]
   },
   {
-    "aliases": [
-      "sbeox0PS"
-    ],
+    "aliases": [],
     "name": "sbeox0PS",
     "units": "% saturation",
     "title": "Oxygen",
@@ -2062,9 +1864,7 @@
     ]
   },
   {
-    "aliases": [
-      "sbeox0PSdiff"
-    ],
+    "aliases": [],
     "name": "sbeox0PSdiff",
     "units": "% saturation",
     "title": "Oxygen",
@@ -2098,9 +1898,7 @@
     ]
   },
   {
-    "aliases": [
-      "sbeoxpd"
-    ],
+    "aliases": [],
     "name": "sbeoxpd",
     "units": "usec",
     "title": "Oxygen",
@@ -2110,9 +1908,7 @@
     ]
   },
   {
-    "aliases": [
-      "sbeoxpdv"
-    ],
+    "aliases": [],
     "name": "sbeoxpdv",
     "units": "V",
     "title": "Oxygen",
@@ -2122,9 +1918,7 @@
     ]
   },
   {
-    "aliases": [
-      "sbeoxpd1"
-    ],
+    "aliases": [],
     "name": "sbeoxpd1",
     "units": "usec",
     "title": "Oxygen",
@@ -2134,9 +1928,7 @@
     ]
   },
   {
-    "aliases": [
-      "sbeoxpdv1"
-    ],
+    "aliases": [],
     "name": "sbeoxpdv1",
     "units": "sbeoxpdv1",
     "title": "Oxygen",
@@ -2146,9 +1938,7 @@
     ]
   },
   {
-    "aliases": [
-      "sbeoxtv"
-    ],
+    "aliases": [],
     "name": "sbeoxtv",
     "units": "sbeoxtv",
     "title": "Oxygen",
@@ -2158,9 +1948,7 @@
     ]
   },
   {
-    "aliases": [
-      "sbeoxtv1"
-    ],
+    "aliases": [],
     "name": "sbeoxtv1",
     "units": "sbeoxtv1",
     "title": "Oxygen",
@@ -2170,9 +1958,7 @@
     ]
   },
   {
-    "aliases": [
-      "sbeoxTC"
-    ],
+    "aliases": [],
     "name": "sbeoxTC",
     "units": "deg C",
     "title": "Temperature",
@@ -2183,9 +1969,7 @@
     ]
   },
   {
-    "aliases": [
-      "sbeoxTF"
-    ],
+    "aliases": [],
     "name": "sbeoxTF",
     "units": "deg F",
     "title": "Temperature",
@@ -2196,9 +1980,7 @@
     ]
   },
   {
-    "aliases": [
-      "sbeoxTC1"
-    ],
+    "aliases": [],
     "name": "sbeoxTC1",
     "units": "deg C",
     "title": "Temperature",
@@ -2209,9 +1991,7 @@
     ]
   },
   {
-    "aliases": [
-      "sbeoxTF1"
-    ],
+    "aliases": [],
     "name": "sbeoxTF1",
     "units": "deg F",
     "title": "Temperature",
@@ -2244,9 +2024,7 @@
     ]
   },
   {
-    "aliases": [
-      "sbeopoxPS"
-    ],
+    "aliases": [],
     "name": "sbeopoxPS",
     "units": "% saturation",
     "title": "Oxygen",
@@ -2301,9 +2079,7 @@
     ]
   },
   {
-    "aliases": [
-      "sbeopoxPS1"
-    ],
+    "aliases": [],
     "name": "sbeopoxPS1",
     "units": "% saturation",
     "title": "Oxygen",
@@ -2325,6 +2101,7 @@
   },
   {
     "aliases": [
+      "SbeopoxMm_L1",
       "sbeopoxMm/L1",
       "sbeopoxMm_L1"
     ],
@@ -2354,9 +2131,7 @@
     "info": []
   },
   {
-    "aliases": [
-      "opoxPS"
-    ],
+    "aliases": [],
     "name": "opoxPS",
     "units": "% saturation",
     "title": "Optode-Aanderaa",
@@ -2364,7 +2139,8 @@
   },
   {
     "aliases": [
-      "opoxMm/L"
+      "opoxMm/L",
+      "opoxMm_L"
     ],
     "name": "opoxum_L",
     "units": "umol/l",
@@ -2372,54 +2148,42 @@
     "info": []
   },
   {
-    "aliases": [
-      "oxC"
-    ],
+    "aliases": [],
     "name": "oxC",
     "units": "uA",
     "title": "Beckman-YSI",
     "info": []
   },
   {
-    "aliases": [
-      "oxsC"
-    ],
+    "aliases": [],
     "name": "oxsC",
     "units": "uA",
     "title": "Beckman-YSI",
     "info": []
   },
   {
-    "aliases": [
-      "oxTC"
-    ],
+    "aliases": [],
     "name": "oxTC",
     "units": "deg C",
     "title": "Beckman-YSI",
     "info": []
   },
   {
-    "aliases": [
-      "oxTF"
-    ],
+    "aliases": [],
     "name": "oxTF",
     "units": "deg F",
     "title": "Beckman-YSI",
     "info": []
   },
   {
-    "aliases": [
-      "oxsTC"
-    ],
+    "aliases": [],
     "name": "oxsTC",
     "units": "deg C",
     "title": "Beckman-YSI",
     "info": []
   },
   {
-    "aliases": [
-      "oxsTF"
-    ],
+    "aliases": [],
     "name": "oxsTF",
     "units": "deg F",
     "title": "Beckman-YSI",
@@ -2444,9 +2208,7 @@
     "info": []
   },
   {
-    "aliases": [
-      "oxPS"
-    ],
+    "aliases": [],
     "name": "oxPS",
     "units": "% saturation",
     "title": "Beckman-YSI",
@@ -2490,9 +2252,7 @@
     "info": []
   },
   {
-    "aliases": [
-      "oxsPS"
-    ],
+    "aliases": [],
     "name": "oxsPS",
     "units": "% saturation",
     "title": "Beckman-YSI",
@@ -2715,9 +2475,7 @@
     "info": []
   },
   {
-    "aliases": [
-      "flCM"
-    ],
+    "aliases": [],
     "name": "flCM",
     "units": "ug/l",
     "title": "Fluorescence",
@@ -2757,10 +2515,8 @@
     "info": []
   },
   {
-    "aliases": [
-      "flSPR"
-    ],
-    "name": null,
+    "aliases": [],
+    "name": "flSPR",
     "units": "",
     "title": "Rhodamine",
     "info": []
@@ -2777,27 +2533,21 @@
     "info": []
   },
   {
-    "aliases": [
-      "flS"
-    ],
-    "name": null,
+    "aliases": [],
+    "name": "flS",
     "units": "",
     "title": "Fluorescence",
     "info": []
   },
   {
-    "aliases": [
-      "flT"
-    ],
+    "aliases": [],
     "name": "flT",
     "units": "",
     "title": "Turner-10-005",
     "info": []
   },
   {
-    "aliases": [
-      "flTAu"
-    ],
+    "aliases": [],
     "name": "flTAu",
     "units": "",
     "title": "Turner-10-Au-005",
@@ -2826,9 +2576,7 @@
     "info": []
   },
   {
-    "aliases": [
-      "wetChAbs"
-    ],
+    "aliases": [],
     "name": "wetChAbs",
     "units": "1/m",
     "title": "Wetlabs-AC3",
@@ -2850,18 +2598,14 @@
     "info": []
   },
   {
-    "aliases": [
-      "wetChConc"
-    ],
+    "aliases": [],
     "name": "wetChConc",
     "units": "mg/m^3",
     "title": "Wetlabs-Chlorophyll",
     "info": []
   },
   {
-    "aliases": [
-      "flECOVolt"
-    ],
+    "aliases": [],
     "name": "flECOVolt",
     "units": "",
     "title": "Chlorophyll-a",
@@ -2981,9 +2725,7 @@
     "info": []
   },
   {
-    "aliases": [
-      "nephc"
-    ],
+    "aliases": [],
     "name": "nephc",
     "units": "FTU",
     "title": "Nephelometer",
@@ -3017,18 +2759,14 @@
     "info": []
   },
   {
-    "aliases": [
-      "haardtT"
-    ],
+    "aliases": [],
     "name": "haardtT",
     "units": "",
     "title": "Haardt",
     "info": []
   },
   {
-    "aliases": [
-      "diff"
-    ],
+    "aliases": [],
     "name": "diff",
     "units": "",
     "title": "Ifremer",
@@ -3057,19 +2795,15 @@
     "info": []
   },
   {
-    "aliases": [
-      "betaECO"
-    ],
-    "name": null,
+    "aliases": [],
+    "name": "betaECO",
     "units": "m^-1 * sr^-1",
     "title": "β",
     "info": []
   },
   {
-    "aliases": [
-      "betaECOVolt"
-    ],
-    "name": null,
+    "aliases": [],
+    "name": "betaECOVolt",
     "units": "",
     "title": "backscatter",
     "info": [
@@ -3117,9 +2851,7 @@
     "info": []
   },
   {
-    "aliases": [
-      "turbWETVolt"
-    ],
+    "aliases": [],
     "name": "turbWETVolt",
     "units": "",
     "title": "Turbidity",
@@ -3165,9 +2897,7 @@
     "info": []
   },
   {
-    "aliases": [
-      "wetBAttn"
-    ],
+    "aliases": [],
     "name": "wetBAttn",
     "units": "1/m",
     "title": "Beam-Transmission",
@@ -3201,9 +2931,7 @@
     "info": []
   },
   {
-    "aliases": [
-      "wetBTrans"
-    ],
+    "aliases": [],
     "name": "wetBTrans",
     "units": "%",
     "title": "Beam-Transmission",
@@ -3226,52 +2954,44 @@
     "info": []
   },
   {
-    "aliases": ["CStarV"],
-    "name": null,
+    "aliases": [],
+    "name": "CStarV",
     "units": "V",
     "title": "CStar-Voltage",
-    "info": ["Raw Voltage"]
+    "info": [
+      "Raw Voltage"
+    ]
   },
   {
-    "aliases": [
-      "lisstBC"
-    ],
+    "aliases": [],
     "name": "lisstBC",
     "units": "1/m",
     "title": "Lisst",
     "info": []
   },
   {
-    "aliases": [
-      "lisstOT"
-    ],
+    "aliases": [],
     "name": "lisstOT",
     "units": "%",
     "title": "Lisst",
     "info": []
   },
   {
-    "aliases": [
-      "lisstMD"
-    ],
+    "aliases": [],
     "name": "lisstMD",
     "units": "u",
     "title": "Lisst",
     "info": []
   },
   {
-    "aliases": [
-      "lisstTVC"
-    ],
+    "aliases": [],
     "name": "lisstTVC",
     "units": "ul/l",
     "title": "Lisst",
     "info": []
   },
   {
-    "aliases": [
-      "parVolt"
-    ],
+    "aliases": [],
     "name": "parVolt",
     "units": "",
     "title": "PAR",
@@ -3280,9 +3000,7 @@
     ]
   },
   {
-    "aliases": [
-      "sparVolt"
-    ],
+    "aliases": [],
     "name": "sparVolt",
     "units": "",
     "title": "SPAR",
@@ -3291,27 +3009,21 @@
     ]
   },
   {
-    "aliases": [
-      "cpar"
-    ],
+    "aliases": [],
     "name": "cpar",
     "units": "%",
     "title": "PAR",
     "info": []
   },
   {
-    "aliases": [
-      "par"
-    ],
+    "aliases": [],
     "name": "par",
     "units": "",
     "title": "PAR",
     "info": []
   },
   {
-    "aliases": [
-      "par1"
-    ],
+    "aliases": [],
     "name": "par1",
     "units": "",
     "title": "PAR",
@@ -3327,27 +3039,21 @@
     "info": []
   },
   {
-    "aliases": [
-      "spar"
-    ],
+    "aliases": [],
     "name": "spar",
     "units": "umol photons * m^-2 * s^-1",
     "title": "SPAR",
     "info": []
   },
   {
-    "aliases": [
-      "meth"
-    ],
+    "aliases": [],
     "name": "meth",
     "units": "umol/l",
     "title": "Methane",
     "info": []
   },
   {
-    "aliases": [
-      "methT"
-    ],
+    "aliases": [],
     "name": "methT",
     "units": "deg C",
     "title": "Methane",
@@ -3382,18 +3088,14 @@
     "info": []
   },
   {
-    "aliases": [
-      "orp"
-    ],
+    "aliases": [],
     "name": "orp",
     "units": "mV",
     "title": "Oxidation-Reduction-Potential",
     "info": []
   },
   {
-    "aliases": [
-      "pHVolt"
-    ],
+    "aliases": [],
     "name": "pHVolt",
     "units": "",
     "title": "pH",
@@ -3412,90 +3114,70 @@
     "info": []
   },
   {
-    "aliases": [
-      "phExt"
-    ],
-    "name": null,
+    "aliases": [],
+    "name": "phExt",
     "units": "",
     "title": "pH External",
     "info": []
   },
   {
-    "aliases": [
-      "phIntVolt"
-    ],
-    "name": null,
+    "aliases": [],
+    "name": "phIntVolt",
     "units": "volts",
     "title": "pH Internal Raw Voltage",
     "info": []
   },
   {
-    "aliases": [
-      "phExtVolt"
-    ],
-    "name": null,
+    "aliases": [],
+    "name": "phExtVolt",
     "units": "volts",
     "title": "pH External Raw Voltage",
     "info": []
   },
   {
-    "aliases": [
-      "phTemperature"
-    ],
-    "name": null,
+    "aliases": [],
+    "name": "phTemperature",
     "units": "deg C",
     "title": "pH Reference Temperature",
     "info": []
   },
   {
-    "aliases": [
-      "phTemperatureVolt"
-    ],
-    "name": null,
+    "aliases": [],
+    "name": "phTemperatureVolt",
     "units": "volts",
     "title": "pH Reference Temperature Raw Voltage",
     "info": []
   },
   {
-    "aliases": [
-      "internalTemperatureCelsius"
-    ],
-    "name": null,
+    "aliases": [],
+    "name": "internalTemperatureCelsius",
     "units": "deg C",
     "title": "Internal Temperature",
     "info": []
   },
   {
-    "aliases": [
-      "internalTemperatureCounts"
-    ],
-    "name": null,
+    "aliases": [],
+    "name": "internalTemperatureCounts",
     "units": "counts",
     "title": "Internal Temperature",
     "info": []
   },
   {
-    "aliases": [
-      "internalRelativeHumidity"
-    ],
-    "name": null,
+    "aliases": [],
+    "name": "internalRelativeHumidity",
     "units": "%",
     "title": "Internal Relative Humidity",
     "info": []
   },
   {
-    "aliases": [
-      "internalRelativeHumidityCounts"
-    ],
-    "name": null,
+    "aliases": [],
+    "name": "internalRelativeHumidityCounts",
     "units": "counts",
     "title": "Internal Relative Humidity",
     "info": []
   },
   {
-    "aliases": [
-      "zaps"
-    ],
+    "aliases": [],
     "name": "zaps",
     "units": "nmol",
     "title": "Zaps",
@@ -3531,9 +3213,7 @@
     "info": []
   },
   {
-    "aliases": [
-      "polyVolt"
-    ],
+    "aliases": [],
     "name": "polyVolt",
     "units": "",
     "title": "User-Defined-Polynomial",
@@ -3557,9 +3237,7 @@
     "info": []
   },
   {
-    "aliases": [
-      "expoVolt"
-    ],
+    "aliases": [],
     "name": "expoVolt",
     "units": "",
     "title": "User-Defined-Exponential",
@@ -3568,19 +3246,15 @@
     ]
   },
   {
-    "aliases": [
-      "uequation"
-    ],
-    "name": null,
+    "aliases": [],
+    "name": "uequation",
     "units": "",
     "title": "User-Defined-Equation",
     "info": []
   },
   {
-    "aliases": [
-      "uequationVolt"
-    ],
-    "name": null,
+    "aliases": [],
+    "name": "uequationVolt",
     "units": "",
     "title": "User-Defined-Equation",
     "info": [
@@ -3588,36 +3262,28 @@
     ]
   },
   {
-    "aliases": [
-      "altM"
-    ],
+    "aliases": [],
     "name": "altM",
     "units": "m",
     "title": "Altimeter",
     "info": []
   },
   {
-    "aliases": [
-      "altF"
-    ],
+    "aliases": [],
     "name": "altF",
     "units": "ft",
     "title": "Altimeter",
     "info": []
   },
   {
-    "aliases": [
-      "altV"
-    ],
+    "aliases": [],
     "name": "altV",
     "units": "volts",
     "title": "Altimeter",
     "info": []
   },
   {
-    "aliases": [
-      "bct"
-    ],
+    "aliases": [],
     "name": "bct",
     "units": "",
     "title": "Bottom-Contact",
@@ -3636,36 +3302,28 @@
     "info": []
   },
   {
-    "aliases": [
-      "pumps"
-    ],
+    "aliases": [],
     "name": "pumps",
     "units": "",
     "title": "Pumps",
     "info": []
   },
   {
-    "aliases": [
-      "nbytes"
-    ],
+    "aliases": [],
     "name": "nbytes",
     "units": "",
     "title": "Byte-Count",
     "info": []
   },
   {
-    "aliases": [
-      "modError"
-    ],
+    "aliases": [],
     "name": "modError",
     "units": "",
     "title": "Modulo-Error-Count",
     "info": []
   },
   {
-    "aliases": [
-      "mod"
-    ],
+    "aliases": [],
     "name": "mod",
     "units": "",
     "title": "Modulo-Word",
@@ -3673,18 +3331,14 @@
     "format": "%s"
   },
   {
-    "aliases": [
-      "scan"
-    ],
+    "aliases": [],
     "name": "scan",
     "units": "",
     "title": "Scan-Count",
     "info": []
   },
   {
-    "aliases": [
-      "nbin"
-    ],
+    "aliases": [],
     "name": "nbin",
     "units": "",
     "title": "Scan-Per-Bin",
@@ -3755,9 +3409,7 @@
     ]
   },
   {
-    "aliases": [
-      "gsw_sigma0A0"
-    ],
+    "aliases": [],
     "name": "gsw_sigma0A0",
     "units": "sigma-0, kg/m^3",
     "title": "Density",
@@ -3766,9 +3418,7 @@
     ]
   },
   {
-    "aliases": [
-      "gsw_sigma1A0"
-    ],
+    "aliases": [],
     "name": "gsw_sigma1A0",
     "units": "sigma-1, kg/m^3",
     "title": "Density",
@@ -3777,9 +3427,7 @@
     ]
   },
   {
-    "aliases": [
-      "gsw_sigma2A0"
-    ],
+    "aliases": [],
     "name": "gsw_sigma2A0",
     "units": "sigma-2, kg/m^3",
     "title": "Density",
@@ -3788,9 +3436,7 @@
     ]
   },
   {
-    "aliases": [
-      "gsw_sigma3A0"
-    ],
+    "aliases": [],
     "name": "gsw_sigma3A0",
     "units": "sigma-3, kg/m^3",
     "title": "Density",
@@ -3799,9 +3445,7 @@
     ]
   },
   {
-    "aliases": [
-      "gsw_sigma4A0"
-    ],
+    "aliases": [],
     "name": "gsw_sigma4A0",
     "units": "sigma-4, kg/m^3",
     "title": "Density",
@@ -3974,9 +3618,7 @@
     "info": []
   },
   {
-    "aliases": [
-      "SUNAuM"
-    ],
+    "aliases": [],
     "name": "SUNAuM",
     "units": "μM NO3",
     "title": "Nitrate",
@@ -3992,324 +3634,252 @@
     "info": []
   },
   {
-    "aliases": [
-      "SUNAV"
-    ],
+    "aliases": [],
     "name": "SUNAV",
     "units": "V",
     "title": "SUNA Raw Voltage",
     "info": []
   },
   {
-    "aliases": [
-      "ECObackscattering880"
-    ],
+    "aliases": [],
     "name": "ECObackscattering880",
     "units": "",
     "title": "ECO Backscattering 880",
     "info": []
   },
   {
-    "aliases": [
-      "ECObackscattering870"
-    ],
+    "aliases": [],
     "name": "ECObackscattering870",
     "units": "",
     "title": "ECO Backscattering 870",
     "info": []
   },
   {
-    "aliases": [
-      "ECObackscattering780"
-    ],
+    "aliases": [],
     "name": "ECObackscattering780",
     "units": "",
     "title": "ECO Backscattering 780",
     "info": []
   },
   {
-    "aliases": [
-      "ECObackscattering770"
-    ],
+    "aliases": [],
     "name": "ECObackscattering770",
     "units": "",
     "title": "ECO Backscattering 770",
     "info": []
   },
   {
-    "aliases": [
-      "ECObackscattering720"
-    ],
+    "aliases": [],
     "name": "ECObackscattering720",
     "units": "",
     "title": "ECO Backscattering 720",
     "info": []
   },
   {
-    "aliases": [
-      "ECObackscattering715"
-    ],
+    "aliases": [],
     "name": "ECObackscattering715",
     "units": "",
     "title": "ECO Backscattering 715",
     "info": []
   },
   {
-    "aliases": [
-      "ECObackscattering700"
-    ],
+    "aliases": [],
     "name": "ECObackscattering700",
     "units": "",
     "title": "ECO Backscattering 700",
     "info": []
   },
   {
-    "aliases": [
-      "ECObackscattering676"
-    ],
+    "aliases": [],
     "name": "ECObackscattering676",
     "units": "",
     "title": "ECO Backscattering 676",
     "info": []
   },
   {
-    "aliases": [
-      "ECObackscattering650"
-    ],
+    "aliases": [],
     "name": "ECObackscattering650",
     "units": "",
     "title": "ECO Backscattering 650",
     "info": []
   },
   {
-    "aliases": [
-      "ECObackscattering630"
-    ],
+    "aliases": [],
     "name": "ECObackscattering630",
     "units": "",
     "title": "ECO Backscattering 630",
     "info": []
   },
   {
-    "aliases": [
-      "ECObackscattering595"
-    ],
+    "aliases": [],
     "name": "ECObackscattering595",
     "units": "",
     "title": "ECO Backscattering 595",
     "info": []
   },
   {
-    "aliases": [
-      "ECObackscattering532"
-    ],
+    "aliases": [],
     "name": "ECObackscattering532",
     "units": "",
     "title": "ECO Backscattering 532",
     "info": []
   },
   {
-    "aliases": [
-      "ECObackscattering530"
-    ],
-    "name": "ECObckscattering530",
+    "aliases": [],
+    "name": "ECObackscattering530",
     "units": "",
     "title": "ECO Backscattering 530",
     "info": []
   },
   {
-    "aliases": [
-      "ECObackscattering510"
-    ],
+    "aliases": [],
     "name": "ECObackscattering510",
     "units": "",
     "title": "ECO Backscattering 510",
     "info": []
   },
   {
-    "aliases": [
-      "ECObackscattering488"
-    ],
+    "aliases": [],
     "name": "ECObackscattering488",
     "units": "",
     "title": "ECO Backscattering 488",
     "info": []
   },
   {
-    "aliases": [
-      "ECObackscattering470"
-    ],
+    "aliases": [],
     "name": "ECObackscattering470",
     "units": "",
     "title": "ECO Backscattering 470",
     "info": []
   },
   {
-    "aliases": [
-      "ECObackscattering440"
-    ],
+    "aliases": [],
     "name": "ECObackscattering440",
     "units": "",
     "title": "ECO Backscattering 440",
     "info": []
   },
   {
-    "aliases": [
-      "ECObackscattering412"
-    ],
+    "aliases": [],
     "name": "ECObackscattering412",
     "units": "",
     "title": "ECO Backscattering 412",
     "info": []
   },
   {
-    "aliases": [
-      "ECOFDOM"
-    ],
+    "aliases": [],
     "name": "ECOFDOM",
     "units": "",
     "title": "ECO FDOM",
     "info": []
   },
   {
-    "aliases": [
-      "ECOFLUR"
-    ],
+    "aliases": [],
     "name": "ECOFLUR",
     "units": "",
     "title": "ECO FLUR",
     "info": []
   },
   {
-    "aliases": [
-      "ECOFLRH"
-    ],
+    "aliases": [],
     "name": "ECOFLRH",
     "units": "",
     "title": "ECO FLRH",
     "info": []
   },
   {
-    "aliases": [
-      "ECOFLPE"
-    ],
+    "aliases": [],
     "name": "ECOFLPE",
     "units": "",
     "title": "ECO FLPE",
     "info": []
   },
   {
-    "aliases": [
-      "ECOFLPC"
-    ],
+    "aliases": [],
     "name": "ECOFLPC",
     "units": "",
     "title": "ECO FLPC",
     "info": []
   },
   {
-    "aliases": [
-      "ECOCHL435"
-    ],
+    "aliases": [],
     "name": "ECOCHL435",
     "units": "",
     "title": "ECO CHL-435",
     "info": []
   },
   {
-    "aliases": [
-      "ECOCHL470"
-    ],
+    "aliases": [],
     "name": "ECOCHL470",
     "units": "",
     "title": "ECO CHL-470",
     "info": []
   },
   {
-    "aliases": [
-      "SBE911ConfirmStatus"
-    ],
+    "aliases": [],
     "name": "SBE911ConfirmStatus",
     "units": "",
     "title": "G.O. 1015 water sampler interface confirm signal or manual pump control signal",
     "info": []
   },
   {
-    "aliases": [
-      "SBE911ModemStatus"
-    ],
+    "aliases": [],
     "name": "SBE911ModemStatus",
     "units": "",
     "title": "CTD modem carrier sensed",
     "info": []
   },
   {
-    "aliases": [
-      "flag"
-    ],
+    "aliases": [],
     "name": "flag",
     "units": "",
     "title": "Flag",
     "info": []
   },
   {
-    "aliases": [
-      "scanId"
-    ],
+    "aliases": [],
     "name": "scanId",
     "units": "",
     "title": "Scan ID",
     "info": []
   },
   {
-    "aliases": [
-      "castId"
-    ],
+    "aliases": [],
     "name": "castId",
     "units": "",
     "title": "Cast ID",
     "info": []
   },
   {
-    "aliases": [
-      "bottleId"
-    ],
+    "aliases": [],
     "name": "bottleId",
     "units": "",
     "title": "Bottle Position",
     "info": []
   },
   {
-    "aliases": [
-      "bottleVerification"
-    ],
+    "aliases": [],
     "name": "bottleVerification",
     "units": "",
     "title": "Bottle Verification",
     "info": []
   },
   {
-    "aliases": [
-      "rawScan"
-    ],
+    "aliases": [],
     "name": "rawScan",
     "units": "",
     "title": "Raw Scan",
     "info": []
   },
   {
-    "aliases": [
-      "marked"
-    ],
+    "aliases": [],
     "name": "marked",
     "units": "",
     "title": "Marked",
     "info": []
   },
   {
-    "aliases": [
-      "metadata"
-    ],
+    "aliases": [],
     "name": "metadata",
     "units": "",
     "title": "Metadata",
