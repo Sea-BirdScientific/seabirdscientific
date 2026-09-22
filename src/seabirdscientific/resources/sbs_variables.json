@@ -47,7 +47,7 @@
     "units": "deg C",
     "title": "Temperature",
     "info": [
-      "ITS-68"
+      "IPTS-68"
     ]
   },
   {
@@ -60,7 +60,7 @@
     "units": "deg F",
     "title": "Temperature",
     "info": [
-      "ITS-68"
+      "IPTS-68"
     ]
   },
   {
@@ -110,7 +110,7 @@
     "title": "Temperature",
     "info": [
       "Secondary",
-      "ITS-68"
+      "IPTS-68"
     ]
   },
   {
@@ -123,7 +123,7 @@
     "title": "Temperature",
     "info": [
       "Secondary",
-      "ITS-68"
+      "IPTS-68"
     ]
   },
   {
@@ -161,7 +161,7 @@
     "units": "deg C",
     "title": "Temperature-Reference",
     "info": [
-      "ITS-68"
+      "IPTS-68"
     ]
   },
   {
@@ -173,7 +173,7 @@
     "units": "deg F",
     "title": "Temperature-Reference",
     "info": [
-      "ITS-68"
+      "IPTS-68"
     ]
   },
   {
@@ -206,7 +206,7 @@
     "units": "deg C",
     "title": "Temperature-Secondary-Sensor",
     "info": [
-      "ITS-68"
+      "IPTS-68"
     ]
   },
   {
@@ -217,7 +217,7 @@
     "units": "deg F",
     "title": "Temperature-Secondary-Sensor",
     "info": [
-      "ITS-68"
+      "IPTS-68"
     ]
   },
   {
@@ -968,7 +968,7 @@
     "aliases": [
       "dNMEA"
     ],
-    "name": "depSM",
+    "name": "dNMEA",
     "units": "depth from NMEA salt water, m",
     "title": "Depth",
     "info": []
@@ -999,7 +999,7 @@
     "units": "deg C",
     "title": "Potential-Temperature",
     "info": [
-      "ITS-68"
+      "IPTS-68"
     ]
   },
   {
@@ -1010,7 +1010,7 @@
     "units": "deg F",
     "title": "Potential-Temperature",
     "info": [
-      "ITS-68"
+      "IPTS-68"
     ]
   },
   {
@@ -1039,7 +1039,7 @@
     "units": "deg C",
     "title": "Potential-Temperature",
     "info": [
-      "ITS-68"
+      "IPTS-68"
     ]
   },
   {
@@ -1050,7 +1050,7 @@
     "units": "deg F",
     "title": "Potential-Temperature",
     "info": [
-      "ITS-68"
+      "IPTS-68"
     ]
   },
   {
@@ -1079,7 +1079,7 @@
     "units": "deg C",
     "title": "Potential-Temperature-Difference",
     "info": [
-      "ITS-68"
+      "IPTS-68"
     ]
   },
   {
@@ -1090,7 +1090,7 @@
     "units": "deg F",
     "title": "Potential-Temperature-Difference",
     "info": [
-      "ITS-68"
+      "IPTS-68"
     ]
   },
   {
@@ -1119,7 +1119,7 @@
     "units": "deg C",
     "title": "Potential-Temperature-Anomaly",
     "info": [
-      "ITS-68"
+      "IPTS-68"
     ]
   },
   {
@@ -1130,7 +1130,7 @@
     "units": "deg F",
     "title": "Potential-Temperature-Anomaly",
     "info": [
-      "ITS-68"
+      "IPTS-68"
     ]
   },
   {
@@ -1159,7 +1159,7 @@
     "units": "deg C",
     "title": "Potential-Temperature-Anomaly",
     "info": [
-      "ITS-68"
+      "IPTS-68"
     ]
   },
   {
@@ -1170,7 +1170,7 @@
     "units": "deg F",
     "title": "Potential-Temperature-Anomaly",
     "info": [
-      "ITS-68"
+      "IPTS-68"
     ]
   },
   {
@@ -1896,9 +1896,9 @@
   },
   {
     "aliases": [
-      "sbeox0ML/L"
+      "sbeox0mL/L"
     ],
-    "name": "sbeox0mL_L",
+    "name": "sbeox0ML_L",
     "units": "mL/L",
     "title": "Oxygen",
     "info": [
@@ -1907,9 +1907,9 @@
   },
   {
     "aliases": [
-      "sbeox0Mg/L"
+      "sbeox0mg/L"
     ],
-    "name": "sbeox0mg_L",
+    "name": "sbeox0Mg_L",
     "units": "mg/L",
     "title": "Oxygen",
     "info": [
@@ -1933,7 +1933,7 @@
       "sbeox0mum_kg"
     ],
     "name": "sbeox0um_kg",
-    "units": "micromol/kg",
+    "units": "umol/kg",
     "title": "Oxygen",
     "info": [
       "Derived"
@@ -1945,7 +1945,7 @@
       "sbeox0mum_L"
     ],
     "name": "sbeox0um_L",
-    "units": "micromole/L",
+    "units": "umol/L",
     "title": "Oxygen",
     "info": [
       "Derived"
@@ -2007,7 +2007,7 @@
       "sbeox1mum_kg"
     ],
     "name": "sbeox1um_kg",
-    "units": "micromol/kg",
+    "units": "umol/kg",
     "title": "Oxygen",
     "info": [
       "Derived"
@@ -2020,7 +2020,7 @@
       "sbeox1mum_L"
     ],
     "name": "sbeox1um_L",
-    "units": "micromole/L",
+    "units": "umol/L",
     "title": "Oxygen",
     "info": [
       "Derived"
@@ -2326,9 +2326,9 @@
   {
     "aliases": [
       "sbeopoxMm/L1",
-      "sbeopoxum_L1"
+      "sbeopoxMm_L1"
     ],
-    "name": "sbeopoxMm_L1",
+    "name": "sbeopoxum_L1",
     "units": "umol/l",
     "title": "Oxygen",
     "info": [
@@ -3322,7 +3322,7 @@
       "par/log"
     ],
     "name": "par_log",
-    "units": "μmol photons * m^-2 * s^-1",
+    "units": "umol photons * m^-2 * s^-1",
     "title": "PAR",
     "info": []
   },
@@ -3331,7 +3331,7 @@
       "spar"
     ],
     "name": "spar",
-    "units": "μmol photons * m^-2 * s^-1",
+    "units": "umol photons * m^-2 * s^-1",
     "title": "SPAR",
     "info": []
   },
