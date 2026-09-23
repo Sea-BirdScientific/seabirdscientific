@@ -2,8 +2,8 @@
 and salinity (TS) contours.
 """
 
-from dataclasses import dataclass
 import warnings
+from dataclasses import dataclass
 
 import gsw
 import numpy as np
