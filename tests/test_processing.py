@@ -1177,6 +1177,60 @@ class TestNitrate:
         assert np.allclose(expected_mgnl, nitrate, atol=0.000001)
 
 
+class TestFindCast:
+    # surface soak to 3 m, back to 1 m, down to 20 m, then back up
+    depth = np.array([0.0, 2.0, 3.0, 1.0, 5.0, 10.0, 20.0, 15.0, 8.0, 3.0, 1.0, 0.5])
+    flag = np.zeros(len(depth))
+
+    def test_find_downcast(self):
+        assert sp.find_downcast(self.depth, self.flag) == (0, 6)
+
+    def test_find_downcast_min_depth(self):
+        assert sp.find_downcast(self.depth, self.flag, min_depth=0.5) == (3, 6)
+
+    def test_find_downcast_skips_flagged_peak(self):
+        flag = self.flag.copy()
+        flag[6] = sp.FLAG_VALUE
+        assert sp.find_downcast(self.depth, flag, min_depth=0.5) == (3, 7)
+
+    def test_find_upcast(self):
+        assert sp.find_upcast(self.depth, self.flag) == (6, 11)
+
+    def test_find_upcast_min_depth(self):
+        assert sp.find_upcast(self.depth, self.flag, min_depth=2.0) == (6, 9)
+
+    def test_find_upcast_skips_flagged_samples(self):
+        flag = self.flag.copy()
+        flag[9:] = sp.FLAG_VALUE
+        assert sp.find_upcast(self.depth, flag, min_depth=2.0) == (6, 8)
+
+    def test_all_flagged(self):
+        flag = np.full(len(self.depth), sp.FLAG_VALUE)
+        with pytest.raises(ValueError):
+            sp.find_downcast(self.depth, flag)
+        with pytest.raises(ValueError):
+            sp.find_upcast(self.depth, flag)
+
+
+class TestTrim:
+    def test_trim_by_scan(self):
+        data = pd.DataFrame({"prdM": np.arange(10.0) * 2})
+
+        result = sp.trim(data, "scan", 3, 6)
+
+        assert result is data
+        assert list(data["prdM"]) == [4.0, 6.0, 8.0, 10.0]
+        assert list(data.index) == [0, 1, 2, 3]
+
+    def test_trim_by_control(self):
+        data = pd.DataFrame({"prdM": [0.0, 1.0, 5.0, 3.0, 2.0, 8.0]})
+
+        sp.trim(data, "prdM", 1.0, 3.0)
+
+        assert list(data["prdM"]) == [1.0, 3.0, 2.0]
+        assert list(data.index) == [0, 1, 2]
+
+
 class TestSplit:
     @pytest.mark.parametrize(
         "source_path, cast_type",

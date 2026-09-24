@@ -1087,6 +1087,98 @@ def _get_upcast_mask(
     return upcast_mask
 
 
+def find_downcast(
+    depth: np.ndarray,
+    flag: np.ndarray,
+    min_depth: float = -np.inf,
+    flag_value: float = FLAG_VALUE,
+) -> tuple[int, int]:
+    """Gets the start and end indices of a downcast. The end index is at
+    the greatest depth, and the start index is at the shallowest depth
+    greater than min_depth before it. Flagged samples are skipped.
+
+    :param depth: an array of depth values in meters
+    :param flag: an array of flag values
+    :param min_depth: exclude depths less than or equal to this,
+        defaults to -np.inf
+    :param flag_value: the value marking a bad sample, defaults to
+        FLAG_VALUE
+    :return: the start and end indices of the downcast, inclusive
+    """
+    valid = flag != flag_value
+    if not valid.any():
+        raise ValueError("All samples are flagged")
+
+    end = int(np.argmax(np.where(valid, depth, -np.inf)))
+
+    candidates = valid[: end + 1] & (depth[: end + 1] > min_depth)
+    if not candidates.any():
+        return end, end
+
+    start = int(np.argmin(np.where(candidates, depth[: end + 1], np.inf)))
+    return start, end
+
+
+def find_upcast(
+    depth: np.ndarray,
+    flag: np.ndarray,
+    min_depth: float = -np.inf,
+    flag_value: float = FLAG_VALUE,
+) -> tuple[int, int]:
+    """Gets the start and end indices of an upcast. The start index is
+    at the greatest depth, and the end index is at the last depth
+    greater than min_depth after it. Flagged samples are skipped.
+
+    :param depth: an array of depth values in meters
+    :param flag: an array of flag values
+    :param min_depth: exclude depths less than or equal to this,
+        defaults to -np.inf
+    :param flag_value: the value marking a bad sample, defaults to
+        FLAG_VALUE
+    :return: the start and end indices of the upcast, inclusive
+    """
+    valid = flag != flag_value
+    if not valid.any():
+        raise ValueError("All samples are flagged")
+
+    start = int(np.argmax(np.where(valid, depth, -np.inf)))
+
+    candidates = np.flatnonzero(valid[start:] & (depth[start:] > min_depth))
+    end = start + int(candidates[-1]) if len(candidates) else start
+    return start, end
+
+
+def trim(
+    dataframe: pd.DataFrame,
+    control: str,
+    start: float,
+    end: float,
+) -> pd.DataFrame:
+    """Trims a dataframe to the rows within a range of a control
+    variable, operating on the dataframe in place. Rows outside the
+    range are dropped and the index is reset so positional access stays
+    contiguous.
+
+    :param dataframe: The dataframe to trim
+    :param control: The name of the column to trim by, or "scan" to
+        trim by 1-based scan number
+    :param start: The first value to keep, inclusive
+    :param end: The last value to keep, inclusive
+    :return: The trimmed dataframe
+    """
+    if control == "scan":
+        scans = np.arange(len(dataframe))
+        mask = (scans >= max(0, start - 1)) & (scans < end)
+    else:
+        control_values = dataframe[control].to_numpy()
+        mask = (control_values >= start) & (control_values <= end)
+
+    dataframe.drop(index=dataframe.index[~mask], inplace=True)
+    dataframe.reset_index(drop=True, inplace=True)
+
+    return dataframe
+
+
 def split(
     dataset: xr.Dataset,
     control_variable: str,
