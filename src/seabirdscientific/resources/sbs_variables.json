@@ -1134,7 +1134,7 @@
     "aliases": [
       "sigma-é00"
     ],
-    "name": "sgth0",
+    "name": "sigma-theta00",
     "units": "sigma-theta (p=0 db), kg/m^3-1000",
     "title": "Density",
     "info": [
@@ -1212,7 +1212,7 @@
     "aliases": [
       "sigma-é11"
     ],
-    "name": "sgth1",
+    "name": "sigma-theta11",
     "units": "sigma-theta (p=0 db), kg/m^3-1000",
     "title": "Density",
     "info": [
