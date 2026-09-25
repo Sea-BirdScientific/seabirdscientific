@@ -1403,6 +1403,33 @@ class TestDerivePotentialTemperatureAnomaly:
 
         assert np.allclose(pta, source_data["pta090C"].values, rtol=0, atol=1e-3)
 
+    @pytest.mark.parametrize(
+        "to_standard, to_units",
+        [("ITS90", "F"), ("IPTS68", "C"), ("IPTS68", "F")],
+    )
+    def test_derive_pta_units(self, source_data, to_standard, to_units):
+        # SeaSoft converts potential temperature to the output units, then
+        # subtracts a0 + a1 * salinity without converting a0 or a1
+        salinity = source_data["sal00"].values
+        reference = 1 + 2 * salinity
+        po_temp_90_c = source_data["pta090C"].values + reference
+        expected = (
+            dc.convert_temperature_units(po_temp_90_c, "ITS90", "C", to_standard, to_units)
+            - reference
+        )
+
+        pta = eos80dc.derive_potential_temperature_anomaly(
+            salinity,
+            source_data["tv290C"].values,
+            source_data["prdM"].values,
+            a0=1,
+            a1=2,
+            to_standard=to_standard,
+            to_units=to_units,
+        )
+
+        assert np.allclose(pta, expected, rtol=0, atol=2e-3)
+
 
 class TestDeriveGeopotentialAnomaly:
     cnv_path = test_data / "SBE19plus_derive_testing.cnv"

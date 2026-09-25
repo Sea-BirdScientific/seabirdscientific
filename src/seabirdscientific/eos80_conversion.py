@@ -9,6 +9,7 @@ import seawater as sw
 from scipy import stats
 
 import seabirdscientific.constants as const
+import seabirdscientific.conversion as sc
 
 
 def buoyancy_eos80(
@@ -206,6 +207,8 @@ def derive_potential_temperature_anomaly(
     a0: float = 0.0,
     a1: float = 0.0,
     a1multiplier: Literal["salinity", "sigma-theta"] = "salinity",
+    to_standard: Literal["ITS90", "IPTS68"] = "ITS90",
+    to_units: Literal["C", "F"] = "C",
 ) -> np.ndarray:
     """Derive potential temperature anomaly from practical salinity,
     temperature, and pressure using EOS-80 calculations.
@@ -215,6 +218,10 @@ def derive_potential_temperature_anomaly(
     Uses EOS-80 formulas for potential temperature and density calculations.
     Note that termperature uses ITS-90 C, as the seawater library converts it to IPTS-68 internally
 
+    To match SeaSoft, potential temperature is converted to the output
+    standard and units before a0 and a1 are applied, so a0 and a1 are in
+    the output units (e.g. deg F for to_units='F') and are not converted.
+
     :param salinity: Practical salinity in PSU (ndarray)
     :param temperature: Temperature in ITS-90 degrees C (ndarray)
     :param pressure: Pressure in decibars (ndarray)
@@ -223,20 +230,25 @@ def derive_potential_temperature_anomaly(
     :param a1multiplier: Either 'salinity' to use salinity as the multiplier,
         or 'sigma-theta' to use density (sigma-theta) as the
         multiplier. Defaults to 'salinity'.
+    :param to_standard: Output temperature standard, defaults to ITS90
+    :param to_units: Output temperature units, defaults to C
 
-    :return: Potential temperature anomaly in ITS-90 degrees C (ndarray)
+    :return: Potential temperature anomaly in the requested standard and units (ndarray)
     """
 
     # Calculate anomaly correction if coefficients are non-zero
     if a0 != 0.0 or a1 != 0.0:
         po_temp_90_c = sw.ptmp(salinity, temperature, pressure, 0)
+        po_temp = sc.convert_temperature_units(
+            po_temp_90_c, "ITS90", "C", to_standard, to_units
+        )
         if a1multiplier == "sigma-theta":
             # TODO: should we
             density_ref = sw.pden(salinity, po_temp_90_c, pressure, 0)
-            anomaly = po_temp_90_c - (a0 + a1 * density_ref)
+            anomaly = po_temp - (a0 + a1 * density_ref)
         else:
             # Use practical salinity (default)
-            anomaly = po_temp_90_c - (a0 + a1 * salinity)
+            anomaly = po_temp - (a0 + a1 * salinity)
     else:
         anomaly = np.full_like(temperature, const.FLAG_VALUE)  # No anomaly correction needed
 
