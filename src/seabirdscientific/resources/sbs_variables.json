@@ -1134,7 +1134,7 @@
     "aliases": [
       "sigma-é00"
     ],
-    "name": "sgth0",
+    "name": "sigma-theta00",
     "units": "sigma-theta (p=0 db), kg/m^3-1000",
     "title": "Density",
     "info": [
@@ -1142,10 +1142,8 @@
     ]
   },
   {
-    "aliases": [
-      "sigma-t00"
-    ],
-    "name": "sgt0",
+    "aliases": [],
+    "name": "sigma-t00",
     "units": "sigma-t (p=0 db), kg/m^3-1000",
     "title": "Density",
     "info": [
@@ -1153,11 +1151,8 @@
     ]
   },
   {
-    "aliases": [
-      "sigma-100",
-      "sg10"
-    ],
-    "name": "sg100",
+    "aliases": [],
+    "name": "sigma-100",
     "units": "sigma-1 (p=1000 db), kg/m^3-1000",
     "title": "Density",
     "info": [
@@ -1165,10 +1160,8 @@
     ]
   },
   {
-    "aliases": [
-      "sigma-200"
-    ],
-    "name": "sg20",
+    "aliases": [],
+    "name": "sigma-200",
     "units": "sigma-2 (p=2000 db), kg/m^3-1000",
     "title": "Density",
     "info": [
@@ -1176,10 +1169,8 @@
     ]
   },
   {
-    "aliases": [
-      "sigma-300"
-    ],
-    "name": "sg30",
+    "aliases": [],
+    "name": "sigma-300",
     "units": "sigma-3 (p=3000 db), kg/m^3-1000",
     "title": "Density",
     "info": [
@@ -1187,10 +1178,8 @@
     ]
   },
   {
-    "aliases": [
-      "sigma-400"
-    ],
-    "name": "sg40",
+    "aliases": [],
+    "name": "sigma-400",
     "units": "sigma-4 (p=4000 db), kg/m^3-1000",
     "title": "Density",
     "info": [
@@ -1212,7 +1201,7 @@
     "aliases": [
       "sigma-é11"
     ],
-    "name": "sgth1",
+    "name": "sigma-theta11",
     "units": "sigma-theta (p=0 db), kg/m^3-1000",
     "title": "Density",
     "info": [
@@ -1220,10 +1209,8 @@
     ]
   },
   {
-    "aliases": [
-      "sigma-t11"
-    ],
-    "name": "sgt1",
+    "aliases": [],
+    "name": "sigma-t11",
     "units": "sigma-t (p=0 db), kg/m^3-1000",
     "title": "Density",
     "info": [
@@ -1231,10 +1218,8 @@
     ]
   },
   {
-    "aliases": [
-      "sigma-111"
-    ],
-    "name": "sg11",
+    "aliases": [],
+    "name": "sigma-111",
     "units": "sigma-1 (p=1000 db), kg/m^3-1000",
     "title": "Density",
     "info": [
@@ -1242,10 +1227,8 @@
     ]
   },
   {
-    "aliases": [
-      "sigma-211"
-    ],
-    "name": "sg21",
+    "aliases": [],
+    "name": "sigma-211",
     "units": "sigma-2 (p=2000 db), kg/m^3-1000",
     "title": "Density",
     "info": [
@@ -1253,10 +1236,8 @@
     ]
   },
   {
-    "aliases": [
-      "sigma-311"
-    ],
-    "name": "sg31",
+    "aliases": [],
+    "name": "sigma-311",
     "units": "sigma-3 (p=3000 db), kg/m^3-1000",
     "title": "Density",
     "info": [
@@ -1264,10 +1245,8 @@
     ]
   },
   {
-    "aliases": [
-      "sigma-411"
-    ],
-    "name": "sg41",
+    "aliases": [],
+    "name": "sigma-411",
     "units": "sigma-4 (p=4000 db), kg/m^3-1000",
     "title": "Density",
     "info": [
