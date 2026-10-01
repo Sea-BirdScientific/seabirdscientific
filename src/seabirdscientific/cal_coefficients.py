@@ -295,9 +295,9 @@ class PHSeaFETExternalCoefficients:
     :param f5: f(P) coefficient
     :param f6: f(P) coefficient
     :param k2_poly_order: order of K2 pressure compensation calculation,
-        defaults to 3
+        defaults to 0
     :param fp_poly_order: order of pressure compensation calculation,
-        defaults to 6
+        defaults to 0
     """
 
     k0: float = 0
