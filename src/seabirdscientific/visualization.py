@@ -14,7 +14,7 @@ import plotly.graph_objects as go
 import xarray as xr
 from plotly import subplots
 
-from seabirdscientific.interpret_sbs_variable import interpret_sbs_variable
+from seabirdscientific.interpret_sbs_variable import interpret_sbs_variable as sbs
 
 # TODO: check python version
 # TODO: translate warning and error messages
@@ -121,20 +121,17 @@ class ChartConfig:
         """
 
         self.title = title
-        x_info = [interpret_sbs_variable(name) for name in x_names]
-        y_info = [interpret_sbs_variable(name) for name in y_names]
-        z_info = [interpret_sbs_variable(name) for name in z_names]
-        self.x_names = [info["name"] for info in x_info]
-        self.y_names = [info["name"] for info in y_info]
-        self.z_names = [info["name"] for info in z_info]
-        self.x_units = [info["units"] for info in x_info]
-        self.y_units = [info["units"] for info in y_info]
-        self.z_units = [info["units"] for info in z_info]
+        self.x_names = x_names
+        self.y_names = y_names
+        self.z_names = z_names
+        self.x_units = [sbs(name)["units"] for name in x_names]
+        self.y_units = [sbs(name)["units"] for name in y_names]
+        self.z_units = [sbs(name)["units"] for name in z_names]
         self.chart_type = chart_type
         self.bounds = bounds if bounds is not None else {}
-        self.x_titles = x_titles if x_titles is not None else x_names
-        self.y_titles = y_titles if y_titles is not None else y_names
-        self.z_titles = z_titles if z_titles is not None else z_names
+        self.x_titles = x_titles or [sbs(name)["title"] for name in x_names]
+        self.y_titles = y_titles or [sbs(name)["title"] for name in y_names]
+        self.z_titles = z_titles or [sbs(name)["title"] for name in z_names]
         self.plot_loop_edit_flags = plot_loop_edit_flags
         self.lift_pen_over_bad_data = lift_pen_over_bad_data
         self.flag_value = flag_value
@@ -200,7 +197,7 @@ def parse_instrument_data(source: str | Path | pd.DataFrame | xr.Dataset) -> xr.
         if not isinstance(data, pd.DataFrame):
             raise TypeError
 
-        columns = [interpret_sbs_variable(column)["name"] for column in data.columns]
+        columns = [sbs(column)["name"] for column in data.columns]
         for old_column, new_column in zip(data.columns, columns):
             data.rename(columns={old_column: new_column}, inplace=True)
         scan_coords = np.arange(len(data))
