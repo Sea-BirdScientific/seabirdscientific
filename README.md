@@ -4,7 +4,7 @@ This is the repository for the Sea-Bird Scientific (SBS) Community Toolkit. It i
 
 - Python code to process and visualize data collected with SBS instruments (src/seabirdscientific).
 - Example SBS instrument data (notebooks/example_data and tests/resources/test-data).
-- [Jupyter](https://jupyter.org/) notebooks that demonstrate converting raw data from SBS instruments and processing it with the toolkit. The `processing.ipynb` notebook serves as documentation for the formulas used in the toolkit and [Fathom](https://www.seabird.com/software), and is also available as a [PDF](TODO).
+- [Jupyter](https://jupyter.org/) notebooks that demonstrate converting raw data from SBS instruments and processing it with the toolkit. The `processing.ipynb` notebook serves as documentation for the formulas used in the toolkit and [Fathom](https://www.seabird.com/software), and is also available as a [PDF](https://github.com/Sea-BirdScientific/seabirdscientific/blob/main/notebooks/processing.pdf).
 
 ## Migration Guide: v2 to v3
 There are many improvements and some breaking changes in version 3. Review the migrations guide to what's new and update your existing scripts as needed.  
