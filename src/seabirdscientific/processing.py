@@ -779,7 +779,7 @@ def wild_edit(
     while upper_index <= len(data):
         flagged_data[lower_index:upper_index] = _flag_data(
             data[lower_index:upper_index],
-            flags,
+            flags[lower_index:upper_index],
             std_pass_1,
             std_pass_2,
             distance_to_mean,
@@ -794,7 +794,7 @@ def wild_edit(
         upper_index = len(data)
         flagged_data[len(data) - len(data) % scans_per_block :] = _flag_data(
             data[lower_index:upper_index],
-            flags,
+            flags[lower_index:upper_index],
             std_pass_1,
             std_pass_2,
             distance_to_mean,
