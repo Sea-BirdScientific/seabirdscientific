@@ -66,17 +66,20 @@ def potential_temperature(
 ) -> np.ndarray:
     """Deprecated. Use use the sewater library (seawater.ptemp) instead for EOS-80
 
-    :param s: sainity data
-    :param t0: temperature data
-    :param p0: subset pressure data
-    :param pr: pressure data
+    Potential temperature of water at pressure p0, referenced to
+    pressure pr.
+
+    :param s: salinity data
+    :param t0: temperature data, at pressure p0
+    :param p0: pressure data, in dbar
+    :param pr: reference pressure, in dbar
     """
 
     warnings.warn(
         "Deprecated. Use use the sewater library (seawater.ptemp) instead", DeprecationWarning
     )
 
-    return np.atleast_1d(sw.ptmp(s, t0, pr))
+    return np.atleast_1d(sw.ptmp(s, t0, p0, pr))
 
 
 def adiabatic_temperature_gradient(
