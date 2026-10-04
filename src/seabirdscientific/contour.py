@@ -8,6 +8,13 @@ from dataclasses import dataclass
 import gsw
 import numpy as np
 
+# [g/kg] absolute salinity grid spacing and margin beyond the data
+SALINITY_GRID_STEP = 0.1
+SALINITY_GRID_PADDING = 0.3
+# [deg C] conservative temperature grid spacing and margin beyond the data
+TEMPERATURE_GRID_STEP = 1.0
+TEMPERATURE_GRID_PADDING = 1.0
+
 
 @dataclass
 class ContourData:
@@ -22,6 +29,24 @@ class ContourData:
     x_vec: np.ndarray  # absolute salinity vector
     y_vec: np.ndarray  # conservative temperature vector
     z_mat: np.ndarray  # potential density matrix
+
+
+def _grid_vector(values: np.ndarray, step: float, padding: float) -> np.ndarray:
+    """Evenly spaced grid values covering the data plus a margin on each
+    side
+
+    :param values: data the grid must cover. NaNs are ignored
+    :param step: spacing between grid values
+    :param padding: margin below the minimum and above the maximum
+
+    :return: grid values from min - padding to at least max + padding
+    """
+    start = np.nanmin(values) - padding
+    stop = np.nanmax(values) + padding
+    # The small tolerance stops float rounding from adding a step when the span is an exact
+    # multiple of step
+    count = int(np.ceil((stop - start) / step - 1e-9)) + 1
+    return start + step * np.arange(count)
 
 
 def contour_from_t_s_p(
@@ -75,25 +100,15 @@ def contour_from_t_s_p(
     conservative_temperature = gsw.CT_from_t(absolute_salinity, temperature, pressure)
     potential_density = gsw.rho(absolute_salinity, conservative_temperature, reference_pressure)
 
-    # Figure out T-S grid boundaries (mins and maxes)
-    min_s = np.nanmin(absolute_salinity) - (0.01 * np.nanmin(absolute_salinity))
-    max_s = np.nanmax(absolute_salinity) + (0.01 * np.nanmax(absolute_salinity))
-    min_t = np.nanmin(conservative_temperature) - (0.1 * np.nanmin(conservative_temperature))
-    max_t = np.nanmax(conservative_temperature) + (0.1 * np.nanmax(conservative_temperature))
-
-    # Calculate how many grid cells we need in the x and y dimensions
-    x_range = round((max_s - min_s) / 0.1 + 1, 0)
-    y_range = round((max_t - min_t) + 1, 0)
-    x_cells = x_range.astype(int)
-    y_cells = y_range.astype(int)
-
-    # Create conservative_temperature and absolute_salinity vectors of appropriate dimensions
-    temperature_vector = np.linspace(1, y_range - 1, y_cells) + min_t
-    salinity_vector = np.linspace(1, x_range - 1, x_cells) * 0.1 + min_s
+    # Grid vectors span the data plus a fixed margin, so the density contours cover every sample
+    salinity_vector = _grid_vector(absolute_salinity, SALINITY_GRID_STEP, SALINITY_GRID_PADDING)
+    temperature_vector = _grid_vector(
+        conservative_temperature, TEMPERATURE_GRID_STEP, TEMPERATURE_GRID_PADDING
+    )
 
     # Loop to fill in density
-    potential_density_matrix = np.zeros((y_cells, x_cells))
-    for j in range(y_cells):
+    potential_density_matrix = np.zeros((len(temperature_vector), len(salinity_vector)))
+    for j in range(len(temperature_vector)):
         potential_density_matrix[j, :] = gsw.rho(
             salinity_vector, temperature_vector[j], reference_pressure
         )
