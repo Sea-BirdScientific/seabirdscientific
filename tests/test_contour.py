@@ -136,6 +136,20 @@ class TestContourFromTSP:
         assert np.array_equal(result.z_mat, expected.z_mat)
         assert np.array_equal(result.z, expected.z)
 
+    def test_fresh_water_grid_starts_at_zero_salinity(self):
+        # Lake Superior: practical salinity ~0.05, where the 0.3 g/kg padding would go negative
+        temperature = np.array([14.97, 14.95, 14.9, 14.85])
+        salinity = np.array([0.050, 0.051, 0.052, 0.053])
+        pressure = np.array([1.0, 6.0, 12.0, 18.0])
+
+        result = sc.contour_from_t_s_p(temperature, salinity, pressure, lat=46.76, lon=-92.06)
+
+        assert result.x_vec[0] == 0
+        assert result.x_vec[-1] >= np.nanmax(result.x) + sc.SALINITY_GRID_PADDING
+        assert np.allclose(np.diff(result.x_vec), sc.SALINITY_GRID_STEP, rtol=0, atol=1e-12)
+        # temperature keeps its full padding below the data
+        assert np.isclose(result.y_vec[0], np.nanmin(result.y) - sc.TEMPERATURE_GRID_PADDING)
+
 
 class TestContourFromTCP:
     # conductivity in mS/cm, from the practical salinity of the profile
@@ -198,3 +212,9 @@ class TestGridVector:
         assert np.isclose(result[0], -0.1)
         assert result[-1] >= 1.15
         assert result[-2] < 1.15
+
+    def test_lower_limit(self):
+        result = sc._grid_vector(np.array([0.05, 0.4]), step=0.1, padding=0.3, lower_limit=0)
+
+        assert result[0] == 0
+        assert result[-1] >= 0.7

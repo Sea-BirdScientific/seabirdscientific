@@ -31,17 +31,22 @@ class ContourData:
     z_mat: np.ndarray  # potential density matrix
 
 
-def _grid_vector(values: np.ndarray, step: float, padding: float) -> np.ndarray:
+def _grid_vector(
+    values: np.ndarray, step: float, padding: float, lower_limit: float = -np.inf
+) -> np.ndarray:
     """Evenly spaced grid values covering the data plus a margin on each
     side
 
     :param values: data the grid must cover. NaNs are ignored
     :param step: spacing between grid values
     :param padding: margin below the minimum and above the maximum
+    :param lower_limit: the grid never starts below this value, e.g.
+        0 for salinity. Defaults to no limit
 
-    :return: grid values from min - padding to at least max + padding
+    :return: grid values from max(min - padding, lower_limit) to at
+        least max + padding
     """
-    start = np.nanmin(values) - padding
+    start = max(np.nanmin(values) - padding, lower_limit)
     stop = np.nanmax(values) + padding
     # The small tolerance stops float rounding from adding a step when the span is an exact
     # multiple of step
@@ -101,7 +106,10 @@ def contour_from_t_s_p(
     potential_density = gsw.rho(absolute_salinity, conservative_temperature, reference_pressure)
 
     # Grid vectors span the data plus a fixed margin, so the density contours cover every sample
-    salinity_vector = _grid_vector(absolute_salinity, SALINITY_GRID_STEP, SALINITY_GRID_PADDING)
+    # Salinity can't be negative, which the padding would otherwise reach for fresh water
+    salinity_vector = _grid_vector(
+        absolute_salinity, SALINITY_GRID_STEP, SALINITY_GRID_PADDING, lower_limit=0
+    )
     temperature_vector = _grid_vector(
         conservative_temperature, TEMPERATURE_GRID_STEP, TEMPERATURE_GRID_PADDING
     )
