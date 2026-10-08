@@ -388,14 +388,14 @@ same length as the input arrays.
 processing
 **********
 
-bin_average now takes a Dataset
-===============================
+bin_average
+===========
 
 ``bin_average`` previously accepted and returned a ``pandas.DataFrame``. It
 now accepts and returns an ``xarray.Dataset``. The input must have a ``scan``
 dimension, such as the dataset returned by ``read_cnv_file`` or
 ``read_hex_file``. The output uses a ``bin_number`` dimension and keeps the
-input dataset attributes.
+input dataset attributes. It now raises a ValueError is CastType is invalid.
 
 .. code-block:: python
 
@@ -478,6 +478,10 @@ The enums are deprecated and emit a ``DeprecationWarning`` when passed.
 
    # v3
    p.window_filter(data, flags, "boxcar", width, interval)
+
+
+window_filter
+=============
 
 ``window_filter`` now increments an even ``window_width`` by one so that the
 window has a center point.
