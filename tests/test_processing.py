@@ -959,6 +959,23 @@ class TestWildEdit:
         request.node.return_value = wild_edit_output.tolist()
         assert np.all(wild_edit_output == expected_conductivity)
 
+    def test_wild_edit_excludes_flags_in_later_blocks(self):
+        rng = np.random.default_rng(0)
+        data = rng.normal(0, 0.01, 20)
+        flags = np.zeros(20)
+
+        # loop edit flagged scan in the second block. If its flag is not
+        # applied, it inflates the block std and hides the outlier at 12
+        data[15] = 1000.0
+        flags[15] = sp.FLAG_VALUE
+        data[12] = 1.0
+
+        result = sp.wild_edit(data, flags, 2, 3, 10, 0, True)
+
+        assert result[12] == sp.FLAG_VALUE
+        assert result[15] == sp.FLAG_VALUE
+        assert np.array_equal(result[:10], data[:10])
+
 
 class TestWindowFilter:
     file_prefix = Path(test_data / "19plus_V2_CTD-processing_example")

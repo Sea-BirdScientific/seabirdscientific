@@ -239,9 +239,7 @@ def derive_potential_temperature_anomaly(
     # Calculate anomaly correction if coefficients are non-zero
     if a0 != 0.0 or a1 != 0.0:
         po_temp_90_c = sw.ptmp(salinity, temperature, pressure, 0)
-        po_temp = sc.convert_temperature_units(
-            po_temp_90_c, "ITS90", "C", to_standard, to_units
-        )
+        po_temp = sc.convert_temperature_units(po_temp_90_c, "ITS90", "C", to_standard, to_units)
         if a1multiplier == "sigma-theta":
             # TODO: should we
             density_ref = sw.pden(salinity, po_temp_90_c, pressure, 0)

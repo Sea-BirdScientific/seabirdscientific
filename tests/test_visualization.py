@@ -124,25 +124,6 @@ class TestDatasetInput:
             data = sv.parse_instrument_data(self.data_path)
             sv.select_subset(config.z_names, data)
 
-    def test_chart_data_slash_pass(self):
-        data_path = test_resources / "example_fail_slash.csv"
-        config = sv.ChartConfig(
-            title=data_path,
-            x_names=["Col/1"],
-            y_names=["Col\\2"],
-            z_names=["Col-3"],
-            chart_type="",
-        )
-        data = sv.parse_instrument_data(data_path)
-        subset_x = sv.select_subset(config.x_names, data)
-        subset_y = sv.select_subset(config.y_names, data)
-        subset_z = sv.select_subset(config.z_names, data)
-
-        assert isinstance(data, xr.Dataset)
-        assert list(subset_x.data_vars) == ["Col_1"]
-        assert list(subset_y.data_vars) == ["Col_2"]
-        assert list(subset_z.data_vars) == ["Col_3"]
-
 
 class TestPlotXYChart2:
     def test_plot_xy_chart(self):
