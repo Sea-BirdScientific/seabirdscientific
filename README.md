@@ -2,50 +2,33 @@
 
 This is the repository for the Sea-Bird Scientific (SBS) Community Toolkit. It is a collection of:
 
-- Python code to help in user developed processing of data collected with SBS instruments (see the repository src/sbs folder).
-- Example SBS instrument data (see the repository documentation/example_data folder).
-- A [Jupyter](https://jupyter.org/) notebook that documents the current toolkit processing options that can be applied to data collected with SBE 37 and SBE 19plus V2 CTDs (see the repository documentation folder). This notebook also serves to document the processing options available in the SBS Fathom application.
+- Python code to process and visualize data collected with SBS instruments (src/seabirdscientific).
+- Example SBS instrument data (notebooks/example_data and tests/resources/test-data).
+- [Jupyter](https://jupyter.org/) notebooks that demonstrate converting raw data from SBS instruments and processing it with the toolkit. The `processing.ipynb` notebook serves as documentation for the formulas used in the toolkit and [Fathom](https://www.seabird.com/software), and is also available as a [PDF](https://github.com/Sea-BirdScientific/seabirdscientific/blob/main/notebooks/processing.pdf).
+
+## Migration Guide: v2 to v3
+There are many improvements and some breaking changes in version 3. Review the migrations guide to what's new and update your existing scripts as needed.  
+<https://sea-birdscientific.github.io/seabirdscientific/migration_guide_v2_v3.html>
 
 ## Documentation
-<!-- TODO: change the following link to the sphinx generated docs when it's ready -->
-<https://github.com/Sea-BirdScientific/seabirdscientific/tree/main/documentation>  
+<https://sea-birdscientific.github.io/seabirdscientific/>  
 
-## Package Installation With pip
+## Installation
+The toolkit requires [Python](https://www.python.org) 3.11 or greater.  
 
-The seabirdscientific package uses Python 3.9 or greater. To install the package in a Python environment using pip send the command:
-
-On Windows:
+### Windows:
 
 ``` bash
 py -m pip install seabirdscientific
 ```
 
-On Unix/macOS:
+### Linux/macOS:
 
 ``` bash
 python3 -m pip install seabirdscientific
 ```
 
-For additional information see the [Python.org Installing Packages](https://packaging.python.org/en/latest/tutorials/installing-packages/#installing-packages) reference.
-
-## Example package use within python code
-
-```python
-import seabirdscientific
-from seabirdscientific import contour
-import seabirdscientific.conversion as conv
-import seabirdscientific.processing as proc
-```
-
-## Required Software
-
-You must have [Python](https://www.python.org/downloads/) version 3.9 or higher installed in order to use the toolkit.
-
-## CTD Jupyter Notebook
-
-The ctd-processing.ipynb notebook in the documentation folder provides examples of the methods that can be applied to SBS CTD data within both the toolkit and the SBS Fathom application. There are a number of online references available with information on Jupyter notebook setup for different platforms and environments. For those who are not interested in an interactive notebook, there is a static version available in [PDF](https://github.com/Sea-BirdScientific/seabirdscientific/blob/main/documentation/processing.pdf) format.
-
-## Contributions to the Toolkit
+## Contributing to the Toolkit
 
 If you have code that you would like to contribute to the SBS community toolkit please see the [Toolkit Contribution Guidelines](https://github.com/Sea-BirdScientific/seabirdscientific/blob/main/CONTRIBUTING.md).
 

@@ -1,6 +1,6 @@
 [project]
 name = "seabirdscientific"
-version = "2.8.1"
+version = "3.0.0"
 description = "Sea-Bird Scientific Community Toolkit"
 readme = "README.md"
 license = "MIT"
@@ -14,45 +14,48 @@ authors = [
     {name = "Bruce Rhoades", email = "brhoades@seabird.com"},
     {name = "Jesse Templin", email = "jtemplin@seabird.com"},
 ]
-requires-python = ">=3.9"
+requires-python = ">=3.11"
 classifiers = [
   "Programming Language :: Python :: 3 :: Only",
-  "Programming Language :: Python :: 3.9",
-  "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
 ]
 dependencies = [
-  "gsw~=3.6.20",
-  "matplotlib~=3.9.4",
-  "numpy~=2.0.2",
-  "pandas~=2.3.3",
-  "plotly~=6.3.1",
-  "scipy~=1.13.1",
+  "gsw ~= 3.6",
+  "line-profiler ~= 5.0",
+  "matplotlib ~= 3.11",
+  "numpy ~= 2.4",
+  "pandas ~= 3.0",
+  "plotly ~= 6.9",
+  "scipy ~= 1.17",
+  "seawater ~= 3.3",
+  "xarray ~= 2026.7",
 ]
 
-# For dev environment created with venv and pip
 [project.optional-dependencies]
-dev = [
-  "build",
-  "nbconvert[webpdf]",
-  "nbformat",
-  "notebook",
-  "pytest",
-  "pytest-cov",
-  "ruff",
-  "kaleido",
+notebooks = [
+  "ipykernel ~= 7.3",
+  "nbformat ~= 5.10",
 ]
 
-# For dev environment created with UV
+docs = [
+  "sbsfuro ~= 0.1",
+  "sphinx ~= 9.0",
+  "sphinx-mdinclude ~= 0.6",
+]
+
 [dependency-groups]
 dev = [
-  "kaleido~=1.1.0",
-  "nbconvert[webpdf]~=7.17.1",
-  "nbformat~=5.10.4",
-  "notebook~=7.4.7",
-  "pytest~=8.4.2",
-  "pytest-cov~=6.2.1",
+  "ipykernel ~= 7.3",
+  "kaleido ~= 1.3",
+  "nbconvert[webpdf] ~= 7.17",
+  "nbformat ~= 5.10",
+  "notebook ~= 7.6",
+  "ruff ~= 0.16",
+  "pytest ~= 9.1",
+  "pytest-cov ~= 7.1",
 ]
 
 [project.urls]
@@ -65,6 +68,9 @@ requires = [
   "setuptools>=61",
 ]
 
+[tool.setuptools.package-data]
+seabirdscientific = ["resources/**"]
+
 [tool.ty.src]
 include = [
   "src",
@@ -74,13 +80,26 @@ exclude = [
   "tests/resources",
 ]
 
-[tool.coverage.run]
-omit = [
-  "interpret_sbs_variable.py"
-]
-
 [tool.ruff]
 line-length=99
 extend-exclude = [
   ".github",
 ]
+src = [
+  "src",
+  "tests"
+]
+
+[tool.ruff.lint]
+ignore = ["DTZ"]
+
+[tool.pytest.ini_options]
+testpaths = [
+  "tests"
+]
+norecursedirs = [
+  "__pycache__",
+  "resources",
+  "results",
+]
+

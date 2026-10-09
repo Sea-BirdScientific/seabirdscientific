@@ -1,24 +1,11 @@
-#!/usr/bin/python3
-# -*- coding: utf-8 -*-
+"""Utility functions related to processing SBS instrument data."""
 
-"""A collection of utility functions related to the processing of SBS
-instrument data.
-"""
-# Functions:
-#   close_enough (np.ndarray, np.ndarray, int, float) -> bool
-#   plot (np.ndarray)
-#   percent_match (np.ndarray, np.ndarray) -> str
+import warnings
+from enum import EnumMeta
 
-# Native imports
-
-# Third-party imports
 import matplotlib.pyplot as plt
 import numpy as np
-
-# Sea-Bird imports
-
-# Internal imports
-from seabirdscientific.processing import FLAG_VALUE
+from line_profiler import LineProfiler
 
 
 def close_enough(
@@ -92,7 +79,7 @@ def percent_match(x1: np.ndarray, x2: np.ndarray) -> str:
     return f"{100 - (x1 != x2).sum() * 100 / len(x1):0.2f}% match"
 
 
-def get_tolerance(data: np.ndarray):
+def get_tolerance(data: np.ndarray, flag_value=-9.99e-29):
     """Checks the first 10 values of an array, gets the longest decimal
     length to the right of the decimal, and returns 1/10^length. Used
     for unit tests so results can be compared with a variable tolerance
@@ -102,8 +89,35 @@ def get_tolerance(data: np.ndarray):
     """
     decimal_lengths = [0]
     for n in range(len(data)):
-        if not np.isnan(data[n]) and data[n] != FLAG_VALUE:
+        if not np.isnan(data[n]) and data[n] != flag_value:
             decimal_lengths.append(len(f"{data[n]}".split(".")[1]))
             if len(decimal_lengths) >= 10:
                 break
     return 1 / 10 ** max(decimal_lengths)
+
+
+def profile(fun):
+    """Decorator for profiling long running functions during
+    development. Add @profile above the function to be measured, then
+    call the function in a script to get a line by line report printed
+    to the console. Remove the decorator when done
+
+    :param fun: This is implicitly the function below the decorator
+    """
+
+    def wrapper(*args, **kwargs):
+        lp = LineProfiler()
+        lp.add_function(fun)
+        lp.runctx("result = fun(*args, **kwargs)", globals(), locals())
+        lp.print_stats(output_unit=1e-6)
+        return locals()["result"]
+
+    return wrapper
+
+
+class WarnAllMembersMeta(EnumMeta):
+    def __getattribute__(cls, name):
+        obj = super().__getattribute__(name)
+        if isinstance(obj, cls):
+            warnings.warn(f"{cls.__name__}.{name} is deprecated", DeprecationWarning, stacklevel=2)
+        return obj

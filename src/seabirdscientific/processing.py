@@ -1,65 +1,24 @@
-"""A collection of functions for processing converted SBS instrument
-data.
-"""
+"""Functions for processing converted SBS instrument data."""
 
-# Classes:
-
-#     MinVelocityType (Enum)
-#     WindowFilterType (Enum)
-
-# Functions:
-
-#     butterworth_filter (np.ndarray, float, float) -> np.ndarray
-#     low_pass_filter (np.ndarray, float, float) -> np.ndarray
-#     align_ctd (np.ndarray, float, float, float) -> np.ndarray
-#     cell_thermal_mass (np.ndarray, np.ndarray, float, float, float) -> np.ndarray
-#     loop_edit_pressure (
-#         np.ndarray, float, np.ndarray, float, MinVelocityType, float,
-#         float, float, bool, float, float, bool, bool,float
-#     ) -> np.ndarray
-#     loop_edit_depth (
-#         np.ndarray, np.ndarray, float, MinVelocityType, float, float,
-#         float, bool, float, float, bool, bool,float
-#     ) -> np.ndarray
-#     _find_depth_peaks (np.ndarray, np.ndarray, bool, float, float, float) -> tuple[int, int]
-#     _min_velocity_mask (np.ndarray, float, float, int, int, bool) -> np.ndarray
-#     _mean_speed_percent_mask (np.ndarray, float, float, float, int, int, bool, int) -> np.ndarray
-#     _flag_by_minima_maxima (np.ndarray, np.ndarray, int, int, float)
-#     bin_average (pd.DataFrame, str, float, bool, int, int, bool, bool)
-#     wild_edit (np.ndarray, np.ndarray, float, float, int, float, bool,float) -> np.ndarray
-#     _flag_data (np.ndarray, np.ndarray, float, float, float, bool,float) -> np.ndarray
-#     window_filter (
-#         np.ndarray, np.ndarray, WindowFilterType, int, float, int, float, bool, float
-#     ) -> np.ndarray
-#     bouyancy_frequency (np.ndarray, np.ndarray, np.ndarray, float)
-#     buoyancy (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, float, bool, float)
-
-# Native imports
-import math
 import warnings
 from enum import Enum
 from logging import getLogger
-from typing import List
+from typing import Literal
 
-# Third-party imports
-import gsw
 import numpy as np
 import pandas as pd
-from scipy import signal, stats
+import xarray as xr
+from scipy import signal
 
-# Sea-Bird imports
-# Internal imports
-from seabirdscientific import eos80_processing as eos80
-from seabirdscientific.conversion import depth_from_pressure
+from seabirdscientific import conversion as c
+from seabirdscientific.constants import FLAG_VALUE
 
 logger = getLogger(__name__)
 
 
-FLAG_VALUE = -9.99e-29
-
-
 class MinVelocityType(Enum):
-    """The minimum velocity type used with loop edit"""
+    """The minimum velocity type used with loop edit
+    DEPRECATED. Use Literal defined in loop_edit"""
 
     FIXED = 0
     PERCENT = 1
@@ -68,6 +27,7 @@ class MinVelocityType(Enum):
 class WindowFilterType(Enum):
     """The window filter type. See CDT Processing in the docs for
     details.
+    DEPRECATED. Use literals defined in windowd_filter
     """
 
     BOXCAR = "boxcar"
@@ -82,10 +42,10 @@ class CastType(Enum):
     downcast
     """
 
-    BOTH = 0
-    DOWNCAST = 1
-    UPCAST = 2
-    NA = 3
+    BOTH = "both"
+    DOWNCAST = "downcast"
+    UPCAST = "upcast"
+    NONE = ""
 
 
 def butterworth_filter(x: np.ndarray, time_constant: float, sample_interval: float) -> np.ndarray:
@@ -142,11 +102,13 @@ def align_ctd(
 
 
 def cell_thermal_mass(
-    temperature_C: np.ndarray,  # TODO: change this to be snake_case for TKIT-75
-    conductivity_Sm: np.ndarray,  # TODO: change this to be snake_case for TKIT-75
-    amplitude: float,
-    time_constant: float,
-    sample_interval: float,
+    temperature: np.ndarray = None,
+    conductivity: np.ndarray = None,
+    amplitude: float = 1,
+    time_constant: float = 1,
+    sample_interval: float = 1,
+    temperature_C: np.ndarray = None,  # Deprecated
+    conductivity_Sm: np.ndarray = None,  # Deprecated
 ) -> np.ndarray:
     """Removes conductivity cell thermal mass effects from measured
     conductivity.
@@ -155,21 +117,28 @@ def cell_thermal_mass(
     cell thermal mass effects from the measured conductivity [From the
     SeaSoft manual, page 92]
 
-    :param temperature_C: temperature in degrees C
-    :param conductivity_Sm: conductivity in S/m
+    :param temperature: temperature in degrees C
+    :param conductivity: conductivity in S/m
     :param amplitude: thermal anomaly amplitude (alpha)
     :param time_constant: thermal anomaly time constant (1/beta)
     :param sample_interval: time between samples
 
     :return: the corrected conductivity in S/m
     """
-    # keeping a and b defined as they are in the SBE data procesing
-    # manual, even though they get swapped in the lfilter args
-    a = 2 * amplitude / (sample_interval * 1 / time_constant + 2)
+
+    if temperature_C is not None:
+        warnings.warn("Deprecated, use temperature", DeprecationWarning)
+        temperature = temperature_C
+
+    if conductivity_Sm is not None:
+        warnings.warn("Deprecated, use conductivity", DeprecationWarning)
+        conductivity = conductivity_Sm
+
+    a = 2 * amplitude / (sample_interval / time_constant + 2)
     b = 1 - (2 * a / amplitude)
-    dc_dt = 0.1 * (1 + 0.006 * (temperature_C - 20))
-    dt = np.diff(temperature_C, prepend=[temperature_C[0]])
-    ctm = conductivity_Sm + signal.lfilter(b=[a, 0], a=[1, b], x=dc_dt * dt)
+    dc_dt = 0.1 * (1 + 0.006 * (temperature - 20))
+    dt = np.diff(temperature, prepend=[temperature[0]])
+    ctm = conductivity + signal.lfilter(b=[a, 0], a=[1, b], x=dc_dt * dt)
     return ctm
 
 
@@ -189,37 +158,11 @@ def loop_edit_pressure(
     exclude_flags: bool,
     flag_value=FLAG_VALUE,
 ) -> np.ndarray:
-    """Variation of loop_edit_depth that derives depth from pressure
-    and latitude.
+    """Deprecated. Use loop_edit"""
 
-    :param pressure: A pressure array in dbar
-    :param latitude: A single latitude value where the cast occurred
-    :param flag: Array of flag values. The flag for a good value is 0.0.
-        The flag for a detected loop value defaults to -9.99e-29
-    :param sample_interval: Time interval between samples in seconds
-    :param min_velocity_type: Sets whether flags are based on min
-        velocity or a percentage of mean speed
-    :param min_velocity: The minimum velocity for data to be considered
-        good
-    :param window_size: Time interval to include in mean speed
-        calculation
-    :param mean_speed_percent: Percentage of mean speed for data to be
-        considered good
-    :param remove_surface_soak: If true, data that occur before the
-        minimum soak depth is reached are marked as bad
-    :param min_soak_depth: The depth that must be reached before data
-        can be considered good
-    :param max_soak_depth: The maximum depth that can be considered the
-        start of a downcast
-    :param use_deck_pressure_offset: If true, min and max soak depths
-        are offset by the first value in the depth array
-    :param exclude_flags: If true, existing bad flags are preserved
-    :param flag_value: Passing is 0.0, failing defaults to -9.99e-29.
+    warnings.warn("Deprecated. Use loop_edit", DeprecationWarning)
 
-    :return: the input data with updated flags
-    """
-
-    depth = depth_from_pressure(pressure, latitude)
+    depth = c.depth_from_pressure(pressure, latitude)
     return loop_edit_depth(
         depth,
         flag,
@@ -241,7 +184,7 @@ def loop_edit_depth(
     depth: np.ndarray,
     flag: np.ndarray,
     sample_interval: float,
-    min_velocity_type: MinVelocityType,
+    min_velocity_type: Literal["fixed", "percent"],
     min_velocity: float,
     window_size: float,
     mean_speed_percent: float,
@@ -252,14 +195,53 @@ def loop_edit_depth(
     exclude_flags: bool,
     flag_value=FLAG_VALUE,
 ) -> np.ndarray:
+    """Deprecated. Use loop_edit"""
+
+    warnings.warn("Deprecated. Use loop_edit", DeprecationWarning)
+
+    return loop_edit(
+        depth,
+        flag,
+        sample_interval,
+        min_velocity_type,
+        min_velocity,
+        window_size,
+        mean_speed_percent,
+        remove_surface_soak,
+        min_soak_depth,
+        max_soak_depth,
+        use_deck_pressure_offset,
+        exclude_flags,
+        flag_value,
+        units="depth",
+    )
+
+
+def loop_edit(
+    measurand: np.ndarray,
+    flag: np.ndarray,
+    sample_interval: float,
+    min_velocity_type: Literal["fixed", "percent"] = "fixed",
+    min_velocity: float = 0.25,
+    window_size: float = 300,
+    mean_speed_percent: float = 20,
+    remove_surface_soak: bool = True,
+    min_soak_depth: float = 5,
+    max_soak_depth: float = 20,
+    use_deck_pressure_offset: bool = True,
+    exclude_flags: bool = True,
+    flag_value=FLAG_VALUE,
+    latitude: float = 0,
+    units: Literal["depth", "pressure"] = "depth",
+) -> np.ndarray:
     """Marks scans determined to be part of a pressure loop as bad.
 
     Loop Edit marks scans bad by setting the flag value associated with
     the scan to badflag in data that has pressure slowdowns or reversals
     (typically caused by ship heave).
 
-    :param depth: Salt water depth as an array of positive numbers.
-        Colloquially used interchangeably with pressure in dbar
+    :param measurand: Salt water depth or pressure as an array of
+        positive numbers
     :param flag: Array of flag values. The flag for a good value is 0.0.
         The flag for a detected loop value defaults to -9.99e-29
     :param sample_interval: Time interval between samples in seconds
@@ -286,18 +268,28 @@ def loop_edit_depth(
         np.ndarray: the input data with updated flags
     """
 
+    if isinstance(min_velocity_type, MinVelocityType):
+        warnings.warn("MinVelocityType Enum is deprecated, use Literals", DeprecationWarning)
+
+    if units == "pressure":
+        depth = c.depth_from_pressure(measurand, latitude)
+    else:
+        depth = measurand.copy()
+
+    _flag = flag.copy()
+
     if not exclude_flags:
-        flag[:] = 0.0
+        _flag[:] = 0.0
 
     if use_deck_pressure_offset:
-        min_soak_depth -= depth[0]
-        max_soak_depth -= depth[0]
+        min_soak_depth += depth[0]
+        max_soak_depth += depth[0]
 
     (min_depth_n, max_depth_n) = _find_depth_peaks(
-        depth, flag, remove_surface_soak, flag_value, min_soak_depth, max_soak_depth
+        depth, _flag, remove_surface_soak, flag_value, min_soak_depth, max_soak_depth
     )
 
-    if min_velocity_type == MinVelocityType.FIXED:
+    if min_velocity_type in ["fixed", MinVelocityType.FIXED]:
         downcast_mask = _min_velocity_mask(
             depth, sample_interval, min_velocity, min_depth_n, max_depth_n + 1, False
         )
@@ -305,7 +297,7 @@ def loop_edit_depth(
             depth, sample_interval, min_velocity, max_depth_n, len(depth), True
         )
 
-    elif min_velocity_type == MinVelocityType.PERCENT:
+    elif min_velocity_type in ["percent", MinVelocityType.PERCENT]:
         diff_length = int(window_size / sample_interval)
         downcast_mask = _mean_speed_percent_mask(
             depth,
@@ -330,14 +322,11 @@ def loop_edit_depth(
     else:
         raise ValueError
 
-    flag[~downcast_mask & ~upcast_mask] = flag_value
+    _flag[~downcast_mask & ~upcast_mask] = flag_value
 
-    _flag_by_minima_maxima(depth, flag, min_depth_n, max_depth_n, flag_value)
+    _flag_by_minima_maxima(depth, _flag, min_depth_n, max_depth_n, flag_value)
 
-    cast = np.array([0 for _ in range(len(flag))])
-    cast[downcast_mask] = -1
-    cast[upcast_mask] = 1
-    return cast  # TODO: refactor to handle cast and flag in seperate functions
+    return _flag
 
 
 def _find_depth_peaks(
@@ -390,7 +379,7 @@ def _find_depth_peaks(
     if min_depth_n != len(depth) - 1:
         max_depth_n = np.argmax(depth[min_depth_n + 1 :]) + min_depth_n + 1
 
-    return min_depth_n, max_depth_n
+    return (min_depth_n, max_depth_n)
 
 
 def find_depth_peaks(*args, **kwargs):
@@ -434,11 +423,6 @@ def _min_velocity_mask(
     return mask
 
 
-def min_velocity_mask(*args, **kwargs):
-    warnings.warn("Deprecated, use _min_velocity_mask", DeprecationWarning)
-    return _min_velocity_mask(*args, **kwargs)
-
-
 def _mean_speed_percent_mask(
     depth: np.ndarray,
     interval: float,
@@ -459,14 +443,14 @@ def _mean_speed_percent_mask(
     :param interval: sampling interval in seconds
     :param min_velocity: minimum velocity
     :param mean_speed_percent: the minimum percentage of the mean speed
-        that qualifies a sample as good
+        that qualifies a scan as good
     :param domain_start: earliest possible beginning of downcast
     :param domain_end: earliest possible beginning of upcast
     :param is_upcast: inverts velocity sign for upcast
     :param diff_length: averaging window divided by sample interval
 
-    :return: true/false mask where true means the sample velocity is at
-        least the given percentage of the mean
+    :return: true/false mask where true means the velocity is at least
+        the given percentage of the mean
     """
 
     sign = -1 if is_upcast else 1
@@ -482,11 +466,6 @@ def _mean_speed_percent_mask(
     mask[domain_end:] = False
 
     return mask
-
-
-def mean_speed_percent_mask(*args, **kwargs):
-    warnings.warn("Deprecated, use _mean_speed_percent_mask", DeprecationWarning)
-    return _mean_speed_percent_mask(*args, **kwargs)
 
 
 def _flag_by_minima_maxima(
@@ -522,13 +501,8 @@ def _flag_by_minima_maxima(
             flag[n] = flag_value
 
 
-def flag_by_minima_maxima(*args, **kwargs):
-    warnings.warn("Deprecated, use _flag_by_minima_maxima", DeprecationWarning)
-    return _flag_by_minima_maxima(*args, **kwargs)
-
-
 def bin_average(
-    dataset: pd.DataFrame,
+    dataset: xr.Dataset,
     bin_variable: str,
     bin_size: float,
     include_scan_count: bool = True,
@@ -544,11 +518,11 @@ def bin_average(
     surface_bin_max: float = 5,
     surface_bin_value: float = 2.5,
     flag_value=FLAG_VALUE,
-) -> pd.DataFrame:
+) -> xr.Dataset:
     """Averages data into bins, using intervals based on bin_variable.
     Returns a new dataframe with the binned data
 
-    :param dataset: Dataframe containing all data to group into bins
+    :param dataset: Dataset containing all data to group into bins
     :param bin_variable: The variable that will control binning,
         typically pressure, depth, time, or scan number. For scan number,
         use 'nScan'.
@@ -586,25 +560,25 @@ def bin_average(
         (the target value for the upcast surface bin is always 0)
     :param flag_value: The magical number indicating bad data.
         Defaults to -9.99e-29
-    :return: A new dataframe with binned data
+    :return: A new Dataset with binned data
     """
 
-    _dataset = dataset.copy().iloc[trim_start : len(dataset) - trim_end]
+    df = dataset.to_dataframe().iloc[trim_start : len(dataset["scan"]) - trim_end]
 
     # remove scans marked as bad during loop edit
-    if exclude_bad_scans and "flag" in _dataset.columns:
-        _dataset = _dataset.drop(_dataset[_dataset["flag"] == flag_value].index)
+    if exclude_bad_scans and "flag" in df.columns:
+        df = df.drop(df[df["flag"] == flag_value].index)
 
     # always remove scans marked bad during wild edit
-    for column in _dataset.columns.difference(["flag"]):
-        _dataset = _dataset.drop(_dataset[_dataset[column] == flag_value].index)
+    for column in df.columns.difference(["flag"]):
+        df = df.drop(df[df[column] == flag_value].index)
 
-    if bin_variable == "nScan" and "nScan" not in _dataset.columns:
+    if bin_variable == "nScan" and "nScan" not in df.columns:
         # We want to bin by scans, ensure it's a column
-        _dataset.insert(0, "nScan", range(0, len(_dataset)))
+        df.insert(0, "nScan", range(len(df)))
 
     # pd series containing the variable we want to bin for, converted to ndarray
-    control = _dataset[bin_variable].to_numpy()
+    control = df[bin_variable].to_numpy()
 
     bin_min = bin_size / 2.0  # min value of first bin
 
@@ -628,13 +602,13 @@ def bin_average(
     desc_bins = np.digitize(x=control_desc, bins=desc_bin_edges)
     asc_bins = np.digitize(x=control_asc, bins=asc_bin_adges, right=True)
     asc_bins += np.amax(desc_bins) - 1
-    _dataset["bin_number"] = np.concat((desc_bins[:-1], asc_bins))
+    df["bin_number"] = np.concat((desc_bins[:-1], asc_bins))
 
     if interpolate:
         desc_midpoints = (desc_bin_edges[:-1] + desc_bin_edges[1:]) / 2
         asc_midpoints = (asc_bin_adges[1:-1] + asc_bin_adges[2:]) / 2
         midpoints = np.concat((desc_midpoints, asc_midpoints))
-        _dataset["midpoint"] = _dataset["bin_number"].map(
+        df["midpoint"] = df["bin_number"].map(
             lambda n: midpoints[n - 1] if 0 < n <= len(midpoints) else np.nan
         )
 
@@ -652,8 +626,8 @@ def bin_average(
         surface_asc_bin = np.digitize(x=control_asc, bins=bins, right=True) == 1
 
         # these will get added back in depending on the cast type
-        surface_desc = _dataset[: len(surface_desc_bin)][surface_desc_bin]
-        surface_asc = _dataset[len(surface_desc_bin) - 1 :][surface_asc_bin]
+        surface_desc = df[: len(surface_desc_bin)][surface_desc_bin]
+        surface_asc = df[len(surface_desc_bin) - 1 :][surface_asc_bin]
 
         if interpolate:
             surface_desc["midpoint"] = surface_desc["midpoint"].fillna(surface_bin_value)
@@ -661,57 +635,62 @@ def bin_average(
 
     if cast_type == CastType.DOWNCAST:
         # keeping one past the peak index to match SBE data processing
-        _dataset = _dataset[: peak_index + 2]
+        df = df[: peak_index + 2]
         min_bin_number = 1
-        below_min = _dataset["bin_number"] < min_bin_number
-        _dataset = _dataset.drop(_dataset[below_min].index)
+        below_min = df["bin_number"] < min_bin_number
+        df = df.drop(df[below_min].index)
 
         if include_surface_bin:
-            _dataset = pd.concat((surface_desc, _dataset))
+            df = pd.concat((surface_desc, df))
 
     elif cast_type == CastType.UPCAST:
-        _dataset = _dataset[peak_index:]
+        df = df[peak_index:]
         # discarding the first bin to match SBE data processing
         min_bin_number = np.amin(asc_bins) + 1
         max_bin_number = np.amax(asc_bins) - 1
-        below_min = _dataset["bin_number"] < min_bin_number
-        over_max = _dataset["bin_number"] > max_bin_number
-        _dataset = _dataset.drop(_dataset[below_min | over_max].index)
+        below_min = df["bin_number"] < min_bin_number
+        over_max = df["bin_number"] > max_bin_number
+        df = df.drop(df[below_min | over_max].index)
 
         if include_surface_bin:
-            _dataset = pd.concat((_dataset, surface_asc))
+            df = pd.concat((df, surface_asc))
 
     elif cast_type == CastType.BOTH:
         # drop first and last these since they're not necessarily the same as surface bin
         min_bin_number = 1
         max_bin_number = np.amax(asc_bins) - 1
-        below_min = _dataset["bin_number"] < min_bin_number
-        over_max = _dataset["bin_number"] > max_bin_number
-        _dataset = _dataset.drop(_dataset[below_min | over_max].index)
+        below_min = df["bin_number"] < min_bin_number
+        over_max = df["bin_number"] > max_bin_number
+        df = df.drop(df[below_min | over_max].index)
 
         if include_surface_bin:
-            _dataset = pd.concat((surface_desc, _dataset, surface_asc))
+            df = pd.concat((surface_desc, df, surface_asc))
 
-    # else cast_type == CastType.NA:
-    # do nothing
+    elif cast_type == CastType.NONE:
+        # binning by time or scan number: no upcast/downcast split
+        pass
+
+    else:
+        valid = ", ".join(repr(member.value) for member in CastType)
+        raise ValueError(f"cast_type must be a CastType (one of {valid}), got {cast_type!r}")
 
     # get the number of scans in each bin
-    scans_per_bin = np.bincount(_dataset["bin_number"])
-    _dataset["nbin"] = _dataset["bin_number"].map(lambda x: scans_per_bin[x])
+    scans_per_bin = np.bincount(df["bin_number"])
+    df["nbin"] = df["bin_number"].map(lambda x: scans_per_bin[x])
 
     if exclude_bad_scans:
-        _dataset = _dataset.groupby("bin_number", as_index=False).mean()
+        df = df.groupby("bin_number", as_index=False).mean()
     else:
         # need to handle the flag column differently
-        not_flag = _dataset[_dataset.columns.difference(["flag"])].groupby("bin_number").mean()
+        not_flag = df[df.columns.difference(["flag"])].groupby("bin_number").mean()
         # if all the values in a group are the flag value the assign the
         # flag value to the group, otherwise 0
-        flag = _dataset[["bin_number", "flag"]].groupby("bin_number").mean()
+        flag = df[["bin_number", "flag"]].groupby("bin_number").mean()
         flag.loc[flag["flag"] != flag_value] = 0
-        _dataset = pd.concat([not_flag, flag], axis=1).reset_index()
+        df = pd.concat([not_flag, flag], axis=1).reset_index()
 
-    _dataset = _dataset.drop(_dataset[_dataset["nbin"] < min_scans].index)
-    _dataset = _dataset.drop(_dataset[_dataset["nbin"] > max_scans].index)
+    df = df.drop(df[df["nbin"] < min_scans].index)
+    df = df.drop(df[df["nbin"] > max_scans].index)
 
     if interpolate:
 
@@ -723,27 +702,29 @@ def bin_average(
             return x_i
 
         excluded_columns = ["nbin", "flag", "bin_number", bin_variable, "midpoint"]
-        for column in (_dataset.columns).difference(excluded_columns):
+        for column in (df.columns).difference(excluded_columns):
             interp_result = []
-            for n in range(len(_dataset[column])):
+            for n in range(len(df[column])):
                 n_p = 1 if n == 0 else n - 1
-                p_p = _dataset[bin_variable].iloc[n_p]
-                x_p = _dataset[column].iloc[n_p]
-                p_c = _dataset[bin_variable].iloc[n]
-                x_c = _dataset[column].iloc[n]
-                p_i = _dataset["midpoint"].iloc[n]
+                p_p = df[bin_variable].iloc[n_p]
+                x_p = df[column].iloc[n_p]
+                p_c = df[bin_variable].iloc[n]
+                x_c = df[column].iloc[n]
+                p_i = df["midpoint"].iloc[n]
                 x_i = interp(p_p, x_p, p_c, x_c, p_i)
                 interp_result.append(x_i)
 
-            _dataset[column] = pd.Series(interp_result, index=_dataset.index)
+            df[column] = pd.Series(interp_result, index=df.index)
 
-        _dataset[bin_variable] = _dataset["midpoint"]
-        _dataset = _dataset.drop("midpoint", axis=1)
+        df[bin_variable] = df["midpoint"]
+        df = df.drop("midpoint", axis=1)
 
-    _dataset = _dataset.drop("bin_number", axis=1)
+    df = df.drop("bin_number", axis=1)
 
     if not include_scan_count:
-        _dataset = _dataset.drop("nbin", axis=1)
+        df = df.drop("nbin", axis=1)
+
+    _dataset = xr.Dataset(df, attrs=dataset.attrs).rename({"dim_0": "bin_number"})
 
     return _dataset
 
@@ -798,7 +779,7 @@ def wild_edit(
     while upper_index <= len(data):
         flagged_data[lower_index:upper_index] = _flag_data(
             data[lower_index:upper_index],
-            flags,
+            flags[lower_index:upper_index],
             std_pass_1,
             std_pass_2,
             distance_to_mean,
@@ -813,7 +794,7 @@ def wild_edit(
         upper_index = len(data)
         flagged_data[len(data) - len(data) % scans_per_block :] = _flag_data(
             data[lower_index:upper_index],
-            flags,
+            flags[lower_index:upper_index],
             std_pass_1,
             std_pass_2,
             distance_to_mean,
@@ -873,15 +854,10 @@ def _flag_data(
     return flagged_data
 
 
-def flag_data(*args, **kwargs):
-    warnings.warn("Deprecated, use _flag_data", DeprecationWarning)
-    return _flag_data(*args, **kwargs)
-
-
 def window_filter(
     data_in: np.ndarray,
     flags: np.ndarray,
-    window_type: WindowFilterType,
+    window_type: Literal["boxcar", "cosine", "gaussian", "median", "triangle"],
     window_width: int,
     sample_interval: float,
     half_width=1,
@@ -913,6 +889,13 @@ def window_filter(
     :return: the convolution of data_in and the window filter
     """
 
+    if isinstance(window_type, WindowFilterType):
+        warnings.warn("WindowFilterType Enum is deprecated, use Literals", DeprecationWarning)
+
+    # make odd window width if it is not so there is a center point
+    if window_width % 2 == 0:
+        window_width += 1
+
     # convert flags to nan for processing
     data = [d if d != flag_value else np.nan for d in data_in]
 
@@ -925,17 +908,17 @@ def window_filter(
     window = np.array([])
 
     # define the window filter
-    if window_type == WindowFilterType.BOXCAR:
+    if window_type in ["boxcar", WindowFilterType.BOXCAR]:
         window = signal.windows.boxcar(window_width)
 
-    elif window_type == WindowFilterType.COSINE:
+    elif window_type in ["cosine", WindowFilterType.COSINE]:
         for n in range(window_start, window_end):
             window = np.append(window, np.cos((n * np.pi) / (window_width + 1)))
 
-    elif window_type == WindowFilterType.TRIANGLE:
+    elif window_type in ["triangle", WindowFilterType.TRIANGLE]:
         window = signal.windows.triang(window_width)
 
-    elif window_type == WindowFilterType.GAUSSIAN:
+    elif window_type in ["gaussian", WindowFilterType.GAUSSIAN]:
         phase = offset / sample_interval
         # the manual defines scale with sample rate, but seasoft uses sample interval
         scale = np.log(2) * (2 * sample_interval / half_width) ** 2
@@ -952,7 +935,7 @@ def window_filter(
         if data_start <= n < data_end:
             value = 0
 
-            if window_type == WindowFilterType.MEDIAN:
+            if window_type in ["median", WindowFilterType.MEDIAN]:
                 window = np.array(data[n + window_start : n + window_end])
                 value = np.nanmedian(window)
             else:
@@ -974,271 +957,275 @@ def window_filter(
 
 
 def bouyancy_frequency(
-    temp_conservative_subset: np.ndarray,
-    salinity_abs_subset: np.ndarray,
-    pressure_dbar_subset: np.ndarray,
-    gravity: float,
+    temp_conservative_subset: np.ndarray = None,
+    salinity_abs_subset: np.ndarray = None,
+    pressure_dbar_subset: np.ndarray = None,
+    gravity: float = 0,
 ):
-    """Calculates an N^2 value (buoyancy frequency) for the given window
-    of temperature, salinity, and pressure, at the given latitude.
+    """Deprecated. Use conversion.buoyancy_frequency"""
 
-    Expect temperature as conservative temperature, salinity as abslute
-    salinity, and pressure as dbar, all of the same length. Performs the
-    calculation using TEOS-10 and specific volume.
+    warnings.warn("Deprecated. Use conversion.buoyancy_frequency", DeprecationWarning)
 
-    :param temp_conservative_subset: temperature values for the given
-        window
-    :param salinity_abs_subset: salinity values for the given window
-    :param pressure_dbar_subset: pressure values for the given window
-    :param gravity: gravity value
-
-    :return: A single N^2 [Brunt-Väisälä (buoyancy) frequency]
-    """
-
-    db_to_pa = 1e4
-    # Wrap these as a length-1 array so that GSW accepts them
-    pressure_bar = [np.mean(pressure_dbar_subset)]
-    temperature_bar = [np.mean(temp_conservative_subset)]
-    salinity_bar = [np.mean(salinity_abs_subset)]
-
-    # Compute average specific volume, temp expansion ceoff,
-    # and saline contraction coeff over window
-    (v_bar, alpha_bar, beta_bar) = gsw.specvol_alpha_beta(
-        salinity_bar, temperature_bar, pressure_bar
+    return c.buoyancy_frequency(
+        temp_conservative_subset, salinity_abs_subset, pressure_dbar_subset, gravity
     )
-
-    # Estimate vertical gradient of conservative temp
-    dct_dp = stats.linregress(pressure_dbar_subset, temp_conservative_subset)
-    # TODO: error handling with r, p, std_error
-
-    # Estimate vertical gradient of absolute salinity
-    dsa_dp = stats.linregress(pressure_dbar_subset, salinity_abs_subset)
-    # TODO: error handling with r, p, std_error
-
-    # Compute N2 combining computed ceofficients and vertical gradients.
-    # we index into v_bar, alpha_bar, and beta_bar as they are all arrays of len 1
-    n2 = gravity**2 / (v_bar[0] * db_to_pa)
-    n2 *= beta_bar[0] * dsa_dp.slope - alpha_bar[0] * dct_dp.slope
-    return n2
 
 
 def buoyancy(
     temperature_c: np.ndarray,
     salinity_prac: np.ndarray,
     pressure_dbar: np.ndarray,
-    latitude: np.ndarray,
-    longitude: np.ndarray,
-    window_size: float,
+    latitude: np.ndarray = 0,
+    longitude: np.ndarray = 0,
+    window_size: float = 11,
     use_modern_formula=True,
     flag_value=FLAG_VALUE,
 ):
-    """Calculates the 4 buoyancy values based off the incoming data.
+    """Deprecated. Use conversion.buoyancy"""
 
-    Data is expected to have already been binned via Bin_Average using
-    decibar pressure bins. All arrays are expected to be the same
-    length, except for latitude and longitude, which can be length 1.
-    Optionally can use the former calculation for N^2 from the SBE Data
-    Processing Manual, but defaults to a newer formula using TEOS-10.
+    warnings.warn("Deprecated. Use conversion.buoyancy", DeprecationWarning)
 
-    :param temperature_c: Temperature in ITS-90 degrees C
-    :param salinity_prac: Practical salinity in PSU
-    :param pressure_dbar: Pressure in dbar
-    :param latitude: latitude values. If length 1, gets applied to all
-        values.
-    :param longitude: longitude values. If length 1, gets applied to all
-        values.
-    :param window_size: window size to use. If this number is smaller
-        than the binned window size, round up to a minium of 3 scans.
-        I.E. uses the center scan and one scan on each side of it at the
-        very least
-    :param use_modern_formula: Whether to use a modern formula for
-        calculating N^2. Defaults to true.
-    :param flag_value: Bad Flag value to use for marking bad scans.
-        Defaults to -9.99e-29
-
-    :return: dataframe with 4 columns, one with each calculated
-        variable. The columns are as follows:
-    """
-
-    salinity_prac, temperature_c, pressure_dbar, latitude, longitude = np.broadcast_arrays(
-        salinity_prac, temperature_c, pressure_dbar, latitude, longitude
+    return c.buoyancy(
+        temperature_c,
+        salinity_prac,
+        pressure_dbar,
+        latitude,
+        longitude,
+        window_size,
+        use_modern_formula,
+        flag_value,
     )
-    pressure_dbar = pressure_dbar.astype(np.double)
-
-    # Get the original bin size that we're working with, using the
-    # second and third bin so we don't have to worry about the surface
-    # bin
-    original_bin_size = abs(pressure_dbar[2] - pressure_dbar[1])
-
-    # Calculates how many scans to have on either side of our median
-    # point, but need at least 1 (for a total of 3 scans)
-    scans_per_side = max(math.floor(window_size / original_bin_size / 2), 1)
-
-    salinity_abs = gsw.SA_from_SP(salinity_prac, pressure_dbar, longitude, latitude)
-    temperature_conservative = gsw.CT_from_t(salinity_abs, temperature_c, pressure_dbar)
-
-    result = pd.DataFrame()
-
-    # create our result np.ndarrays with the flag value as default
-    result["N2"] = np.full(len(temperature_c), flag_value)
-    result["N"] = np.full(len(temperature_c), flag_value)
-    result["E"] = np.full(len(temperature_c), flag_value)
-    result["E10^-8"] = np.full(len(temperature_c), flag_value)
-
-    # start loop at scans_per_side
-    for i in range(scans_per_side, len(temperature_conservative) - scans_per_side):
-        min_index = i - scans_per_side
-        max_index = (
-            i + scans_per_side + 1
-        )  # add + 1 because slicing does not include the max_index
-
-        pressure_subset = pressure_dbar[min_index:max_index]
-        temperature_cons_subset = temperature_conservative[min_index:max_index]
-        temperature_its_subset = temperature_c[min_index:max_index]
-        salinity_subset = salinity_abs[min_index:max_index]
-
-        pressure_bar = [np.mean(pressure_subset)]
-        gravity = gsw.grav([latitude[i]], pressure_bar)[0]
-
-        if use_modern_formula:
-            salinity_subset = salinity_abs[min_index:max_index]
-            n2 = bouyancy_frequency(
-                temperature_cons_subset, salinity_subset, pressure_subset, gravity
-            )
-        else:
-            salinity_subset = salinity_prac[min_index:max_index]
-            n2 = eos80.bouyancy_frequency(
-                temperature_its_subset, salinity_subset, pressure_subset, gravity
-            )
-
-        result.at[i, "N2"] = n2
-        if n2 >= 0:
-            result.at[i, "N"] = math.sqrt(n2) * 3600 / (2 * np.pi)
-        else:
-            result.at[i, "N"] = np.nan
-        result.at[i, "E"] = n2 / gravity
-        result.at[i, "E10^-8"] = result.at[i, "E"] * 1e8
-
-    return result
 
 
-def get_downcast(
-    dataframe: pd.DataFrame,
-    control_name: str,
+def _get_downcast_mask(
+    dataset: xr.Dataset,
+    control_variable: str,
     min_value: float = -np.inf,
     exclude_bad_scans=False,
-) -> pd.DataFrame:
-    """Gets the downcast from a dataframe. The min index starts at the
-    first value greater than min_value, and the max index is at the
-    greatest value in the depth array. If flags are excluded those rows
-    will be excluded when determining the max index, but they won't
-    be removed them from the dataframe
+) -> np.ndarray:
+    """Creates a mask of the downcast of a dataset. The min index starts
+    at the first value greater than min_value, and the max index is at
+    the greatest value in the control_variable array. If flags are
+    excluded those samples will be excluded but they won't be removed
+    from the dataframe. In that case, the last valid scan on the
+    downcast side of the peak will be determine the index to end on
 
-    :param dataframe: The dataframe to select the downcast from
-    :param control_name: The control variable, typically pressure or
+    :param dataset: The dataset to create a downcast mask from
+    :param control_variable: The control variable, typically pressure or
         depth
-    :param min_value: Exclude values greater than this from the result,
+    :param min_value: Exclude values less than this from the result,
         defaults to -np.inf
-    :param exclude_bad_scans: If True, these rows wil be skipped when
+    :param exclude_bad_scans: If True, these samples wil be skipped when
         determining the index of the max value, defaults to False
-    :return: The downcast portion of the input dataframe
+    :return: and array of booleans where true is a downcast
     """
 
-    downcast = dataframe.copy()
     n_min = 0
-    n_max = downcast[control_name].idxmax()
+    n_max = dataset[control_variable].idxmax(dim="scan").item()
 
-    if exclude_bad_scans and "flag" in dataframe.columns:
-        downcast = downcast[downcast["flag"] != FLAG_VALUE]
-        n_max = downcast[control_name].idxmax()
+    if exclude_bad_scans and "flag" in list(dataset.data_vars):
+        # this diverges slightly from seasoft, where seasoft will take
+        # the index of the max value that isn't a flag, this version
+        # first finds the peak (regardless of flags) then finds the
+        # first non-flagged value on the downcast side of the peak
+        mask = (dataset["flag"].values != FLAG_VALUE) & (dataset["scan"].values < n_max)
+        n_max = dataset[control_variable].where(mask).idxmax(dim="scan").item()
 
     if min_value > -np.inf:
-        downcast = downcast.loc[:n_max]
-        downcast = downcast[downcast[control_name].idxmin() :]
-        downcast = downcast[downcast[control_name] > min_value]
-        n_min = downcast[control_name].idxmin()
+        mask = (min_value < dataset[control_variable].values) & (dataset["scan"].values < n_max)
+        n_min = dataset[control_variable].where(mask).idxmin(dim="scan").item()
 
-    downcast = dataframe.loc[n_min:n_max].reset_index(drop=True)
+    downcast_mask = (n_min <= dataset["scan"].values) & (dataset["scan"].values <= n_max)
 
-    return downcast
+    return downcast_mask
 
 
-def get_upcast(
-    dataframe: pd.DataFrame,
-    control_name: str,
+def _get_upcast_mask(
+    dataset: xr.Dataset,
+    control_variable: str,
     min_value: float = -np.inf,
     exclude_bad_scans=False,
-) -> pd.DataFrame:
-    """Gets the upcast from a dataframe. The max index is at the
-    greatest value of the control_name values. If flags are excluded
-    those rows will be excluded when determining the max index, but they
-    won't be removed them from the dataframe. The min index is at the
-    last value greater than min_value
+) -> np.ndarray:
+    """Creates a mask of the upcast of a dataset. The max index is at
+    the greatest value of the control_variable values. If flags are
+    excluded those samples will be excluded when determining the max
+    index, but they won't be removed them from the dataframe. In that
+    case, the first valid scan on the upcast side of the peak will be
+    determine the index to start on. The min index is at the last value
+    greater than min_value
 
-    :param dataframe: The dataframe to select the upcast from
-    :param control_name: The control variable, typically pressure or
+    :param dataset: The dataset to create an upcast mask from
+    :param control_variable: The control variable, typically pressure or
         depth
-    :param min_value: Exclude values greater than this from the result,
+    :param min_value: Exclude values less than this from the result,
         defaults to -np.inf
-    :param exclude_bad_scans: If True, these rows wil be skipped when
+    :param exclude_bad_scans: If True, these samples wil be skipped when
         determining the index of the max value, defaults to False
     :return: The upcast portion of the input dataframe
     """
 
-    upcast = dataframe.copy()
-    n_min = upcast.index[-1]
-    n_max = upcast[control_name].idxmax()
+    # n_min and n_max refer to the index of min/max value of the control
+    # variable, meaning n_max will be less than n_min for an upcast
+    n_min = len(dataset["scan"]) - 1
+    n_max = dataset[control_variable].idxmax(dim="scan").item() + 1
 
-    if exclude_bad_scans and "flag" in dataframe.columns:
-        upcast = upcast[upcast["flag"] != FLAG_VALUE]
-        n_max = upcast[control_name].idxmax()
+    if exclude_bad_scans and "flag" in list(dataset.data_vars):
+        # this diverges slightly from seasoft, where seasoft will take
+        # the index of the max value that isn't a flag, this version
+        # first finds the peak (regardless of flags) then finds the
+        # first non-flagged value on the upcast side of the peak
+        mask = (n_max < dataset["scan"].values) & (dataset["flag"].values != FLAG_VALUE)
+        n_max = dataset[control_variable].where(mask).idxmax(dim="scan").item() + 1
 
     if min_value > -np.inf:
         # seasoft data processing doesn't include the max value
-        upcast = upcast.loc[n_max + 1 :]
-        upcast = upcast[: upcast[control_name].idxmin()]
-        upcast = upcast[upcast[control_name] > min_value]
-        n_min = upcast[control_name].idxmin()
+        mask = (n_max < dataset["scan"].values) & (min_value < dataset[control_variable].values)
+        n_min = dataset[control_variable].where(mask).idxmin(dim="scan").item() - 1
 
-    upcast = dataframe.loc[n_max + 1 : n_min].reset_index(drop=True)
+    upcast_mask = (n_max <= dataset["scan"].values) & (dataset["scan"].values <= n_min)
 
-    return upcast
+    return upcast_mask
+
+
+def find_downcast(
+    depth: np.ndarray,
+    flag: np.ndarray,
+    min_depth: float = -np.inf,
+    flag_value: float = FLAG_VALUE,
+) -> tuple[int, int]:
+    """Gets the start and end indices of a downcast. The end index is at
+    the greatest depth, and the start index is at the shallowest depth
+    greater than min_depth before it. Flagged samples are skipped.
+
+    :param depth: an array of depth values in meters
+    :param flag: an array of flag values
+    :param min_depth: exclude depths less than or equal to this,
+        defaults to -np.inf
+    :param flag_value: the value marking a bad sample, defaults to
+        FLAG_VALUE
+    :return: the start and end indices of the downcast, inclusive
+    """
+    valid = flag != flag_value
+    if not valid.any():
+        raise ValueError("All samples are flagged")
+
+    end = int(np.argmax(np.where(valid, depth, -np.inf)))
+
+    candidates = valid[: end + 1] & (depth[: end + 1] > min_depth)
+    if not candidates.any():
+        return end, end
+
+    start = int(np.argmin(np.where(candidates, depth[: end + 1], np.inf)))
+    return start, end
+
+
+def find_upcast(
+    depth: np.ndarray,
+    flag: np.ndarray,
+    min_depth: float = -np.inf,
+    flag_value: float = FLAG_VALUE,
+) -> tuple[int, int]:
+    """Gets the start and end indices of an upcast. The start index is
+    at the greatest depth, and the end index is at the last depth
+    greater than min_depth after it. Flagged samples are skipped.
+
+    :param depth: an array of depth values in meters
+    :param flag: an array of flag values
+    :param min_depth: exclude depths less than or equal to this,
+        defaults to -np.inf
+    :param flag_value: the value marking a bad sample, defaults to
+        FLAG_VALUE
+    :return: the start and end indices of the upcast, inclusive
+    """
+    valid = flag != flag_value
+    if not valid.any():
+        raise ValueError("All samples are flagged")
+
+    start = int(np.argmax(np.where(valid, depth, -np.inf)))
+
+    candidates = np.flatnonzero(valid[start:] & (depth[start:] > min_depth))
+    end = start + int(candidates[-1]) if len(candidates) else start
+    return start, end
+
+
+def trim(
+    dataframe: pd.DataFrame,
+    control: str,
+    start: float,
+    end: float,
+) -> pd.DataFrame:
+    """Trims a dataframe to the rows within a range of a control
+    variable, operating on the dataframe in place. Rows outside the
+    range are dropped and the index is reset so positional access stays
+    contiguous.
+
+    :param dataframe: The dataframe to trim
+    :param control: The name of the column to trim by, or "scan" to
+        trim by 1-based scan number
+    :param start: The first value to keep, inclusive
+    :param end: The last value to keep, inclusive
+    :return: The trimmed dataframe
+    """
+    if control == "scan":
+        scans = np.arange(len(dataframe))
+        mask = (scans >= max(0, start - 1)) & (scans < end)
+    else:
+        control_values = dataframe[control].to_numpy()
+        mask = (control_values >= start) & (control_values <= end)
+
+    dataframe.drop(index=dataframe.index[~mask], inplace=True)
+    dataframe.reset_index(drop=True, inplace=True)
+
+    return dataframe
 
 
 def split(
-    dataframe: pd.DataFrame,
-    control_name: str,
-    split_mode=CastType.BOTH,
+    dataset: xr.Dataset,
+    control_variable: str,
+    cast_type=CastType.BOTH,
     exclude_bad_scans=False,
-) -> List[pd.DataFrame]:
-    """Splits a dataframe into a list of 1 or 2 dataframes, the downcast
-    and/or upcast.
+    min_value=-np.inf,
+    drop=False,
+) -> xr.Dataset:
+    """Adds a cast_type coordinate to the dataset that labels samples
+    as "upcast", "downcast", or ""
 
-    :param dataframe: The dataframe to split
-    :param control_name: The variable to determine where to split,
+    :param dataset: The dataset to add the cast_type to
+    :param control_variable: The variable to determine where to split,
         typically pressure or depth
-    :param split_mode: Determines which casts to include in teh result,
+    :param split_mode: Determines which casts to include in the result,
         defaults to CastType.BOTH
     :param exclude_bad_scans: If True, rows with bad flags will be
         excluded when determining the max depth or pressure. Defaults
         to False
-    :return: A list of the downcast and/or upcast dataframes
+    :param min_value: Values below this will be excluded from the
+        beginning of the downcast and end of the upcast
+    :return: A new dataset with the cast_type coordinate
     """
-    _dataframe = dataframe.copy()
 
-    flag = None
-    if "flag" in _dataframe.columns:
-        flag = _dataframe["flag"]
-        if exclude_bad_scans:
-            _dataframe = _dataframe[flag != FLAG_VALUE]
+    ds = dataset.copy()
 
-    result = []
-    if split_mode in [CastType.BOTH, CastType.DOWNCAST]:
-        downcast = get_downcast(dataframe, "prdM", exclude_bad_scans=exclude_bad_scans)
-        result.append(downcast)
+    cast_type_coord = np.full(dataset.sizes["scan"], None, dtype=object)
+    if cast_type in [CastType.BOTH, CastType.DOWNCAST]:
+        downcast_mask = _get_downcast_mask(ds, control_variable, min_value, exclude_bad_scans)
+        cast_type_coord[downcast_mask] = CastType.DOWNCAST.value
 
-    if split_mode in [CastType.BOTH, CastType.UPCAST]:
-        upcast = get_upcast(dataframe, "prdM", exclude_bad_scans=exclude_bad_scans)
-        result.append(upcast)
+    if cast_type in [CastType.BOTH, CastType.UPCAST]:
+        upcast_mask = _get_upcast_mask(ds, control_variable, min_value, exclude_bad_scans)
+        cast_type_coord[upcast_mask] = CastType.UPCAST.value
 
-    return result
+    ds = ds.assign_coords(cast_type=("scan", cast_type_coord))
+
+    if drop:
+        if cast_type is CastType.BOTH:
+            ds = ds.where(
+                (ds["cast_type"] == CastType.UPCAST.value)
+                | (ds["cast_type"] == CastType.DOWNCAST.value),
+                drop=True,
+            )
+        if cast_type is CastType.DOWNCAST:
+            ds = ds.where(ds["cast_type"] == CastType.DOWNCAST.value, drop=True)
+        if cast_type is CastType.UPCAST:
+            ds = ds.where(ds["cast_type"] == CastType.UPCAST.value, drop=True)
+
+    return ds

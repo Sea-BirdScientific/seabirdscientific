@@ -1,16 +1,16 @@
-name: Ruff Linter
+name: Pytest
 
 on:
   pull_request:
     branches: ["**"]
 
 concurrency:
-  group: ruff-${{ github.ref }}
+  group: pytest-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  ruff:
-    name: Run Ruff
+  pytest:
+    name: Run Pytest
     runs-on: ubuntu-latest
 
     steps:
@@ -23,7 +23,5 @@ jobs:
       - name: Install dependencies
         run: uv sync
 
-      - name: Run ruff check and ruff format
-        run: |
-          uv run ruff check .
-          uv run ruff format --check .
+      - name: Run pytest
+        run: uv run pytest

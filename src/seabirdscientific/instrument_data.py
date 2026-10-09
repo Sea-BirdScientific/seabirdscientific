@@ -1,46 +1,108 @@
-"""A collection of classes and functions related to the processing of
-instrument data.
-"""
+"""Functions for processing instrument data."""
 
-# Classes:
-#   InstrumentType (Enum)
-#   HexDataTypes (Enum)
-#   Sensors (Enum)
-#   MeasurementSeries
-#   InstrumentData
-# Functions:
-#   cnv_to_instrument_data (Path) -> InstrumentData
-#   fix_exponents (List[str]) -> List[str]
-#   read_hex_file (str, InstrumentType, List[Sensors], bool) -> pd.DataFrame
-#   read_hex (InstrumentType, str, List[Sensors], bool) -> dict
-#   read_SBE19plus_format_0
-#   read_SBE37SM_format_0
-#   read_SBE39plus_format_0
-#   read_seafet_format_0
-#   read_SBE911plus_format_0
-
-# Native imports
-import builtins
-from enum import Enum
-from dataclasses import dataclass
-from datetime import date, datetime, timedelta
-from logging import getLogger
-from typing import List, Dict, Optional, Union
-from pathlib import Path
 import warnings
+import xml.etree.ElementTree as ET
+from datetime import datetime, timedelta
+from enum import Enum
+from itertools import dropwhile, takewhile
+from logging import getLogger
+from pathlib import Path
+from typing import Literal
 
-# Third-party imports
 import numpy as np
 import pandas as pd
+import xarray as xr
 
-# Sea-Bird imports
-
-# Internal imports
+from seabirdscientific.constants import COUNTS_TO_VOLTS, SECONDS_BETWEEN_EPOCH_AND_2000
+from seabirdscientific.utils import WarnAllMembersMeta
 
 logger = getLogger(__name__)
 
-COUNTS_TO_VOLTS = 13107
-SECONDS_BETWEEN_EPOCH_AND_2000 = 946684800
+
+"""Possible data types in hex files"""
+HEX_TYPE_TEMPERATURE = "temperature"
+HEX_TYPE_SECONDARY_TEMPERATURE = "secondary temperature"
+HEX_TYPE_CONDUCTIVITY = "conductivity"
+HEX_TYPE_SECONDARY_CONDUCTIVITY = "secondary conductivity"
+HEX_TYPE_PRESSURE = "pressure"
+HEX_TYPE_DIGIQUARTZ_PRESSURE = "digiquartz pressure"
+HEX_TYPE_TEMPERATURE_COMPENSATION = "temperature compensation"
+HEX_TYPE_EXTVOLT0 = "volt 0"
+HEX_TYPE_EXTVOLT1 = "volt 1"
+HEX_TYPE_EXTVOLT2 = "volt 2"
+HEX_TYPE_EXTVOLT3 = "volt 3"
+HEX_TYPE_EXTVOLT4 = "volt 4"
+HEX_TYPE_EXTVOLT5 = "volt 5"
+HEX_TYPE_EXTVOLT6 = "volt 6"
+HEX_TYPE_EXTVOLT7 = "volt 7"
+HEX_TYPE_SBE38_TEMPERATURE = "SBE38 temperature"
+HEX_TYPE_WETLABS0 = "wetlabs - channel 0"
+HEX_TYPE_WETLABS1 = "wetlabs - channel 1"
+HEX_TYPE_WETLABS2 = "wetlabs - channel 2"
+HEX_TYPE_GTD_PRESSURE = "GTD pressure"
+HEX_TYPE_GTD_TEMPERATURE = "GTD temperature"
+HEX_TYPE_GTD_PRESSURE2 = "GTD pressure - sensor 2"
+HEX_TYPE_GTD_TEMPERATURE2 = "GTD temperature - sensor 2"
+HEX_TYPE_OPTODE_OXYGEN = "optode oxygen"
+HEX_TYPE_SBE63_PHASE = "SBE63 oxygen phase"
+HEX_TYPE_SBE63_TEMPERATURE = "SBE63 oxygen temperature"
+HEX_TYPE_DATE_TIME = "date time"
+HEX_TYPE_NMEA_TIME = "NMEA Date Time"
+HEX_TYPE_NMEA_LATITUDE = "NMEA Latitude"
+HEX_TYPE_NMEA_LONGITUDE = "NMEA Longitude"
+HEX_TYPE_NMEA_DEPTH = "nmea depth"
+HEX_TYPE_STATUS_SIGN = "status and sign"
+HEX_TYPE_VRS_INTERNAL = "vrs internal"
+HEX_TYPE_VRS_EXTERNAL = "vrs external"
+HEX_TYPE_PH_TEMPERATURE = "ph temperature"
+HEX_TYPE_VK = "vk"
+HEX_TYPE_IB = "ib"
+HEX_TYPE_IK = "ik"
+HEX_TYPE_RELATIVE_HUMIDITY = "relative humidity"
+HEX_TYPE_INTERNAL_TEMPERATURE = "internal temperature"
+HEX_TYPE_ERROR_FLAG = "error flag"
+HEX_TYPE_SURFACE_PAR = "surface par"
+HEX_TYPE_SBE911_PUMP_STATUS = "SBE911 pump status"
+HEX_TYPE_SBE911_BOTTOM_CONTACT_STATUS = "SBE911 bottom contact status"
+HEX_TYPE_SBE911_CONFIRM_STATUS = "SBE911 confirm status"
+HEX_TYPE_SBE911_MODEM_STATUS = "SBE911 modem status"
+HEX_TYPE_DATA_INTEGRITY = "data integrity"
+HEX_TYPE_SYSTEM_TIME = "system time"
+
+
+"""Possible lengths for hex data types"""
+HEX_LEN_TEMPERATURE = 6
+HEX_LEN_CONDUCTIVITY = 6
+HEX_LEN_PRESSURE = 6
+HEX_LEN_TEMPERATURE_COMPENSATION = 4
+HEX_LEN_DIGIQUARTZ_PRESSURE_TEMP_COMP = 3
+HEX_LEN_VOLTAGE = 4
+HEX_LEN_SBE911_VOLTAGE = 3
+HEX_LEN_SBE911_SURFACE_PAR = 3
+HEX_LEN_SBE911_TEMPERATURE_COMPENSATION = 3
+HEX_LEN_SBE911_STATUS = 1
+HEX_LEN_SBE911_DATA_INTEGRITY = 2
+HEX_LEN_WETLABS_SINGLE_SENSOR = 4
+HEX_LEN_GTD_PRESSURE = 8
+HEX_LEN_OPTODE_OXYGEN = 6
+HEX_LEN_SBE63_PHASE = 6
+HEX_LEN_SEAOWL_CHANNEL = 4
+HEX_LEN_DATE_TIME = 8
+HEX_LEN_VRS_EXTERNAL = 6
+HEX_LEN_VRS_INTERNAL = 6
+HEX_LEN_VK = 6
+HEX_LEN_IB = 6
+HEX_LEN_IK = 6
+HEX_LEN_RELATIVE_HUMIDITY = 3
+HEX_LEN_INTERNAL_TEMPERATURE = 3
+HEX_LEN_ERROR_FLAG = 4
+HEX_LEN_NMEA_LATITUDE = 6
+HEX_LEN_NMEA_LONGITUDE = 6
+HEX_LEN_NMEA_TIME = 8
+HEX_LEN_NMEA_LOCATION = 14
+HEX_LEN_NMEA_STATUS_AND_SIGN = 2
+HEX_LEN_NMEA_DEPTH = 6
+HEX_LEN_SYSTEM_TIME = 8
 
 
 class InstrumentType(Enum):
@@ -54,7 +116,7 @@ class InstrumentType(Enum):
     SBE37IM = "37-IM"
     SBE37IMP = "37-IMP"
     SBE37IMPODO = "37-IMP-ODO"
-    SBE19Plus = "19plus"  # change enums to UPPER_CASE for TKIT-75
+    SBE19Plus = "19plus"
     SBE16Plus = "16plus"
     SBE39Plus = "39plus"
     SBE39PlusIM = "39plus-IM"
@@ -65,86 +127,85 @@ class InstrumentType(Enum):
     HydroCATODO = "HydroCAT-ODO"
 
 
-class HexDataTypes(Enum):
-    """Possible data types in hex files"""
+class Sensors(Enum):
+    """Available sensors to read hex data from"""
 
-    temperature = (  # change enums to UPPER_CASE for TKIT-75
-        "temperature"
-    )
-    secondaryTemperature = (  # change enums to UPPER_CASE for TKIT-75
-        "secondary temperature"
-    )
-    conductivity = (  # change enums to UPPER_CASE for TKIT-75
-        "conductivity"
-    )
-    secondaryConductivity = (  # change enums to UPPER_CASE for TKIT-75
-        "secondary conductivity"
-    )
+    Temperature = "Temperature"
+    SecondaryTemperature = "SecondaryTemperature"
+    Conductivity = "Conductivity"
+    SecondaryConductivity = "SecondaryConductivity"
+    Pressure = "Pressure"
+    DigiquartzPressure = "DigiquartzPressure"
+    ExtVolt0 = "ExtVolt0"
+    ExtVolt1 = "ExtVolt1"
+    ExtVolt2 = "ExtVolt2"
+    ExtVolt3 = "ExtVolt3"
+    ExtVolt4 = "ExtVolt4"
+    ExtVolt5 = "ExtVolt5"
+    ExtVolt6 = "ExtVolt6"
+    ExtVolt7 = "ExtVolt7"
+    WETLABS = "WETLABS"
+    GTD = "GTD"
+    DualGTD = "DualGTD"
+    OPTODE = "OPTODE"
+    SBE63 = "SBE63"
+    SBE38 = "SBE38"
+    SeaFET = "SeaFET"
+    SPAR = "SPAR"
+    nmeaLatitude = "nmeaLatitude"
+    nmeaLongitude = "nmeaLongitude"
+    statusAndSign = "StatusAndSign"
+    nmeaTime = "nmeaTime"
+    nmeaLocation = "nmeaLocation"
+    nmeaDepth = "nmeaDepth"
+    SystemTime = "systemTime"
 
-    pressure = "pressure"  # change enums to UPPER_CASE for TKIT-75
-    digiquartzPressure = "digiquartz pressure"  # change enums to UPPER_CASE for TKIT-75
-    temperatureCompensation = "temperature compensation"  # change enums to UPPER_CASE for TKIT-75
-    ExtVolt0 = "volt 0"  # change enums to UPPER_CASE for TKIT-75
-    ExtVolt1 = "volt 1"  # change enums to UPPER_CASE for TKIT-75
-    ExtVolt2 = "volt 2"  # change enums to UPPER_CASE for TKIT-75
-    ExtVolt3 = "volt 3"  # change enums to UPPER_CASE for TKIT-75
-    ExtVolt4 = "volt 4"  # change enums to UPPER_CASE for TKIT-75
-    ExtVolt5 = "volt 5"  # change enums to UPPER_CASE for TKIT-75
+
+class HexDataTypes(Enum, metaclass=WarnAllMembersMeta):
+    """Possible data types in hex files.
+    Deprecated. Use HEX_TYPE_* constants."""
+
+    temperature = "temperature"
+    secondaryTemperature = "secondary temperature"
+    conductivity = "conductivity"
+    secondaryConductivity = "secondary conductivity"
+    pressure = "pressure"
+    digiquartzPressure = "digiquartz pressure"
+    temperatureCompensation = "temperature compensation"
+    ExtVolt0 = "volt 0"
+    ExtVolt1 = "volt 1"
+    ExtVolt2 = "volt 2"
+    ExtVolt3 = "volt 3"
+    ExtVolt4 = "volt 4"
+    ExtVolt5 = "volt 5"
     ExtVolt6 = "volt 6"
     ExtVolt7 = "volt 7"
-    SBE38temperature = "SBE38 temperature"  # change enums to UPPER_CASE for TKIT-75
-    wetlabs0 = "wetlabs - channel 0"  # change enums to UPPER_CASE for TKIT-75
-    wetlabs1 = "wetlabs - channel 1"  # change enums to UPPER_CASE for TKIT-75
-    wetlabs2 = "wetlabs - channel 2"  # change enums to UPPER_CASE for TKIT-75
-    GTDpressure = (  # change enums to UPPER_CASE for TKIT-75
-        "GTD pressure"
-    )
-    GTDtemperature = (  # change enums to UPPER_CASE for TKIT-75
-        "GTD temperature"
-    )
-    GTDpressure2 = "GTD pressure - sensor 2"  # change enums to UPPER_CASE for TKIT-75
-    GTDtemperature2 = "GTD temperature - sensor 2"  # change enums to UPPER_CASE for TKIT-75
-    optodeOxygen = (  # change enums to UPPER_CASE for TKIT-75
-        "optode oxygen"
-    )
-    SBE63phase = "SBE63 oxygen phase"  # change enums to UPPER_CASE for TKIT-75
-    SBE63temperature = "SBE63 oxygen temperature"  # change enums to UPPER_CASE for TKIT-75
-    dateTime = "date time"  # change enums to UPPER_CASE for TKIT-75
-    # NMEA Devices
-    nmeaTime = (  # change enums to UPPER_CASE for TKIT-75
-        "NMEA Date Time"
-    )
-    nmeaLatitude = (  # change enums to UPPER_CASE for TKIT-75
-        "NMEA Latitude"
-    )
-    nmeaLongitude = (  # change enums to UPPER_CASE for TKIT-75
-        "NMEA Longitude"
-    )
+    SBE38temperature = "SBE38 temperature"
+    wetlabs0 = "wetlabs - channel 0"
+    wetlabs1 = "wetlabs - channel 1"
+    wetlabs2 = "wetlabs - channel 2"
+    GTDpressure = "GTD pressure"
+    GTDtemperature = "GTD temperature"
+    GTDpressure2 = "GTD pressure - sensor 2"
+    GTDtemperature2 = "GTD temperature - sensor 2"
+    optodeOxygen = "optode oxygen"
+    SBE63phase = "SBE63 oxygen phase"
+    SBE63temperature = "SBE63 oxygen temperature"
+    dateTime = "date time"
+    nmeaTime = "NMEA Date Time"
+    nmeaLatitude = "NMEA Latitude"
+    nmeaLongitude = "NMEA Longitude"
     nmeaDepth = "nmea depth"
-    statusAndSign = (  # change enums to UPPER_CASE for TKIT-75
-        "status and sign"
-    )
-    vrsInternal = (  # change enums to UPPER_CASE for TKIT-75
-        "vrs internal"
-    )
-    vrsExternal = (  # change enums to UPPER_CASE for TKIT-75
-        "vrs external"
-    )
-    pHtemperature = (  # change enums to UPPER_CASE for TKIT-75
-        "ph temperature"
-    )
-    vk = "vk"  # change enums to UPPER_CASE for TKIT-75
-    ib = "ib"  # change enums to UPPER_CASE for TKIT-75
-    ik = "ik"  # change enums to UPPER_CASE for TKIT-75
-    relativeHumidity = (  # change enums to UPPER_CASE for TKIT-75
-        "relative humidity"
-    )
-    internalTemperature = (  # change enums to UPPER_CASE for TKIT-75
-        "internal temperature"
-    )
-    errorFlag = (  # change enums to UPPER_CASE for TKIT-75
-        "error flag"
-    )
+    statusAndSign = "status and sign"
+    vrsInternal = "vrs internal"
+    vrsExternal = "vrs external"
+    pHtemperature = "ph temperature"
+    vk = "vk"
+    ib = "ib"
+    ik = "ik"
+    relativeHumidity = "relative humidity"
+    internalTemperature = "internal temperature"
+    errorFlag = "error flag"
     surfacePAR = "surface par"
     SBE911PumpStatus = "SBE911 pump status"
     SBE911BottomContactStatus = "SBE911 bottom contact status"
@@ -154,132 +215,10 @@ class HexDataTypes(Enum):
     systemTime = "system time"
 
 
-# export type HexDataTypeStrings = keyof typeof HexDataTypes;
-
-HEX_LENGTH = {
-    "temperature": 6,
-    "conductivity": 6,
-    "pressure": 6,
-    "temperatureCompensation": 4,
-    "digiquartzPressureTemperatureCompensation": 3,
-    "voltage": 4,
-    "SBE911Voltage": 3,
-    "SBE911SPAR": 3,
-    "SBE911TemperatureCompensation": 3,
-    "SBE911Status": 1,
-    "SBE911DataIntegrity": 2,
-    "SBE38temperature": 6,
-    "wetlabsSingleSensor": 4,  # There are three of these for each WL Sensor
-    "GTDpressure": 8,
-    "GTDtemperature": 6,
-    "optodeOxygen": 6,
-    "SBE63phase": 6,
-    "SBE63temperature": 6,
-    "SeaFETVint": 6,
-    "SeaFETVext": 6,
-    "SeaOWLChannel": 4,  # There are three of these for each SeaOWL
-    "time": 8,
-    "vrsExternal": 6,
-    "vrsInternal": 6,
-    "pHtemperature": 6,
-    "vk": 6,
-    "ib": 6,
-    "ik": 6,
-    "relativeHumidity": 3,
-    "internalTemperature": 3,
-    "errorFlag": 4,
-    # nmea devices
-    "nmeaLatitude": 6,
-    "nmeaLongitude": 6,
-    "nmeaTime": 8,
-    "nmeaLocation": 14,
-    "statusAndSign": 2,
-    "systemTime": 8,
-}
-
-
-class Sensors(Enum):
-    """Available sensors to read hex data from"""
-
-    Temperature = (  # change enums to UPPER_CASE for TKIT-75
-        "Temperature"
-    )
-    SecondaryTemperature = "SecondaryTemperature"  # change enums to UPPER_CASE for TKIT-75
-    Conductivity = (  # change enums to UPPER_CASE for TKIT-75
-        "Conductivity"
-    )
-    SecondaryConductivity = "SecondaryConductivity"  # change enums to UPPER_CASE for TKIT-75
-    Pressure = "Pressure"  # change enums to UPPER_CASE for TKIT-75
-    DigiquartzPressure = "DigiquartzPressure"  # change enums to UPPER_CASE for TKIT-75
-    ExtVolt0 = "ExtVolt0"  # change enums to UPPER_CASE for TKIT-75
-    ExtVolt1 = "ExtVolt1"  # change enums to UPPER_CASE for TKIT-75
-    ExtVolt2 = "ExtVolt2"  # change enums to UPPER_CASE for TKIT-75
-    ExtVolt3 = "ExtVolt3"  # change enums to UPPER_CASE for TKIT-75
-    ExtVolt4 = "ExtVolt4"  # change enums to UPPER_CASE for TKIT-75
-    ExtVolt5 = "ExtVolt5"  # change enums to UPPER_CASE for TKIT-75
-    ExtVolt6 = "ExtVolt6"  # change enums to UPPER_CASE for TKIT-75
-    ExtVolt7 = "ExtVolt7"  # change enums to UPPER_CASE for TKIT-75
-    WETLABS = "WETLABS"  # change enums to UPPER_CASE for TKIT-75
-    GTD = "GTD"  # change enums to UPPER_CASE for TKIT-75
-    DualGTD = "DualGTD"  # change enums to UPPER_CASE for TKIT-75
-    OPTODE = "OPTODE"  # change enums to UPPER_CASE for TKIT-75
-    SBE63 = "SBE63"  # change enums to UPPER_CASE for TKIT-75
-    SBE38 = "SBE38"  # change enums to UPPER_CASE for TKIT-75
-    SeaFET = "SeaFET"  # change enums to UPPER_CASE for TKIT-75
-    SPAR = "SPAR"  # change enums to UPPER_CASE for TKIT-75
-    # nmea devices
-    nmeaLatitude = "nmeaLatitude"  # change enums to UPPER_CASE for TKIT-75
-    nmeaLongitude = (  # change enums to UPPER_CASE for TKIT-75
-        "nmeaLongitude"
-    )
-    statusAndSign = (  # change enums to UPPER_CASE for TKIT-75
-        "StatusAndSign"
-    )
-    nmeaTime = "nmeaTime"  # change enums to UPPER_CASE for TKIT-75
-    nmeaLocation = "nmeaLocation"  # change enums to UPPER_CASE for TKIT-75
-    nmeaDepth = "nmeaDepth"  # change enums to UPPER_CASE for TKIT-75
-    SystemTime = "systemTime"  # change enums to UPPER_CASE for TKIT-75
-
-
-@dataclass
-class MeasurementSeries:
-    """Container for measurement data."""
-
-    label: str
-    description: str
-    units: str
-    start_time: Optional[date]
-    values: np.ndarray
-
-
-@dataclass
-class InstrumentData:
-    """Container for instrument data parsed from a CNV file."""
-
-    measurements: Dict[str, MeasurementSeries]
-    """
-    Dictionary of MeasurementSeries by their label.
-
-    Note: duplicate labels can occur and cnv_to_instrument_data will numerically
-    increment the duplicate labels, e.g. the second "depSM" becomes "depSM1".
-    """
-    interval_s: Optional[float]
-    latitude: float
-    start_time: Optional[date]
-    sample_count: Optional[int]
-
-    def _to_dataframe(self):
-        measurements = {k: v.values for k, v in self.measurements.items()}
-        return pd.DataFrame(measurements)
-
-
-def cnv_to_instrument_data(filepath: Union[Path, str]) -> InstrumentData:
-    """
-    Import the data from a .cnv file and put it into an InstrumentData object.
-
-    Duplicate labels will be incremented for InstrumentData.measurements keys.
-    For example, the second "depSM" becomes "depSM1".
-    However, the MeasurementSeries.label will be the original label.
+def _read_seasoft_cnv_file(filepath: Path | str) -> xr.Dataset:
+    """Import the data from a .cnv file and put it into an xarray
+    Dataset. Duplicate varioable names will have a number appended. For
+    example, the second "depSM" becomes "depSM_1".
 
     :param filepath: the path to the .cnv file to be imported
 
@@ -287,118 +226,189 @@ def cnv_to_instrument_data(filepath: Union[Path, str]) -> InstrumentData:
 
     """
 
-    data = InstrumentData(
-        measurements={},
-        interval_s=None,
-        latitude=0.0,
-        start_time=None,
-        sample_count=None,
-    )
+    dataset = xr.Dataset({}, attrs={"file_name": Path(filepath).name})
 
-    n = 0
+    total_scans = 0
+    data_lines = []
 
     logger.info("Unpacking instrument data from file: %s", filepath)
 
     with open(filepath, mode="r") as cnv:
-        for line in cnv:
-            if line.startswith("*") or line.startswith("#"):
-                if line.startswith("# nvalues = "):
-                    data.sample_count = int(line[line.find("= ") + 2 : line.find("\n")])
-                elif line.startswith("# name "):
-                    label = line[line.find("= ") + 2 : line.find(":")]
-                    left_bracket = line.find(" [")
-                    if left_bracket > 0:
-                        description = line[line.find(": ") + 2 : left_bracket]
-                        units = line[line.find("[") + 1 : line.find("]")]
-                    else:
-                        description = line[line.find(": ") + 2 : line.find("\n")].strip()
-                        units = ""
+        for n_line, line in enumerate(cnv):
+            if line.startswith("# nvalues = "):
+                total_scans = int(line[line.find("= ") + 2 : line.find("\n")])
 
-                    num_values = data.sample_count or 0  # num_values to 0 if sample_count is None
+            elif line.startswith("# name "):
+                name = line[line.find("= ") + 2 : line.find(":")]
 
-                    key = label
-                    # check for label collision
-                    # if collision, increment until find available key
-                    i = 1
-                    while key in data.measurements:
-                        key = f"{label}_{i}"
-                        i += 1
+                # scan is already added to each data array
+                if name == "scan":
+                    name = "scan_count"
 
-                    data.measurements[key] = MeasurementSeries(
-                        label=label,
-                        description=description,
-                        units=units,
-                        start_time=None,
-                        values=np.zeros(num_values),
-                    )
+                left_bracket = line.find(" [")
+                if left_bracket > 0:
+                    long_name = line[line.find(": ") + 2 : left_bracket]
+                    units = line[line.find("[") + 1 : line.find("]")]
+                else:
+                    long_name = line[line.find(": ") + 2 : line.find("\n")].strip()
+                    units = ""
 
-                    if key != label:
-                        logger.warning(
-                            'duplicate measurement "%s" will use key "%s" in measurements dict',
-                            label,
-                            key,
-                        )
+                safe_name = name
+                # check for label collision
+                # if collision, increment until an available key is found
+                n_name = 1
+                while safe_name in list(dataset.data_vars):
+                    safe_name = f"{name}_{n_name}"
+                    n_name += 1
 
-                elif line.startswith("# interval = "):
-                    interval = float(
-                        line[line.find(": ") + 2 : line.find("\n")]
-                    )  # TODO: fix for minutes, hours, etc
-                    data.interval_s = interval
+                if safe_name != name:
+                    logger.warning(f'Duplicate measurand "{name}" will use key "{safe_name}"')
 
-                elif line.startswith("# start_time = "):
-                    end = min(line.find("\n"), line.find(" ["))
-                    date_string = line[line.find("= ") + 2 : end]
-                    start_time = datetime.strptime(date_string, "%b %d %Y %H:%M:%S")
-                    data.start_time = start_time
-                    for measurement in data.measurements.values():
-                        measurement.start_time = start_time
+                data_array = xr.DataArray(
+                    data=np.zeros(total_scans),
+                    dims=["scan"],
+                    coords={"scan": np.arange(total_scans)},
+                    attrs={
+                        "sbs_name": name,
+                        "long_name": long_name,
+                        "units": units,
+                    },
+                )
 
-                elif line.startswith("** Latitude: "):
-                    latitude_parts = line[line.find(": ") + 2 :].split()
-                    data.latitude = float(latitude_parts[0]) + float(latitude_parts[1]) / 60.0
-                    # TODO: add higher priority latitude to individual measurement series
-                    # where necessary
+                dataset[safe_name] = data_array
 
-            else:
-                values = fix_exponents(" -".join(line.split("-")).split())
+            elif line.startswith("# interval = "):
+                interval = float(
+                    line[line.find(": ") + 2 : line.find("\n")]
+                )  # TODO: fix for minutes, hours, etc
+                dataset.attrs["sample_interval"] = interval
 
-                if len(values) > 0:
-                    for value, measurement in zip(values, data.measurements.values()):
-                        measurement.values[n] = float(value)
-                    n += 1
-    return data
+            elif line.startswith("# start_time = "):
+                end = min(line.find("\n"), line.find(" ["))
+                date_string = line[line.find("= ") + 2 : end]
+                start_time = datetime.strptime(date_string, "%b %d %Y %H:%M:%S")
+                dataset.attrs["start_time"] = start_time.isoformat()
+
+            elif line.startswith("*END*"):
+                data_lines = cnv.readlines()
+                break
+
+    np_data = np.array(
+        [np.fromstring(dl.replace("-", " -").replace("e -", "e-"), sep=" ") for dl in data_lines]
+    )
+
+    for n, measurand in enumerate(list(dataset.data_vars)):
+        dataset[measurand].data = np_data[:, n]
+
+    return dataset
 
 
-def fix_exponents(values: List[str]) -> List[str]:
-    """Fixes flag values and other numbers with negative exponents.
-    This is necessary because sometimes there is only a minus sign
-    separating two values in a cnv file. So we split values on the minus
-    sign which also splits negative exponents (e.g. 1e-2 becomes 1e, -2).
-    This function repairs the exponents by merging numbers that end in
-    'e' with the following number in the list (e.g. 1e, -2 becomes 1e-2),
-    then removes the extra exponent from the list.
+def _column_array(values: list | tuple) -> np.ndarray:
+    """Converts one column of parsed values to a numpy array
 
-    :param values: List of strings representing numbers
+    Numeric columns become float64. ValueError covers strings that do not
+    parse as floats, TypeError covers values that are already Python objects
+    (datetimes), and both fall back to an object array.
 
-    :return: List of strings where eponents have been fixed
+    :param values: every value for a single measurand, in scan order
+
+    :return: a 1D array of the column
     """
+    try:
+        return np.array(values, dtype=float)
+    except (ValueError, TypeError):
+        return np.array(values, dtype=object)
 
-    del_indices = [n + 1 for n, value in enumerate(values) if value.endswith("e")]
-    for n in del_indices:
-        values[n - 1] = f"{values[n - 1]}{values[n]}"
-    new_values = list(np.delete(values, del_indices))
-    return new_values
+
+def _read_fathom_cnv_file(filepath: Path | str) -> xr.Dataset:
+    dataset = xr.Dataset({}, attrs={"file_name": Path(filepath).name})
+    with open(filepath) as f:
+        block = takewhile(
+            lambda line: not line.startswith("*END*"),
+            dropwhile(lambda line: not line.startswith("# <FathomProcessing"), f),
+        )
+        fathom_xml = ET.fromstring("".join(line.lstrip("#* ") for line in block))
+        dc_element = fathom_xml.find("Modules").find("DataConversion")
+        export_element = fathom_xml.find("Modules").find("Export")
+        total_scans = int(dc_element.find("NumScans").text)
+        dataset = dataset.assign_coords(scan=np.arange(total_scans))
+        ds_attrs = {
+            "sample_interval": float(dc_element.find("Interval").get("Value")),
+            "start_time": dc_element.find("StartTime").get("DateTime"),
+        }
+        dataset.attrs.update(ds_attrs)
+
+        rows = [line.split() for line in f if line.strip()]
+        columns = list(export_element.find("Columns"))
+
+        if len(rows) != total_scans or any(len(row) != len(columns) for row in rows):
+            raise ValueError(
+                f"expected {total_scans}x{len(columns)} data block, "
+                f"got {len(rows)}x{len(rows[0]) if rows else 0}"
+            )
+
+        data = list(zip(*rows))
+
+        for n, column in enumerate(columns):
+            name = column.attrib["ID"]
+            attrs = {
+                "sbs_name": name,
+                "long_name": column.find("Name").text,
+                "units": column.find("Units").text or "",
+            }
+            values = data[n]
+
+            # update the scan coord if there is a scan variable in the data
+            if name in dataset.coords:
+                dataset[name] = dataset[name].copy(data=np.array(values, dtype=np.int64))
+                dataset[name].attrs.update(attrs)
+                continue
+
+            safe_name = name
+            # check for label collision
+            # if collision, increment until an available key is found
+            n_name = 1
+            while safe_name in dataset.data_vars:
+                safe_name = f"{name}_{n_name}"
+                n_name += 1
+
+            if safe_name != name:
+                logger.warning(f'Duplicate measurand "{name}" will use key "{safe_name}"')
+
+            dataset[safe_name] = xr.DataArray(
+                data=_column_array(values),
+                dims=["scan"],
+                attrs=attrs,
+            )
+
+    return dataset
+
+
+def read_cnv_file(
+    filepath: Path | str, software: Literal["fathom", "seasoft"] = "fathom"
+) -> xr.Dataset:
+    if software == "fathom":
+        return _read_fathom_cnv_file(filepath)
+    elif software == "seasoft":
+        return _read_seasoft_cnv_file(filepath)
+    else:
+        raise ValueError(f"Unknown software: {software} (must be fathom or seasoft)")
+
+
+def cnv_to_instrument_data(filepath: Path | str) -> xr.Dataset:
+    warnings.warn("Deprecated, use read_cnv_file", DeprecationWarning)
+    return read_cnv_file(filepath, "seasoft")
 
 
 def read_hex_file(
-    filepath: Union[Path, str],
+    filepath: Path | str,
     instrument_type: InstrumentType,
-    enabled_sensors: List[Sensors] = [],
+    enabled_sensors: list[Sensors],
     moored_mode=False,
     is_shallow=True,
     frequency_channels_suppressed=0,
     voltage_words_suppressed=0,
-) -> pd.DataFrame:
+) -> xr.Dataset:
     """Reads a .hex file
 
     :param filepath: path to the .hex file
@@ -407,45 +417,36 @@ def read_hex_file(
         instrument
     :param moored_mode: whether the instrument was in moored or profiling
         mode, defaults to False
-    :return: a pandas DataFrame with the hex data
+    :param is_shallow: boolean for deep or shallow seafet,
+    :param frequency_channels_suppressed: number of SBE911 requency
+        channels supressed,
+    :param voltage_words_suppressed: number of SBE911 voltage channels
+        suppressed,
+    :return: an xarray Dataset with the hex data
     """
-    # Collect the data lines in a single pass, so the row count is known before any
-    # array is allocated.  Replaces reading the file twice.
+
     data_lines = []
-    is_data = False
+
     with open(filepath, mode="r") as file:
         for line in file:
-            if is_data and not (line == "" or line.startswith("\n") or line.startswith("\r")):
-                data_lines.append(line)
             if line.startswith("*END*"):
-                is_data = True
+                data_lines = file.readlines()
+                break
+
+    # drop blank lines
+    data_lines = [line for line in data_lines if not line.isspace()]
+
+    attrs = {"file_name": Path(filepath).name}
 
     if not data_lines:
-        return pd.DataFrame()
+        return xr.Dataset({}, attrs=attrs)
 
-    # Parse the first scan to discover the column names and their types, then fill
-    # preallocated arrays column-wise.  Replaces per-scan, per-column DataFrame.loc
-    # assignment, which reallocates on every write.
-    first_scan = read_hex(
-        instrument_type,
-        data_lines[0],
-        enabled_sensors,
-        moored_mode,
-        is_shallow,
-        frequency_channels_suppressed,
-        voltage_words_suppressed,
-    )
+    # Accumulate one list per measurand, then convert each column in a single
+    # pass. Appending is cheaper than writing into a preallocated array cell by
+    # cell, and avoids holding a scans x measurands array of boxed values.
+    columns: dict[str, list] = {}
 
-    data_length = len(data_lines)
-    columns: dict = {}
-    for key, value in first_scan.items():
-        if isinstance(value, (int, float)) and not isinstance(value, bool):
-            columns[key] = np.zeros(data_length, dtype=float)
-        else:
-            columns[key] = [None] * data_length
-        columns[key][0] = value
-
-    for data_count, line in enumerate(data_lines[1:], start=1):
+    for line in data_lines:
         hex_data = read_hex(
             instrument_type,
             line,
@@ -455,21 +456,35 @@ def read_hex_file(
             frequency_channels_suppressed,
             voltage_words_suppressed,
         )
-        for key, value in hex_data.items():
-            columns[key][data_count] = value
+        if not columns:
+            columns = {key: [] for key in hex_data}
+        for key, column in columns.items():
+            column.append(hex_data[key])
 
-    return pd.DataFrame(columns)
+    # Build the Dataset in one construction so the scan coord is allocated once
+    # and aligned once, rather than per measurand.
+    return xr.Dataset(
+        data_vars={
+            key: xr.DataArray(
+                data=_column_array(column),
+                dims=["scan"],
+                attrs={"sbs_name": key, "long_name": "", "units": ""},
+            )
+            for key, column in columns.items()
+        },
+        coords={"scan": np.arange(len(data_lines))},
+        attrs=attrs,
+    )
 
 
 def read_hex(
     instrument_type: InstrumentType,
     hex_segment: str = "",
-    enabled_sensors: Union[List[Sensors], None] = None,
+    enabled_sensors: list[Sensors] | None = None,
     moored_mode=False,
     is_shallow=True,
     frequency_channels_suppressed=0,
     voltage_words_suppressed=0,
-    hex=hex,
 ) -> dict:
     """Converts an instrument data hex string into engineering units.
 
@@ -479,19 +494,16 @@ def read_hex(
         mode if true
     :param moored_mode: array of Sensors that are enabled. For 37 this
         is always temperature, conductivity, pressure. Defaults to False
-    :param hex: Deprecated, use hex_segment
 
     :return: the sensor values in engineering units that were extracted
         from the input hex string
     """
-    if hex is not builtins.hex:
-        warnings.warn("hex is deprecated, use hex_segment", DeprecationWarning)
 
     if instrument_type == InstrumentType.SBE19Plus:
-        return read_SBE19plus_format_0(hex_segment, enabled_sensors, moored_mode)
+        return read_sbe19plus_data(hex_segment, enabled_sensors, moored_mode)
 
     elif instrument_type == InstrumentType.SBE16Plus:
-        return read_SBE19plus_format_0(hex_segment, enabled_sensors, True)
+        return read_sbe19plus_data(hex_segment, enabled_sensors, True)
 
     elif instrument_type in [
         InstrumentType.SBE37IM,
@@ -506,16 +518,16 @@ def read_hex(
         InstrumentType.HydroCAT,
         InstrumentType.HydroCATODO,
     ]:
-        return read_SBE37SM_format_0(hex_segment, enabled_sensors)
+        return read_sbe37sm_data(hex_segment, enabled_sensors)
 
     elif instrument_type in [InstrumentType.SBE39Plus, InstrumentType.SBE39PlusIM]:
-        return read_SBE39plus_format_0(hex_segment, enabled_sensors)
+        return read_sbe39plus_data(hex_segment, enabled_sensors)
 
     elif instrument_type in [InstrumentType.SeaFET2, InstrumentType.SeapHox2]:
-        return read_seafet_format_0(hex_segment, instrument_type, is_shallow)
+        return read_seafet_data(hex_segment, instrument_type, is_shallow)
 
     elif instrument_type == InstrumentType.SBE911Plus:
-        return read_SBE911plus_format_0(
+        return read_sbe911plus_data(
             hex_segment,
             enabled_sensors,
             frequency_channels_suppressed,
@@ -528,47 +540,41 @@ def read_hex(
     return {}
 
 
-def read_SBE39plus_format_0(
+def read_sbe39plus_data(
     hex_segment: str = "",
-    enabled_sensors: Union[List[Sensors], None] = None,
-    hex=builtins.hex,
-) -> Dict[str, Union[int, float, datetime]]:
+    enabled_sensors: list[Sensors] | None = None,
+) -> dict[str, int | float | datetime]:
     """Converts a 39plus data hex string into engineering units.
 
     :param hex_segment: one line from a hex data file
     :param enabled_sensors: array of Sensors that are enabled
-    :param hex: Deprecated, use hex_segment
 
     :return: the 39plus sensor values in engineering units that were
         extracted from the input hex string
     """
-    if hex is not builtins.hex:
-        warnings.warn("hex is deprecated, use hex_segment", DeprecationWarning)
 
-    results: Dict[str, Union[int, float, datetime]] = {}
+    results: dict[str, int | float | datetime] = {}
     n = 0
 
     # Datetime (naive, no timezone conversion)
-    seconds_since_2000 = int(hex_segment[n : n + HEX_LENGTH["time"]], 16)
-    results[HexDataTypes.dateTime.value] = datetime(1970, 1, 1) + timedelta(
+    seconds_since_2000 = int(hex_segment[n : n + HEX_LEN_DATE_TIME], 16)
+    results[HEX_TYPE_DATE_TIME] = datetime(1970, 1, 1) + timedelta(
         seconds=seconds_since_2000 + SECONDS_BETWEEN_EPOCH_AND_2000
     )
-    n += HEX_LENGTH["time"]
+    n += HEX_LEN_DATE_TIME
 
     # Temperature
-    results[HexDataTypes.temperature.value] = int(
-        hex_segment[n : n + HEX_LENGTH["temperature"]], 16
-    )
-    n += HEX_LENGTH["temperature"]
+    results[HEX_TYPE_TEMPERATURE] = int(hex_segment[n : n + HEX_LEN_TEMPERATURE], 16)
+    n += HEX_LEN_TEMPERATURE
 
     # Pressure and temperature compensation
     if enabled_sensors and Sensors.Pressure in enabled_sensors:
-        results[HexDataTypes.pressure.value] = int(hex_segment[n : n + HEX_LENGTH["pressure"]], 16)
-        n += HEX_LENGTH["pressure"]
+        results[HEX_TYPE_PRESSURE] = int(hex_segment[n : n + HEX_LEN_PRESSURE], 16)
+        n += HEX_LEN_PRESSURE
 
-        temp_comp = int(hex_segment[n : n + HEX_LENGTH["temperatureCompensation"]], 16)
-        results[HexDataTypes.temperatureCompensation.value] = temp_comp
-        n += HEX_LENGTH["temperatureCompensation"]
+        temp_comp = int(hex_segment[n : n + HEX_LEN_TEMPERATURE_COMPENSATION], 16)
+        results[HEX_TYPE_TEMPERATURE_COMPENSATION] = temp_comp
+        n += HEX_LEN_TEMPERATURE_COMPENSATION
 
     # Validate hex length
     if n != len(hex_segment.strip()):
@@ -577,111 +583,100 @@ def read_SBE39plus_format_0(
     return results
 
 
-def read_seafet_format_0(
+def read_SBE39plus_format_0(*args, **kwargs):
+    warnings.warn("Deprecated, use read_sbe39plus_data", DeprecationWarning)
+    return read_sbe39plus_data(*args, **kwargs)
+
+
+def read_seafet_data(
     hex_segment: str,
     instrument_type: InstrumentType,
     is_shallow: bool = True,
-    hex=builtins.hex,
-) -> Dict[str, Union[int, float, datetime]]:
+) -> dict[str, int | float | datetime]:
     """Converts a SeaFET2 or SeapHox2 hex string into engineering units.
 
     :param hex_segment: one line from a hex data file
     :param instrument_type: InstrumentType.SeaFET2 or InstrumentType.SeapHox2
     :param is_shallow: if True, include internal pH and pH reference temperature
-    :param hex: Deprecated, use hex_segment
 
     :return: sensor values in engineering units extracted from the hex string
     """
-    if hex is not builtins.hex:
-        warnings.warn("hex is deprecated, use hex_segment", DeprecationWarning)
 
     if instrument_type not in (InstrumentType.SeaFET2, InstrumentType.SeapHox2):
         raise ValueError(
-            f"In read_seafet_format_0 {instrument_type} is not recognized as a SeaFET2 or SeapHox2"
+            f"In read_seafet_data {instrument_type} is not recognized as a SeaFET2 or SeapHox2"
         )
 
-    results: Dict[str, Union[int, float, datetime]] = {}
+    results: dict[str, int | float | datetime] = {}
     n = 0
 
     # SeapHox2 specific values
     if instrument_type == InstrumentType.SeapHox2:
-        results[HexDataTypes.temperature.value] = int(
-            hex_segment[n : n + HEX_LENGTH["temperature"]], 16
-        )
-        n += HEX_LENGTH["temperature"]
+        results[HEX_TYPE_TEMPERATURE] = int(hex_segment[n : n + HEX_LEN_TEMPERATURE], 16)
+        n += HEX_LEN_TEMPERATURE
 
-        results[HexDataTypes.conductivity.value] = (
-            int(hex_segment[n : n + HEX_LENGTH["conductivity"]], 16) / 256
-        )
-        n += HEX_LENGTH["conductivity"]
+        results[HEX_TYPE_CONDUCTIVITY] = int(hex_segment[n : n + HEX_LEN_CONDUCTIVITY], 16) / 256
+        n += HEX_LEN_CONDUCTIVITY
 
-        results[HexDataTypes.pressure.value] = int(hex_segment[n : n + HEX_LENGTH["pressure"]], 16)
-        n += HEX_LENGTH["pressure"]
+        results[HEX_TYPE_PRESSURE] = int(hex_segment[n : n + HEX_LEN_PRESSURE], 16)
+        n += HEX_LEN_PRESSURE
 
-        results[HexDataTypes.temperatureCompensation.value] = int(
-            hex_segment[n : n + HEX_LENGTH["temperatureCompensation"]], 16
+        results[HEX_TYPE_TEMPERATURE_COMPENSATION] = int(
+            hex_segment[n : n + HEX_LEN_TEMPERATURE_COMPENSATION], 16
         )
-        n += HEX_LENGTH["temperatureCompensation"]
+        n += HEX_LEN_TEMPERATURE_COMPENSATION
 
-        results[HexDataTypes.SBE63phase.value] = (
-            int(hex_segment[n : n + HEX_LENGTH["SBE63phase"]], 16) / 100000 - 10
+        results[HEX_TYPE_SBE63_PHASE] = (
+            int(hex_segment[n : n + HEX_LEN_SBE63_PHASE], 16) / 100000 - 10
         )
-        n += HEX_LENGTH["SBE63phase"]
+        n += HEX_LEN_SBE63_PHASE
 
-        results[HexDataTypes.SBE63temperature.value] = (
-            int(hex_segment[n : n + HEX_LENGTH["SBE63temperature"]], 16) / 1000000 - 1
+        results[HEX_TYPE_SBE63_TEMPERATURE] = (
+            int(hex_segment[n : n + HEX_LEN_TEMPERATURE], 16) / 1000000 - 1
         )
-        n += HEX_LENGTH["SBE63temperature"]
+        n += HEX_LEN_TEMPERATURE
 
     # External pH
-    results[HexDataTypes.vrsExternal.value] = int(
-        hex_segment[n : n + HEX_LENGTH["vrsExternal"]], 16
-    )
-    n += HEX_LENGTH["vrsExternal"]
+    results[HEX_TYPE_VRS_EXTERNAL] = int(hex_segment[n : n + HEX_LEN_VRS_EXTERNAL], 16)
+    n += HEX_LEN_VRS_EXTERNAL
 
     if is_shallow:
         # Internal pH
-        results[HexDataTypes.vrsInternal.value] = int(
-            hex_segment[n : n + HEX_LENGTH["vrsInternal"]], 16
-        )
-        n += HEX_LENGTH["vrsInternal"]
+        results[HEX_TYPE_VRS_INTERNAL] = int(hex_segment[n : n + HEX_LEN_VRS_INTERNAL], 16)
+        n += HEX_LEN_VRS_INTERNAL
 
         # pH reference temperature
-        results[HexDataTypes.pHtemperature.value] = int(
-            hex_segment[n : n + HEX_LENGTH["pHtemperature"]], 16
-        )
-        n += HEX_LENGTH["pHtemperature"]
+        results[HEX_TYPE_PH_TEMPERATURE] = int(hex_segment[n : n + HEX_LEN_TEMPERATURE], 16)
+        n += HEX_LEN_TEMPERATURE
 
     # Other sensors
-    results[HexDataTypes.vk.value] = int(hex_segment[n : n + HEX_LENGTH["vk"]], 16)
-    n += HEX_LENGTH["vk"]
+    results[HEX_TYPE_VK] = int(hex_segment[n : n + HEX_LEN_VK], 16)
+    n += HEX_LEN_VK
 
-    results[HexDataTypes.ib.value] = int(hex_segment[n : n + HEX_LENGTH["ib"]], 16)
-    n += HEX_LENGTH["ib"]
+    results[HEX_TYPE_IB] = int(hex_segment[n : n + HEX_LEN_IB], 16)
+    n += HEX_LEN_IB
 
-    results[HexDataTypes.ik.value] = int(hex_segment[n : n + HEX_LENGTH["ik"]], 16)
-    n += HEX_LENGTH["ik"]
+    results[HEX_TYPE_IK] = int(hex_segment[n : n + HEX_LEN_IK], 16)
+    n += HEX_LEN_IK
 
-    results[HexDataTypes.relativeHumidity.value] = int(
-        hex_segment[n : n + HEX_LENGTH["relativeHumidity"]] + "0", 16
+    results[HEX_TYPE_RELATIVE_HUMIDITY] = int(
+        hex_segment[n : n + HEX_LEN_RELATIVE_HUMIDITY] + "0", 16
     )
-    n += HEX_LENGTH["relativeHumidity"]
+    n += HEX_LEN_RELATIVE_HUMIDITY
 
-    results[HexDataTypes.internalTemperature.value] = int(
-        hex_segment[n : n + HEX_LENGTH["internalTemperature"]] + "0", 16
+    results[HEX_TYPE_INTERNAL_TEMPERATURE] = int(
+        hex_segment[n : n + HEX_LEN_INTERNAL_TEMPERATURE] + "0", 16
     )
-    n += HEX_LENGTH["internalTemperature"]
+    n += HEX_LEN_INTERNAL_TEMPERATURE
 
     # Datetime (naive, no timezone conversion)
-    seconds_since_2000 = int(hex_segment[n : n + HEX_LENGTH["time"]], 16)
-    results[HexDataTypes.dateTime.value] = datetime(2000, 1, 1) + timedelta(
-        seconds=seconds_since_2000
-    )
-    n += HEX_LENGTH["time"]
+    seconds_since_2000 = int(hex_segment[n : n + HEX_LEN_DATE_TIME], 16)
+    results[HEX_TYPE_DATE_TIME] = datetime(2000, 1, 1) + timedelta(seconds=seconds_since_2000)
+    n += HEX_LEN_DATE_TIME
 
     # Error flag
-    results[HexDataTypes.errorFlag.value] = int(hex_segment[n : n + HEX_LENGTH["errorFlag"]], 16)
-    n += HEX_LENGTH["errorFlag"]
+    results[HEX_TYPE_ERROR_FLAG] = int(hex_segment[n : n + HEX_LEN_ERROR_FLAG], 16)
+    n += HEX_LEN_ERROR_FLAG
 
     # Validate hex length
     if n != len(hex_segment.strip()):
@@ -692,13 +687,17 @@ def read_seafet_format_0(
     return results
 
 
-# TODO: change this to be snake_case for TKIT-75
-def read_SBE911plus_format_0(
+def read_seafet_format_0(*args, **kwargs):
+    warnings.warn("Deprecated, use read_seafet_data", DeprecationWarning)
+    return read_seafet_data(*args, **kwargs)
+
+
+def read_sbe911plus_data(
     hex_segment: str = "",
-    enabled_sensors: Union[List[Sensors], None] = None,
+    enabled_sensors: list[Sensors] | None = None,
     frequency_channels_suppressed: int = 0,
     voltage_words_suppressed: int = 0,
-) -> dict[str, Union[int, float, datetime]]:
+) -> dict[str, int | float | datetime]:
     """Converts a 911Plus hex string into engineering units.
 
     :param hex_segment: one line from a hex data file
@@ -711,93 +710,93 @@ def read_SBE911plus_format_0(
     if enabled_sensors is None:
         enabled_sensors = []
 
-    results: dict[str, Union[int, float, datetime]] = {}
+    results: dict[str, int | float | datetime] = {}
     n = 0
 
     # Temperature
-    results[HexDataTypes.temperature.value] = frequency_from_3_bytes(
-        hex_segment[n : n + HEX_LENGTH["temperature"]]
+    results[HEX_TYPE_TEMPERATURE] = frequency_from_3_bytes(
+        hex_segment[n : n + HEX_LEN_TEMPERATURE]
     )
-    n += HEX_LENGTH["temperature"]
+    n += HEX_LEN_TEMPERATURE
 
     # Conductivity
-    results[HexDataTypes.conductivity.value] = frequency_from_3_bytes(
-        hex_segment[n : n + HEX_LENGTH["conductivity"]]
+    results[HEX_TYPE_CONDUCTIVITY] = frequency_from_3_bytes(
+        hex_segment[n : n + HEX_LEN_CONDUCTIVITY]
     )
-    n += HEX_LENGTH["conductivity"]
+    n += HEX_LEN_CONDUCTIVITY
 
     # Digiquartz Pressure
-    results[HexDataTypes.digiquartzPressure.value] = frequency_from_3_bytes(
-        hex_segment[n : n + HEX_LENGTH["pressure"]]
+    results[HEX_TYPE_DIGIQUARTZ_PRESSURE] = frequency_from_3_bytes(
+        hex_segment[n : n + HEX_LEN_PRESSURE]
     )
-    n += HEX_LENGTH["pressure"]
+    n += HEX_LEN_PRESSURE
 
     # Secondary temperature
     if Sensors.SecondaryTemperature in enabled_sensors:
-        results[HexDataTypes.secondaryTemperature.value] = frequency_from_3_bytes(
-            hex_segment[n : n + HEX_LENGTH["temperature"]]
+        results[HEX_TYPE_SECONDARY_TEMPERATURE] = frequency_from_3_bytes(
+            hex_segment[n : n + HEX_LEN_TEMPERATURE]
         )
-        n += HEX_LENGTH["temperature"]
+        n += HEX_LEN_TEMPERATURE
     elif frequency_channels_suppressed <= 1:
-        n += HEX_LENGTH["temperature"]
+        n += HEX_LEN_TEMPERATURE
 
     # Secondary conductivity
     if Sensors.SecondaryConductivity in enabled_sensors:
-        results[HexDataTypes.secondaryConductivity.value] = frequency_from_3_bytes(
-            hex_segment[n : n + HEX_LENGTH["conductivity"]]
+        results[HEX_TYPE_SECONDARY_CONDUCTIVITY] = frequency_from_3_bytes(
+            hex_segment[n : n + HEX_LEN_CONDUCTIVITY]
         )
-        n += HEX_LENGTH["conductivity"]
+        n += HEX_LEN_CONDUCTIVITY
     elif frequency_channels_suppressed == 0:
-        n += HEX_LENGTH["conductivity"]
+        n += HEX_LEN_CONDUCTIVITY
 
     # Voltage channels (suppressed in pairs)
     if Sensors.ExtVolt0 in enabled_sensors or Sensors.ExtVolt1 in enabled_sensors:
-        results[HexDataTypes.ExtVolt0.value], results[HexDataTypes.ExtVolt1.value] = (
-            voltages_from_3_bytes(hex_segment[n : n + HEX_LENGTH["SBE911Voltage"] * 2])
+        results[HEX_TYPE_EXTVOLT0], results[HEX_TYPE_EXTVOLT1] = voltages_from_3_bytes(
+            hex_segment[n : n + HEX_LEN_SBE911_VOLTAGE * 2]
         )
-        n += HEX_LENGTH["SBE911Voltage"] * 2
+        n += HEX_LEN_SBE911_VOLTAGE * 2
     elif voltage_words_suppressed <= 3:
         # NotInUse volt channel that was not suppressed
-        n += HEX_LENGTH["SBE911Voltage"] * 2
+        n += HEX_LEN_SBE911_VOLTAGE * 2
 
     if Sensors.ExtVolt2 in enabled_sensors or Sensors.ExtVolt3 in enabled_sensors:
-        results[HexDataTypes.ExtVolt2.value], results[HexDataTypes.ExtVolt3.value] = (
-            voltages_from_3_bytes(hex_segment[n : n + HEX_LENGTH["SBE911Voltage"] * 2])
+        results[HEX_TYPE_EXTVOLT2], results[HEX_TYPE_EXTVOLT3] = voltages_from_3_bytes(
+            hex_segment[n : n + HEX_LEN_SBE911_VOLTAGE * 2]
         )
-        n += HEX_LENGTH["SBE911Voltage"] * 2
+        n += HEX_LEN_SBE911_VOLTAGE * 2
     elif voltage_words_suppressed <= 2:
         # NotInUse volt channel that was not suppressed
-        n += HEX_LENGTH["SBE911Voltage"] * 2
+        n += HEX_LEN_SBE911_VOLTAGE * 2
 
     if Sensors.ExtVolt4 in enabled_sensors or Sensors.ExtVolt5 in enabled_sensors:
-        results[HexDataTypes.ExtVolt4.value], results[HexDataTypes.ExtVolt5.value] = (
-            voltages_from_3_bytes(hex_segment[n : n + HEX_LENGTH["SBE911Voltage"] * 2])
+        results[HEX_TYPE_EXTVOLT4], results[HEX_TYPE_EXTVOLT5] = voltages_from_3_bytes(
+            hex_segment[n : n + HEX_LEN_SBE911_VOLTAGE * 2]
         )
-        n += HEX_LENGTH["SBE911Voltage"] * 2
+        n += HEX_LEN_SBE911_VOLTAGE * 2
     elif voltage_words_suppressed <= 1:
         # NotInUse volt channel that was not suppressed
-        n += HEX_LENGTH["SBE911Voltage"] * 2
+        n += HEX_LEN_SBE911_VOLTAGE * 2
 
     if Sensors.ExtVolt6 in enabled_sensors or Sensors.ExtVolt7 in enabled_sensors:
-        results[HexDataTypes.ExtVolt6.value], results[HexDataTypes.ExtVolt7.value] = (
-            voltages_from_3_bytes(hex_segment[n : n + HEX_LENGTH["SBE911Voltage"] * 2])
+        results[HEX_TYPE_EXTVOLT6], results[HEX_TYPE_EXTVOLT7] = voltages_from_3_bytes(
+            hex_segment[n : n + HEX_LEN_SBE911_VOLTAGE * 2]
         )
-        n += HEX_LENGTH["SBE911Voltage"] * 2
+        n += HEX_LEN_SBE911_VOLTAGE * 2
     elif voltage_words_suppressed == 0:
         # NotInUse volt channel that was not suppressed
-        n += HEX_LENGTH["SBE911Voltage"] * 2
+        n += HEX_LEN_SBE911_VOLTAGE * 2
 
     # Surface PAR
     if Sensors.SPAR in enabled_sensors:
         n += 3  # unused bits
-        results[HexDataTypes.surfacePAR.value] = (
-            int(hex_segment[n : n + HEX_LENGTH["SBE911SPAR"]], 16) / 819
+        results[HEX_TYPE_SURFACE_PAR] = (
+            int(hex_segment[n : n + HEX_LEN_SBE911_SURFACE_PAR], 16) / 819
         )
-        n += HEX_LENGTH["SBE911SPAR"]
+        n += HEX_LEN_SBE911_SURFACE_PAR
 
     # NMEA Location
     if Sensors.nmeaLocation in enabled_sensors:
-        hex_loc = hex_segment[n : n + HEX_LENGTH["nmeaLocation"]]
+        hex_loc = hex_segment[n : n + HEX_LEN_NMEA_LOCATION]
 
         def get_lat_lon(hex_segment: str) -> tuple[float, float]:
             byte0 = int(hex_segment[0:2], 16)
@@ -814,57 +813,47 @@ def read_SBE911plus_format_0(
             return lat, lon
 
         (
-            results[HexDataTypes.nmeaLatitude.value],
-            results[HexDataTypes.nmeaLongitude.value],
+            results[HEX_TYPE_NMEA_LATITUDE],
+            results[HEX_TYPE_NMEA_LONGITUDE],
         ) = get_lat_lon(hex_loc)
-        n += HEX_LENGTH["nmeaLocation"]
+        n += HEX_LEN_NMEA_LOCATION
 
     # NMEA Depth
     if Sensors.nmeaDepth in enabled_sensors:
-        results[HexDataTypes.nmeaDepth.value] = int(
-            hex_segment[n : n + HEX_LENGTH["nmeaDepth"]], 16
-        )
-        n += HEX_LENGTH["nmeaDepth"]
+        results[HEX_TYPE_NMEA_DEPTH] = int(hex_segment[n : n + HEX_LEN_NMEA_DEPTH], 16)
+        n += HEX_LEN_NMEA_DEPTH
 
     # NMEA Time
     if Sensors.nmeaTime in enabled_sensors:
-        seconds_since_2000 = int(
-            reverse_hex_bytes(hex_segment[n : n + HEX_LENGTH["nmeaTime"]]), 16
-        )
-        results[HexDataTypes.nmeaTime.value] = datetime(2000, 1, 1) + timedelta(
-            seconds=seconds_since_2000
-        )
-        n += HEX_LENGTH["nmeaTime"]
+        seconds_since_2000 = int(reverse_hex_bytes(hex_segment[n : n + HEX_LEN_NMEA_TIME]), 16)
+        results[HEX_TYPE_NMEA_TIME] = datetime(2000, 1, 1) + timedelta(seconds=seconds_since_2000)
+        n += HEX_LEN_NMEA_TIME
 
     # Temperature compensation
-    results[HexDataTypes.temperatureCompensation.value] = int(
-        hex_segment[n : n + HEX_LENGTH["SBE911TemperatureCompensation"]], 16
+    results[HEX_TYPE_TEMPERATURE_COMPENSATION] = int(
+        hex_segment[n : n + HEX_LEN_SBE911_TEMPERATURE_COMPENSATION], 16
     )
-    n += HEX_LENGTH["SBE911TemperatureCompensation"]
+    n += HEX_LEN_SBE911_TEMPERATURE_COMPENSATION
 
     # Status bits
-    status_bin = format(int(hex_segment[n : n + HEX_LENGTH["SBE911Status"]], 16), "04b")
-    results[HexDataTypes.SBE911PumpStatus.value] = int(status_bin[0])
-    results[HexDataTypes.SBE911BottomContactStatus.value] = int(status_bin[1])
-    results[HexDataTypes.SBE911ConfirmStatus.value] = int(status_bin[2])
-    results[HexDataTypes.SBE911ModemStatus.value] = int(status_bin[3])
-    n += HEX_LENGTH["SBE911Status"]
+    status_bin = format(int(hex_segment[n : n + HEX_LEN_SBE911_STATUS], 16), "04b")
+    results[HEX_TYPE_SBE911_PUMP_STATUS] = int(status_bin[0])
+    results[HEX_TYPE_SBE911_BOTTOM_CONTACT_STATUS] = int(status_bin[1])
+    results[HEX_TYPE_SBE911_CONFIRM_STATUS] = int(status_bin[2])
+    results[HEX_TYPE_SBE911_MODEM_STATUS] = int(status_bin[3])
+    n += HEX_LEN_SBE911_STATUS
 
     # Data integrity
-    results[HexDataTypes.dataIntegrity.value] = int(
-        hex_segment[n : n + HEX_LENGTH["SBE911DataIntegrity"]], 16
-    )
-    n += HEX_LENGTH["SBE911DataIntegrity"]
+    results[HEX_TYPE_DATA_INTEGRITY] = int(hex_segment[n : n + HEX_LEN_SBE911_DATA_INTEGRITY], 16)
+    n += HEX_LEN_SBE911_DATA_INTEGRITY
 
     # System time
     if Sensors.SystemTime in enabled_sensors:
-        seconds_since_1970 = int(
-            reverse_hex_bytes(hex_segment[n : n + HEX_LENGTH["systemTime"]]), 16
-        )
-        results[HexDataTypes.systemTime.value] = datetime(1970, 1, 1) + timedelta(
+        seconds_since_1970 = int(reverse_hex_bytes(hex_segment[n : n + HEX_LEN_SYSTEM_TIME]), 16)
+        results[HEX_TYPE_SYSTEM_TIME] = datetime(1970, 1, 1) + timedelta(
             seconds=seconds_since_1970
         )
-        n += HEX_LENGTH["systemTime"]
+        n += HEX_LEN_SYSTEM_TIME
 
     # Validate hex length
     if n != len(hex_segment.strip()):
@@ -873,183 +862,206 @@ def read_SBE911plus_format_0(
     return results
 
 
-# TODO: change the following fn name to be snake_case for TKIT-75
-# TODO: Fix these
-def read_SBE19plus_format_0(
+def read_SBE911plus_format_0(*args, **kwargs):
+    warnings.warn("Deprecated, use read_sbe911plus_data", DeprecationWarning)
+    return read_sbe911plus_data(*args, **kwargs)
+
+
+def read_sbe19plus_data(
     hex_segment: str = "",
-    enabled_sensors: Union[List[Sensors], None] = None,
+    enabled_sensors: list[Sensors] | None = None,
     moored_mode=False,
-    hex=hex,
-) -> Dict[str, Union[float, datetime]]:
+) -> dict[str, float | datetime]:
     """Converts a 19plus V2 data hex string into engineering units.
 
     :param hex_segment: one line from a hex data file
     :param enabled_sensors: array of Sensors that are enabled. For 37
         this is always temperature, conductivity, pressure. Defaults to
-        False
-    :param moored_mode: parses time for 19plus in moored mode if true
-    :param hex: Deprecated, use hex_segment
+        None
+    :param moored_mode: parses time for 19plus in moored mode if true.
+        Defautls to False
 
     :return: the 19plus V2 sensor values in engineering units that were
-            extracted from the input hex string
+        extracted from the input hex string, or nan if the hex length is
+        wrong
 
-    :raises RuntimeWarning: if the hex string length does not match the
-        expected length
     """
-    if hex is not builtins.hex:
-        warnings.warn("hex is deprecated, use hex_segment", DeprecationWarning)
 
-    results: Dict[str, Union[int, float, datetime]] = {}
+    results: dict[str, int | float | datetime] = {}
     n = 0
     for sensor in Sensors:
         if enabled_sensors and sensor in enabled_sensors:
             if sensor == Sensors.Temperature:
-                results[HexDataTypes.temperature.value] = int(
-                    hex_segment[n : HEX_LENGTH["temperature"]], 16
-                )
-                n += HEX_LENGTH["temperature"]
+                results[HEX_TYPE_TEMPERATURE] = int(hex_segment[n:HEX_LEN_TEMPERATURE], 16)
+                n += HEX_LEN_TEMPERATURE
 
             if sensor == Sensors.Conductivity:
-                results[HexDataTypes.conductivity.value] = (
-                    int(hex_segment[n : n + HEX_LENGTH["conductivity"]], 16) / 256
+                results[HEX_TYPE_CONDUCTIVITY] = (
+                    int(hex_segment[n : n + HEX_LEN_CONDUCTIVITY], 16) / 256
                 )
-                n += HEX_LENGTH["conductivity"]
+                n += HEX_LEN_CONDUCTIVITY
 
             if sensor == Sensors.Pressure:
-                results[HexDataTypes.pressure.value] = int(
-                    hex_segment[n : n + HEX_LENGTH["pressure"]], 16
-                )
-                n += HEX_LENGTH["pressure"]
+                results[HEX_TYPE_PRESSURE] = int(hex_segment[n : n + HEX_LEN_PRESSURE], 16)
+                n += HEX_LEN_PRESSURE
                 result = (
-                    int(hex_segment[n : n + HEX_LENGTH["temperatureCompensation"]], 16)
+                    int(hex_segment[n : n + HEX_LEN_TEMPERATURE_COMPENSATION], 16)
                     / COUNTS_TO_VOLTS
                 )
-                results[HexDataTypes.temperatureCompensation.value] = result
-                n += HEX_LENGTH["temperatureCompensation"]
+                results[HEX_TYPE_TEMPERATURE_COMPENSATION] = result
+                n += HEX_LEN_TEMPERATURE_COMPENSATION
 
             if sensor == Sensors.DigiquartzPressure:
-                results[HexDataTypes.digiquartzPressure.value] = (
-                    int(hex_segment[n : n + HEX_LENGTH["pressure"]], 16) / 256
+                results[HEX_TYPE_DIGIQUARTZ_PRESSURE] = (
+                    int(hex_segment[n : n + HEX_LEN_PRESSURE], 16) / 256
                 )
-                n += HEX_LENGTH["pressure"]
-                # Seacat digiquartz temp comp only uses first 3 bits, and doesn't divide by COUNTS_TO_VOLTS
-                result = int(
-                    hex_segment[n : n + HEX_LENGTH["digiquartzPressureTemperatureCompensation"]],
-                    16,
-                )
-                results[HexDataTypes.temperatureCompensation.value] = result
-                n += HEX_LENGTH["temperatureCompensation"]  # still increment by 4
+                n += HEX_LEN_PRESSURE
+                # Seacat digiquartz temp comp only uses first 1.5 bytes, and doesn't divide by COUNTS_TO_VOLTS
+                result = int(hex_segment[n : n + HEX_LEN_DIGIQUARTZ_PRESSURE_TEMP_COMP], 16)
+                results[HEX_TYPE_TEMPERATURE_COMPENSATION] = result
+                n += HEX_LEN_TEMPERATURE_COMPENSATION
 
-            if sensor in [
-                Sensors.ExtVolt0,
-                Sensors.ExtVolt1,
-                Sensors.ExtVolt2,
-                Sensors.ExtVolt3,
-                Sensors.ExtVolt4,
-                Sensors.ExtVolt5,
-            ]:
-                result = int(hex_segment[n : n + HEX_LENGTH["voltage"]], 16) / COUNTS_TO_VOLTS
-                results[HexDataTypes[Sensors[sensor.value].value].value] = result
-                n += HEX_LENGTH["voltage"]
+            if sensor == Sensors.ExtVolt0:
+                results[HEX_TYPE_EXTVOLT0] = (
+                    int(hex_segment[n : n + HEX_LEN_VOLTAGE], 16) / COUNTS_TO_VOLTS
+                )
+                n += HEX_LEN_VOLTAGE
+
+            if sensor == Sensors.ExtVolt1:
+                results[HEX_TYPE_EXTVOLT1] = (
+                    int(hex_segment[n : n + HEX_LEN_VOLTAGE], 16) / COUNTS_TO_VOLTS
+                )
+                n += HEX_LEN_VOLTAGE
+
+            if sensor == Sensors.ExtVolt2:
+                results[HEX_TYPE_EXTVOLT2] = (
+                    int(hex_segment[n : n + HEX_LEN_VOLTAGE], 16) / COUNTS_TO_VOLTS
+                )
+                n += HEX_LEN_VOLTAGE
+
+            if sensor == Sensors.ExtVolt3:
+                results[HEX_TYPE_EXTVOLT3] = (
+                    int(hex_segment[n : n + HEX_LEN_VOLTAGE], 16) / COUNTS_TO_VOLTS
+                )
+                n += HEX_LEN_VOLTAGE
+
+            if sensor == Sensors.ExtVolt4:
+                results[HEX_TYPE_EXTVOLT4] = (
+                    int(hex_segment[n : n + HEX_LEN_VOLTAGE], 16) / COUNTS_TO_VOLTS
+                )
+                n += HEX_LEN_VOLTAGE
+
+            if sensor == Sensors.ExtVolt5:
+                results[HEX_TYPE_EXTVOLT5] = (
+                    int(hex_segment[n : n + HEX_LEN_VOLTAGE], 16) / COUNTS_TO_VOLTS
+                )
+                n += HEX_LEN_VOLTAGE
 
             if sensor == Sensors.SBE38:
-                results[HexDataTypes.SBE38temperature.value] = (
-                    int(hex_segment[n : n + HEX_LENGTH["SBE38temperature"]], 16) / 100000 - 10
+                results[HEX_TYPE_SBE38_TEMPERATURE] = (
+                    int(hex_segment[n : n + HEX_LEN_TEMPERATURE], 16) / 100000 - 10
                 )
-                n += HEX_LENGTH["SBE38temperature"]
+                n += HEX_LEN_TEMPERATURE
 
             if sensor == Sensors.WETLABS:
-                results[HexDataTypes.wetlabs0.value] = int(
-                    hex_segment[n : n + HEX_LENGTH["wetlabsSingleSensor"]], 16
+                results[HEX_TYPE_WETLABS0] = int(
+                    hex_segment[n : n + HEX_LEN_WETLABS_SINGLE_SENSOR], 16
                 )
-                n += HEX_LENGTH["wetlabsSingleSensor"]
+                n += HEX_LEN_WETLABS_SINGLE_SENSOR
 
-                results[HexDataTypes.wetlabs1.value] = int(
-                    hex_segment[n : n + HEX_LENGTH["wetlabsSingleSensor"]], 16
+                results[HEX_TYPE_WETLABS1] = int(
+                    hex_segment[n : n + HEX_LEN_WETLABS_SINGLE_SENSOR], 16
                 )
-                n += HEX_LENGTH["wetlabsSingleSensor"]
+                n += HEX_LEN_WETLABS_SINGLE_SENSOR
 
-                results[HexDataTypes.wetlabs2.value] = int(
-                    hex_segment[n : n + HEX_LENGTH["wetlabsSingleSensor"]], 16
+                results[HEX_TYPE_WETLABS2] = int(
+                    hex_segment[n : n + HEX_LEN_WETLABS_SINGLE_SENSOR], 16
                 )
-                n += HEX_LENGTH["wetlabsSingleSensor"]
+                n += HEX_LEN_WETLABS_SINGLE_SENSOR
 
             if sensor == Sensors.GTD:
-                results[HexDataTypes.GTDpressure.value] = (
-                    int(hex_segment[n : n + HEX_LENGTH["GTDpressure"]], 16) / 10000
+                results[HEX_TYPE_GTD_PRESSURE] = (
+                    int(hex_segment[n : n + HEX_LEN_GTD_PRESSURE], 16) / 10000
                 )
-                n += HEX_LENGTH["GTDpressure"]
-                results[HexDataTypes.GTDtemperature.value] = (
-                    int(hex_segment[n : n + HEX_LENGTH["GTDtemperature"]], 16) / 10000 - 10
+                n += HEX_LEN_GTD_PRESSURE
+
+                results[HEX_TYPE_GTD_TEMPERATURE] = (
+                    int(hex_segment[n : n + HEX_LEN_TEMPERATURE], 16) / 10000 - 10
                 )
-                n += HEX_LENGTH["GTDtemperature"]
+                n += HEX_LEN_TEMPERATURE
 
             if sensor == Sensors.DualGTD:
-                results[HexDataTypes.GTDpressure.value] = (
-                    int(hex_segment[n : n + HEX_LENGTH["GTDpressure"]], 16) / 10000
+                results[HEX_TYPE_GTD_PRESSURE] = (
+                    int(hex_segment[n : n + HEX_LEN_GTD_PRESSURE], 16) / 10000
                 )
-                n += HEX_LENGTH["GTDpressure"]
-                results[HexDataTypes.GTDtemperature.value] = (
-                    int(hex_segment[n : n + HEX_LENGTH["GTDtemperature"]], 16) / 10000 - 10
+                n += HEX_LEN_GTD_PRESSURE
+
+                results[HEX_TYPE_GTD_TEMPERATURE] = (
+                    int(hex_segment[n : n + HEX_LEN_TEMPERATURE], 16) / 10000 - 10
                 )
-                n += HEX_LENGTH["GTDtemperature"]
-                results[HexDataTypes.GTDpressure2.value] = (
-                    int(hex_segment[n : n + HEX_LENGTH["GTDpressure"]], 16) / 10000
+                n += HEX_LEN_TEMPERATURE
+
+                results[HEX_TYPE_GTD_PRESSURE2] = (
+                    int(hex_segment[n : n + HEX_LEN_GTD_PRESSURE], 16) / 10000
                 )
-                n += HEX_LENGTH["GTDpressure"]
-                results[HexDataTypes.GTDtemperature2.value] = (
-                    int(hex_segment[n : n + HEX_LENGTH["GTDtemperature"]], 16) / 10000 - 10
+                n += HEX_LEN_GTD_PRESSURE
+
+                results[HEX_TYPE_GTD_TEMPERATURE2] = (
+                    int(hex_segment[n : n + HEX_LEN_TEMPERATURE], 16) / 10000 - 10
                 )
-                n += HEX_LENGTH["GTDtemperature"]
+                n += HEX_LEN_TEMPERATURE
 
             if sensor == Sensors.OPTODE:
-                results[HexDataTypes.optodeOxygen.value] = (
-                    int(hex_segment[n : n + HEX_LENGTH["optodeOxygen"]], 16) / 10000 - 10
+                results[HEX_TYPE_OPTODE_OXYGEN] = (
+                    int(hex_segment[n : n + HEX_LEN_OPTODE_OXYGEN], 16) / 10000 - 10
                 )
-                n += HEX_LENGTH["optodeOxygen"]
+                n += HEX_LEN_OPTODE_OXYGEN
 
             if sensor == Sensors.SBE63:
-                results[HexDataTypes.SBE63phase.value] = (
-                    int(hex_segment[n : n + HEX_LENGTH["SBE63phase"]], 16) / 100000 - 10
+                results[HEX_TYPE_SBE63_PHASE] = (
+                    int(hex_segment[n : n + HEX_LEN_SBE63_PHASE], 16) / 100000 - 10
                 )
-                n += HEX_LENGTH["SBE63phase"]
-                results[HexDataTypes.SBE63temperature.value] = (
-                    int(hex_segment[n : n + HEX_LENGTH["SBE63temperature"]], 16) / 1000000 - 1
+                n += HEX_LEN_SBE63_PHASE
+                results[HEX_TYPE_SBE63_TEMPERATURE] = (
+                    int(hex_segment[n : n + HEX_LEN_TEMPERATURE], 16) / 1000000 - 1
                 )
-                n += HEX_LENGTH["SBE63temperature"]
+                n += HEX_LEN_TEMPERATURE
 
             # Extract NMEA Sensors
             if sensor == Sensors.nmeaLatitude:
-                lat = read_nmea_coordinates(hex_segment[n : n + HEX_LENGTH["nmeaLatitude"]])
-                results[HexDataTypes.nmeaLatitude.value] = lat
-                n += HEX_LENGTH["nmeaLatitude"]
+                lat = read_nmea_coordinates(hex_segment[n : n + HEX_LEN_NMEA_LATITUDE])
+                results[HEX_TYPE_NMEA_LATITUDE] = lat
+                n += HEX_LEN_NMEA_LATITUDE
+
             if sensor == Sensors.nmeaLongitude:
-                lon = read_nmea_coordinates(hex_segment[n : n + HEX_LENGTH["nmeaLongitude"]])
-                results[HexDataTypes.nmeaLongitude.value] = lon
-                n += HEX_LENGTH["nmeaLongitude"]
+                lon = read_nmea_coordinates(hex_segment[n : n + HEX_LEN_NMEA_LONGITUDE])
+                results[HEX_TYPE_NMEA_LONGITUDE] = lon
+                n += HEX_LEN_NMEA_LONGITUDE
+
             if sensor == Sensors.statusAndSign:
-                signs = read_status_sign(hex_segment[n : n + HEX_LENGTH["statusAndSign"]])
-                if signs is np.nan:
-                    results[HexDataTypes.nmeaLatitude.value] *= np.nan
-                    results[HexDataTypes.nmeaLongitude.value] *= np.nan
+                signs = read_status_sign(hex_segment[n : n + HEX_LEN_NMEA_STATUS_AND_SIGN])
+                if np.any(pd.isna(signs)):
+                    results[HEX_TYPE_NMEA_LATITUDE] = np.nan
+                    results[HEX_TYPE_NMEA_LONGITUDE] = np.nan
                 else:
-                    results[HexDataTypes.nmeaLatitude.value] *= signs[0]
-                    results[HexDataTypes.nmeaLongitude.value] *= signs[1]
-                n += HEX_LENGTH["statusAndSign"]
+                    results[HEX_TYPE_NMEA_LATITUDE] *= signs[0]
+                    results[HEX_TYPE_NMEA_LONGITUDE] *= signs[1]
+                n += HEX_LEN_NMEA_STATUS_AND_SIGN
+
             if sensor == Sensors.nmeaTime:
-                seconds_since_2000 = read_nmea_time(hex_segment[n : n + HEX_LENGTH["nmeaTime"]])
+                seconds_since_2000 = read_nmea_time(hex_segment[n : n + HEX_LEN_NMEA_TIME])
                 # naive, no timezone conversion
-                results[HexDataTypes.nmeaTime.value] = datetime(1970, 1, 1) + timedelta(
+                results[HEX_TYPE_NMEA_TIME] = datetime(1970, 1, 1) + timedelta(
                     seconds=seconds_since_2000 + SECONDS_BETWEEN_EPOCH_AND_2000
                 )
-                n += HEX_LENGTH["nmeaTime"]
+                n += HEX_LEN_NMEA_TIME
 
     if moored_mode:
-        seconds_since_2000 = int(hex_segment[n : n + HEX_LENGTH["time"]], 16)
-        results[HexDataTypes.dateTime.value] = datetime.fromtimestamp(
+        seconds_since_2000 = int(hex_segment[n : n + HEX_LEN_DATE_TIME], 16)
+        results[HEX_TYPE_DATE_TIME] = datetime.fromtimestamp(
             seconds_since_2000 + SECONDS_BETWEEN_EPOCH_AND_2000
         )
-        n += HEX_LENGTH["time"]
+        n += HEX_LEN_DATE_TIME
 
     # Validate hex length. Ensure length matches what is expected based
     # on enabled sensors and moored mode. If it does not, set all values
@@ -1062,67 +1074,67 @@ def read_SBE19plus_format_0(
 
     # Final validation to check if any values have been set to NaN, and if so,
     # set all values to NaN
-    for key in results:
-        if results[key] == np.nan:
-            logger.warning("Invalid sample detected, values set to NaN")
+    for key, value in results.items():
+        if pd.isna(value):
+            logger.warning("Invalid scan detected, values set to NaN")
             for key in results:
                 results[key] = np.nan
             break
     return results
 
 
-# TODO: change this to be snake_case for TKIT-75
-def read_SBE37SM_format_0(
+def read_SBE19plus_format_0(*args, **kwargs):
+    warnings.warn("Deprecated, use read_sbe19plus_data", DeprecationWarning)
+    return read_sbe19plus_data(*args, **kwargs)
+
+
+def read_sbe37sm_data(
     hex_segment: str = "",
-    enabled_sensors: Union[List[Sensors], None] = None,
-    hex=hex,
-) -> Dict[str, Union[int, float, datetime]]:
+    enabled_sensors: list[Sensors] | None = None,
+) -> dict[str, int | float | datetime]:
     """Converts a 37 family data hex string into engineering units.
 
     :param hex_segment: one line from a hex data file
     :param enabled_sensors: array of Sensors that are enabled. For 37
         this is always temperature, conductivity, pressure. Defaults to
         False
-    :param hex: Deprecated, use hex_segment
 
     :return: the 37 family sensor values in engineering units that were
         extracted from the input hex string
     """
-    if hex is not builtins.hex:
-        warnings.warn("hex is deprecated, use hex_segment", DeprecationWarning)
 
-    results: Dict[str, Union[int, float, datetime]] = {}
+    results: dict[str, int | float | datetime] = {}
     n = 0
-    results[HexDataTypes.temperature.value] = int(hex_segment[n : HEX_LENGTH["temperature"]], 16)
-    n += HEX_LENGTH["temperature"]
+    results[HEX_TYPE_TEMPERATURE] = int(hex_segment[n:HEX_LEN_TEMPERATURE], 16)
+    n += HEX_LEN_TEMPERATURE
 
-    results[HexDataTypes.conductivity.value] = (
-        int(hex_segment[n : n + HEX_LENGTH["conductivity"]], 16) / 256
-    )
-    n += HEX_LENGTH["conductivity"]
+    results[HEX_TYPE_CONDUCTIVITY] = int(hex_segment[n : n + HEX_LEN_CONDUCTIVITY], 16) / 256
+    n += HEX_LEN_CONDUCTIVITY
 
     if enabled_sensors and Sensors.SBE63 in enabled_sensors:
-        results[HexDataTypes.SBE63phase.value] = (
-            int(hex_segment[n : n + HEX_LENGTH["SBE63phase"]], 16) / 100000 - 10
+        results[HEX_TYPE_SBE63_PHASE] = (
+            int(hex_segment[n : n + HEX_LEN_SBE63_PHASE], 16) / 100000 - 10
         )
-        n += HEX_LENGTH["SBE63phase"]
-        results[HexDataTypes.SBE63temperature.value] = (
-            int(hex_segment[n : n + HEX_LENGTH["SBE63temperature"]], 16) / 1000000 - 1
+        n += HEX_LEN_SBE63_PHASE
+
+        results[HEX_TYPE_SBE63_TEMPERATURE] = (
+            int(hex_segment[n : n + HEX_LEN_TEMPERATURE], 16) / 1000000 - 1
         )
-        n += HEX_LENGTH["SBE63temperature"]
+        n += HEX_LEN_TEMPERATURE
 
     if enabled_sensors and Sensors.Pressure in enabled_sensors:
-        results[HexDataTypes.pressure.value] = int(hex_segment[n : n + HEX_LENGTH["pressure"]], 16)
-        n += HEX_LENGTH["pressure"]
-        result = int(hex_segment[n : n + HEX_LENGTH["temperatureCompensation"]], 16)
-        results[HexDataTypes.temperatureCompensation.value] = result
-        n += HEX_LENGTH["temperatureCompensation"]
+        results[HEX_TYPE_PRESSURE] = int(hex_segment[n : n + HEX_LEN_PRESSURE], 16)
+        n += HEX_LEN_PRESSURE
 
-    seconds_since_2000 = int(hex_segment[n : n + HEX_LENGTH["time"]], 16)
-    results[HexDataTypes.dateTime.value] = datetime(1970, 1, 1) + timedelta(
+        result = int(hex_segment[n : n + HEX_LEN_TEMPERATURE_COMPENSATION], 16)
+        results[HEX_TYPE_TEMPERATURE_COMPENSATION] = result
+        n += HEX_LEN_TEMPERATURE_COMPENSATION
+
+    seconds_since_2000 = int(hex_segment[n : n + HEX_LEN_DATE_TIME], 16)
+    results[HEX_TYPE_DATE_TIME] = datetime(1970, 1, 1) + timedelta(
         seconds=seconds_since_2000 + SECONDS_BETWEEN_EPOCH_AND_2000
     )
-    n += HEX_LENGTH["time"]
+    n += HEX_LEN_DATE_TIME
 
     # Validate hex length
     if n != len(hex_segment.strip()):
@@ -1131,12 +1143,17 @@ def read_SBE37SM_format_0(
     return results
 
 
+def read_SBE37SM_format_0(*args, **kwargs):
+    warnings.warn("Deprecated, use read_sbe37sm_data", DeprecationWarning)
+    return read_sbe37sm_data(*args, **kwargs)
+
+
 def read_nmea_coordinates(hex_segment: str):
     """Converts a 3 byte NMEA hex string to latitude or longitude
 
     :param hex_segment: 3 byte hex string
-    :raises RuntimeWarning: raised if the hex string is the wrong length
-    :return: latitude or longitide coordinate
+    :return: latitude or longitide coordinate or nan if the hex length
+        is wrong
     """
     if len(hex_segment) != 6:
         return np.nan
@@ -1152,10 +1169,8 @@ def read_status_sign(hex_segment: str):
     """Converts a hex byte to the signs for NMEA latitude and longitude
 
     :param hex_segment: 1 byte hex string
-    :raises RuntimeWarning: raised if the hex string is the wrong length
-    :raises RuntimeWarning: raised when the signs are converted
-        incorrectly
-    :return: a list of two integers (1 or -1)
+    :return: a list of two integers (1 or -1) or nan if the hex length
+        is wrong
     """
     if len(hex_segment) != 2:
         return np.nan
@@ -1180,8 +1195,7 @@ def read_nmea_time(hex_segment: str):
     """Convert an 8 byte hex string to the number of seconds since 2000
 
     :param hex_segment: an 8 byte hex string
-    :raises RuntimeWarning: raised if the hex string is the wrong length
-    :return: _description_
+    :return: an integer number of seconds or nan if the hex length was wrong
     """
     if len(hex_segment) != 8:
         return np.nan
@@ -1216,10 +1230,10 @@ def voltages_from_3_bytes(hex_segment: str) -> tuple[float, float]:
     :param hex_segment: 3-byte (6-character) hex string
     :return: tuple of two voltages (voltageA, voltageB)
     """
-    decimal_a = int(hex_segment[0 : HEX_LENGTH["SBE911Voltage"]], 16)
+    decimal_a = int(hex_segment[0:HEX_LEN_SBE911_VOLTAGE], 16)
     voltage_a = 5 * (1 - decimal_a / 4095)
 
-    decimal_b = int(hex_segment[HEX_LENGTH["SBE911Voltage"] : HEX_LENGTH["SBE911Voltage"] * 2], 16)
+    decimal_b = int(hex_segment[HEX_LEN_SBE911_VOLTAGE : HEX_LEN_SBE911_VOLTAGE * 2], 16)
     voltage_b = 5 * (1 - decimal_b / 4095)
 
     return voltage_a, voltage_b
