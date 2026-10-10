@@ -23,14 +23,14 @@ classifiers = [
   "Programming Language :: Python :: 3.14",
 ]
 dependencies = [
-  "gsw ~= 3.6",
+  "gsw >= 3.6.18, < 4",  # earlier wheels are built against numpy 1
   "line-profiler ~= 5.0",
   "matplotlib ~= 3.11",
   "numpy ~= 2.4",
   "pandas ~= 3.0",
   "plotly ~= 6.9",
   "scipy ~= 1.17",
-  "seawater ~= 3.3",
+  "seawater >= 3.3.3, < 4",  # 3.3.0-3.3.2 fail to build
   "xarray ~= 2026.7",
 ]
 
