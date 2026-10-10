@@ -700,6 +700,13 @@ def read_sbe911plus_data(
 ) -> dict[str, int | float | datetime]:
     """Converts a 911Plus hex string into engineering units.
 
+    The four status bits are returned as raw bit values:
+
+    - pump status: 1 when the pump is on
+    - bottom contact status: 1 when there is no bottom contact
+    - confirm status: 1 while the deck unit detects a bottle-fire confirm
+    - modem status: 0 when the deck unit detects the modem carrier
+
     :param hex_segment: one line from a hex data file
     :param enabled_sensors: list of enabled Sensors
     :param frequency_channels_suppressed: number of suppressed frequency channels
@@ -835,12 +842,12 @@ def read_sbe911plus_data(
     )
     n += HEX_LEN_SBE911_TEMPERATURE_COMPENSATION
 
-    # Status bits
-    status_bin = format(int(hex_segment[n : n + HEX_LEN_SBE911_STATUS], 16), "04b")
-    results[HEX_TYPE_SBE911_PUMP_STATUS] = int(status_bin[0])
-    results[HEX_TYPE_SBE911_BOTTOM_CONTACT_STATUS] = int(status_bin[1])
-    results[HEX_TYPE_SBE911_CONFIRM_STATUS] = int(status_bin[2])
-    results[HEX_TYPE_SBE911_MODEM_STATUS] = int(status_bin[3])
+    # Status bits, from the least significant: pump, bottom contact, confirm, modem
+    status = int(hex_segment[n : n + HEX_LEN_SBE911_STATUS], 16)
+    results[HEX_TYPE_SBE911_PUMP_STATUS] = status & 1
+    results[HEX_TYPE_SBE911_BOTTOM_CONTACT_STATUS] = (status >> 1) & 1
+    results[HEX_TYPE_SBE911_CONFIRM_STATUS] = (status >> 2) & 1
+    results[HEX_TYPE_SBE911_MODEM_STATUS] = (status >> 3) & 1
     n += HEX_LEN_SBE911_STATUS
 
     # Data integrity

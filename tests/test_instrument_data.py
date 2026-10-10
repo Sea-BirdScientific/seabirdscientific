@@ -226,12 +226,12 @@ class TestReadSBE911plus:
         assert round(hex_data["surface par"][0].item(), 5) == 1.43101
         assert hex_data["NMEA Latitude"][0].item() == 34.2757
         assert hex_data["NMEA Longitude"][0].item() == -120.0256
-        # Does not match SBE Processing, matches Fathom
-        assert int(hex_data["SBE911 pump status"][0].item()) == 0
-        # Does not match SBE Processing, matches Fathom
-        assert int(hex_data["SBE911 bottom contact status"][0].item()) == 0
-        assert int(hex_data["SBE911 confirm status"][0].item()) == 1
-        assert int(hex_data["SBE911 modem status"][0].item()) == 1
+        # Status nibble 0b0011: pump on, no bottom contact (pump and bottom contact match SBE
+        # Data Processing; Fathom read the bits most significant first)
+        assert int(hex_data["SBE911 pump status"][0].item()) == 1
+        assert int(hex_data["SBE911 bottom contact status"][0].item()) == 1
+        assert int(hex_data["SBE911 confirm status"][0].item()) == 0
+        assert int(hex_data["SBE911 modem status"][0].item()) == 0
         assert int(hex_data["data integrity"][0].item()) == 83
         assert pd.to_datetime(hex_data["system time"][0].item()) == datetime(
             2025, 7, 28, 23, 43, 53
@@ -299,3 +299,41 @@ class TestReadHexNoDataRows:
         filepath.write_text("* Sea-Bird SBE19plus Data File:\n*END*\n")
         raw = si.read_hex_file(filepath, si.InstrumentType.SBE19Plus, [], False, True)
         assert len(raw.data_vars) == 0
+
+
+class TestSBE911PlusStatusBits:
+    # 5 frequencies, 4 voltage words, pressure sensor temperature, status, modulo count
+    enabled_sensors = (
+        si.Sensors.SecondaryTemperature,
+        si.Sensors.SecondaryConductivity,
+        *(getattr(si.Sensors, f"ExtVolt{n}") for n in range(8)),
+    )
+
+    def scan(self, nibble: int) -> str:
+        return "0" * 30 + "0" * 24 + "ABC" + f"{nibble:X}" + "6C"
+
+    @pytest.mark.parametrize("nibble", range(16))
+    def test_bits_read_least_significant_first(self, nibble):
+        result = si.read_sbe911plus_data(self.scan(nibble), self.enabled_sensors)
+        assert result["SBE911 pump status"] == nibble & 1
+        assert result["SBE911 bottom contact status"] == (nibble >> 1) & 1
+        assert result["SBE911 confirm status"] == (nibble >> 2) & 1
+        assert result["SBE911 modem status"] == (nibble >> 3) & 1
+        assert result["temperature compensation"] == 0xABC
+        assert result["data integrity"] == 0x6C
+
+    @pytest.mark.parametrize(
+        "nibble, pump, confirm",
+        [
+            (0b0010, 0, 0),  # deck test: pump off
+            (0b0011, 1, 0),  # in the water: pump on
+            (0b0111, 1, 1),  # bottle firing
+        ],
+    )
+    def test_status_seen_in_real_casts(self, nibble, pump, confirm):
+        result = si.read_sbe911plus_data(self.scan(nibble), self.enabled_sensors)
+        assert result["SBE911 pump status"] == pump
+        assert result["SBE911 confirm status"] == confirm
+        # no bottom contact, modem carrier detected
+        assert result["SBE911 bottom contact status"] == 1
+        assert result["SBE911 modem status"] == 0
