@@ -3,9 +3,10 @@
 import warnings
 from enum import EnumMeta
 
-import matplotlib.pyplot as plt
 import numpy as np
-from line_profiler import LineProfiler
+
+# matplotlib and line_profiler are imported inside the functions that use them, so that the
+# core modules, which import WarnAllMembersMeta from here, don't load them
 
 
 def close_enough(
@@ -59,6 +60,8 @@ def plot(**kwargs: np.ndarray):
     :param kwargs: the dictionary to plot
     """
 
+    import matplotlib.pyplot as plt
+
     _, ax = plt.subplots(figsize=(20, 10))
     for key, value in kwargs.items():
         x = range(len(value))
@@ -104,6 +107,8 @@ def profile(fun):
 
     :param fun: This is implicitly the function below the decorator
     """
+
+    from line_profiler import LineProfiler
 
     def wrapper(*args, **kwargs):
         lp = LineProfiler()
