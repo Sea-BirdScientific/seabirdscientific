@@ -10,9 +10,9 @@ import numpy as np
 
 # [g/kg] absolute salinity grid spacing and margin beyond the data
 SALINITY_GRID_STEP = 0.1
-SALINITY_GRID_PADDING = 0.3
+SALINITY_GRID_PADDING = 1.0
 # [deg C] conservative temperature grid spacing and margin beyond the data
-TEMPERATURE_GRID_STEP = 1.0
+TEMPERATURE_GRID_STEP = 0.1
 TEMPERATURE_GRID_PADDING = 1.0
 
 
