@@ -52,7 +52,7 @@ class TestPotentialTemperature:
         ],
     )
     def test_matches_v2(self, reference_pressure, expected):
-        with pytest.warns(DeprecationWarning, match="seawater.ptemp"):
+        with pytest.warns(DeprecationWarning, match=r"seawater\.ptmp\b"):
             result = ep.potential_temperature(
                 SALINITY, TEMPERATURE, PRESSURE, np.full(5, reference_pressure)
             )
