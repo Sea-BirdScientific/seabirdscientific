@@ -656,7 +656,7 @@ def read_seafet_data(
         results[HEX_TYPE_PH_TEMPERATURE] = int(hex_segment[n : n + HEX_LEN_TEMPERATURE], 16)
         n += HEX_LEN_TEMPERATURE
 
-    # Other sensors
+    # diagnostics
     results[HEX_TYPE_VK] = int(hex_segment[n : n + HEX_LEN_VK], 16)
     n += HEX_LEN_VK
 
@@ -757,7 +757,7 @@ def read_phyre_data(
     results[HEX_TYPE_PH_TEMPERATURE_INTERNAL] = int(hex_segment[n : n + HEX_LEN_TEMPERATURE], 16)
     n += HEX_LEN_TEMPERATURE
 
-    # Other sensors
+    # diagnostics
     results[HEX_TYPE_VK] = int(hex_segment[n : n + HEX_LEN_VK], 16)
     n += HEX_LEN_VK
 
