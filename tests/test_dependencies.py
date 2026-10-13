@@ -65,9 +65,7 @@ class TestImportDependencies:
         )
         assert result.returncode == 0, result.stderr
 
-    def test_utils_profile_still_decorates(self):
-        # Only decorates: calling a profiled function hits a separate issue on Python 3.13+,
-        # where the wrapper's locals()["result"] lookup fails
+    def test_utils_profile_still_profiles(self):
         result = run_python(
             """
             from seabirdscientific.utils import profile
@@ -75,6 +73,9 @@ class TestImportDependencies:
             @profile
             def add(a, b):
                 return a + b
+
+            assert add(2, b=3) == 5
             """
         )
         assert result.returncode == 0, result.stderr
+        assert "Line #" in result.stdout  # line_profiler's report

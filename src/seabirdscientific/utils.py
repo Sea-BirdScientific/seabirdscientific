@@ -113,9 +113,12 @@ def profile(fun):
     def wrapper(*args, **kwargs):
         lp = LineProfiler()
         lp.add_function(fun)
-        lp.runctx("result = fun(*args, **kwargs)", globals(), locals())
+        # An explicit namespace: since Python 3.13 (PEP 667), locals() returns a snapshot, so
+        # a result assigned by runctx into it can't be read back with locals()
+        namespace = {"fun": fun, "args": args, "kwargs": kwargs}
+        lp.runctx("result = fun(*args, **kwargs)", globals(), namespace)
         lp.print_stats(output_unit=1e-6)
-        return locals()["result"]
+        return namespace["result"]
 
     return wrapper
 
