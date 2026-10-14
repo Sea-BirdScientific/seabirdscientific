@@ -22,7 +22,7 @@ jobs:
         with:
           python-version: "3.13"
 
-      - run: pip install ".[docs]"
+      - run: pip install ".[docs, plots]"
 
       - run: sphinx-build -W --keep-going -b html -a -E docs/source _build/html
 
