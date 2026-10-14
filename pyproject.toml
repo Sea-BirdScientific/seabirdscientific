@@ -1,6 +1,6 @@
 [project]
 name = "seabirdscientific"
-version = "3.0.0a41"
+version = "3.0.0a42"
 description = "Sea-Bird Scientific Community Toolkit"
 readme = "README.md"
 license = "MIT"
@@ -23,39 +23,42 @@ classifiers = [
   "Programming Language :: Python :: 3.14",
 ]
 dependencies = [
-  "gsw >= 3.6.18, < 4",  # earlier wheels are built against numpy 1
-  "line-profiler ~= 5.0",
-  "matplotlib ~= 3.11",
-  "numpy ~= 2.4",
-  "pandas ~= 3.0",
-  "plotly ~= 6.9",
-  "scipy ~= 1.17",
-  "seawater >= 3.3.3, < 4",  # 3.3.0-3.3.2 fail to build
-  "xarray ~= 2026.7",
+  "gsw >= 3.6.18",
+  "numpy >= 2.2.0",
+  "pandas >= 2.3.00",
+  "scipy >= 1.15.0",
+  "seawater >= 3.3.3",
+  "xarray >= 2024.10.0",
 ]
 
 [project.optional-dependencies]
 notebooks = [
-  "ipykernel ~= 7.3",
-  "nbformat ~= 5.10",
+  "ipykernel >= 6.30.0",
+  "ipython >= 8.10.0",
+  "nbconvert[webpdf] >= 7.17.0",
+  "nbformat >= 5.11.0",
+  "notebook >= 7.6.3", 
 ]
-
 docs = [
-  "sbsfuro ~= 0.1",
-  "sphinx ~= 9.0",
-  "sphinx-mdinclude ~= 0.6",
+  "sbsfuro >= 0.1.0",
+  "sphinx >= 8.2.0",
+  "sphinx-mdinclude >= 0.6.2",
+]
+plots = [
+  "kaleido >= 1.0.0",
+  "matplotlib >= 3.10.0",
+  "plotly >= 6.0.0",
 ]
 
 [dependency-groups]
 dev = [
-  "ipykernel ~= 7.3",
-  "kaleido ~= 1.3",
-  "nbconvert[webpdf] ~= 7.17",
-  "nbformat ~= 5.10",
-  "notebook ~= 7.6",
-  "ruff ~= 0.16",
-  "pytest ~= 9.1",
-  "pytest-cov ~= 7.1",
+  "line-profiler >= 4.2.0",
+  "pytest >= 9.0.3",
+  "pytest-cov >= 6.0.0",
+  "ruff >= 0.7.0",
+  "seabirdscientific[docs]",
+  "seabirdscientific[notebooks]",
+  "seabirdscientific[plots]",
 ]
 
 [project.urls]
