@@ -17,6 +17,8 @@ Summary of changes
 ******************
 
 - Python 3.11 or later is required.
+- ``matplotlib`` and ``plotly`` are no longer core dependencies. Install the
+  ``plots`` extra to use ``visualization`` and ``utils.plot``.
 - ``xarray.Dataset`` replaces ``InstrumentData`` and ``pandas.DataFrame`` as
   the data structure returned by the file reading functions and consumed by
   ``processing`` and ``visualization``.
@@ -36,6 +38,7 @@ Summary of changes
   which returns flags instead of a cast array.
 - ``split`` now labels casts with a ``cast_type`` coordinate instead of
   returning a list of DataFrames.
+- SBE 911plus status bits are now decoded from the least significant bit.
 - The ``ChartData`` class has been removed from ``visualization``; charting
   functions now take an ``xarray.Dataset`` directly.
 - Several parameters that took enums now take plain strings.
@@ -48,18 +51,19 @@ Installation and dependencies
 *****************************
 
 Version 3 requires Python 3.11 or later. Support for Python 3.9 and 3.10 has
-been removed.
+been removed, and Python 3.13 and 3.14 are supported.
 
-Version 3 adds ``xarray`` and ``seawater`` as core dependencies, and all core
-dependencies are now pinned to compatible release ranges. The optional
-dependency groups have been reorganized. The ``dev`` extra has been replaced
-with more focused groups:
+Version 3 adds ``xarray`` and ``seawater`` as core dependencies and removes
+``matplotlib`` and ``plotly``. Core dependencies now specify minimum versions
+that were released at most 2 years ago. The optional dependency groups have been
+reorganized. The ``dev`` extra has been replaced with more focused groups:
 
+- ``plots``: required by ``visualization`` and ``utils.plot``.
 - ``notebooks``: dependencies for running the example notebooks.
 - ``docs``: dependencies for building the documentation.
 
 Development dependencies are now only available through the ``dev``
-dependency group (for use with uv).
+dependency group.
 
 Installing the base package is unchanged:
 
@@ -71,7 +75,7 @@ Optional dependencies can be included with square brackets:
 
 .. code-block:: bash
 
-   py -m pip install seabirdscientific[notebooks,docs]
+   py -m pip install seabirdscientific[docs,notebooks,plots]
 
 The data model: xarray.Dataset
 ******************************
@@ -148,13 +152,16 @@ When reading a SeaSoft file, a ``scan`` column in the file is stored as
 a Fathom file, a ``scan`` column replaces the values of the ``scan``
 coordinate.
 
+The ``start_time`` attribute is an ISO 8601 string instead of a ``datetime``.
+
 read_hex_file
 =============
 
 ``read_hex_file`` keeps the same name and parameters but now returns an
 ``xarray.Dataset`` instead of a ``pandas.DataFrame``. Each hex data type is a
 variable in the returned dataset. The ``enabled_sensors`` parameter no longer
-has a default and must be provided.
+has a default and must be provided. A file with no data returns an empty
+dataset instead of an empty DataFrame.
 
 .. code-block:: python
 
@@ -197,6 +204,22 @@ as deprecated aliases that forward to the new functions and emit a
 
 The deprecated ``hex`` parameter has been removed from ``read_hex`` and the
 hex reading functions. Use ``hex_segment`` instead.
+
+SBE 911plus status bits
+=======================
+
+``read_sbe911plus_data`` now decodes the status nibble from the least
+significant bit: bit 0 is pump status, bit 1 is bottom contact, bit 2 is
+confirm, and bit 3 is modem.
+
+pHyre and pHyreCAT
+==================
+
+``InstrumentType.pHyre`` and ``InstrumentType.pHyreCAT`` have been added, with
+a new ``read_phyre_data`` function. ``read_hex_file`` and ``read_hex`` support
+both instruments. New ``HEX_TYPE_PH_TEMPERATURE_EXTERNAL`` and
+``HEX_TYPE_PH_TEMPERATURE_INTERNAL`` constants identify their reference
+temperatures.
 
 Hex data types and lengths
 ==========================
@@ -311,6 +334,10 @@ remaining functions have moved to ``eos80_conversion``.
 Note that the deprecated ``eos80_processing.density`` now returns density
 minus 1000 kg/m^3 (sigma). In v2 it returned full density.
 
+``eos80_conversion.bouyancy_frequency`` and the deprecated
+``eos80_processing.bouyancy_frequency`` now use the ``seawater`` library and
+the sigma convention used by SBE Data Processing. Results differ from v2.
+
 buoyancy moved to conversion and was split
 ==========================================
 
@@ -385,6 +412,12 @@ pressure for potential density. Samples with salinity below ``min_salinity``
 are now set to NaN instead of being removed, so the output arrays have the
 same length as the input arrays.
 
+The density grid now spans the data with a fixed margin of 1 g/kg absolute
+salinity and 1 deg C conservative temperature, with a step of 0.1 on both
+axes. In v2 the margin was a percentage of the minimum and maximum values,
+and the temperature step was 1 deg C. The salinity grid does not extend below
+0.
+
 processing
 **********
 
@@ -395,7 +428,7 @@ bin_average
 now accepts and returns an ``xarray.Dataset``. The input must have a ``scan``
 dimension, such as the dataset returned by ``read_cnv_file`` or
 ``read_hex_file``. The output uses a ``bin_number`` dimension and keeps the
-input dataset attributes. It now raises a ValueError is CastType is invalid.
+input dataset attributes.  It now raises a ValueError is CastType is invalid.
 
 .. code-block:: python
 
@@ -486,12 +519,21 @@ window_filter
 ``window_filter`` now increments an even ``window_width`` by one so that the
 window has a center point.
 
+wild_edit
+=========
+
+``wild_edit`` now passes each block's slice of ``flags`` to the flagging step.
+In v2 the full flag array was passed for every block, so existing flags were
+not aligned with the data in each block. Results can differ from v2 when the
+input contains flagged values.
+
 cell_thermal_mass
 =================
 
 The ``temperature_C`` and ``conductivity_Sm`` parameters have been renamed to
 ``temperature`` and ``conductivity``. The old names remain as deprecated
-keyword arguments.
+keyword arguments. ``amplitude``, ``time_constant``, and ``sample_interval``
+now default to 1.
 
 Removed aliases
 ===============
@@ -518,9 +560,19 @@ The ``ChartData`` class has been removed. Charting functions now take an
    dataset = si.read_cnv_file(filepath, software="seasoft")
    figure = vis.plot_xy_chart(dataset, config)
 
-The ``ChartConfig`` constructor keeps the same parameters. ``create_single_plot``,
-``create_subplots``, and ``create_overlay`` now take ``xarray.Dataset``
-objects for ``x`` and ``y``.
+The ``ChartConfig`` constructor keeps the same parameters, but ``x_names``,
+``y_names``, and ``z_names`` are no longer normalized with
+``interpret_sbs_variable``. They must match variable names in the dataset. For
+example, a ``tv290C`` variable must be referenced as ``tv290C``, not
+``t090C``. When titles are not provided, they default to the variable title
+from ``interpret_sbs_variable`` (for example ``"Temperature"``) instead of the
+variable name.
+
+``create_single_plot``, ``create_subplots``, and ``create_overlay`` now take
+``xarray.Dataset`` objects for ``x`` and ``y``. ``create_single_plot`` now
+builds the figure with ``plotly.graph_objects`` instead of ``plotly.express``.
+
+``visualization`` requires the ``plots`` extra.
 
 ``parse_instrument_data`` now accepts an ``xarray.Dataset`` in addition to
 the v2 source types and returns an ``xarray.Dataset``. ``select_subset`` now
@@ -538,6 +590,13 @@ Variable definitions are now loaded from ``resources/sbs_variables.json``.
 calibration standard or sensor information, which is now in ``info``. For
 example, ``t090C`` has units ``"deg C"`` and info ``["ITS-90"]``. In v2 the
 units were ``"ITS-90, deg C"``.
+
+utils
+*****
+
+``plot`` imports ``matplotlib`` when called and requires the ``plots`` extra.
+``get_tolerance`` takes an optional ``flag_value`` parameter (default
+``-9.99e-29``).
 
 constants
 *********
