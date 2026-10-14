@@ -4,11 +4,12 @@ on:
   pull_request:
     branches:
       - main
-      - v3.0.0
+  push:
+    branches:
+      - main
 
 permissions:
-  pages: write
-  id-token: write
+  contents: read
 
 jobs:
   build:
@@ -19,22 +20,25 @@ jobs:
 
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: "3.13"
 
-      - run: pip install .
-      - run: pip install sbsfuro
-      - run: pip install sphinx
-      - run: pip install sphinx-mdinclude
+      - run: pip install ".[docs, plots]"
 
-      - run: sphinx-build -b html -a -E docs/source _build/html
+      - run: sphinx-build -W --keep-going -b html -a -E docs/source _build/html
 
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _build/html
 
   deploy:
+    permissions:
+      pages: write
+      id-token: write
+    concurrency:
+      group: pages
+      cancel-in-progress: false
     needs: build
-    if: github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
