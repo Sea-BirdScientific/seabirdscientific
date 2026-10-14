@@ -1,0 +1,44 @@
+name: Version Bump
+
+on:
+  pull_request:
+    branches: ["**"]
+
+concurrency:
+  group: version-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  version:
+    name: Check Version Bump
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v6
+
+      - name: Get base version
+        run: git show origin/${{ github.base_ref }}:pyproject.toml > base-pyproject.toml
+
+      - name: Compare versions
+        run: |
+          uv run --with packaging --no-project python - <<'EOF'
+          import sys
+          import tomllib
+          from packaging.version import Version
+
+          def version(path):
+              with open(path, "rb") as file:
+                  return Version(tomllib.load(file)["project"]["version"])
+
+          base = version("base-pyproject.toml")
+          head = version("pyproject.toml")
+          print(f"base = {base}, head = {head}")
+          if head <= base:
+              sys.exit(f"version in pyproject.toml must be greater than {base}")
+          EOF

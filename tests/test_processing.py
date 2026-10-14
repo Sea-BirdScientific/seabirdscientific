@@ -1,20 +1,15 @@
 """Data processing unit tests."""
 
-# Native imports
 from logging import getLogger
 from pathlib import Path
 
-# Third-party imports
 import numpy as np
 import pandas as pd
 import pytest
 
-# Sea-Bird imports
-
-# Internal imports
-import seabirdscientific.instrument_data as idata
-import seabirdscientific.processing as p
-import seabirdscientific.conversion as c
+import seabirdscientific.conversion as sc
+import seabirdscientific.instrument_data as si
+import seabirdscientific.processing as sp
 from seabirdscientific.utils import close_enough, get_tolerance
 
 test_data = Path("./tests/resources/test-data")
@@ -29,7 +24,7 @@ class TestLowPassFilter:
         source_path = test_data / "SBE37SM-unfiltered.asc"
         source = pd.read_csv(source_path)["Tv290C"].values
 
-        filtered = p.low_pass_filter(source, 10000, sample_interval=120)
+        filtered = sp.low_pass_filter(source, 10000, sample_interval=120)
 
         request.node.return_value = filtered.tolist()
 
@@ -153,13 +148,13 @@ class TestAlignCtdFathomCases:
         ]
 
         for case in align_cases:
-            result = p.align_ctd(case[0], case[1], case[2])
+            result = sp.align_ctd(case[0], case[1], case[2])
             assert np.array_equal(case[3], result)
 
 
 class TestAlignCtd:
     expected_data_path = test_data / "SBE37SM-align.cnv"
-    expected_data = idata.cnv_to_instrument_data(expected_data_path)
+    # expected_data = si.read_cnv_file(expected_data_path, "seasoft")
     # expected data was algined with:
     #   sample_interval=120,
     #   tv290C + 12s
@@ -169,58 +164,62 @@ class TestAlignCtd:
     #   sal00 - 240s
 
     source_data_path = test_data / "SBE37SM.cnv"
-    source_data = idata.cnv_to_instrument_data(source_data_path)
+    # source_data = si.read_cnv_file(source_data_path, "seasoft)
 
-    def test_align_ctd_add_simple_pass(self, request):
-        # Fix last valid sample
-        self.expected_data.measurements["tv290C"].values[
-            len(self.expected_data.measurements["tv290C"].values) - 1
-        ] = -9.99e-29
-        result = p.align_ctd(self.source_data.measurements["tv290C"].values, 12, 120)
-        request.node.return_value = result.tolist()
-        assert np.allclose(self.expected_data.measurements["tv290C"].values, result, atol=0.0001)
+    @pytest.fixture
+    def expected_data(self):
+        return si.read_cnv_file(self.expected_data_path, "seasoft")
 
-    def test_align_ctd_add_simple_pass_2(self, request):
-        # Fix last valid sample
-        self.expected_data.measurements["cond0S/m"].values[
-            len(self.expected_data.measurements["cond0S/m"].values) - 2
-        ] = -9.99e-29
-        result = p.align_ctd(self.source_data.measurements["cond0S/m"].values, 150, 120)
-        request.node.return_value = result.tolist()
-        assert np.allclose(self.expected_data.measurements["cond0S/m"].values, result, atol=0.0001)
+    @pytest.fixture
+    def source_data(self):
+        return si.read_cnv_file(self.source_data_path, "seasoft")
 
-    def test_align_ctd_add_exact_factor(self, request):
-        result = p.align_ctd(self.source_data.measurements["prdM"].values, 120, 120)
+    def test_align_ctd_add_simple_pass(self, expected_data, source_data, request):
+        # Fix last valid scan
+        expected_data["tv290C"].values[len(expected_data["tv290C"].values) - 1] = -9.99e-29
+        result = sp.align_ctd(source_data["tv290C"].values, 12, 120)
         request.node.return_value = result.tolist()
-        assert np.allclose(self.expected_data.measurements["prdM"].values, result, atol=0.0001)
+        assert np.allclose(expected_data["tv290C"].values, result, atol=0.0001)
 
-    def test_align_ctd_no_change(self, request):
-        result = p.align_ctd(self.source_data.measurements["prdE"].values, 0, 120)
+    def test_align_ctd_add_simple_pass_2(self, expected_data, source_data, request):
+        # Fix last valid scan
+        expected_data["cond0S/m"].values[len(expected_data["cond0S/m"].values) - 2] = -9.99e-29
+        result = sp.align_ctd(source_data["cond0S/m"].values, 150, 120)
         request.node.return_value = result.tolist()
-        assert np.allclose(self.expected_data.measurements["prdE"].values, result, atol=0.0001)
+        assert np.allclose(expected_data["cond0S/m"].values, result, atol=0.0001)
 
-    def test_align_ctd_subtract(self, request):
-        result = p.align_ctd(self.source_data.measurements["sal00"].values, -240, 120)
+    def test_align_ctd_add_exact_factor(self, expected_data, source_data, request):
+        result = sp.align_ctd(source_data["prdM"].values, 120, 120)
         request.node.return_value = result.tolist()
-        assert np.allclose(self.expected_data.measurements["sal00"].values, result, atol=0.0001)
+        assert np.allclose(expected_data["prdM"].values, result, atol=0.0001)
+
+    def test_align_ctd_no_change(self, expected_data, source_data, request):
+        result = sp.align_ctd(source_data["prdE"].values, 0, 120)
+        request.node.return_value = result.tolist()
+        assert np.allclose(expected_data["prdE"].values, result, atol=0.0001)
+
+    def test_align_ctd_subtract(self, expected_data, source_data, request):
+        result = sp.align_ctd(source_data["sal00"].values, -240, 120)
+        request.node.return_value = result.tolist()
+        assert np.allclose(expected_data["sal00"].values, result, atol=0.0001)
 
 
 class TestCellThermalMass:
     def test_cell_thermal_mass_pass(self, request):
         expected_data_path = test_data / "SBE37SM-ctm.cnv"
-        expected_data = idata.cnv_to_instrument_data(expected_data_path)
+        expected_data = si.read_cnv_file(expected_data_path, "seasoft")
         source_data_path = test_data / "SBE37SM.cnv"
-        source_data = idata.cnv_to_instrument_data(source_data_path)
-        corrected_conductivity = p.cell_thermal_mass(
-            source_data.measurements["tv290C"].values,
-            source_data.measurements["cond0S/m"].values,
+        source_data = si.read_cnv_file(source_data_path, "seasoft")
+        corrected_conductivity = sp.cell_thermal_mass(
+            source_data["tv290C"].values,
+            source_data["cond0S/m"].values,
             0.03,
             7.0,
             120.0,
         )
         request.node.return_value = corrected_conductivity.tolist()
         assert np.allclose(
-            expected_data.measurements["cond0S/m"].values,
+            expected_data["cond0S/m"].values,
             corrected_conductivity,
             atol=0.000001,
         )
@@ -232,7 +231,7 @@ class TestFindDepthPeaks:
     flag_value = 1
 
     def test_find_depth_peaks(self):
-        min_depth_n, max_depth_n = p._find_depth_peaks(
+        min_depth_n, max_depth_n = sp._find_depth_peaks(
             depth=self.depth,
             flag=self.flag,
             remove_surface_soak=False,
@@ -244,7 +243,7 @@ class TestFindDepthPeaks:
         assert max_depth_n == 11
 
     def test_find_depth_peaks_remove_soak(self):
-        min_depth_n, max_depth_n = p._find_depth_peaks(
+        min_depth_n, max_depth_n = sp._find_depth_peaks(
             depth=self.depth,
             flag=self.flag,
             remove_surface_soak=True,
@@ -256,7 +255,7 @@ class TestFindDepthPeaks:
         assert max_depth_n == 11
 
     def test_find_depth_peaks_remove_soak2(self):
-        min_depth_n, max_depth_n = p._find_depth_peaks(
+        min_depth_n, max_depth_n = sp._find_depth_peaks(
             depth=self.depth,
             flag=self.flag,
             remove_surface_soak=True,
@@ -269,7 +268,7 @@ class TestFindDepthPeaks:
 
     def test_find_depth_peaks_remove_soak_flagged_peak(self):
         flag = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0])
-        min_depth_n, max_depth_n = p._find_depth_peaks(
+        min_depth_n, max_depth_n = sp._find_depth_peaks(
             depth=self.depth,
             flag=flag,
             remove_surface_soak=True,
@@ -282,7 +281,7 @@ class TestFindDepthPeaks:
 
     def test_find_depth_peaks_flagged_min_depth(self):
         flag = np.array([1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
-        min_depth_n, max_depth_n = p._find_depth_peaks(
+        min_depth_n, max_depth_n = sp._find_depth_peaks(
             depth=self.depth,
             flag=flag,
             remove_surface_soak=False,
@@ -295,7 +294,7 @@ class TestFindDepthPeaks:
 
     def test_find_depth_peaks_remove_soak_flagged_min_depth(self):
         flag = np.array([1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
-        min_depth_n, max_depth_n = p._find_depth_peaks(
+        min_depth_n, max_depth_n = sp._find_depth_peaks(
             depth=self.depth,
             flag=flag,
             remove_surface_soak=True,
@@ -313,7 +312,7 @@ class TestFlagByMinimaMaxima:
 
     def test_flag_by_minima_maxima(self):
         flag = np.zeros(len(self.depth))
-        min_depth_n, max_depth_n = p._find_depth_peaks(
+        min_depth_n, max_depth_n = sp._find_depth_peaks(
             depth=self.depth,
             flag=flag,
             remove_surface_soak=False,
@@ -322,7 +321,7 @@ class TestFlagByMinimaMaxima:
             max_soak_depth=3.5,
         )
 
-        p._flag_by_minima_maxima(
+        sp._flag_by_minima_maxima(
             depth=self.depth,
             flag=flag,
             min_depth_n=min_depth_n,
@@ -336,7 +335,7 @@ class TestFlagByMinimaMaxima:
 
     def test_flag_by_minima_maxima_remove_soak(self):
         flag = np.zeros(len(self.depth))
-        min_depth_n, max_depth_n = p._find_depth_peaks(
+        min_depth_n, max_depth_n = sp._find_depth_peaks(
             depth=self.depth,
             flag=flag,
             remove_surface_soak=True,
@@ -345,7 +344,7 @@ class TestFlagByMinimaMaxima:
             max_soak_depth=3.5,
         )
 
-        p._flag_by_minima_maxima(
+        sp._flag_by_minima_maxima(
             depth=self.depth,
             flag=flag,
             min_depth_n=min_depth_n,
@@ -359,7 +358,7 @@ class TestFlagByMinimaMaxima:
 
     def test_flag_by_minima_maxima_remove_soak_flagged_peak(self):
         flag = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0])
-        min_depth_n, max_depth_n = p._find_depth_peaks(
+        min_depth_n, max_depth_n = sp._find_depth_peaks(
             depth=self.depth,
             flag=flag,
             remove_surface_soak=True,
@@ -368,7 +367,7 @@ class TestFlagByMinimaMaxima:
             max_soak_depth=3.5,
         )
 
-        p._flag_by_minima_maxima(
+        sp._flag_by_minima_maxima(
             depth=self.depth,
             flag=flag,
             min_depth_n=min_depth_n,
@@ -385,7 +384,7 @@ class TestFlagByMinimaMaxima:
             [-1, 0, 1, 2, 3, 2, 3, 4, 5, 6, 5, 6, 7, 8, 7, 7.5, 6.5, 6, 5, 4, 3, 2, 1]
         )
         flag = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
-        min_depth_n, max_depth_n = p._find_depth_peaks(
+        min_depth_n, max_depth_n = sp._find_depth_peaks(
             depth=depth,
             flag=flag,
             remove_surface_soak=False,
@@ -394,7 +393,7 @@ class TestFlagByMinimaMaxima:
             max_soak_depth=3.5,
         )
 
-        p._flag_by_minima_maxima(
+        sp._flag_by_minima_maxima(
             depth=depth,
             flag=flag,
             min_depth_n=min_depth_n,
@@ -409,7 +408,7 @@ class TestFlagByMinimaMaxima:
     def test_flag_by_minima_maxima_flagged_min_depth2(self):
         depth = np.array([0.0, 1, 2, 1, 100, 60, 70, 80, 90, 90, 80, 60, 40])
         flag = np.zeros(len(depth))
-        min_depth_n, max_depth_n = p._find_depth_peaks(
+        min_depth_n, max_depth_n = sp._find_depth_peaks(
             depth=depth,
             flag=flag,
             remove_surface_soak=False,
@@ -418,7 +417,7 @@ class TestFlagByMinimaMaxima:
             max_soak_depth=3.5,
         )
 
-        p._flag_by_minima_maxima(
+        sp._flag_by_minima_maxima(
             depth=depth,
             flag=flag,
             min_depth_n=min_depth_n,
@@ -431,17 +430,14 @@ class TestFlagByMinimaMaxima:
 
 class TestLoopEdit:
     def test_loop_edit_pressure_min_velocity(self):
-        expected_data = idata.cnv_to_instrument_data(
-            test_data / "CAST0002_mod_filt_loop_min_v.cnv"
-        )
-        data = idata.cnv_to_instrument_data(test_data / "CAST0002_mod_filt.cnv")
+        expected_data = si.read_cnv_file(test_data / "CAST0002_mod_filt_loop_min_v.cnv", "seasoft")
+        data = si.read_cnv_file(test_data / "CAST0002_mod_filt.cnv", "seasoft")
 
-        p.loop_edit_pressure(
-            pressure=data.measurements["prSM"].values,
-            latitude=data.latitude,
-            flag=data.measurements["flag"].values,
-            sample_interval=data.interval_s,
-            min_velocity_type=p.MinVelocityType.FIXED,
+        result_flags = sp.loop_edit(
+            measurand=data["prSM"].values,
+            flag=data["flag"].values,
+            sample_interval=data.attrs["sample_interval"],
+            min_velocity_type="fixed",
             min_velocity=0.1,
             window_size=3,
             mean_speed_percent=20,
@@ -452,23 +448,21 @@ class TestLoopEdit:
             exclude_flags=False,
         )
 
-        expected_flags = expected_data.measurements["flag"].values
-        result_flags = data.measurements["flag"].values
+        expected_flags = expected_data["flag"].values
 
         assert np.all(result_flags == expected_flags)
 
     def test_loop_edit_pressure_min_velocity_pass_2(self):
-        expected_data = idata.cnv_to_instrument_data(
-            test_data / "SBE19plus_loop_edit_corrected.cnv"
+        expected_data = si.read_cnv_file(
+            test_data / "SBE19plus_loop_edit_corrected.cnv", "seasoft"
         )
-        data = idata.cnv_to_instrument_data(test_data / "SBE19plus.cnv")
+        data = si.read_cnv_file(test_data / "SBE19plus.cnv", "seasoft")
 
-        p.loop_edit_pressure(
-            pressure=data.measurements["prdM"].values,
-            latitude=data.latitude,
-            flag=data.measurements["flag"].values,
-            sample_interval=data.interval_s,
-            min_velocity_type=p.MinVelocityType.FIXED,
+        result_flags = sp.loop_edit(
+            measurand=data["prdM"].values,
+            flag=data["flag"].values,
+            sample_interval=data.attrs["sample_interval"],
+            min_velocity_type="fixed",
             min_velocity=0.25,
             window_size=3,
             mean_speed_percent=20,
@@ -477,25 +471,24 @@ class TestLoopEdit:
             max_soak_depth=20,
             use_deck_pressure_offset=True,
             exclude_flags=True,
+            units="pressure",
         )
 
-        expected_flags = expected_data.measurements["flag"].values
-        result_flags = data.measurements["flag"].values
+        expected_flags = expected_data["flag"].values
 
         assert np.all(result_flags == expected_flags)
 
     def test_loop_edit_pressure_min_velocity_remove_soak(self):
-        expected_data = idata.cnv_to_instrument_data(
-            test_data / "CAST0002_mod_filt_loop_min_v_remove_soak.cnv"
+        expected_data = si.read_cnv_file(
+            test_data / "CAST0002_mod_filt_loop_min_v_remove_soak.cnv", software="seasoft"
         )
-        data = idata.cnv_to_instrument_data(test_data / "CAST0002_mod_filt.cnv")
+        data = si.read_cnv_file(test_data / "CAST0002_mod_filt.cnv", "seasoft")
 
-        p.loop_edit_pressure(
-            pressure=data.measurements["prSM"].values,
-            latitude=data.latitude,
-            flag=data.measurements["flag"].values,
-            sample_interval=data.interval_s,
-            min_velocity_type=p.MinVelocityType.FIXED,
+        result_flags = sp.loop_edit(
+            measurand=data["prSM"].values,
+            flag=data["flag"].values,
+            sample_interval=data.attrs["sample_interval"],
+            min_velocity_type="fixed",
             min_velocity=0.1,
             window_size=3,
             mean_speed_percent=20,
@@ -506,23 +499,21 @@ class TestLoopEdit:
             exclude_flags=False,
         )
 
-        expected_flags = expected_data.measurements["flag"].values
-        result_flags = data.measurements["flag"].values
+        expected_flags = expected_data["flag"].values
 
         assert np.all(result_flags == expected_flags)
 
     def test_loop_edit_pressure_min_velocity_exclude_flags(self):
-        expected_data = idata.cnv_to_instrument_data(
-            test_data / "CAST0002_mod_filt_loop_min_v_exclude_flags.cnv"
+        expected_data = si.read_cnv_file(
+            test_data / "CAST0002_mod_filt_loop_min_v_exclude_flags.cnv", software="seasoft"
         )
-        data = idata.cnv_to_instrument_data(test_data / "CAST0002_mod_filt.cnv")
+        data = si.read_cnv_file(test_data / "CAST0002_mod_filt.cnv", "seasoft")
 
-        p.loop_edit_pressure(
-            pressure=data.measurements["prSM"].values,
-            latitude=data.latitude,
-            flag=data.measurements["flag"].values,
-            sample_interval=data.interval_s,
-            min_velocity_type=p.MinVelocityType.FIXED,
+        result_flags = sp.loop_edit(
+            measurand=data["prSM"].values,
+            flag=data["flag"].values,
+            sample_interval=data.attrs["sample_interval"],
+            min_velocity_type="fixed",
             min_velocity=0.1,
             window_size=3,
             mean_speed_percent=20,
@@ -533,23 +524,22 @@ class TestLoopEdit:
             exclude_flags=True,
         )
 
-        expected_flags = expected_data.measurements["flag"].values
-        result_flags = data.measurements["flag"].values
+        expected_flags = expected_data["flag"].values
 
         assert np.all(result_flags == expected_flags)
 
     def test_loop_edit_pressure_min_velocity_exclude_flags_remove_soak(self):
-        expected_data = idata.cnv_to_instrument_data(
-            test_data / "CAST0002_mod_filt_loop_min_v_exclude_flags_remove_soak.cnv"
+        expected_data = si.read_cnv_file(
+            test_data / "CAST0002_mod_filt_loop_min_v_exclude_flags_remove_soak.cnv",
+            software="seasoft",
         )
-        data = idata.cnv_to_instrument_data(test_data / "CAST0002_mod_filt.cnv")
+        data = si.read_cnv_file(test_data / "CAST0002_mod_filt.cnv", "seasoft")
 
-        p.loop_edit_pressure(
-            pressure=data.measurements["prSM"].values,
-            latitude=data.latitude,
-            flag=data.measurements["flag"].values,
-            sample_interval=data.interval_s,
-            min_velocity_type=p.MinVelocityType.FIXED,
+        result_flags = sp.loop_edit(
+            measurand=data["prSM"].values,
+            flag=data["flag"].values,
+            sample_interval=data.attrs["sample_interval"],
+            min_velocity_type="fixed",
             min_velocity=0.1,
             window_size=3,
             mean_speed_percent=20,
@@ -558,25 +548,26 @@ class TestLoopEdit:
             max_soak_depth=20,
             use_deck_pressure_offset=False,
             exclude_flags=True,
+            latitude=0,
+            units="pressure",
         )
 
-        expected_flags = expected_data.measurements["flag"].values
-        result_flags = data.measurements["flag"].values
+        expected_flags = expected_data["flag"].values
 
         assert np.all(result_flags == expected_flags)
 
     def test_loop_edit_pressure_mean_speed_percent_remove_soak(self):
-        expected_data = idata.cnv_to_instrument_data(
-            test_data / "CAST0002_mod_filt_loop_percent_remove_soak_corrected.cnv"
+        expected_data = si.read_cnv_file(
+            test_data / "CAST0002_mod_filt_loop_percent_remove_soak_corrected.cnv",
+            software="seasoft",
         )
-        data = idata.cnv_to_instrument_data(test_data / "CAST0002_mod_filt.cnv")
+        data = si.read_cnv_file(test_data / "CAST0002_mod_filt.cnv", "seasoft")
 
-        p.loop_edit_pressure(
-            pressure=data.measurements["prSM"].values,
-            latitude=data.latitude,
-            flag=data.measurements["flag"].values,
-            sample_interval=data.interval_s,
-            min_velocity_type=p.MinVelocityType.PERCENT,
+        result_flags = sp.loop_edit(
+            measurand=data["prSM"].values,
+            flag=data["flag"].values,
+            sample_interval=data.attrs["sample_interval"],
+            min_velocity_type="percent",
             min_velocity=0.1,
             window_size=3,
             mean_speed_percent=20,
@@ -588,23 +579,21 @@ class TestLoopEdit:
             flag_value=10,
         )
 
-        expected_flags = expected_data.measurements["flag"].values
-        result_flags = data.measurements["flag"].values
+        expected_flags = expected_data["flag"].values
 
         assert np.all(result_flags == expected_flags)
 
     def test_loop_edit_pressure_mean_speed_percent(self):
-        expected_data = idata.cnv_to_instrument_data(
-            test_data / "CAST0002_mod_filt_loop_percent_corrected.cnv"
+        expected_data = si.read_cnv_file(
+            test_data / "CAST0002_mod_filt_loop_percent_corrected.cnv", software="seasoft"
         )
-        data = idata.cnv_to_instrument_data(test_data / "CAST0002_mod_filt.cnv")
+        data = si.read_cnv_file(test_data / "CAST0002_mod_filt.cnv", "seasoft")
 
-        p.loop_edit_pressure(
-            pressure=data.measurements["prSM"].values,
-            latitude=data.latitude,
-            flag=data.measurements["flag"].values,
-            sample_interval=data.interval_s,
-            min_velocity_type=p.MinVelocityType.PERCENT,
+        result_flags = sp.loop_edit(
+            measurand=data["prSM"].values,
+            flag=data["flag"].values,
+            sample_interval=data.attrs["sample_interval"],
+            min_velocity_type="percent",
             min_velocity=0.1,
             window_size=3,
             mean_speed_percent=20,
@@ -616,23 +605,21 @@ class TestLoopEdit:
             flag_value=10,
         )
 
-        expected_flags = expected_data.measurements["flag"].values
-        result_flags = data.measurements["flag"].values
+        expected_flags = expected_data["flag"].values
 
         assert np.all(result_flags == expected_flags)
 
     def test_loop_edit_pressure_fake_cast_percent(self):
-        expected_data = idata.cnv_to_instrument_data(
-            test_data / "fake_cast_loop_percent_corrected.cnv"
+        expected_data = si.read_cnv_file(
+            test_data / "fake_cast_loop_percent_corrected.cnv", "seasoft"
         )
-        data = idata.cnv_to_instrument_data(test_data / "fake_cast.cnv")
+        data = si.read_cnv_file(test_data / "fake_cast.cnv", "seasoft")
 
-        p.loop_edit_pressure(
-            pressure=data.measurements["prSM"].values,
-            latitude=data.latitude,
-            flag=data.measurements["flag"].values,
-            sample_interval=data.interval_s,
-            min_velocity_type=p.MinVelocityType.PERCENT,
+        result_flags = sp.loop_edit(
+            measurand=data["prSM"].values,
+            flag=data["flag"].values,
+            sample_interval=data.attrs["sample_interval"],
+            min_velocity_type="percent",
             min_velocity=0.1,
             window_size=3,
             mean_speed_percent=20,
@@ -642,10 +629,10 @@ class TestLoopEdit:
             use_deck_pressure_offset=False,
             exclude_flags=False,
             flag_value=10,
+            units="pressure",
         )
 
-        expected_flags = expected_data.measurements["flag"].values
-        result_flags = data.measurements["flag"].values
+        expected_flags = expected_data["flag"].values
 
         assert np.all(result_flags == expected_flags)
 
@@ -653,102 +640,102 @@ class TestLoopEdit:
 class TestBinAverage:
     # fmt: off
     # I think the extra wide lines here are less annoying than the
-    # extra tall lines formatted by black. Feel free to enable black
-    # here if you disagree
+    # extra tall lines formatted by the linter. Feel free to enable the
+    # linter here if you disagree
 
     def test_bin_average_interp_bin_3(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
         source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_binavg_interp_bin3.cnv"
-        data = idata.cnv_to_instrument_data(source_in)._to_dataframe()
-        expected = idata.cnv_to_instrument_data(source_out)._to_dataframe()
-        binavg = p.bin_average(
-            dataset=data,
+        result = si.read_cnv_file(source_in, "seasoft")
+        expected = si.read_cnv_file(source_out, "seasoft")
+        binavg = sp.bin_average(
+            dataset=result,
             bin_variable='prdM',
             bin_size=3,
             interpolate=True
             )
-        for variable in expected.columns:
-            tolerance = get_tolerance(expected[variable])
-            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=tolerance)
+        for variable in list(expected.data_vars):
+            tolerance = get_tolerance(expected[variable].values, flag_value=sp.FLAG_VALUE)
+            assert np.allclose(expected[variable].values, binavg[variable].values, rtol=0, atol=tolerance)
 
     def test_bin_average_interp_bin_5(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
         source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_binavg_interp_bin5.cnv"
-        data = idata.cnv_to_instrument_data(source_in)._to_dataframe()
-        expected = idata.cnv_to_instrument_data(source_out)._to_dataframe()
-        binavg = p.bin_average(
-            dataset=data,
+        result = si.read_cnv_file(source_in, "seasoft")
+        expected = si.read_cnv_file(source_out, "seasoft")
+        binavg = sp.bin_average(
+            dataset=result,
             bin_variable='prdM',
             bin_size=5,
             interpolate=True
         )
-        for variable in expected.columns:
-            tolerance = get_tolerance(expected[variable])
-            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=tolerance)
+        for variable in list(expected.data_vars):
+            tolerance = get_tolerance(expected[variable].values, flag_value=sp.FLAG_VALUE)
+            assert np.allclose(expected[variable].values, binavg[variable].values, rtol=0, atol=tolerance)
 
     def test_bin_average_default(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
         source_in2 = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped2.cnv"
         source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_binavg.cnv"
         source_out2 = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped2_binavg.cnv"
-        data = idata.cnv_to_instrument_data(source_in)._to_dataframe()
-        data2 = idata.cnv_to_instrument_data(source_in2)._to_dataframe()
-        expected = idata.cnv_to_instrument_data(source_out)._to_dataframe()
-        expected2 = idata.cnv_to_instrument_data(source_out2)._to_dataframe()
-        binavg = p.bin_average(
-            dataset = data,
+        result = si.read_cnv_file(source_in, "seasoft")
+        data2 = si.read_cnv_file(source_in2, "seasoft")
+        expected = si.read_cnv_file(source_out, "seasoft")
+        expected2 = si.read_cnv_file(source_out2, "seasoft")
+        binavg = sp.bin_average(
+            dataset = result,
             bin_variable = 'prdM',
             bin_size = 2,
         )
-        binavg2 = p.bin_average(
+        binavg2 = sp.bin_average(
             dataset = data2,
             bin_variable = 'prdM',
             bin_size = 2,
         )
-        for variable in expected.columns:
-            tolerance = get_tolerance(expected[variable])
-            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=tolerance)
+        for variable in list(expected.data_vars):
+            tolerance = get_tolerance(expected[variable].values, flag_value=sp.FLAG_VALUE)
+            assert np.allclose(expected[variable].values, binavg[variable].values, rtol=0, atol=tolerance)
             assert np.allclose(expected2[variable], binavg2[variable], rtol=0, atol=tolerance)
 
     def test_bin_average_include_surface(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
         source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_binavg_surface.cnv"
-        data = idata.cnv_to_instrument_data(source_in)._to_dataframe()
-        expected = idata.cnv_to_instrument_data(source_out)._to_dataframe()
-        binavg = p.bin_average(
-            dataset = data,
+        result = si.read_cnv_file(source_in, "seasoft")
+        expected = si.read_cnv_file(source_out, "seasoft")
+        binavg = sp.bin_average(
+            dataset = result,
             bin_variable = 'prdM',
             bin_size = 2,
             include_surface_bin = True,
             surface_bin_min = 0,
             surface_bin_max = 1,
         )
-        for variable in expected.columns:
-            tolerance = get_tolerance(expected[variable])
-            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=tolerance)
+        for variable in list(expected.data_vars):
+            tolerance = get_tolerance(expected[variable].values, flag_value=sp.FLAG_VALUE)
+            assert np.allclose(expected[variable].values, binavg[variable].values, rtol=0, atol=tolerance)
 
     def test_bin_average_interpolate(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
         source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_binavg_interp.cnv"
-        data = idata.cnv_to_instrument_data(source_in)._to_dataframe()
-        expected = idata.cnv_to_instrument_data(source_out)._to_dataframe()
-        binavg = p.bin_average(
-            dataset = data,
+        result = si.read_cnv_file(source_in, "seasoft")
+        expected = si.read_cnv_file(source_out, "seasoft")
+        binavg = sp.bin_average(
+            dataset = result,
             bin_variable = 'prdM',
             bin_size = 2,
             interpolate = True,
         )
-        for variable in expected.columns:
-            tolerance = get_tolerance(expected[variable])
-            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=tolerance)
+        for variable in list(expected.data_vars):
+            tolerance = get_tolerance(expected[variable].values, flag_value=sp.FLAG_VALUE)
+            assert np.allclose(expected[variable].values, binavg[variable].values, rtol=0, atol=tolerance)
 
     def test_bin_average_interpolate_surface(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
         source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_binavg_interp_surface.cnv"
-        data = idata.cnv_to_instrument_data(source_in)._to_dataframe()
-        expected = idata.cnv_to_instrument_data(source_out)._to_dataframe()
-        binavg = p.bin_average(
-            dataset = data,
+        result = si.read_cnv_file(source_in, "seasoft")
+        expected = si.read_cnv_file(source_out, "seasoft")
+        binavg = sp.bin_average(
+            dataset = result,
             bin_variable = 'prdM',
             bin_size = 2,
             interpolate = True,
@@ -757,242 +744,263 @@ class TestBinAverage:
             surface_bin_max = 1,
             surface_bin_value = 0.5,
         )
-        for variable in expected.columns:
-            tolerance = get_tolerance(expected[variable])
-            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=tolerance)
+        for variable in list(expected.data_vars):
+            tolerance = get_tolerance(expected[variable].values, flag_value=sp.FLAG_VALUE)
+            assert np.allclose(expected[variable].values, binavg[variable].values, rtol=0, atol=tolerance)
 
     def test_bin_average_downcast(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
         source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_binavg_downcast.cnv"
-        data = idata.cnv_to_instrument_data(source_in)._to_dataframe()
-        expected = idata.cnv_to_instrument_data(source_out)._to_dataframe()
-        binavg = p.bin_average(
-            dataset = data,
+        result = si.read_cnv_file(source_in, "seasoft")
+        expected = si.read_cnv_file(source_out, "seasoft")
+        binavg = sp.bin_average(
+            dataset = result,
             bin_variable = 'prdM',
             bin_size = 2,
-            cast_type = p.CastType.DOWNCAST
+            cast_type = sp.CastType.DOWNCAST
         )
-        for variable in expected.columns:
-            tolerance = get_tolerance(expected[variable])
-            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=tolerance)
+        for variable in list(expected.data_vars):
+            tolerance = get_tolerance(expected[variable].values, flag_value=sp.FLAG_VALUE)
+            assert np.allclose(expected[variable].values, binavg[variable].values, rtol=0, atol=tolerance)
 
     def test_bin_average_downcast_interp(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
         source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_binavg_downcast_interp.cnv"
-        data = idata.cnv_to_instrument_data(source_in)._to_dataframe()
-        expected = idata.cnv_to_instrument_data(source_out)._to_dataframe()
-        binavg = p.bin_average(
-            dataset = data,
+        result = si.read_cnv_file(source_in, "seasoft")
+        expected = si.read_cnv_file(source_out, "seasoft")
+        binavg = sp.bin_average(
+            dataset = result,
             bin_variable = 'prdM',
             bin_size = 2,
-            cast_type = p.CastType.DOWNCAST,
+            cast_type = sp.CastType.DOWNCAST,
             interpolate = True,
         )
-        for variable in expected.columns:
-            tolerance = get_tolerance(expected[variable])
-            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=tolerance)
+        for variable in list(expected.data_vars):
+            tolerance = get_tolerance(expected[variable].values, flag_value=sp.FLAG_VALUE)
+            assert np.allclose(expected[variable].values, binavg[variable].values, rtol=0, atol=tolerance)
 
     def test_bin_average_downcast_interp_surface(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
         source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_binavg_downcast_interp_surface.cnv"
-        data = idata.cnv_to_instrument_data(source_in)._to_dataframe()
-        expected = idata.cnv_to_instrument_data(source_out)._to_dataframe()
-        binavg = p.bin_average(
-            dataset = data,
+        result = si.read_cnv_file(source_in, "seasoft")
+        expected = si.read_cnv_file(source_out, "seasoft")
+        binavg = sp.bin_average(
+            dataset = result,
             bin_variable = 'prdM',
             bin_size = 2,
-            cast_type = p.CastType.DOWNCAST,
+            cast_type = sp.CastType.DOWNCAST,
             interpolate = True,
             include_surface_bin = True,
             surface_bin_min = 0,
             surface_bin_max = 1,
             surface_bin_value = 0.5,
         )
-        for variable in expected.columns:
-            tolerance = get_tolerance(expected[variable])
-            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=tolerance)
+        for variable in list(expected.data_vars):
+            tolerance = get_tolerance(expected[variable].values, flag_value=sp.FLAG_VALUE)
+            assert np.allclose(expected[variable].values, binavg[variable].values, rtol=0, atol=tolerance)
 
     def test_bin_average_upcast(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
         source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_binavg_upcast.cnv"
-        data = idata.cnv_to_instrument_data(source_in)._to_dataframe()
-        expected = idata.cnv_to_instrument_data(source_out)._to_dataframe()
-        binavg = p.bin_average(
-            dataset = data,
+        result = si.read_cnv_file(source_in, "seasoft")
+        expected = si.read_cnv_file(source_out, "seasoft")
+        binavg = sp.bin_average(
+            dataset = result,
             bin_variable = 'prdM',
             bin_size = 2,
-            cast_type = p.CastType.UPCAST
+            cast_type = sp.CastType.UPCAST
         )
-        for variable in expected.columns:
-            tolerance = get_tolerance(expected[variable])
-            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=tolerance)
+        for variable in list(expected.data_vars):
+            tolerance = get_tolerance(expected[variable].values, flag_value=sp.FLAG_VALUE)
+            assert np.allclose(expected[variable].values, binavg[variable].values, rtol=0, atol=tolerance)
 
     def test_bin_average_upcast_interp(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
         source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_binavg_upcast_interp.cnv"
-        data = idata.cnv_to_instrument_data(source_in)._to_dataframe()
-        expected = idata.cnv_to_instrument_data(source_out)._to_dataframe()
-        binavg = p.bin_average(
-            dataset = data,
+        result = si.read_cnv_file(source_in, "seasoft")
+        expected = si.read_cnv_file(source_out, "seasoft")
+        binavg = sp.bin_average(
+            dataset = result,
             bin_variable = 'prdM',
             bin_size = 2,
-            cast_type = p.CastType.UPCAST,
+            cast_type = sp.CastType.UPCAST,
             interpolate = True,
         )
-        for variable in expected.columns:
-            tolerance = get_tolerance(expected[variable])
-            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=tolerance)
+        for variable in list(expected.data_vars):
+            tolerance = get_tolerance(expected[variable].values, flag_value=sp.FLAG_VALUE)
+            assert np.allclose(expected[variable].values, binavg[variable].values, rtol=0, atol=tolerance)
 
     def test_bin_average_upcast_interp_surface(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
         source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_binavg_upcast_interp_surface.cnv"
-        data = idata.cnv_to_instrument_data(source_in)._to_dataframe()
-        expected = idata.cnv_to_instrument_data(source_out)._to_dataframe()
-        binavg = p.bin_average(
-            dataset = data,
+        result = si.read_cnv_file(source_in, "seasoft")
+        expected = si.read_cnv_file(source_out, "seasoft")
+        binavg = sp.bin_average(
+            dataset = result,
             bin_variable = 'prdM',
             bin_size = 2,
-            cast_type = p.CastType.UPCAST,
+            cast_type = sp.CastType.UPCAST,
             interpolate = True,
             include_surface_bin = True,
             surface_bin_min = 0,
             surface_bin_max = 1,
             surface_bin_value = 0.5,
         )
-        for variable in expected.columns:
-            tolerance = get_tolerance(expected[variable])
-            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=tolerance)
+        for variable in list(expected.data_vars):
+            tolerance = get_tolerance(expected[variable].values, flag_value=sp.FLAG_VALUE)
+            assert np.allclose(expected[variable].values, binavg[variable].values, rtol=0, atol=tolerance)
 
     def test_bin_average_exclude_flags(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_loopedit_wildedit.cnv"
         source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_loopedit_wildedit_binavg_exclude.cnv"
-        data = idata.cnv_to_instrument_data(source_in)._to_dataframe()
-        expected = idata.cnv_to_instrument_data(source_out)._to_dataframe()
-        binavg = p.bin_average(
-            dataset = data,
+        result = si.read_cnv_file(source_in, "seasoft")
+        expected = si.read_cnv_file(source_out, "seasoft")
+        binavg = sp.bin_average(
+            dataset = result,
             bin_variable = 'prdM',
             bin_size = 2,
         )
-        for variable in expected.columns:
-            tolerance = get_tolerance(expected[variable])
-            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=tolerance)
+        for variable in list(expected.data_vars):
+            tolerance = get_tolerance(expected[variable].values, flag_value=sp.FLAG_VALUE)
+            assert np.allclose(expected[variable].values, binavg[variable].values, rtol=0, atol=tolerance)
 
     def test_bin_average_include_flags(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_loopedit_wildedit.cnv"
         source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_loopedit_wildedit_binavg_include.cnv"
-        data = idata.cnv_to_instrument_data(source_in)._to_dataframe()
-        expected = idata.cnv_to_instrument_data(source_out)._to_dataframe()
-        binavg = p.bin_average(
-            dataset = data,
+        result = si.read_cnv_file(source_in, "seasoft")
+        expected = si.read_cnv_file(source_out, "seasoft")
+        binavg = sp.bin_average(
+            dataset = result,
             bin_variable = 'prdM',
             bin_size = 2,
             exclude_bad_scans = False
         )
-        for variable in expected.columns:
-            tolerance = get_tolerance(expected[variable])
-            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=tolerance)
+        for variable in list(expected.data_vars):
+            tolerance = get_tolerance(expected[variable].values, flag_value=sp.FLAG_VALUE)
+            assert np.allclose(expected[variable].values, binavg[variable].values, rtol=0, atol=tolerance)
 
     def test_bin_average_include_flags_interp(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_loopedit_wildedit.cnv"
         source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_loopedit_wildedit_binavg_include_interp.cnv"
-        data = idata.cnv_to_instrument_data(source_in)._to_dataframe()
-        expected = idata.cnv_to_instrument_data(source_out)._to_dataframe()
-        binavg = p.bin_average(
-            dataset = data,
+        result = si.read_cnv_file(source_in, "seasoft")
+        expected = si.read_cnv_file(source_out, "seasoft")
+        binavg = sp.bin_average(
+            dataset = result,
             bin_variable = 'prdM',
             bin_size = 2,
             interpolate = True,
             exclude_bad_scans = False,
         )
-        for variable in expected.columns:
-            tolerance = get_tolerance(expected[variable])
-            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=tolerance)
+        for variable in list(expected.data_vars):
+            tolerance = get_tolerance(expected[variable].values, flag_value=sp.FLAG_VALUE)
+            assert np.allclose(expected[variable].values, binavg[variable].values, rtol=0, atol=tolerance)
 
     def test_bin_average_exclude_flags_interp(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_loopedit_wildedit.cnv"
         source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_loopedit_wildedit_binavg_exclude_interp.cnv"
-        data = idata.cnv_to_instrument_data(source_in)._to_dataframe()
-        expected = idata.cnv_to_instrument_data(source_out)._to_dataframe()
-        binavg = p.bin_average(
-            dataset = data,
+        result = si.read_cnv_file(source_in, "seasoft")
+        expected = si.read_cnv_file(source_out, "seasoft")
+        binavg = sp.bin_average(
+            dataset = result,
             bin_variable = 'prdM',
             bin_size = 2,
             interpolate = True,
         )
-        for variable in expected.columns:
-            tolerance = get_tolerance(expected[variable])
-            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=tolerance)
+        for variable in list(expected.data_vars):
+            tolerance = get_tolerance(expected[variable].values, flag_value=sp.FLAG_VALUE)
+            assert np.allclose(expected[variable].values, binavg[variable].values, rtol=0, atol=tolerance)
 
     def test_bin_average_time(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
         source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_binavg_time.cnv"
-        data = idata.cnv_to_instrument_data(source_in)._to_dataframe()
-        expected = idata.cnv_to_instrument_data(source_out)._to_dataframe()
-        binavg = p.bin_average(
-            dataset = data,
+        result = si.read_cnv_file(source_in, "seasoft")
+        expected = si.read_cnv_file(source_out, "seasoft")
+        binavg = sp.bin_average(
+            dataset = result,
             bin_variable = 'timeS',
             bin_size = 10,
-            cast_type = p.CastType.NA
+            cast_type = sp.CastType.NONE
         )
-        for variable in expected.columns:
-            tolerance = get_tolerance(expected[variable])
-            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=tolerance)
+        for variable in list(expected.data_vars):
+            tolerance = get_tolerance(expected[variable].values, flag_value=sp.FLAG_VALUE)
+            assert np.allclose(expected[variable].values, binavg[variable].values, rtol=0, atol=tolerance)
 
     def test_bin_average_scan(self, request):
         source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
         source_out = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_binavg_scan.cnv"
-        data = idata.cnv_to_instrument_data(source_in)._to_dataframe()
-        expected = idata.cnv_to_instrument_data(source_out)._to_dataframe()
-        binavg = p.bin_average(
-            dataset = data,
+        result = si.read_cnv_file(source_in, "seasoft")
+        expected = si.read_cnv_file(source_out, "seasoft")
+        binavg = sp.bin_average(
+            dataset = result,
             bin_variable = 'nScan',
             bin_size = 10,
-            cast_type = p.CastType.NA
+            cast_type = sp.CastType.NONE
         )
-        for variable in expected.columns:
-            tolerance = get_tolerance(expected[variable])
-            assert np.allclose(expected[variable], binavg[variable], rtol=0, atol=tolerance)
+        for variable in list(expected.data_vars):
+            tolerance = get_tolerance(expected[variable].values, flag_value=sp.FLAG_VALUE)
+            assert np.allclose(expected[variable].values, binavg[variable].values, rtol=0, atol=tolerance)
 
     # fmt: on
 
 
 class TestWildEdit:
     def test_wild_edit_pass(self, request):
-        expected_dataset = idata.cnv_to_instrument_data(
-            test_data / "19plus_V2_CTD-processing_example_wild_edit.cnv"
+        expected_dataset = si.read_cnv_file(
+            test_data / "19plus_V2_CTD-processing_example_wild_edit.cnv", "seasoft"
         )
-        expected_conductivity = expected_dataset.measurements["c0S/m"].values
+        expected_conductivity = expected_dataset["c0S/m"].values
 
-        dataset = idata.cnv_to_instrument_data(test_data / "19plus_V2_CTD-processing_example.cnv")
-        conductivity = dataset.measurements["c0S/m"].values
-        flags = dataset.measurements["flag"].values
+        dataset = si.read_cnv_file(test_data / "19plus_V2_CTD-processing_example.cnv", "seasoft")
+        conductivity = dataset["c0S/m"].values
+        flags = dataset["flag"].values
 
-        wild_edit_output = p.wild_edit(conductivity, flags, 2, 20, 100, 0, False)
+        wild_edit_output = sp.wild_edit(conductivity, flags, 2, 20, 100, 0, False)
 
         request.node.return_value = wild_edit_output.tolist()
         assert np.all(wild_edit_output == expected_conductivity)
 
+    def test_wild_edit_excludes_flags_in_later_blocks(self):
+        rng = np.random.default_rng(0)
+        data = rng.normal(0, 0.01, 20)
+        flags = np.zeros(20)
+
+        # loop edit flagged scan in the second block. If its flag is not
+        # applied, it inflates the block std and hides the outlier at 12
+        data[15] = 1000.0
+        flags[15] = sp.FLAG_VALUE
+        data[12] = 1.0
+
+        result = sp.wild_edit(data, flags, 2, 3, 10, 0, True)
+
+        assert result[12] == sp.FLAG_VALUE
+        assert result[15] == sp.FLAG_VALUE
+        assert np.array_equal(result[:10], data[:10])
+
 
 class TestWindowFilter:
     file_prefix = Path(test_data / "19plus_V2_CTD-processing_example")
-    cnvdata = idata.cnv_to_instrument_data(f"{file_prefix}.cnv")
-    pressure = cnvdata.measurements["prdM"].values
-    flags = cnvdata.measurements["flag"].values
+    # cnvdata = si.read_cnv_file(f"{file_prefix}.cnv")
+    # pressure = cnvdata["prdM"].values
+    # flags = cnvdata["flag"].values
     window_width = 5
     half_width = 1  # only applies to gaussian
     offset = 0.25  # only applies to gaussian
-    sample_interval = cnvdata.interval_s  # only applies to gaussian
+    # sample_interval = cnvdata.attrs["sample_interval"]  # only applies to gaussian
 
-    def test_boxcar_filter(self, request):
-        expected_dataset = idata.cnv_to_instrument_data(f"{self.file_prefix}_boxcar_5.cnv")
-        expected_pressure = expected_dataset.measurements["prdM"].values
+    @pytest.fixture
+    def cnvdata(self):
+        return si.read_cnv_file(f"{self.file_prefix}.cnv", "seasoft")
 
-        filtered_pressure = p.window_filter(
-            self.pressure,
-            self.flags,
-            p.WindowFilterType.BOXCAR,
+    def test_boxcar_filter(self, cnvdata, request):
+        expected_dataset = si.read_cnv_file(f"{self.file_prefix}_boxcar_5.cnv", "seasoft")
+        expected_pressure = expected_dataset["prdM"].values
+
+        filtered_pressure = sp.window_filter(
+            cnvdata["prdM"].values,
+            cnvdata["flag"].values,
+            "boxcar",
             self.window_width,
-            self.cnvdata.interval_s,
+            cnvdata.attrs["sample_interval"],
             self.half_width,
             self.offset,
             False,
@@ -1001,18 +1009,16 @@ class TestWindowFilter:
         request.node.return_value = filtered_pressure.tolist()
         assert close_enough(filtered_pressure, expected_pressure, 3, 1e-12)
 
-    def test_boxcar_filter_exclude_flags(self, request):
-        expected_dataset = idata.cnv_to_instrument_data(
-            f"{self.file_prefix}_boxcar_5_excluded.cnv"
-        )
-        expected_pressure = expected_dataset.measurements["prdM"].values
+    def test_boxcar_filter_exclude_flags(self, cnvdata, request):
+        expected_dataset = si.read_cnv_file(f"{self.file_prefix}_boxcar_5_excluded.cnv", "seasoft")
+        expected_pressure = expected_dataset["prdM"].values
 
-        filtered_pressure = p.window_filter(
-            self.pressure,
-            self.flags,
-            p.WindowFilterType.BOXCAR,
+        filtered_pressure = sp.window_filter(
+            cnvdata["prdM"].values,
+            cnvdata["flag"].values,
+            "boxcar",
             self.window_width,
-            self.cnvdata.interval_s,
+            cnvdata.attrs["sample_interval"],
             self.half_width,
             self.offset,
             True,
@@ -1021,16 +1027,16 @@ class TestWindowFilter:
         request.node.return_value = filtered_pressure.tolist()
         assert close_enough(filtered_pressure, expected_pressure, 3, 1e-12)
 
-    def test_cosine_filter(self, request):
-        expected_dataset = idata.cnv_to_instrument_data(f"{self.file_prefix}_cosine_5.cnv")
-        expected_pressure = expected_dataset.measurements["prdM"].values
+    def test_cosine_filter(self, cnvdata, request):
+        expected_dataset = si.read_cnv_file(f"{self.file_prefix}_cosine_5.cnv", "seasoft")
+        expected_pressure = expected_dataset["prdM"].values
 
-        filtered_pressure = p.window_filter(
-            self.pressure,
-            self.flags,
-            p.WindowFilterType.COSINE,
+        filtered_pressure = sp.window_filter(
+            cnvdata["prdM"].values,
+            cnvdata["flag"].values,
+            "cosine",
             self.window_width,
-            self.cnvdata.interval_s,
+            cnvdata.attrs["sample_interval"],
             self.half_width,
             self.offset,
             False,
@@ -1039,18 +1045,16 @@ class TestWindowFilter:
         request.node.return_value = filtered_pressure.tolist()
         assert close_enough(filtered_pressure, expected_pressure, 3, 1e-12)
 
-    def test_cosine_filter_exclude_flags(self, request):
-        expected_dataset = idata.cnv_to_instrument_data(
-            f"{self.file_prefix}_cosine_5_excluded.cnv"
-        )
-        expected_pressure = expected_dataset.measurements["prdM"].values
+    def test_cosine_filter_exclude_flags(self, cnvdata, request):
+        expected_dataset = si.read_cnv_file(f"{self.file_prefix}_cosine_5_excluded.cnv", "seasoft")
+        expected_pressure = expected_dataset["prdM"].values
 
-        filtered_pressure = p.window_filter(
-            self.pressure,
-            self.flags,
-            p.WindowFilterType.COSINE,
+        filtered_pressure = sp.window_filter(
+            cnvdata["prdM"].values,
+            cnvdata["flag"].values,
+            "cosine",
             self.window_width,
-            self.cnvdata.interval_s,
+            cnvdata.attrs["sample_interval"],
             self.half_width,
             self.offset,
             True,
@@ -1059,16 +1063,16 @@ class TestWindowFilter:
         request.node.return_value = filtered_pressure.tolist()
         assert close_enough(filtered_pressure, expected_pressure, 3, 1e-12)
 
-    def test_triangle_filter(self, request):
-        expected_dataset = idata.cnv_to_instrument_data(f"{self.file_prefix}_triangle_5.cnv")
-        expected_pressure = expected_dataset.measurements["prdM"].values
+    def test_triangle_filter(self, cnvdata, request):
+        expected_dataset = si.read_cnv_file(f"{self.file_prefix}_triangle_5.cnv", "seasoft")
+        expected_pressure = expected_dataset["prdM"].values
 
-        filtered_pressure = p.window_filter(
-            self.pressure,
-            self.flags,
-            p.WindowFilterType.TRIANGLE,
+        filtered_pressure = sp.window_filter(
+            cnvdata["prdM"].values,
+            cnvdata["flag"].values,
+            "triangle",
             self.window_width,
-            self.cnvdata.interval_s,
+            cnvdata.attrs["sample_interval"],
             self.half_width,
             self.offset,
             False,
@@ -1077,18 +1081,18 @@ class TestWindowFilter:
         request.node.return_value = filtered_pressure.tolist()
         assert close_enough(filtered_pressure, expected_pressure, 3, 1e-12)
 
-    def test_triangle_filter_exclude_flags(self, request):
-        expected_dataset = idata.cnv_to_instrument_data(
-            f"{self.file_prefix}_triangle_5_excluded.cnv"
+    def test_triangle_filter_exclude_flags(self, cnvdata, request):
+        expected_dataset = si.read_cnv_file(
+            f"{self.file_prefix}_triangle_5_excluded.cnv", "seasoft"
         )
-        expected_pressure = expected_dataset.measurements["prdM"].values
+        expected_pressure = expected_dataset["prdM"].values
 
-        filtered_pressure = p.window_filter(
-            self.pressure,
-            self.flags,
-            p.WindowFilterType.TRIANGLE,
+        filtered_pressure = sp.window_filter(
+            cnvdata["prdM"].values,
+            cnvdata["flag"].values,
+            "triangle",
             self.window_width,
-            self.cnvdata.interval_s,
+            cnvdata.attrs["sample_interval"],
             self.half_width,
             self.offset,
             True,
@@ -1097,16 +1101,16 @@ class TestWindowFilter:
         request.node.return_value = filtered_pressure.tolist()
         assert close_enough(filtered_pressure, expected_pressure, 3, 1e-12)
 
-    def test_gaussian_filter(self, request):
-        expected_dataset = idata.cnv_to_instrument_data(f"{self.file_prefix}_gaussian_5_1_025.cnv")
-        expected_pressure = expected_dataset.measurements["prdM"].values
+    def test_gaussian_filter(self, cnvdata, request):
+        expected_dataset = si.read_cnv_file(f"{self.file_prefix}_gaussian_5_1_025.cnv", "seasoft")
+        expected_pressure = expected_dataset["prdM"].values
 
-        filtered_pressure = p.window_filter(
-            self.pressure,
-            self.flags,
-            p.WindowFilterType.GAUSSIAN,
+        filtered_pressure = sp.window_filter(
+            cnvdata["prdM"].values,
+            cnvdata["flag"].values,
+            "gaussian",
             self.window_width,
-            self.cnvdata.interval_s,
+            cnvdata.attrs["sample_interval"],
             self.half_width,
             self.offset,
             False,
@@ -1115,18 +1119,18 @@ class TestWindowFilter:
         request.node.return_value = filtered_pressure.tolist()
         assert close_enough(filtered_pressure, expected_pressure, 3, 1e-12)
 
-    def test_gaussian_filter_exclude_flags(self, request):
-        expected_dataset = idata.cnv_to_instrument_data(
-            f"{self.file_prefix}_gaussian_5_1_025_excluded.cnv"
+    def test_gaussian_filter_exclude_flags(self, cnvdata, request):
+        expected_dataset = si.read_cnv_file(
+            f"{self.file_prefix}_gaussian_5_1_025_excluded.cnv", "seasoft"
         )
-        expected_pressure = expected_dataset.measurements["prdM"].values
+        expected_pressure = expected_dataset["prdM"].values
 
-        filtered_pressure = p.window_filter(
-            self.pressure,
-            self.flags,
-            p.WindowFilterType.GAUSSIAN,
+        filtered_pressure = sp.window_filter(
+            cnvdata["prdM"].values,
+            cnvdata["flag"].values,
+            "gaussian",
             self.window_width,
-            self.cnvdata.interval_s,
+            cnvdata.attrs["sample_interval"],
             self.half_width,
             self.offset,
             True,
@@ -1135,16 +1139,16 @@ class TestWindowFilter:
         request.node.return_value = filtered_pressure.tolist()
         assert close_enough(filtered_pressure, expected_pressure, 3, 1e-12)
 
-    def test_median_filter(self, request):
-        expected_dataset = idata.cnv_to_instrument_data(f"{self.file_prefix}_median_5.cnv")
-        expected_pressure = expected_dataset.measurements["prdM"].values
+    def test_median_filter(self, cnvdata, request):
+        expected_dataset = si.read_cnv_file(f"{self.file_prefix}_median_5.cnv", "seasoft")
+        expected_pressure = expected_dataset["prdM"].values
 
-        filtered_pressure = p.window_filter(
-            self.pressure,
-            self.flags,
-            p.WindowFilterType.MEDIAN,
+        filtered_pressure = sp.window_filter(
+            cnvdata["prdM"].values,
+            cnvdata["flag"].values,
+            "median",
             self.window_width,
-            self.cnvdata.interval_s,
+            cnvdata.attrs["sample_interval"],
             self.half_width,
             self.offset,
             False,
@@ -1152,115 +1156,22 @@ class TestWindowFilter:
         request.node.return_value = filtered_pressure.tolist()
         assert close_enough(filtered_pressure, expected_pressure, 3, 1e-12)
 
-    def test_median_filter_exclude_flags(self, request):
-        expected_dataset = idata.cnv_to_instrument_data(
-            f"{self.file_prefix}_median_5_excluded.cnv"
-        )
-        expected_pressure = expected_dataset.measurements["prdM"].values
+    def test_median_filter_exclude_flags(self, cnvdata, request):
+        expected_dataset = si.read_cnv_file(f"{self.file_prefix}_median_5_excluded.cnv", "seasoft")
+        expected_pressure = expected_dataset["prdM"].values
 
-        filtered_pressure = p.window_filter(
-            self.pressure,
-            self.flags,
-            p.WindowFilterType.MEDIAN,
+        filtered_pressure = sp.window_filter(
+            cnvdata["prdM"].values,
+            cnvdata["flag"].values,
+            "median",
             self.window_width,
-            self.cnvdata.interval_s,
+            cnvdata.attrs["sample_interval"],
             self.half_width,
             self.offset,
             True,
         )
         request.node.return_value = filtered_pressure.tolist()
         assert close_enough(filtered_pressure, expected_pressure, 3, 1e-12)
-
-
-class TestBuoyancy:
-    # fmt: off
-    # Testing data comes from a CalCOFI cruise
-    temperature = np.asarray(
-        [16.7373, 16.5030, 16.1106, 14.3432, 13.0211, 12.0935, 11.3933, 11.2466, 10.9219, 10.4762, 9.9460]
-    )
-    pressure = np.asarray([10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110])
-    salinity = np.asarray(
-        [33.2410, 33.2321, 33.2091, 33.1329, 33.0762, 33.1391, 33.2560, 33.4015, 33.5683, 33.6766, 33.7794]
-    )
-    expected_N2_win30 = np.asarray(
-        [-9.990e-29, 5.7702e-05, 1.9197e-04, 2.6735e-04, 2.1888e-04, 2.1620e-04, 1.7374e-04, 1.5761e-04, 1.6905e-04, 1.6099e-04, -9.990e-29]
-    )
-    expected_N_win30 = np.asarray(
-        [-9.990e-29, 4.35, 7.94, 9.37, 8.48, 8.42, 7.55, 7.19, 7.45, 7.27, -9.990e-29]
-    )
-    expected_E_win30 = np.asarray(
-        [-9.990e-29, 5.8901e-06, 1.9596e-05, 2.7290e-05, 2.2342e-05, 2.2069e-05, 1.7735e-05, 1.6089e-05, 1.7256e-05, 1.6433e-05, -9.990e-29]
-    )
-    expected_E_pow_8_win30 = np.asarray(
-        [-9.990e-29, 589.0, 1959.6, 2729.0, 2234.2, 2206.9, 1773.5, 1608.9, 1725.6, 1643.3, -9.990e-29]
-    )
-    # fmt: on
-
-    def test_buoyancy(self, request):
-        output_dataframe = p.buoyancy(
-            self.temperature,
-            self.salinity,
-            self.pressure,
-            np.asarray([34.034167]),  # converted from metadata 34.02.03 N in H,M,S
-            np.asarray([121.060556]),  # converted from metadata 121 03.38 W in H, M, S
-            30,  # window size
-            True,
-        )
-
-        request.node.return_value = {
-            "N2": output_dataframe["N2"].to_list(),
-            "N": output_dataframe["N"].to_list(),
-            "E": output_dataframe["E"].to_list(),
-            "E10^-8": output_dataframe["E10^-8"].to_list(),
-        }
-        # Comparing EOS-80 to TEOS-10 buoyancy calculations.
-        # We do not expect them to agree better than +/-1.5% due to differences in the algorithms
-        rel_tol = 0.015  # 1.5%
-        assert output_dataframe["N2"].to_numpy() == pytest.approx(
-            self.expected_N2_win30, rel=rel_tol
-        )
-        assert output_dataframe["N"].to_numpy() == pytest.approx(
-            self.expected_N_win30, rel=rel_tol
-        )
-        assert output_dataframe["E"].to_numpy() == pytest.approx(
-            self.expected_E_win30, rel=rel_tol
-        )
-        assert output_dataframe["E10^-8"].to_numpy() == pytest.approx(
-            self.expected_E_pow_8_win30, rel=rel_tol
-        )
-
-    def test_buoyancy_eos80(self, request):
-        output_dataframe = p.buoyancy(
-            self.temperature,
-            self.salinity,
-            self.pressure,
-            np.asarray([34.034167]),  # converted from metadata 34.02.03 N in H,M,S
-            np.asarray([121.060556]),  # converted from metadata 121 03.38 W in H, M, S
-            30,  # window size
-            False,
-        )
-
-        request.node.return_value = {
-            "N2": output_dataframe["N2"].to_list(),
-            "N": output_dataframe["N"].to_list(),
-            "E": output_dataframe["E"].to_list(),
-            "E10^-8": output_dataframe["E10^-8"].to_list(),
-        }
-        # Comparing SBE Data Processing C++ to local Python results using the same EOS-80 calculations.
-        # We expect very very close agreement: << 1% differnce
-        rel_tol = 0.0026  # 0.26%
-        assert output_dataframe["N2"].to_numpy() == pytest.approx(
-            self.expected_N2_win30, rel=rel_tol
-        )
-        assert output_dataframe["N"].to_numpy() == pytest.approx(
-            self.expected_N_win30, rel=rel_tol
-        )
-        assert output_dataframe["E"].to_numpy() == pytest.approx(
-            self.expected_E_win30, rel=rel_tol
-        )
-        assert output_dataframe["E10^-8"].to_numpy() == pytest.approx(
-            self.expected_E_pow_8_win30, rel=rel_tol
-        )
 
 
 class TestNitrate:
@@ -1270,48 +1181,115 @@ class TestNitrate:
 
     def test_convert_nitrate_umno3(self, request):
         expected_umno3 = np.array([-5, 18.75625, 45.00625, 71.25625, 100])
-        nitrate = c.convert_nitrate(self.voltages, dac_min=self.dac_min, dac_max=self.dac_max)
+        nitrate = sc.convert_nitrate(self.voltages, dac_min=self.dac_min, dac_max=self.dac_max)
         request.node.return_value = nitrate.tolist()
         assert np.allclose(expected_umno3, nitrate, atol=0.000001)
 
     def test_convert_nitrate_mgnl(self, request):
         expected_mgnl = np.array([-0.070035, 0.26271879375, 0.63040254375, 0.99808629375, 1.4007])
-        nitrate = c.convert_nitrate(
+        nitrate = sc.convert_nitrate(
             self.voltages, dac_min=self.dac_min, dac_max=self.dac_max, units="mgNL"
         )
         request.node.return_value = nitrate.tolist()
         assert np.allclose(expected_mgnl, nitrate, atol=0.000001)
 
 
+class TestFindCast:
+    # surface soak to 3 m, back to 1 m, down to 20 m, then back up
+    depth = np.array([0.0, 2.0, 3.0, 1.0, 5.0, 10.0, 20.0, 15.0, 8.0, 3.0, 1.0, 0.5])
+    flag = np.zeros(len(depth))
+
+    def test_find_downcast(self):
+        assert sp.find_downcast(self.depth, self.flag) == (0, 6)
+
+    def test_find_downcast_min_depth(self):
+        assert sp.find_downcast(self.depth, self.flag, min_depth=0.5) == (3, 6)
+
+    def test_find_downcast_skips_flagged_peak(self):
+        flag = self.flag.copy()
+        flag[6] = sp.FLAG_VALUE
+        assert sp.find_downcast(self.depth, flag, min_depth=0.5) == (3, 7)
+
+    def test_find_upcast(self):
+        assert sp.find_upcast(self.depth, self.flag) == (6, 11)
+
+    def test_find_upcast_min_depth(self):
+        assert sp.find_upcast(self.depth, self.flag, min_depth=2.0) == (6, 9)
+
+    def test_find_upcast_skips_flagged_samples(self):
+        flag = self.flag.copy()
+        flag[9:] = sp.FLAG_VALUE
+        assert sp.find_upcast(self.depth, flag, min_depth=2.0) == (6, 8)
+
+    def test_all_flagged(self):
+        flag = np.full(len(self.depth), sp.FLAG_VALUE)
+        with pytest.raises(ValueError):
+            sp.find_downcast(self.depth, flag)
+        with pytest.raises(ValueError):
+            sp.find_upcast(self.depth, flag)
+
+
+class TestTrim:
+    def test_trim_by_scan(self):
+        data = pd.DataFrame({"prdM": np.arange(10.0) * 2})
+
+        result = sp.trim(data, "scan", 3, 6)
+
+        assert result is data
+        assert list(data["prdM"]) == [4.0, 6.0, 8.0, 10.0]
+        assert list(data.index) == [0, 1, 2, 3]
+
+    def test_trim_by_control(self):
+        data = pd.DataFrame({"prdM": [0.0, 1.0, 5.0, 3.0, 2.0, 8.0]})
+
+        sp.trim(data, "prdM", 1.0, 3.0)
+
+        assert list(data["prdM"]) == [1.0, 3.0, 2.0]
+        assert list(data.index) == [0, 1, 2]
+
+
 class TestSplit:
-    def test_split(self, request):
-        source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
-        source_down = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_downcast.cnv"
-        source_up = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_upcast.cnv"
-        data = idata.cnv_to_instrument_data(source_in)._to_dataframe()
-        expected_down = idata.cnv_to_instrument_data(source_down)._to_dataframe()
-        expected_up = idata.cnv_to_instrument_data(source_up)._to_dataframe()
+    @pytest.mark.parametrize(
+        "source_path, cast_type",
+        [
+            ("SBE19plus_01906398_2019_07_15_0033_cropped_upcast.cnv", sp.CastType.UPCAST),
+            ("SBE19plus_01906398_2019_07_15_0033_cropped_downcast.cnv", sp.CastType.DOWNCAST),
+        ],
+    )
+    def test_split(self, source_path, cast_type, request):
+        expected_source = test_data / source_path
+        expected = si.read_cnv_file(expected_source, "seasoft")
 
-        down, up = p.split(data, "prdM")
+        source = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped.cnv"
+        result = si.read_cnv_file(source, "seasoft")
+        result = sp.split(result, "prdM", cast_type=cast_type, drop=True)
 
-        for variable in expected_down.columns:
-            tolerance = get_tolerance(expected_down[variable])
-            assert np.allclose(expected_down[variable], down[variable], rtol=0, atol=10**tolerance)
-            assert np.allclose(expected_up[variable], up[variable], rtol=0, atol=10**tolerance)
+        for variable in list(expected.data_vars):
+            tolerance = get_tolerance(expected[variable].values, flag_value=sp.FLAG_VALUE)
+            assert np.allclose(
+                expected[variable].values, result[variable].values, rtol=0, atol=10**tolerance
+            )
 
-    def test_split_with_flags(self, request):
-        source_in = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_loopedit.cnv"
-        source_down = (
-            test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_loopedit_downcast.cnv"
-        )
-        source_up = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_loopedit_upcast.cnv"
-        data = idata.cnv_to_instrument_data(source_in)._to_dataframe()
-        expected_down = idata.cnv_to_instrument_data(source_down)._to_dataframe()
-        expected_up = idata.cnv_to_instrument_data(source_up)._to_dataframe()
+    @pytest.mark.parametrize(
+        "source_path, cast_type",
+        [
+            ("SBE19plus_01906398_2019_07_15_0033_cropped_loopedit_upcast.cnv", sp.CastType.UPCAST),
+            (
+                "SBE19plus_01906398_2019_07_15_0033_cropped_loopedit_downcast.cnv",
+                sp.CastType.DOWNCAST,
+            ),
+        ],
+    )
+    def test_split_with_flags(self, source_path, cast_type, request):
+        expected_source = test_data / source_path
+        expected = si.read_cnv_file(expected_source, "seasoft")
 
-        down, up = p.split(data, "prdM", exclude_bad_scans=True)
+        source = test_data / "SBE19plus_01906398_2019_07_15_0033_cropped_loopedit.cnv"
+        result = si.read_cnv_file(source, "seasoft")
+        result = sp.split(result, "prdM", exclude_bad_scans=True, cast_type=cast_type, drop=True)
 
-        for variable in expected_down.columns:
-            tolerance = get_tolerance(expected_down[variable])
-            assert np.allclose(expected_down[variable], down[variable], rtol=0, atol=10**tolerance)
-            assert np.allclose(expected_up[variable], up[variable], rtol=0, atol=10**tolerance)
+        for variable in list(expected.data_vars):
+            tolerance = get_tolerance(expected[variable].values, flag_value=sp.FLAG_VALUE)
+            assert np.allclose(
+                expected[variable].values, result[variable].values, rtol=0, atol=10**tolerance
+            )

@@ -1,26 +1,19 @@
-#!/usr/bin/python3
-# -*- coding: utf-8 -*-
-
 """Contains a class and functions to support calculation of temperature
 and salinity (TS) contours.
 """
 
-# Classes:
-#   ContourData
-# Functions:
-#   contour_from_t_s_p (np.ndarray, np.ndarray, np.ndarray, float, float, float) -> ContourData
-#   contour_from_t_c_p (np.ndarray, np.ndarray, np.ndarray, float, float, float) -> ContourData
-
-# Native imports
+import warnings
 from dataclasses import dataclass
 
-# Third-party imports
 import gsw
 import numpy as np
 
-# Sea-Bird imports
-
-# Internal imports
+# [g/kg] absolute salinity grid spacing and margin beyond the data
+SALINITY_GRID_STEP = 0.1
+SALINITY_GRID_PADDING = 1.0
+# [deg C] conservative temperature grid spacing and margin beyond the data
+TEMPERATURE_GRID_STEP = 0.1
+TEMPERATURE_GRID_PADDING = 1.0
 
 
 @dataclass
@@ -38,13 +31,40 @@ class ContourData:
     z_mat: np.ndarray  # potential density matrix
 
 
+def _grid_vector(
+    values: np.ndarray, step: float, padding: float, lower_limit: float = -np.inf
+) -> np.ndarray:
+    """Evenly spaced grid values covering the data plus a margin on each
+    side
+
+    :param values: data the grid must cover. NaNs are ignored
+    :param step: spacing between grid values
+    :param padding: margin below the minimum and above the maximum
+    :param lower_limit: the grid never starts below this value, e.g.
+        0 for salinity. Defaults to no limit
+
+    :return: grid values from max(min - padding, lower_limit) to at
+        least max + padding
+    """
+    start = max(np.nanmin(values) - padding, lower_limit)
+    stop = np.nanmax(values) + padding
+    # The small tolerance stops float rounding from adding a step when the span is an exact
+    # multiple of step
+    count = int(np.ceil((stop - start) / step - 1e-9)) + 1
+    return start + step * np.arange(count)
+
+
 def contour_from_t_s_p(
-    temperature_C: np.ndarray,  # TODO: change this to be snake_case for TKIT-75
-    salinity_PSU: np.ndarray,  # TODO: change this to be snake_case for TKIT-75
-    pressure_dbar: np.ndarray,
+    temperature: np.ndarray,
+    salinity: np.ndarray,
+    pressure: np.ndarray,
     min_salinity: float = 0,
     lat: float = 0,
     lon: float = 0,
+    reference_pressure: float = 0,
+    temperature_C: np.ndarray = None,
+    salinity_PSU: np.ndarray = None,
+    pressure_dbar: np.ndarray = None,
 ) -> ContourData:
     """Converts temperature (T), salinity (S), and pressure (P) to
     conservative temperature (CT), absolute salinity (SA), and potential
@@ -62,39 +82,44 @@ def contour_from_t_s_p(
     :return: dataclass with xyz data for creating a TS plot
     """
 
-    # Filter out data points where salinity < min_salinity
-    salt_mask = salinity_PSU > min_salinity
-    temperature_C = temperature_C[salt_mask]
-    salinity_PSU = salinity_PSU[salt_mask]
-    pressure_dbar = pressure_dbar[salt_mask]
+    if temperature_C is not None:
+        warnings.warn("Deprecated, use temperature", DeprecationWarning)
+        temperature = temperature_C
+
+    if salinity_PSU is not None:
+        warnings.warn("Deprecated, use salinity", DeprecationWarning)
+        salinity = salinity_PSU
+
+    if pressure_dbar is not None:
+        warnings.warn("Deprecated, use pressure", DeprecationWarning)
+        pressure = pressure_dbar
+
+    # Mark data as nan where salinity < min_salinity
+    salinity_mask = salinity > min_salinity
+    temperature = np.where(salinity_mask, temperature, np.nan)
+    salinity = np.where(salinity_mask, salinity, np.nan)
+    pressure = np.where(salinity_mask, pressure, np.nan)
 
     # Compute TEOS-10 quantities: SA, CT, potential_density
-    absolute_salinity = gsw.SA_from_SP(salinity_PSU, pressure_dbar, lon, lat)
-    conservative_temperature = gsw.CT_from_t(absolute_salinity, temperature_C, pressure_dbar)
-    potential_density = gsw.rho(
-        absolute_salinity, conservative_temperature, 0
-    )  # TODO: parameterize reference density
+    absolute_salinity = gsw.SA_from_SP(salinity, pressure, lon, lat)
+    conservative_temperature = gsw.CT_from_t(absolute_salinity, temperature, pressure)
+    potential_density = gsw.rho(absolute_salinity, conservative_temperature, reference_pressure)
 
-    # Figure out T-S grid boundaries (mins and maxes)
-    salt_min = absolute_salinity.min() - (0.01 * absolute_salinity.min())
-    salt_max = absolute_salinity.max() + (0.01 * absolute_salinity.max())
-    temperature_min = conservative_temperature.min() - (0.1 * conservative_temperature.min())
-    temperature_max = conservative_temperature.max() + (0.1 * conservative_temperature.max())
-
-    # Calculate how many grid cells we need in the x and y dimensions
-    x_range = round((salt_max - salt_min) / 0.1 + 1, 0)
-    y_range = round((temperature_max - temperature_min) + 1, 0)
-    x_cells = x_range.astype(int)
-    y_cells = y_range.astype(int)
-
-    # Create conservative_temperature and absolute_salinity vectors of appropriate dimensions
-    temperature_vector = np.linspace(1, y_range - 1, y_cells) + temperature_min
-    salinity_vector = np.linspace(1, x_range - 1, x_cells) * 0.1 + salt_min
+    # Grid vectors span the data plus a fixed margin, so the density contours cover every sample
+    # Salinity can't be negative, which the padding would otherwise reach for fresh water
+    salinity_vector = _grid_vector(
+        absolute_salinity, SALINITY_GRID_STEP, SALINITY_GRID_PADDING, lower_limit=0
+    )
+    temperature_vector = _grid_vector(
+        conservative_temperature, TEMPERATURE_GRID_STEP, TEMPERATURE_GRID_PADDING
+    )
 
     # Loop to fill in density
-    potential_density_matrix = np.zeros((y_cells, x_cells))
-    for j in range(0, y_cells):
-        potential_density_matrix[j, :] = gsw.rho(salinity_vector, temperature_vector[j], 0)
+    potential_density_matrix = np.zeros((len(temperature_vector), len(salinity_vector)))
+    for j in range(len(temperature_vector)):
+        potential_density_matrix[j, :] = gsw.rho(
+            salinity_vector, temperature_vector[j], reference_pressure
+        )
 
     # Subtract 1000 to convert to sigma-t
     potential_density_matrix -= 1000
@@ -113,12 +138,16 @@ def contour_from_t_s_p(
 
 
 def contour_from_t_c_p(
-    temperature_C: np.ndarray,  # TODO: change this to be snake_case for TKIT-75
-    conductivity_mScm: np.ndarray,  # TODO: change this to be snake_case for TKIT-75
-    pressure_dbar: np.ndarray,
+    temperature: np.ndarray,
+    conductivity: np.ndarray,
+    pressure: np.ndarray,
     min_salinity: float = 0,
     lat: float = 0,
     lon: float = 0,
+    reference_pressure: float = 0,
+    temperature_C: np.ndarray = None,
+    conductivity_mScm: np.ndarray = None,
+    pressure_dbar: np.ndarray = None,
 ) -> ContourData:
     """Converts conductivity (C) to salinity (S) then calls
     derive_ct_sa_pd_from_t_s_p to derive conservative temperature (CT),
@@ -134,5 +163,20 @@ def contour_from_t_c_p(
 
     :return: dataclass with xyz data for creating a TS plot
     """
-    salinity = gsw.SP_from_C(conductivity_mScm, temperature_C, pressure_dbar)
-    return contour_from_t_s_p(temperature_C, salinity, pressure_dbar, min_salinity, lat, lon)
+
+    if temperature_C is not None:
+        warnings.warn("Deprecated, use temperature", DeprecationWarning)
+        temperature = temperature_C
+
+    if conductivity_mScm is not None:
+        warnings.warn("Deprecated, use conductivity", DeprecationWarning)
+        conductivity = conductivity_mScm
+
+    if pressure_dbar is not None:
+        warnings.warn("Deprecated, use pressure", DeprecationWarning)
+        pressure = pressure_dbar
+
+    salinity = gsw.SP_from_C(conductivity, temperature, pressure)
+    return contour_from_t_s_p(
+        temperature, salinity, pressure, min_salinity, lat, lon, reference_pressure
+    )

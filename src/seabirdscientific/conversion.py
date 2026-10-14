@@ -1,40 +1,52 @@
-#!/usr/bin/python3
-# -*- coding: utf-8 -*-
-
 """A collection of raw data conversion functions."""
 
-# Native imports
-from math import e, floor
-from typing import Literal
+import math
 import warnings
+from collections.abc import Callable
+from typing import Literal
 
-# Third-party imports
 import gsw
 import numpy as np
 from numpy.polynomial import Polynomial
 from scipy import stats
 
-# Sea-Bird imports
-
-# Internal imports
 import seabirdscientific.cal_coefficients as cc
+import seabirdscientific.constants as const
+import seabirdscientific.instrument_data as si
 
 
-DBAR_TO_PSI = 1.450377
-PSI_TO_DBAR = 0.6894759
-OXYGEN_PHASE_TO_VOLTS = 39.457071
-KELVIN_OFFSET_0C = 273.15
-KELVIN_OFFSET_25C = 298.15
-OXYGEN_MLPERL_TO_MGPERL = 1.42903
-OXYGEN_MLPERL_TO_UMOLPERKG = 44660
-# taken from https://blog.seabird.com/ufaqs/what-is-the-difference-in-temperature-expressions-between-ipts-68-and-its-90/
-ITS90_TO_IPTS68 = 1.00024
-# micro moles of nitrate to milligrams of nitrogen per liter
-UMNO3_TO_MGNL = 0.014007
-# [J K^{-1} mol^{-1}] Gas constant from SBS application note 99
-R = 8.3144621
-# [Coulombs mol^{-1}] Faraday constant from SBS application note 99
-F = 96485.365
+def convert_temperature_units(
+    temperature: np.ndarray,
+    from_standard: Literal["ITS90", "IPTS68"],
+    from_units: Literal["C", "F"],
+    to_standard: Literal["ITS90", "IPTS68"] = "ITS90",
+    to_units: Literal["C", "F"] = "C",
+) -> np.ndarray:
+    """Convert temperature between different units and calibration standards.
+
+    Converts temperature values between Celsius and Fahrenheit, and between
+    ITS90 and IPTS68 calibration standards.
+
+    :param temperature: Temperature values to convert
+    :param from_standard: Input calibration standard (ITS90 or IPTS68)
+    :param from_units: Input temperature units (C or F)
+    :param to_standard: Output calibration standard, defaults to ITS90
+    :param to_units: Output temperature units, defaults to C
+
+    :return: Temperature values converted to specified units and standard
+    """
+    _temperature = temperature.copy()
+    if from_standard == "ITS90" and to_standard == "IPTS68":
+        _temperature *= const.ITS90_TO_IPTS68
+    elif from_standard == "IPTS68" and to_standard == "ITS90":
+        _temperature /= const.ITS90_TO_IPTS68
+
+    if from_units == "F" and to_units == "C":
+        _temperature = (_temperature - 32) * 5 / 9
+    if from_units == "C" and to_units == "F":
+        _temperature = _temperature * 9 / 5 + 32
+
+    return _temperature
 
 
 def convert_temperature(
@@ -51,9 +63,9 @@ def convert_temperature(
     :param temperature_counts_in: temperature value to convert in A/D
         counts
     :param coefs: calibration coefficients for the temperature sensor
-    :param standard: whether to use ITS90 or to use IPTS-68 calibration
+    :param standard: whether to convert to ITS90 or IPTS-68 calibration
         standard
-    :param units: whether to use celsius or to convert to fahrenheit
+    :param units: whether to convert to celsius or fahrenheit
     :param use_mv_r: true to perform extra conversion steps required by
         some instruments (check the cal sheet to see if this is required)
 
@@ -70,12 +82,9 @@ def convert_temperature(
     log_t = np.log(temperature_counts)
     temperature = (
         1 / (coefs.a0 + coefs.a1 * log_t + coefs.a2 * log_t**2 + coefs.a3 * log_t**3)
-    ) - KELVIN_OFFSET_0C
+    ) - const.KELVIN_OFFSET_0C
 
-    if standard == "IPTS68":
-        temperature *= ITS90_TO_IPTS68
-    if units == "F":
-        temperature = temperature * 9 / 5 + 32  # Convert C to F
+    temperature = convert_temperature_units(temperature, "ITS90", "C", standard, units)
 
     return temperature
 
@@ -86,7 +95,8 @@ def convert_temperature_frequency(
     standard: Literal["ITS90", "IPTS68"] = "ITS90",
     units: Literal["C", "F"] = "C",
 ):
-    """Convert raw frequency to temperature in degrees Celsius or degrees Fahrenheit
+    """Convert raw frequency to temperature in degrees Celsius or
+    degrees Fahrenheit
 
     :param frequency: raw frequency from the temperature sensor
     :param coefs: calibration coefficients for the temperature sensor
@@ -94,24 +104,63 @@ def convert_temperature_frequency(
     """
     fLog = np.log(coefs.f0 / frequency)
     temperature = (
-        1 / (coefs.g + coefs.h * fLog + coefs.i * fLog**2 + coefs.j * fLog**3) - KELVIN_OFFSET_0C
+        1 / (coefs.g + coefs.h * fLog + coefs.i * fLog**2 + coefs.j * fLog**3)
+        - const.KELVIN_OFFSET_0C
     )
 
-    if standard == "IPTS68":
-        temperature *= ITS90_TO_IPTS68
-    if units == "F":
-        temperature = temperature * 9 / 5 + 32  # Convert C to F
+    temperature = convert_temperature_units(temperature, "ITS90", "C", standard, units)
 
     return temperature
+
+
+def convert_pressure_units(
+    pressure: np.ndarray,
+    from_units: Literal["dbar", "psia", "psig"],
+    to_units: Literal["dbar", "psia", "psig"] = "psia",
+) -> np.ndarray:
+    """Convert pressure between different units.
+
+    Converts pressure values between decibars (dbar), pounds per square inch
+    absolute (psia), and pounds per square inch gauge (psig).
+
+    :param pressure: Pressure values to convert
+    :param from_units: Input pressure units (dbar, psia, or psig)
+    :param to_units: Output pressure units, defaults to psia
+
+    :return: Pressure values converted to specified units
+    """
+    _pressure = pressure.copy()
+
+    # psia is absolute (gauge + atmospheric, measures 14.7 psi at ocean surface)
+    # psig and dbar are gauge (also known as sea pressure, atmosphere pressure not included, measures 0 at ocean surface)
+    # atmospheric offset must be applied in psi, not dbar
+    if from_units == to_units:
+        return _pressure
+    if from_units == "psia":
+        gauge_psi = _pressure - const.SEA_LEVEL_PRESSURE_PSI
+    elif from_units == "dbar":
+        gauge_psi = _pressure / const.PSI_TO_DBAR
+    else:  # psig
+        gauge_psi = _pressure
+
+    if to_units == "psia":
+        return gauge_psi + const.SEA_LEVEL_PRESSURE_PSI
+    elif to_units == "dbar":
+        return gauge_psi * const.PSI_TO_DBAR
+    else:  # psig
+        return gauge_psi
 
 
 def convert_pressure(
     pressure_count: np.ndarray,
     compensation_voltage: np.ndarray,
     coefs: cc.PressureCoefficients,
-    units: Literal["dbar", "psia", "psig"] = "psig",
+    units: Literal["dbar", "psia", "psig"] = "psia",
 ):
-    """Converts pressure counts to sea pressure (psig and dbar) and absolute pressure (psia)
+    """Converts pressure counts to:
+        dbar - sea pressure / guage pressure
+        psig - sea pressure / gauge pressure
+        psia - absolute pressure
 
     pressure_count and compensation_voltage are expected to be raw data
     from an instrument in A/D counts
@@ -120,12 +169,10 @@ def convert_pressure(
     :param compensation_voltage: pressure temperature compensation
         voltage, in counts or volts depending on the instrument
     :param coefs: calibration coefficients for the pressure sensor
-    :param units: whether or not to use psig or dbar as the returned
-        unit type
+    :param units: returned unit type, defaults to psia
 
-    :return: sea pressure val in dbar or PSIG
+    :return: sea pressure val in dbar, psig, or psia according to units
     """
-    sea_level_pressure = 14.7
 
     t = (
         coefs.ptempa0
@@ -134,13 +181,12 @@ def convert_pressure(
     )
     x = pressure_count - coefs.ptca0 - coefs.ptca1 * t - coefs.ptca2 * t**2
     n = x * coefs.ptcb0 / (coefs.ptcb0 + coefs.ptcb1 * t + coefs.ptcb2 * t**2)
-    pressure = coefs.pa0 + coefs.pa1 * n + coefs.pa2 * n**2
+    p_psia = coefs.pa0 + coefs.pa1 * n + coefs.pa2 * n**2
 
-    if units == "dbar" or units == "psig":
-        pressure -= sea_level_pressure
+    # Apply offset [dbar]
+    p_dbar = convert_pressure_units(p_psia, "psia", "dbar") + coefs.offset
 
-    if units == "dbar":
-        pressure *= PSI_TO_DBAR
+    pressure = convert_pressure_units(p_dbar, "dbar", units)
 
     return pressure
 
@@ -149,70 +195,79 @@ def convert_pressure_digiquartz(
     pressure_count: np.ndarray,
     compensation_voltage: np.ndarray,
     coefs: cc.PressureDigiquartzCoefficients,
-    units: Literal["dbar", "psia"],
+    units: Literal["dbar", "psia", "psig"],
     sample_interval: float,
 ):
-    """Converts pressure counts to PSIA (pounds per square inch, abolute) or dbar for a digiquartz pressure sensor.
-
-    pressure_count and compensation_voltage are expected to be raw data
-    from an instrument in A/D counts
+    """Converts pressure counts to:
+        dbar - sea pressure / guage pressure
+        psig - sea pressure / gauge pressure
+        psia - absolute pressure
 
     :param pressure_count: pressure value to convert, in A/D counts
-    :param compensation_voltage: pressure temperature compensation
-        voltage, in counts or volts depending on the instrument
-    :param coefs: calibration coefficients for the digiquartz pressure sensor
-    :param units: whether or not to use psia or dbar as the returned
-        unit type
-    :param sample_interval: sample rate of the data to be used for temperature compensation correction, in seconds
-    :return: pressure val in PSIA or dbar
+    :param compensation_voltage: pressure temperature, in A/D counts
+    :param coefs: calibration coefficients for the digiquartz pressure
+        sensor
+    :param units: returned unit type, defaults to psia
+    :param sample_interval: sample rate of the data to be used for
+        temperature compensation correction, in seconds
+    :return: pressure val in dbar, psig, or psia according to units
     """
-    sea_level_pressure = 14.7
-    # First, average temperature compensation over 30 seconds
-    max_scans_in_30_seconds = 720
-    scans_in_window = floor(30 / sample_interval)
-    scans_in_window = max(scans_in_window, 1)
-    scans_in_window = min(scans_in_window, max_scans_in_30_seconds)
 
-    rolling_sum = compensation_voltage[0] * scans_in_window
-    modified_compensation_voltage = compensation_voltage.copy()
+    # average temperature compensation over 30 seconds
+    def modification_function(x):
+        return x * coefs.ad590m + coefs.ad590b
 
-    for i in range(0, len(compensation_voltage)):
-        if i < scans_in_window:
-            # remove a copy of 0-index value from rolling sum
-            rolling_sum -= compensation_voltage[0]
-        else:
-            # remove oldest value from rolling sum
-            rolling_sum -= compensation_voltage[i - scans_in_window]
+    # using a short name to make the equations a little easier to read
+    v = _compute_rolling_average(compensation_voltage, 30, sample_interval, modification_function)
 
-        rolling_sum += compensation_voltage[i]
-        modified_compensation_voltage[i] = (
-            rolling_sum / scans_in_window * coefs.AD590M + coefs.AD590B
-        )
+    # calculate pressure
+    t = 1 / pressure_count * 1e6  # convert to period in usec
+    c = coefs.c1 + coefs.c2 * v + coefs.c3 * v**2
+    d = coefs.d1 + coefs.d2 * v
+    t0 = coefs.t1 + coefs.t2 * v + coefs.t3 * v**2 + coefs.t4 * v**3 + coefs.t5 * v**4
 
-    # Now, calculate pressure
+    one_minus_t_ratio = 1 - (t0**2) / (t**2)
+    # p is absolute pressure according to Paroscientific cal sheet
+    p_psia = c * one_minus_t_ratio * (1 - d * one_minus_t_ratio)
 
-    t = 1 / pressure_count * 1000000  # convert to period in usec
-    c = (
-        coefs.c1
-        + coefs.c2 * modified_compensation_voltage
-        + coefs.c3 * modified_compensation_voltage**2
-    )
-    d = coefs.d1 + coefs.d2 * modified_compensation_voltage
-    t0 = (
-        coefs.t1
-        + coefs.t2 * modified_compensation_voltage
-        + coefs.t3 * modified_compensation_voltage**2
-        + coefs.t4 * modified_compensation_voltage**3
-        + coefs.t5 * modified_compensation_voltage**4
-    )
+    # Apply slope [dimensionless] and offset [dbar]
+    pressure_dbar = convert_pressure_units(p_psia, "psia", "dbar") * coefs.slope + coefs.offset
 
-    t0_squared_over_t_squared = (t0**2) / (t**2)
-    one_minus_ratio = 1 - t0_squared_over_t_squared
-    p = c * one_minus_ratio * (1 - d * one_minus_ratio)
-    abs_pressure = p - sea_level_pressure
-    if units == "dbar":
-        abs_pressure *= PSI_TO_DBAR
-    return abs_pressure
+    pressure = convert_pressure_units(pressure_dbar, "dbar", units)
+
+    return pressure
+
+
+def convert_conductivity_units(
+    conductivity: np.ndarray,
+    from_units: Literal["S/m", "mS/cm", "uS/cm"],
+    to_units: Literal["S/m", "mS/cm", "uS/cm"] = "S/m",
+) -> np.ndarray:
+    """Convert conductivity between different units.
+
+    Converts conductivity values between Siemens per meter (S/m),
+    milliSiemens per centimeter (mS/cm), and microSiemens per centimeter (uS/cm).
+
+    :param conductivity: Conductivity values to convert
+    :param from_units: Input conductivity units (S/m, mS/cm, or uS/cm)
+    :param to_units: Output conductivity units, defaults to S/m
+
+    :return: Conductivity values converted to specified units
+    """
+    if from_units == "S/m" and to_units == "mS/cm":
+        return conductivity * 10
+    elif from_units == "S/m" and to_units == "uS/cm":
+        return conductivity * 1e4
+    elif from_units == "mS/cm" and to_units == "S/m":
+        return conductivity / 10
+    elif from_units == "mS/cm" and to_units == "uS/cm":
+        return conductivity * 1000
+    elif from_units == "uS/cm" and to_units == "S/m":
+        return conductivity / 1e4
+    elif from_units == "uS/cm" and to_units == "mS/cm":
+        return conductivity / 1000
+    else:
+        return conductivity
 
 
 def convert_conductivity(
@@ -220,9 +275,10 @@ def convert_conductivity(
     temperature: np.ndarray,
     pressure: np.ndarray,
     coefs: cc.ConductivityCoefficients,
-    scalar: float = 1.0,
+    instrument_type: si.InstrumentType,
+    units: Literal["S/m", "mS/cm", "uS/cm"] = "S/m",
 ):
-    """Converts raw conductivity counts to S/m.
+    """Converts raw conductivity counts to S/m, mS/cm, or uS/cm.
 
     Data is expected to be raw data from instrument in A/D counts
 
@@ -231,14 +287,28 @@ def convert_conductivity(
     :param temperature: reference temperature, in degrees C
     :param pressure: reference pressure, in dbar
     :param coefs: calibration coefficient for the conductivity sensor
-    :param scalar: value to multiply by at the end. For most instruments, this is 1. For SBE911, it is 1/10
+    :param instrument_type: the instrument that recorded conductivity
+    :param units: the conductivity units to convert to, defaults to S/m
 
     :return: conductivity val converted to S/m
     """
-    f = conductivity_count * np.sqrt(1 + coefs.wbotc * temperature) / 1000
+    scalar = 1
+    if instrument_type == si.InstrumentType.SBE911Plus:
+        scalar = 1 / 10
+
+    if instrument_type in (
+        si.InstrumentType.SBE16Plus,
+        si.InstrumentType.SBE19Plus,
+        si.InstrumentType.SBE911Plus,
+    ):
+        f = conductivity_count / 1000
+    else:
+        f = conductivity_count * np.sqrt(1 + coefs.wbotc * temperature) / 1000
+
     numerator = coefs.g + coefs.h * f**2 + coefs.i * f**3 + coefs.j * f**4
     denominator = 1 + coefs.ctcor * temperature + coefs.cpcor * pressure
-    return numerator / denominator * scalar
+    conductivity = convert_conductivity_units(numerator / denominator * scalar, "S/m", units)
+    return conductivity
 
 
 def potential_density_from_t_s_p(
@@ -352,6 +422,7 @@ def depth_from_pressure(
     latitude: float,
     depth_units: Literal["m", "ft"] = "m",
     pressure_units: Literal["dbar", "psi"] = "dbar",
+    water_type: Literal["salt", "fresh"] = "salt",
 ):
     """Derive depth from pressure and latitude.
 
@@ -366,12 +437,15 @@ def depth_from_pressure(
     """
     pressure = pressure_in.copy()
     if pressure_units == "psi":
-        pressure /= DBAR_TO_PSI
+        pressure /= const.DBAR_TO_PSI
 
-    depth = -gsw.z_from_p(pressure, latitude)
+    if water_type == "fresh":
+        depth = pressure * const.FRESHWATER_PRESSURE_TO_DEPTH
+    else:
+        depth = -gsw.z_from_p(pressure, latitude)
 
     if depth_units == "ft":
-        depth *= 3.28084
+        depth *= const.METERS_TO_FEET
 
     return depth
 
@@ -384,15 +458,27 @@ def convert_sbe63_oxygen(
     coefs: cc.Oxygen63Coefficients,
     thermistor_coefs: cc.Thermistor63Coefficients,
     thermistor_units: Literal["volts", "C"] = "volts",  # Is this volts or frequency?
+    units: Literal[
+        "ml/l",
+        "mg/l",
+        "umol/kg",
+        "umol/l",
+        "saturation_percent",
+        "ox_temperature_c",
+        "ox_temperature_f",
+        "raw_phase_usec",
+        "raw_phase_v",
+    ] = "ml/l",
+    external_temperature: np.ndarray | None = None,
 ):
-    """Returns the data after converting it to ml/l.
+    """Returns the data after converting it to desired units.
 
     raw_oxygen_phase is expected to be in raw phase, raw_thermistor_temp
     in counts, pressure in dbar, and salinity in practical salinity (PSU)
 
     :param raw_oxygen_phase: SBE63 phase value, in microseconds
     :param thermistor_temp: SBE63 thermistor data to use are reference,
-        in counts
+        in volts or degrees C (see thermistor_units param)
     :param pressure: Converted pressure value from the attached CTD, in
         dbar
     :param salinity: Converted salinity value from the attached CTD, in
@@ -402,6 +488,9 @@ def convert_sbe63_oxygen(
     :param thermistor_coefs (cc.Thermistor63Coefficients): calibration coefficients for
         the SBE63 thermistor sensor
     :param thermistor_units: units of thermistor_temp input
+    :param units: the units to return the oxygen values in. Options are:
+        ml/l, mg/l, umol/kg, umol/l, saturation_percent, ox_temperature_c, ox_temperature_f, raw_phase_usec, raw_phase_v. Defaults to ml/l.
+    :param external_temperature: optional external temperature to use for oxygen conversion, in degrees C. Required for umol/kg and percentage saturation units. If not provided, the thermistor will be used for temperature.
 
     :return: converted Oxygen value, in ml/l
     """
@@ -412,36 +501,54 @@ def convert_sbe63_oxygen(
     else:
         raise ValueError
 
-    oxygen_volts = raw_oxygen_phase / OXYGEN_PHASE_TO_VOLTS  # from the manual
+    if units == "ox_temperature_c":
+        return temperature
+    elif units == "ox_temperature_f":
+        return temperature * 9 / 5 + 32  # Convert C to F
+    elif units == "raw_phase_usec":
+        return raw_oxygen_phase
+
+    oxygen_volts = raw_oxygen_phase / const.OXYGEN_PHASE_TO_VOLTS  # from the manual
+
+    if units == "raw_phase_v":
+        return oxygen_volts
 
     ksv = coefs.c0 + coefs.c1 * temperature + coefs.c2 * temperature**2
 
-    # The following correction coefficients are all constants
-    sol_b0 = -6.24523e-3
-    sol_b1 = -7.37614e-3
-    sol_b2 = -1.0341e-2
-    sol_b3 = -8.17083e-3
-    sol_c0 = -4.88682e-7
-
-    ts = np.log((KELVIN_OFFSET_25C - temperature) / (KELVIN_OFFSET_0C + temperature))
-    s_corr_exp = (
-        salinity * (sol_b0 + sol_b1 * ts + sol_b2 * ts**2 + sol_b3 * ts**3) + sol_c0 * salinity**2
-    )
-    s_corr = e**s_corr_exp
+    s_corr_exp = _compute_ln_salinity_correction(temperature, salinity)
+    s_corr = math.e**s_corr_exp
 
     # temperature in Kelvin
-    temperature_k = temperature + KELVIN_OFFSET_0C
+    temperature_k = temperature + const.KELVIN_OFFSET_0C
     p_corr_exp = (coefs.e * pressure) / temperature_k
-    p_corr = e**p_corr_exp
+    p_corr = math.e**p_corr_exp
 
     # fmt: off
-    ox_val = (
+    oxygen = (
         (((coefs.a0 + coefs.a1 * temperature + coefs.a2 * oxygen_volts**2)
         / (coefs.b0 + coefs.b1 * oxygen_volts) - 1.0) / ksv) * s_corr * p_corr
     )
     # fmt: on
+    # If an external temperature is provided, use that for the gsw functions instead of thermistor
+    temperature_to_use = external_temperature if external_temperature is not None else temperature
+    if units == "ml/l":
+        return oxygen
+    elif units == "mg/l":
+        return convert_oxygen_to_mg_per_l(oxygen)
+    elif units == "umol/kg":
+        potential_density = potential_density_from_t_s_p(temperature_to_use, salinity, pressure)
+        return convert_oxygen_to_umol_per_kg(oxygen, potential_density)
+    elif units == "umol/l":
+        return convert_oxygen_to_umol_per_l(oxygen)
+    elif units == "saturation_percent":
+        # O2 Saturation always uses GG calc, as it is more accurate than Weiss
+        oxygen_saturation = derive_oxygen_saturation_gg(temperature_to_use, salinity)
+        oxygen_saturation_percent = oxygen * 100 / oxygen_saturation
 
-    return ox_val
+        # handle cases where oxygen saturation is flagged
+        return np.where(
+            oxygen_saturation != const.FLAG_VALUE, oxygen_saturation_percent, const.FLAG_VALUE
+        )
 
 
 def convert_sbe63_thermistor(
@@ -460,7 +567,7 @@ def convert_sbe63_thermistor(
     log_raw = np.log((100000 * instrument_output) / (3.3 - instrument_output))
     temperature = (
         1 / (coefs.ta0 + coefs.ta1 * log_raw + coefs.ta2 * log_raw**2 + coefs.ta3 * log_raw**3)
-        - KELVIN_OFFSET_0C
+        - const.KELVIN_OFFSET_0C
     )
     return temperature
 
@@ -475,15 +582,18 @@ def convert_sbe43_oxygen(
     apply_hysteresis_correction: bool = False,
     window_size: float = 1,
     sample_interval: float = 1,
+    units: Literal[
+        "ml/l", "mg/l", "umol/kg", "umol/l", "dov/dt", "saturation_percent", "raw_voltage"
+    ] = "ml/l",
 ):
-    """Returns the data after converting it to ml/l.
+    """Returns the data after converting it to desired units.
 
-    voltage is expected to be in volts, temperature in deg c, pressure
+    voltage is expected to be in volts, temperature in ITS-90 deg c, pressure
     in dbar, and salinity in practical salinity (PSU). All equation
-    information comes from the June 2013 revision of the SBE43 manual
+    information comes from Application Note 64
 
     :param voltage: SBE43 voltage
-    :param temperature: temperature value converted to deg C
+    :param temperature: temperature value converted to ITS-90 deg C
     :param pressure: Converted pressure value from the attached CTD, in
         dbar
     :param salinity: Converted salinity value from the attached CTD, in
@@ -496,15 +606,18 @@ def convert_sbe43_oxygen(
         applicable, in seconds
     :param sample_interval: sample rate of the data to be used for tau
         correction, if applicable. In seconds.
+    :param units: the units to return the oxygen values in. Options are:
+        ml/l, mg/l, umol/kg, umol/l, dov/dt, saturation_percent, raw_voltage
+        Defaults to ml/l.
 
     :return: converted Oxygen values, in ml/l
     """
     # start with all 0 for the dvdt
     dvdt_values = np.zeros(len(voltage))
-    if apply_tau_correction:
+    if apply_tau_correction or units == "dov/dt":
         # Calculates how many scans to have on either side of our median
         # point, accounting for going out of index bounds
-        scans_per_side = floor(window_size / 2 / sample_interval)
+        scans_per_side = math.floor(window_size / 2 / sample_interval)
         for i in range(scans_per_side, len(voltage) - scans_per_side):
             ox_subset = voltage[i - scans_per_side : i + scans_per_side + 1]
 
@@ -515,6 +628,9 @@ def convert_sbe43_oxygen(
             result = stats.linregress(time_subset, ox_subset)
 
             dvdt_values[i] = result.slope
+
+    if units == "dov/dt":
+        return dvdt_values
 
     correct_ox_voltages = voltage.copy()
     if apply_hysteresis_correction:
@@ -530,6 +646,10 @@ def convert_sbe43_oxygen(
             ox_volts_final = ox_volts_new - coefs.v_offset
             correct_ox_voltages[i] = ox_volts_final
 
+    if units == "raw_voltage":
+        # Return the corrected voltage values if the user wants raw voltage
+        return correct_ox_voltages
+
     oxygen = _convert_sbe43_oxygen(
         correct_ox_voltages,
         temperature,
@@ -538,7 +658,23 @@ def convert_sbe43_oxygen(
         coefs,
         dvdt_values,
     )
-    return oxygen
+    if units == "ml/l":
+        return oxygen
+    elif units == "mg/l":
+        return convert_oxygen_to_mg_per_l(oxygen)
+    elif units == "umol/kg":
+        potential_density = potential_density_from_t_s_p(temperature, salinity, pressure)
+        return convert_oxygen_to_umol_per_kg(oxygen, potential_density)
+    elif units == "umol/l":
+        return convert_oxygen_to_umol_per_l(oxygen)
+    elif units == "saturation_percent":
+        # O2 Saturation always uses GG calc, as it is more accurate than Weiss
+        oxygen_saturation = derive_oxygen_saturation_gg(temperature, salinity)
+        oxygen_saturation_percent = oxygen * 100 / oxygen_saturation
+        # handle cases where oxygen saturation is flagged
+        return np.where(
+            oxygen_saturation != const.FLAG_VALUE, oxygen_saturation_percent, const.FLAG_VALUE
+        )
 
 
 def _convert_sbe43_oxygen(
@@ -553,7 +689,7 @@ def _convert_sbe43_oxygen(
 
     voltage is expected to be in volts, temperature in deg c, pressure
     in dbar, and salinity in practical salinity (PSU). All equation
-    information comes from the June 2013 revision of the SBE43 manual.
+    information comes from Application Note 64.
     Expects that hysteresis correction is already performed on the
     incoming voltage, if desired.
 
@@ -570,7 +706,7 @@ def _convert_sbe43_oxygen(
     :return: converted Oxygen value, in ml/l
     """
 
-    # Oxygen Solubility equation constants, From SBE43 Manual Appendix A
+    # Oxygen Solubility equation constants, From Application Note 64 Appendix A
     a0 = 2.00907
     a1 = 3.22014
     a2 = 4.0501
@@ -583,7 +719,7 @@ def _convert_sbe43_oxygen(
     b3 = -0.00817083
     c0 = -0.000000488682
 
-    ts = np.log((KELVIN_OFFSET_25C - temperature) / (KELVIN_OFFSET_0C + temperature))
+    ts = _compute_scaled_temperature(temperature)
     a_term = a0 + a1 * ts + a2 * ts**2 + a3 * ts**3 + a4 * ts**4 + a5 * ts**5
     b_term = salinity * (b0 + b1 * ts + b2 * ts**2 + b3 * ts**3)
     c_term = c0 * salinity**2
@@ -598,9 +734,79 @@ def _convert_sbe43_oxygen(
         soc_term
         * solubility
         * temp_term
-        * np.exp((coefs.e * pressure) / (temperature + KELVIN_OFFSET_0C))
+        * np.exp((coefs.e * pressure) / (temperature + const.KELVIN_OFFSET_0C))
     )
     return oxygen
+
+
+def convert_oxygen_units(
+    oxygen: np.ndarray,
+    temperature: np.ndarray,
+    pressure: np.ndarray,
+    salinity: np.ndarray,
+    from_units: Literal["ml/l", "mg/l", "umol/kg", "umol/l", "saturation_percent"],
+    to_units: Literal["ml/l", "mg/l", "umol/kg", "umol/l", "saturation_percent"],
+):
+    """Convert oxygen values between supported oxygen units.
+
+    Conversion is always done in two steps:
+    1) convert input values to ml/L
+    2) convert ml/L values to the target units
+
+    :param oxygen: oxygen values in ``from_units``
+    :param temperature: temperature in degrees C (used for saturation and density)
+    :param pressure: pressure in dbar (used for density)
+    :param salinity: salinity in PSU (used for saturation and density)
+    :param from_units: source oxygen units
+    :param to_units: destination oxygen units
+
+    :return: oxygen values in ``to_units``
+    """
+    if from_units == to_units:
+        return oxygen.copy()
+
+    potential_density = None
+
+    # Step 1: normalize to ml/l
+    if from_units == "ml/l":
+        oxygen_ml_per_l = oxygen
+    elif from_units == "mg/l":
+        oxygen_ml_per_l = oxygen / const.OXYGEN_MLPERL_TO_MGPERL
+    elif from_units == "umol/l":
+        oxygen_ml_per_l = oxygen / const.OXYGEN_MLPERL_TO_UMOLPERL
+    elif from_units == "umol/kg":
+        potential_density = potential_density_from_t_s_p(temperature, salinity, pressure)
+        oxygen_ml_per_l = oxygen * (potential_density + 1000) / const.OXYGEN_MLPERL_TO_UMOLPERKG
+    elif from_units == "saturation_percent":
+        oxygen_saturation = derive_oxygen_saturation_gg(temperature, salinity)
+        oxygen_ml_per_l = oxygen_saturation * oxygen / 100.0
+    else:
+        raise ValueError(f"Unsupported from_units: {from_units}")
+
+    # Step 2: convert from ml/l to target units
+    if to_units == "ml/l":
+        converted = oxygen_ml_per_l
+    elif to_units == "mg/l":
+        converted = convert_oxygen_to_mg_per_l(oxygen_ml_per_l)
+    elif to_units == "umol/l":
+        converted = convert_oxygen_to_umol_per_l(oxygen_ml_per_l)
+    elif to_units == "umol/kg":
+        if potential_density is None:
+            potential_density = potential_density_from_t_s_p(temperature, salinity, pressure)
+        converted = convert_oxygen_to_umol_per_kg(oxygen_ml_per_l, potential_density)
+    elif to_units == "saturation_percent":
+        oxygen_saturation = derive_oxygen_saturation_gg(temperature, salinity)
+        oxygen_saturation_percent = oxygen_ml_per_l * 100 / oxygen_saturation
+        converted = np.where(
+            oxygen_saturation != const.FLAG_VALUE,
+            oxygen_saturation_percent,
+            const.FLAG_VALUE,
+        )
+    else:
+        raise ValueError(f"Unsupported to_units: {to_units}")
+
+    # Preserve explicit input bad flags where present.
+    return np.where(oxygen == const.FLAG_VALUE, const.FLAG_VALUE, converted)
 
 
 def convert_oxygen_to_mg_per_l(ox_values: np.ndarray):
@@ -613,11 +819,11 @@ def convert_oxygen_to_mg_per_l(ox_values: np.ndarray):
     :return: oxygen values converted to milligrams/Liter
     """
 
-    return ox_values * OXYGEN_MLPERL_TO_MGPERL
+    return ox_values * const.OXYGEN_MLPERL_TO_MGPERL
 
 
 def convert_oxygen_to_umol_per_kg(ox_values: np.ndarray, potential_density: np.ndarray):
-    """Converts given oxygen values to milligrams/kg.
+    """Converts given oxygen values to micromoles/kg.
 
     Note: Sigma-Theta is expected to be calculated via gsw_sigma0,
     meaning is it technically potential density anomaly. Calculating
@@ -631,10 +837,21 @@ def convert_oxygen_to_umol_per_kg(ox_values: np.ndarray, potential_density: np.n
     :param potential_density: potential density (sigma-theta) values.
         Expected to be the same length as ox_values
 
-    :return: oxygen values converted to milligrams/Liter
+    :return: oxygen values converted to micromoles/kg
     """
 
-    oxygen_umolkg = (ox_values * OXYGEN_MLPERL_TO_UMOLPERKG) / (potential_density + 1000)
+    oxygen_umolkg = (ox_values * const.OXYGEN_MLPERL_TO_UMOLPERKG) / (potential_density + 1000)
+    return oxygen_umolkg
+
+
+def convert_oxygen_to_umol_per_l(ox_values: np.ndarray):
+    """Converts given oxygen values to micromoles/l.
+    :param ox_values: oxygen values, already converted to ml/L
+
+    :return: oxygen values converted to micromoles/ml
+    """
+
+    oxygen_umolkg = ox_values * const.OXYGEN_MLPERL_TO_UMOLPERL
     return oxygen_umolkg
 
 
@@ -671,7 +888,7 @@ def convert_sbe18_ph(
     :return: converted pH
     """
     ph = 7 + (raw_ph - coefs.offset) / (
-        1.98416e-4 * (temperature + KELVIN_OFFSET_0C) * coefs.slope
+        1.98416e-4 * (temperature + const.KELVIN_OFFSET_0C) * coefs.slope
     )
     return ph
 
@@ -778,7 +995,7 @@ def convert_nitrate(
     nitrate = a1 * volts + a0
 
     if units == "mgNL":
-        nitrate *= UMNO3_TO_MGNL
+        nitrate *= const.UMNO3_TO_MGNL
 
     return nitrate
 
@@ -802,16 +1019,15 @@ def _calculate_nernst(temperature: np.ndarray) -> np.ndarray:
     :param temperature: temperature in kelvin
     :return: the nernst term (J/Coulomb; electrical potential; volts)
     """
-    nernst_term = R * temperature * np.log(10) / F
+    nernst_term = const.R * temperature * np.log(10) / const.F
     return nernst_term
 
 
 def convert_internal_seafet_ph(
-    raw_ph: np.ndarray = 0,
-    temperature: np.ndarray = 0,
-    coefs: cc.PHSeaFETInternalCoefficients = cc.PHSeaFETInternalCoefficients(),
+    raw_ph: np.ndarray,
+    temperature: np.ndarray,
+    coefs: cc.PHSeaFETInternalCoefficients,
     ph_units: Literal["counts", "volts"] = "counts",
-    ph_counts: np.ndarray = None,
 ):
     """Calculates the internal pH on the total scale given the
     temperature and internal FET voltage
@@ -820,19 +1036,15 @@ def convert_internal_seafet_ph(
     :param temperature: Sample temperature
     :param coefs: SeaFET calibration coefficients
     :param ph_units: The units of raw_ph, defaults to 'counts'
-    :param ph_counts: Deprecated. pH voltage counts
     :return: calculated pH on the total scale for the SeaFET internal
         reference
     """
-    if ph_counts is not None:
-        warnings.warn("Deprecated, use raw_ph", DeprecationWarning)
-        ph_volts = convert_ph_voltage_counts(ph_counts)
-    elif ph_units == "counts":
+    if ph_units == "counts":
         ph_volts = convert_ph_voltage_counts(raw_ph)
     else:  # ph_counts == 'volts'
         ph_volts = raw_ph
 
-    nernst = _calculate_nernst(temperature + KELVIN_OFFSET_0C)
+    nernst = _calculate_nernst(temperature + const.KELVIN_OFFSET_0C)
     ph = (ph_volts - coefs.kdf0 - coefs.kdf2 * temperature) / nernst
     return ph
 
@@ -940,8 +1152,8 @@ def _log_of_hcl_activity_coefficient_of_tp(
     """
     log_y_hcl = _log_of_hcl_activity_coefficient_of_t(salinity, temperature)
     v_hcl = _partial_molal_hcl_volume(temperature)
-    t_kelvin = temperature + KELVIN_OFFSET_0C
-    term_2 = (v_hcl * pressure) / (np.log(10) * R * t_kelvin * 10) / 2
+    t_kelvin = temperature + const.KELVIN_OFFSET_0C
+    term_2 = (v_hcl * pressure) / (np.log(10) * const.R * t_kelvin * 10) / 2
     log_y_hcl_tp = log_y_hcl + term_2
     return log_y_hcl_tp
 
@@ -949,9 +1161,9 @@ def _log_of_hcl_activity_coefficient_of_tp(
 def _acid_dissociation_constant_of_hso4(salinity: np.ndarray, temperature: np.ndarray):
     """From SBS application note 99. Calculated as (Dickson et al. 2007)
 
-    :param salinity: Salinty in PSU
+    :param salinity: Salinity in PSU
     :param temperature: Temperature in Kelvin
-    :return: _description_
+    :return: Acid dissociation constant of HSO4
     """
     i = _sample_ionic_strength(salinity)
     term_1 = -4276.1 / temperature + 141.328 - 23.093 * np.log(temperature)
@@ -975,11 +1187,11 @@ def _acid_dissociation_constant_of_hso4_tp(
     :param pressure: Pressure in bar
     :return: Acid dissociation constant of HSO4
     """
-    t_kelvin = temperature + KELVIN_OFFSET_0C
+    t_kelvin = temperature + const.KELVIN_OFFSET_0C
     k_s = _acid_dissociation_constant_of_hso4(salinity, t_kelvin)
     v_bar_s = _partial_molal_hso4_volume(temperature)
     k_bar_s = _hso4_compressibility(temperature)
-    exponent = (-v_bar_s * pressure + 0.5 * k_bar_s * pressure**2) / (R * t_kelvin * 10)
+    exponent = (-v_bar_s * pressure + 0.5 * k_bar_s * pressure**2) / (const.R * t_kelvin * 10)
     k_stp = k_s * np.exp(exponent)
     return k_stp
 
@@ -1033,14 +1245,13 @@ def _hso4_compressibility(temperature: np.ndarray):
 
 
 def convert_external_seafet_ph(
-    raw_ph: np.ndarray = 0,
-    temperature: np.ndarray = 0,
-    salinity: np.ndarray = 0,
-    pressure: np.ndarray = 0,
-    coefs: cc.PHSeaFETExternalCoefficients = cc.PHSeaFETExternalCoefficients(),
+    raw_ph: np.ndarray,
+    temperature: np.ndarray,
+    salinity: np.ndarray,
+    pressure: np.ndarray,
+    coefs: cc.PHSeaFETExternalCoefficients,
     ph_units: Literal["counts", "volts"] = "counts",
     formula_version: Literal["legacy", "1.3"] = "1.3",
-    ph_counts: np.ndarray = None,
 ):
     """External pH for the SeaFET, SeapHOx, and Float. From SBS
     Application Note 99 and "Processing BGC-Argo pH data at the DAC
@@ -1061,15 +1272,12 @@ def convert_external_seafet_ph(
         the description
     :return: Total external pH
     """
-    if ph_counts is not None:
-        warnings.warn("Deprecated, use raw_ph", DeprecationWarning)
-        ph_volts = convert_ph_voltage_counts(ph_counts)
-    elif ph_units == "counts":
+    if ph_units == "counts":
         ph_volts = convert_ph_voltage_counts(raw_ph)
     else:  # ph_counts == 'volts'
         ph_volts = raw_ph
 
-    t_kelvin = temperature + KELVIN_OFFSET_0C
+    t_kelvin = temperature + const.KELVIN_OFFSET_0C
     p_bar = pressure / 10
     f_p = _pressure_response(pressure, coefs)
     nernst = _calculate_nernst(t_kelvin)
@@ -1112,7 +1320,7 @@ def convert_seafet_temperature(raw_temp, coefs: cc.TemperatureSeaFETCoefficients
         ((coefs.tdfa3 * temp_log + coefs.tdfa2) * temp_log + coefs.tdfa1) * temp_log + coefs.tdfa0
     )
 
-    temp_c = temp - KELVIN_OFFSET_0C
+    temp_c = temp - const.KELVIN_OFFSET_0C
 
     return temp_c
 
@@ -1162,6 +1370,7 @@ def convert_seafet_relative_humidity(humidity_counts: np.ndarray, temperature: n
 def convert_altimeter(
     volts: np.ndarray,
     coefs: cc.AltimeterCoefficients,
+    units: Literal["m", "ft"] = "m",
 ):
     """Converts a raw voltage value for altimeter.
 
@@ -1169,14 +1378,406 @@ def convert_altimeter(
 
     :param volts: raw output voltage from altimeter sensor
     :param coefs: slope and offset for the altimeter sensors
+    :param units: units of output
 
-    :return: converted height in meters
+    :return: converted height in selected units
     """
     ALTIMETER_SCALAR = 300
 
     height = ALTIMETER_SCALAR * volts / coefs.slope - coefs.offset
 
+    if units == "ft":
+        height *= const.METERS_TO_FEET
+
     return height
+
+
+def buoyancy_frequency(
+    temperature: np.ndarray,
+    salinity: np.ndarray,
+    pressure: np.ndarray,
+    gravity: float,
+):
+    """Calculates an N^2 value (buoyancy frequency) for the given window
+    of temperature, salinity, and pressure, at the given latitude.
+
+    Expect temperature as conservative temperature, salinity as abslute
+    salinity, and pressure as dbar, all of the same length. Performs the
+    calculation using TEOS-10 and specific volume.
+
+    :param temperature: temperature values for the given window
+    :param salinity: salinity values for the given window
+    :param pressure: pressure values for the given window
+    :param gravity: gravity value
+
+    :return: A single N^2 [Brunt-Väisälä (buoyancy) frequency]
+    """
+
+    db_to_pa = 1e4
+    # Wrap these as a length-1 array so that GSW accepts them
+    mean_pressure = [np.mean(pressure)]
+    mean_temperature = [np.mean(temperature)]
+    mean_salinity = [np.mean(salinity)]
+
+    # Compute average specific volume, temp expansion ceoff,
+    # and saline contraction coeff over window
+    (specific_volume, alpha, beta) = gsw.specvol_alpha_beta(
+        mean_salinity, mean_temperature, mean_pressure
+    )
+
+    # Estimate vertical gradient of conservative temp
+    dct_dp = stats.linregress(pressure, temperature)
+    # TODO: error handling with r, p, std_error
+
+    # Estimate vertical gradient of absolute salinity
+    dsa_dp = stats.linregress(pressure, salinity)
+    # TODO: error handling with r, p, std_error
+
+    # Compute N2 combining computed ceofficients and vertical gradients.
+    # we index into specific_volume, alpha, and beta as they are all arrays of len 1
+    n2 = gravity**2 / (specific_volume[0] * db_to_pa)
+    n2 *= beta[0] * dsa_dp.slope - alpha[0] * dct_dp.slope
+    return n2
+
+
+def buoyancy(
+    temperature: np.ndarray,
+    salinity: np.ndarray,
+    pressure: np.ndarray,
+    latitude: np.ndarray,
+    longitude: np.ndarray,
+    window_size: float,
+    use_modern_formula=True,
+    flag_value=const.FLAG_VALUE,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """Calculates the 4 buoyancy values based off the incoming data.
+
+    Data is expected to have already been binned via Bin_Average using
+    decibar pressure bins. All arrays are expected to be the same
+    length, except for latitude and longitude, which can be length 1.
+    Uses TEOS-10 calculations.
+
+    :param temperature_c: Temperature in ITS-90 degrees C
+    :param salinity_prac: Practical salinity in PSU
+    :param pressure_dbar: Pressure in dbar
+    :param latitude: latitude values. If length 1, gets applied to all
+        values.
+    :param longitude: longitude values. If length 1, gets applied to all
+        values.
+    :param window_size: window size to use. If this number is smaller
+        than the binned window size, round up to a minium of 3 scans.
+        I.E. uses the center scan and one scan on each side of it at the
+        very least
+    :param use_modern_formula: Depricated. Use buoyancy_eos80 for old calculation.
+    :param flag_value: Bad Flag value to use for marking bad scans.
+        Defaults to -9.99e-29
+
+    :return: a tuple of ndarrays including: buoyancy frequency squared,
+        buoyancy frequency, stability, and scaled stability
+    """
+
+    _salinity, _temperature, _pressure, _latitude, _longitude = np.broadcast_arrays(
+        salinity, temperature, pressure, latitude, longitude
+    )
+
+    # create our result np.ndarrays with the flag value as default
+    buoyancy_freq_squared = np.full(len(_temperature), flag_value)
+    buoyancy_freq = np.full(len(_temperature), flag_value)
+    stability = np.full(len(_temperature), flag_value)
+    scaled_stability = np.full(len(_temperature), flag_value)
+
+    if not use_modern_formula:
+        warnings.warn(
+            "buoyancy(use_modern_formula=False) is deprecated; use buoyancy_eos80 "
+            "for the EOS-80 calculation.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return (buoyancy_freq_squared, buoyancy_freq, stability, scaled_stability)
+
+    # Get the original bin size that we're working with, using the
+    # second and third bin so we don't have to worry about the surface
+    # bin
+    original_bin_size = abs(_pressure[2] - _pressure[1])
+
+    # Calculates how many scans to have on either side of our median
+    # point, but need at least 1 (for a total of 3 scans)
+    scans_per_side = max(math.floor(window_size / original_bin_size / 2), 1)
+
+    salinity_abs = gsw.SA_from_SP(_salinity, _pressure, _longitude, _latitude)
+    temperature_conservative = gsw.CT_from_t(salinity_abs, _temperature, _pressure)
+
+    # start loop at scans_per_side
+    for i in range(scans_per_side, len(temperature_conservative) - scans_per_side):
+        min_index = i - scans_per_side
+        max_index = (
+            i + scans_per_side + 1
+        )  # add + 1 because slicing does not include the max_index
+
+        pressure_subset = _pressure[min_index:max_index]
+        temperature_cons_subset = temperature_conservative[min_index:max_index]
+        salinity_subset = salinity_abs[min_index:max_index]
+
+        mean_pressure = [np.mean(pressure_subset)]
+        gravity = gsw.grav([_latitude[i]], mean_pressure)[0]
+
+        n2 = buoyancy_frequency(temperature_cons_subset, salinity_subset, pressure_subset, gravity)
+
+        buoyancy_freq_squared[i] = n2
+        if n2 >= 0:
+            buoyancy_freq[i] = math.sqrt(n2) * 3600 / (2 * np.pi)
+        else:
+            # using the negative square root of the absolute buoyancy squared to match seasoft
+            buoyancy_freq[i] = -math.sqrt(abs(n2)) * 3600 / (2 * np.pi)
+        stability[i] = n2 / gravity
+        scaled_stability[i] = stability[i] * 1e8
+
+    return (buoyancy_freq_squared, buoyancy_freq, stability, scaled_stability)
+
+
+def _compute_scaled_temperature(temperature: np.ndarray) -> np.ndarray:
+    return np.log((const.KELVIN_OFFSET_25C - temperature) / (const.KELVIN_OFFSET_0C + temperature))
+
+
+def _compute_ln_salinity_correction(temperature: np.ndarray, salinity: np.ndarray) -> np.ndarray:
+    """Compute natural logarithm of the salinity correction for Garcia and Gordon
+    Oxygen Solubility. Also applicable to SBE 63 Oxygen
+
+    :param temperature: Temperature in degrees Celsius
+    :param salinity: Salinity in PSU
+
+    :return: Natural logarithm of the salinity correction"""
+    sol_b0 = -6.24523e-3
+    sol_b1 = -7.37614e-3
+    sol_b2 = -1.0341e-2
+    sol_b3 = -8.17083e-3
+    sol_c0 = -4.88682e-7
+
+    ts = _compute_scaled_temperature(temperature)
+    s_corr = (
+        salinity * (sol_b0 + sol_b1 * ts + sol_b2 * ts**2 + sol_b3 * ts**3) + sol_c0 * salinity**2
+    )
+    return s_corr
+
+
+def _compute_rolling_average(
+    compute_var: np.ndarray,
+    window_size: float,
+    sample_interval: float,
+    modification_fn: Callable | None = None,
+) -> np.ndarray:
+    """Computes a rolling average of the given variable over the specified window size.
+
+    Uses a trailing (causal) window: each point is the average of itself and
+    the preceding num_samples - 1 points
+
+    :param compute_var: The variable to compute the rolling average for.
+    :param window_size: The size of the rolling window (in seconds).
+    :param sample_interval: The time interval between samples (in seconds).
+    :param modification_fn: Optional function to modify the computed rolling average.
+
+    :return: An array containing the rolling average values.
+    """
+    if window_size <= 0:
+        raise ValueError("Window size must be a positive integer.")
+
+    # Calculate the number of samples in the rolling window
+    num_samples = int(window_size / sample_interval)
+
+    # determine padding needed before
+    pad_before = num_samples - 1
+    pad_after = 0
+
+    # Pad the array using the edge values
+    # This prevents the ends from dropping off or pulling toward zero
+    padded_data = np.pad(compute_var, (pad_before, pad_after), mode="edge")
+
+    # Compute the rolling average using numpy's convolve function
+    weights = np.ones(num_samples) / num_samples
+    rolling_avg = np.convolve(padded_data, weights, mode="valid")
+
+    # Apply the modification function if provided
+    if modification_fn is not None:
+        rolling_avg = modification_fn(rolling_avg)
+
+    return rolling_avg
+
+
+def derive_descent_rate(
+    depth: np.ndarray,
+    window_size: float,
+    sample_interval: float,
+) -> np.ndarray:
+    """Derives the descent rate from the depth values.
+
+    :param depth: Depth values in meters or feet.
+    :param window_size: Window size to use for the derivative calculation in seconds
+    :param sample_interval: Sample interval in seconds
+
+    :return: np.ndarray of descent rate values in meters per second or feet per second, depending on the input depth units.
+    """
+    # TODO: slightly different calculation from sbe data processing, but this is was more simple
+
+    # Calculate the number of samples to include in the window based on the sample interval
+    samples_per_window = max(int(window_size / sample_interval + 1), 1)
+    samples_per_side = max(int(samples_per_window // 2), 1)
+    time_array = np.arange(len(depth)) * sample_interval
+
+    # Calculate the descent rate using a centered difference method
+    descent_rate = np.full(len(depth), 0.0)  # Initialize with 0 for edge cases
+
+    for i in range(samples_per_side, len(depth) - samples_per_side):
+        # linear regression for descent rate on subset of depth and time
+        slope, _, _, _, _ = stats.linregress(
+            time_array[i - samples_per_side : i + samples_per_side + 1],
+            depth[i - samples_per_side : i + samples_per_side + 1],
+        )
+        descent_rate[i] = slope
+
+    return descent_rate
+
+
+def derive_acceleration(
+    depth: np.ndarray,
+    window_size: float,
+    sample_interval: float,
+) -> np.ndarray:
+    """Derives the acceleration from the depth values.
+
+    :param depth: Depth values in meters or feet.
+    :param window_size: Window size to use for the derivative calculation in seconds
+    :param sample_interval: Sample interval in seconds
+
+    :return: np.ndarray of acceleration values in meters per second squared or feet per second squared, depending on the input depth units.
+    """
+    # Calculate the number of samples to include in the window based on the sample interval
+    descent_rate = derive_descent_rate(depth, window_size, sample_interval)
+
+    # Calculate the acceleration using a centered difference method
+    acceleration = np.full(len(depth), 0.0)  # Initialize with 0 for edge cases
+
+    for i in range(1, len(depth)):
+        # Follow SBE Processing calc: Acc = (DescentRate[i] - DescentRate[i-1]) / SampleInterval
+        acceleration[i] = (descent_rate[i] - descent_rate[i - 1]) / sample_interval
+
+    return acceleration
+
+
+def derive_oxygen_saturation_gg(
+    temperature: np.ndarray,
+    salinity: np.ndarray,
+    flag_value=const.FLAG_VALUE,
+):
+    """Calculates the oxygen saturation in ml/L.
+
+    From Garcia and Gordon L&O 37(6), 1992, 1307 - 1312
+    Provide better fit and better estimation of o2 solubility at end members
+    Note: SBE Data Processing returns -99 for t < -5, t > 50, s < 0, and s > 60
+    This software sets these to flag value instead of -99
+
+    :param temperature: temperature in degrees C
+    :param salinity: salinity in PSU
+
+    :return: oxygen saturation in ml/L
+    """
+    ts = _compute_scaled_temperature(temperature)
+    ts2 = ts**2
+    ts3 = ts**3
+
+    OA0 = 2.00907
+    OA1 = 3.22014
+    OA2 = 4.0501
+    OA3 = 4.94457
+    OA4 = -0.256847
+    OA5 = 3.88767
+
+    ox_sol = OA0 + OA1 * ts + OA2 * ts2 + OA3 * ts3 + OA4 * ts2 * ts2 + OA5 * ts2 * ts3
+
+    ox_sol += _compute_ln_salinity_correction(temperature, salinity)
+    ox_sol = np.exp(ox_sol)
+
+    # clean up values from invalid inputs, as SBE Data Processing does
+    ox_sol = np.where(temperature < -5, flag_value, ox_sol)
+    ox_sol = np.where(temperature > 50, flag_value, ox_sol)
+    ox_sol = np.where(salinity < 0, flag_value, ox_sol)
+    ox_sol = np.where(salinity > 60, flag_value, ox_sol)
+
+    return ox_sol
+
+
+def derive_oxygen_saturation_w(
+    temperature: np.ndarray,
+    salinity: np.ndarray,
+    flag_value=const.FLAG_VALUE,
+):
+    """Calculates the oxygen saturation in ml/L.
+
+    Uses Weiss formula from 1970
+    Note: SBE Data Processing returns -99 for t < 0
+    This software sets these to flag value instead of -99
+
+    :param temperature: temperature in degrees C
+    :param salinity: salinity in PSU
+
+    :return: oxygen saturation in ml/L
+    """
+
+    t0 = temperature + const.KELVIN_OFFSET_0C
+
+    t1 = np.where(t0 > 0, 100.0 / t0, 0)
+    t2 = t0 / 100.0
+
+    A1 = -173.4292
+    A2 = 249.6339
+    A3 = 143.3483
+    A4 = -21.8492
+    B1 = -0.033096
+    B2 = 0.014259
+    B3 = -0.00170
+
+    ox_sol = A1 + A2 * t1 + A3 * np.log(t2) + A4 * t2 + salinity * (B1 + B2 * t2 + B3 * t2 * t2)
+    ox_sol = np.exp(ox_sol)
+
+    # clean up values from invalid inputs, as SBE Data Processing does
+    ox_sol = np.where(temperature < 0, flag_value, ox_sol)
+    return ox_sol
+
+
+def derive_nitrogen_saturation(
+    temperature: np.ndarray,
+    salinity: np.ndarray,
+) -> np.ndarray:
+    """Calculate nitrogen saturation from temperature and salinity.
+
+    This is a vectorized implementation of ``N2_SaturationCalc``.
+
+    :param temperature: temperature in degrees C
+    :param salinity: salinity in PSU
+
+    :return: nitrogen saturation values
+    """
+
+    temperature_arr, salinity_arr = np.broadcast_arrays(temperature, salinity)
+
+    t = temperature_arr.astype(float, copy=False)
+    s = salinity_arr.astype(float, copy=False)
+
+    t0 = t + const.KELVIN_OFFSET_0C
+    t1 = np.divide(100.0, t0, out=np.zeros_like(t0), where=t0 != 0.0)
+    t2 = np.maximum(t0 / 100.0, 1.0e-6)
+
+    a1 = -172.4965
+    a2 = 248.4262
+    a3 = 143.0738
+    a4 = -21.7120
+    b1 = -0.049781
+    b2 = 0.025018
+    b3 = -0.0034861
+
+    n2 = a1 + a2 * t1 + a3 * np.log(t2) + a4 * t2 + s * (b1 + b2 * t2 + b3 * t2 * t2)
+    n2 = np.exp(n2)
+
+    return np.where(t0 < 0.0, 99.0, n2)
 
 
 def convert_cstar_attenuation(raw: np.ndarray, coefs: cc.CstarCoefficients):

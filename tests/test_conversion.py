@@ -1,19 +1,15 @@
 """Data conversion unit tests."""
 
-# Native imports
-
-# Third-party imports
 from pathlib import Path
+
 import numpy as np
 import pandas as pd
 import pytest
 
-# Sea-Bird imports
-
-# Internal imports
+import seabirdscientific.constants as const
 import seabirdscientific.conversion as dc
-import seabirdscientific.instrument_data as id
-
+import seabirdscientific.eos80_conversion as eos80dc
+import seabirdscientific.instrument_data as si
 import test_coefficients as tc
 
 test_data = Path("./tests/resources/test-data")
@@ -193,20 +189,20 @@ class TestConductivity19plus:
     cnv_path = test_data / "19plus_V2_CTD-processing_example.cnv"
     hex_path = test_data / "19plus_V2.hex"
 
-    def test_convert_conductivity(self, request):
-        # expected_data = id.cnv_to_instrument_data(self.cnv_path)
+    def test_convert_conductivity(self):
+        # expected_data = si.read_cnv_file(self.cnv_path)
 
-        raw = id.read_hex_file(
+        raw = si.read_hex_file(
             self.hex_path,
-            id.InstrumentType.SBE19Plus,
+            si.InstrumentType.SBE19Plus,
             [
-                id.Sensors.Temperature,
-                id.Sensors.Conductivity,
-                id.Sensors.Pressure,
-                id.Sensors.ExtVolt0,
-                id.Sensors.ExtVolt1,
-                id.Sensors.ExtVolt2,
-                id.Sensors.ExtVolt4,
+                si.Sensors.Temperature,
+                si.Sensors.Conductivity,
+                si.Sensors.Pressure,
+                si.Sensors.ExtVolt0,
+                si.Sensors.ExtVolt1,
+                si.Sensors.ExtVolt2,
+                si.Sensors.ExtVolt4,
             ],
         )
 
@@ -234,8 +230,9 @@ class TestConductivity19plus:
             temperature,
             pressure,
             tc.conductivity_coefs_sn6130,
+            si.InstrumentType.SBE19Plus,
         )
-        request.node.return_value = result.tolist()
+
         assert np.allclose(expected, result, rtol=0, atol=1e-6)
 
 
@@ -243,48 +240,51 @@ class TestConductivity37SM:
     cnv_path = test_data / "SBE37SM-RS232_03716125_2017_11_16.cnv"
     hex_path = test_data / "SBE37SM-RS232_03716125_2017_11_16.hex"
 
-    def test_convert_conductivity(self, request):
-        # expected_data = id.cnv_to_instrument_data(self.cnv_path)
+    def test_convert_conductivity(self):
+        # expected_data = si.read_cnv_file(self.cnv_path)
 
-        raw = id.read_hex_file(
+        raw = si.read_hex_file(
             self.hex_path,
-            id.InstrumentType.SBE37SM,
+            si.InstrumentType.SBE37SM,
             [
-                id.Sensors.Temperature,
-                id.Sensors.Conductivity,
-                id.Sensors.Pressure,
+                si.Sensors.Temperature,
+                si.Sensors.Conductivity,
+                si.Sensors.Pressure,
             ],
         )
 
         temperature = dc.convert_temperature(
-            raw["temperature"][0:6],
+            raw["temperature"][0:6].values,
             tc.temperature_coefs_sn6130,
             "IPTS68",
             "C",
             True,
         )
 
-        # test_press_data = np.array([-0.105, -0.106, -0.104, -0.107, -0.105, -0.104])
         pressure = dc.convert_pressure(
-            raw["pressure"][0:6],
-            raw["temperature compensation"][0:6],
+            raw["pressure"][0:6].values,
+            raw["temperature compensation"][0:6].values,
             tc.pressure_coefs_sn16125,
             "psia",
         )
         expected = [2.711842, 2.715786, 2.715857, 2.715846, 2.715846, 2.715857]
         result = dc.convert_conductivity(
-            raw["conductivity"][0:6],
+            raw["conductivity"][0:6].values,
             temperature,
             pressure,
             tc.conductivity_coefs_sn16125,
+            si.InstrumentType.SBE37SM,
         )
-        request.node.return_value = result.tolist()
+
         assert np.allclose(expected, result, rtol=0, atol=1e-4)
 
 
 class TestDeriveDensity:
     data_path = test_data / "SBE37SM-derived.asc"
-    data = pd.read_csv(data_path)
+
+    @pytest.fixture
+    def data(self):
+        return pd.read_csv(self.data_path)
 
     @pytest.mark.parametrize(
         "reference_pressure, expected_column",
@@ -297,12 +297,12 @@ class TestDeriveDensity:
         ],
     )
     def test_derive_potential_density_from_t_s_p_pass(
-        self, request, reference_pressure, expected_column
+        self, data, request, reference_pressure, expected_column
     ):
-        temperature = self.data["t090C"].values
-        salinity = self.data["sal00"].values
-        pressure = self.data["prM"].values
-        expected = self.data[expected_column].values
+        temperature = data["t090C"].values
+        salinity = data["sal00"].values
+        pressure = data["prM"].values
+        expected = data[expected_column].values
         result = dc.potential_density_from_t_s_p(
             temperature,
             salinity,
@@ -313,11 +313,11 @@ class TestDeriveDensity:
         # TODO: improve passing condition for all instances of allclose
         assert np.allclose(result, expected, atol=0.1)
 
-    def test_derive_density_from_t_s_p_pass(self, request):
-        temperature = self.data["t090C"].values
-        salinity = self.data["sal00"].values
-        pressure = self.data["prM"].values
-        expected = self.data["gsw_densityA0"].values
+    def test_derive_density_from_t_s_p_pass(self, data, request):
+        temperature = data["t090C"].values
+        salinity = data["sal00"].values
+        pressure = data["prM"].values
+        expected = data["gsw_densityA0"].values
         result = dc.density_from_t_s_p(temperature, salinity, pressure)
 
         request.node.return_value = result.tolist()
@@ -334,12 +334,12 @@ class TestDeriveDensity:
         ],
     )
     def test_derive_potential_density_from_t_c_p_pass(
-        self, request, reference_pressure, expected_column
+        self, data, request, reference_pressure, expected_column
     ):
-        temperature = self.data["t090C"].values
-        conductivity = self.data["c0S/m"].values * 10.0
-        pressure = self.data["prM"].values
-        expected = self.data[expected_column].values
+        temperature = data["t090C"].values
+        conductivity = data["c0S/m"].values * 10.0
+        pressure = data["prM"].values
+        expected = data[expected_column].values
         result = dc.potential_density_from_t_c_p(
             temperature,
             conductivity,
@@ -349,11 +349,11 @@ class TestDeriveDensity:
         request.node.return_value = result.tolist()
         assert np.allclose(result, expected, atol=0.1)
 
-    def test_derive_density_from_t_c_p_pass(self, request):
-        temperature = self.data["t090C"].values
-        conductivity = self.data["c0S/m"].values * 10.0
-        pressure = self.data["prM"].values
-        expected = self.data["gsw_densityA0"].values
+    def test_derive_density_from_t_c_p_pass(self, data, request):
+        temperature = data["t090C"].values
+        conductivity = data["c0S/m"].values * 10.0
+        pressure = data["prM"].values
+        expected = data["gsw_densityA0"].values
         result = dc.density_from_t_c_p(temperature, conductivity, pressure)
 
         request.node.return_value = result.tolist()
@@ -362,7 +362,10 @@ class TestDeriveDensity:
 
 class TestDepthFromPressure:
     data_path = test_data / "SBE37SM.asc"
-    data = pd.read_csv(data_path).loc[6:10]
+
+    @pytest.fixture
+    def data(self):
+        return pd.read_csv(self.data_path).loc[6:10]
 
     @pytest.mark.parametrize(
         "pressure, pressure_units, depth, depth_units",
@@ -373,50 +376,64 @@ class TestDepthFromPressure:
             ("prdE", "psi", "depSF", "ft"),
         ],
     )
-    def test_depth_from_pressure_pass(self, request, pressure, pressure_units, depth, depth_units):
-        expected_depth = self.data[depth].values
-        pressure = self.data[pressure].values
+    def test_depth_from_pressure_pass(
+        self, data, request, pressure, pressure_units, depth, depth_units
+    ):
+        expected_depth = data[depth].values
+        pressure = data[pressure].values
         result_depth = dc.depth_from_pressure(pressure, 0, depth_units, pressure_units)
         request.node.return_value = result_depth.tolist()
         assert np.allclose(expected_depth, result_depth, atol=0.002)
 
 
-class TestConvertOxygen:
-    def test_convert_sbe63_oxygen(self, request):
-        raw_oxygen = np.array([31.06, 31.66, 32.59, 33.92, 34.82, 35.44])
-        pressure = np.array([0, 0, 0, 0, 0, 0])
-        raw_temperature = np.array([0.6, 0.5, 0.4, 0.35, 0.3, 0.25])
-        salinity = np.array([0, 0, 0, 0, 0, 0])
-        expected = np.array([0.93, 0.688, 0.459, 0.304, 0.206, 0.137])
+class TestDeriveSoundVelocity:
+    cnv_path = test_data / "SBE19plus_derive_testing.cnv"
 
-        result = dc.convert_sbe63_oxygen(
-            raw_oxygen,
-            raw_temperature,
-            pressure,
-            salinity,
-            tc.oxygen_63_coefs_sn2568,
-            tc.thermistor_63_coefs_sn2568,
+    @pytest.fixture
+    def source_data(self):
+        return si.read_cnv_file(self.cnv_path, "seasoft")
+
+    def test_derive_sound_velocity_c(self, source_data):
+        temp_ipts68 = dc.convert_temperature_units(
+            source_data["tv290C"].values, "IPTS68", "C", "IPTS68", "C"
         )
-        request.node.return_value = result.tolist()
-        assert np.allclose(expected, result, rtol=0, atol=1e-3)
-
-    def test_convert_sbe63_oxygen_from_hex(self, request):
-        raw_oxygen = np.array([16.774, 16.775, 16.779, 16.778, 16.774, 16.779])
-        pressure = np.array([-0.057, -0.062, -0.057, -0.056, -0.068, -0.056])
-        raw_temperature = np.array([0.581763, 0.581758, 0.581753, 0.581737, 0.581725, 0.581717])
-        salinity = np.array([0.0115, 0.0115, 0.0115, 0.0115, 0.0115, 0.0115])
-        expected = np.array([5.872, 5.872, 5.868, 5.869, 5.872, 5.868])
-
-        result = dc.convert_sbe63_oxygen(
-            raw_oxygen,
-            raw_temperature,
-            pressure,
-            salinity,
-            tc.oxygen_63_coefs_sn11459,
-            tc.thermistor_63_coefs_sn11459,
+        result = eos80dc.derive_sound_velocity(
+            source_data["sal00"].values, temp_ipts68, source_data["prdM"].values, "c"
         )
-        request.node.return_value = result.tolist()
-        assert np.allclose(expected, result, rtol=0, atol=1e-3)
+        expected = source_data["svCM"].values
+
+        assert np.allclose(result, expected, rtol=0, atol=1e-1)
+
+    def test_derive_sound_velocity_d(self, source_data):
+        temp_ipts68 = dc.convert_temperature_units(
+            source_data["tv290C"].values, "IPTS68", "C", "IPTS68", "C"
+        )
+        result = eos80dc.derive_sound_velocity(
+            source_data["sal00"].values, temp_ipts68, source_data["prdM"].values, "d"
+        )
+        expected = source_data["svDM"].values
+
+        assert np.allclose(result, expected, rtol=0, atol=1e-1)
+
+    def test_derive_sound_velocity_w(self, source_data):
+        temp_ipts68 = dc.convert_temperature_units(
+            source_data["tv290C"].values, "IPTS68", "C", "IPTS68", "C"
+        )
+        result = eos80dc.derive_sound_velocity(
+            source_data["sal00"].values, temp_ipts68, source_data["prdM"].values, "w"
+        )
+        expected = source_data["svWM"].values
+
+        assert np.allclose(result, expected, rtol=0, atol=1e-1)
+
+
+class TestConvertSBE43Oxygen:
+    # Some tests need to be run on complete datasets
+    cnv_path = test_data / "SBE19plus_01906398_2019_07_15_0033-seasoft-convert-o2-full.cnv"
+
+    @pytest.fixture
+    def source_data(self):
+        return si.read_cnv_file(self.cnv_path, "seasoft")
 
     def test_convert_sbe43_oxygen(self, request):
         # From O3287.pdf in the shared calibration folder
@@ -559,6 +576,145 @@ class TestConvertOxygen:
         request.node.return_value = result.tolist()
         assert np.allclose(expected, result, rtol=0, atol=1e-2)
 
+    def test_convert_to_umol_per_l(self, request):
+        # fmt: off
+        oxMlPerL = np.array(
+            [4.4728, 4.4722, 4.4762, 4.4828, 4.4867, 4.4879, 4.488, 4.488, 4.3707, 4.3148]
+        )
+        expected = np.array(
+            [199.757, 199.730, 199.906, 200.202, 200.375, 200.430, 200.433, 200.433, 195.194, 192.701]
+        )
+        # fmt: on
+        result = dc.convert_oxygen_to_umol_per_l(oxMlPerL)
+        request.node.return_value = result.tolist()
+        assert np.allclose(expected, result, rtol=0, atol=1e-2)
+
+    def test_convert_to_dov_dt(self, request, source_data):
+        expected = source_data["sbox1dV/dT"].values
+        result = dc.convert_sbe43_oxygen(
+            source_data["sbeox0V"].values,
+            source_data["tv290C"].values,
+            source_data["prdM"].values,
+            source_data["sal00"].values,
+            tc.oxygen_43_coefs_sn1686,
+            False,
+            False,
+            2,
+            0.25,
+            "dov/dt",
+        )
+
+        request.node.return_value = result.tolist()
+        # TODO: Fix this test
+        assert np.allclose(expected, result, rtol=0, atol=1e-5)
+
+    def test_convert_to_pct_saturation(self, request, source_data):
+        expected = source_data["sbeox0PS"].values
+        result = dc.convert_sbe43_oxygen(
+            source_data["sbeox0V"].values,
+            source_data["tv290C"].values,
+            source_data["prdM"].values,
+            source_data["sal00"].values,
+            tc.oxygen_43_coefs_sn1686,
+            False,
+            False,
+            2,
+            0.25,
+            "saturation_percent",
+        )
+        request.node.return_value = result.tolist()
+        assert np.allclose(expected, result, rtol=0, atol=1e-2)
+
+    @pytest.mark.parametrize(
+        "from_units,to_units",
+        [
+            ("ml/l", "ml/l"),
+            ("ml/l", "mg/l"),
+            ("ml/l", "umol/kg"),
+            ("ml/l", "umol/l"),
+            ("ml/l", "saturation_percent"),
+            ("mg/l", "ml/l"),
+            ("mg/l", "mg/l"),
+            ("mg/l", "umol/kg"),
+            ("mg/l", "umol/l"),
+            ("mg/l", "saturation_percent"),
+            ("umol/kg", "ml/l"),
+            ("umol/kg", "mg/l"),
+            ("umol/kg", "umol/kg"),
+            ("umol/kg", "umol/l"),
+            ("umol/kg", "saturation_percent"),
+            ("umol/l", "ml/l"),
+            ("umol/l", "mg/l"),
+            ("umol/l", "umol/kg"),
+            ("umol/l", "umol/l"),
+            ("umol/l", "saturation_percent"),
+            ("saturation_percent", "ml/l"),
+            ("saturation_percent", "mg/l"),
+            ("saturation_percent", "umol/kg"),
+            ("saturation_percent", "umol/l"),
+            ("saturation_percent", "saturation_percent"),
+        ],
+    )
+    def test_convert_oxygen_units_all_combinations(self, source_data, from_units, to_units):
+        temperature = source_data["tv290C"].values
+        pressure = source_data["prdM"].values
+        salinity = source_data["sal00"].values
+
+        oxygen_ml_per_l = source_data["sbeox0ML/L"].values
+        oxygen_mg_per_l = source_data["sbeox0Mg/L"].values
+        oxygen_umol_per_l = source_data["sbeox0Mm/L"].values
+        oxygen_umol_per_kg = source_data["sbox0Mm/Kg"].values
+        oxygen_saturation_percent = source_data["sbeox0PS"].values
+
+        # Convert to oxygen_in units from source data, otherwise we start from rounded data and lose precision in the conversions.
+        oxygen_in = dc.convert_sbe43_oxygen(
+            source_data["sbeox0V"].values,
+            source_data["tv290C"].values,
+            source_data["prdM"].values,
+            source_data["sal00"].values,
+            tc.oxygen_43_coefs_sn1686,
+            False,
+            False,
+            2,
+            0.25,
+            from_units,
+        )
+
+        # Step 2: convert expected ml/l values to the target units.
+        if to_units == "ml/l":
+            expected = oxygen_ml_per_l
+        elif to_units == "mg/l":
+            expected = oxygen_mg_per_l
+        elif to_units == "umol/l":
+            expected = oxygen_umol_per_l
+        elif to_units == "umol/kg":
+            expected = oxygen_umol_per_kg
+        elif to_units == "saturation_percent":
+            expected = oxygen_saturation_percent
+        else:
+            raise ValueError(f"unsupported to_units in test: {to_units}")
+
+        # Function preserves explicit bad flags from input.
+        expected = np.where(oxygen_in == const.FLAG_VALUE, const.FLAG_VALUE, expected)
+
+        result = dc.convert_oxygen_units(
+            oxygen_in,
+            temperature,
+            pressure,
+            salinity,
+            from_units,
+            to_units,
+        )
+
+        atol_by_to_units = {
+            "ml/l": 1e-3,
+            "mg/l": 1e-3,
+            "umol/kg": 1e-2,
+            "umol/l": 1e-2,
+            "saturation_percent": 1e-2,
+        }
+        assert np.allclose(expected, result, rtol=0, atol=atol_by_to_units[to_units])
+
 
 class TestConvertChlorophylla:
     def test_convert_eco(self, request):
@@ -611,9 +767,11 @@ class TestPARlogarithmic:
 # class TestContourFromTSP:
 #     # Note: this class doesn't actually test anything and is only for debug
 #     data_path = test_data / 'SBE37SM-RS232_03711722_2015_11_18_subset_derived.asc'
-#     data = pd.read_csv(data_path)
+#     @pytest.fixture
+#     def data(self):
+#         return pd.read_csv(self.data_path)
 
-#     def test_contour_from_t_s_p_pass(self, request):
+#     def test_contour_from_t_s_p_pass(self, data, request):
 #         temperature = self.data['t090C'].values
 #         salinity = self.data['sal00'].values
 #         pressure = self.data['prM'].values
@@ -655,11 +813,12 @@ class TestSeaFETPH:
 
     def test_convert_external_seafet_ph(self, request):
         external_ph = dc.convert_external_seafet_ph(
-            ph_counts=self.external_ph_counts,
+            raw_ph=self.external_ph_counts,
             temperature=self.ph_temperature,
             salinity=35,
             pressure=0,
             coefs=tc.ph_seafet_external_coefs,
+            ph_units="counts",
         )
         request.node.return_value = external_ph.tolist()
         assert np.allclose(external_ph, self.expected_external_ph, atol=1e-6)
@@ -685,6 +844,7 @@ class TestSeaFETPH:
             raw_ph=-0.965858,
             temperature=15.8735,
             salinity=36.817,
+            pressure=0,
             coefs=tc.external_shallow_ph_coefs,
             ph_units="volts",
         )
@@ -705,11 +865,12 @@ class TestSeaFETPH:
     def test_convert_external_seafet_ph_legacy(self, request):
         # from application note 99
         external_ph = dc.convert_external_seafet_ph(
-            ph_counts=self.ph_voltage_to_counts(-0.885081),
+            raw_ph=self.ph_voltage_to_counts(-0.885081),
             temperature=23.4169,
             salinity=34.812,
             pressure=100,
             coefs=tc.external_ph_coefs,
+            ph_units="counts",
             formula_version="legacy",
         )
         assert np.allclose(external_ph, 7.939415, atol=1e-6)
@@ -798,6 +959,13 @@ class TestConvertSBE63Oxygen:
     salinity = np.array([0, 0, 0, 0, 0, 0, 0, 35])  #  salinity is 0 PSU during calibration
     expected_oxygen = np.array([0.706, 0.74, 0.799, 0.892, 1.005, 1.095, 1.1398, 0.8647])
 
+    # Some tests need to be run on complete datasets
+    cnv_path = test_data / "SBE37SMP-ODO-RS232_03711459_2023_08_11-seasoft-convert-o2-full.cnv"
+
+    @pytest.fixture
+    def source_data(self):
+        return si.read_cnv_file(self.cnv_path, "seasoft")
+
     def test_convert_sbe63_oxygen(self, request):
         oxygen = dc.convert_sbe63_oxygen(
             self.raw_oxygen,
@@ -822,6 +990,186 @@ class TestConvertSBE63Oxygen:
 
         request.node.return_value = thermistor_temperature.tolist()
         assert np.allclose(expected, thermistor_temperature, atol=1e-6)
+
+    def test_convert_sbe63_oxygen_therm_volts(self, request):
+        raw_oxygen = np.array([31.06, 31.66, 32.59, 33.92, 34.82, 35.44])
+        pressure = np.array([0, 0, 0, 0, 0, 0])
+        raw_temperature = np.array([0.6, 0.5, 0.4, 0.35, 0.3, 0.25])
+        salinity = np.array([0, 0, 0, 0, 0, 0])
+        expected = np.array([0.93, 0.688, 0.459, 0.304, 0.206, 0.137])
+
+        result = dc.convert_sbe63_oxygen(
+            raw_oxygen,
+            raw_temperature,
+            pressure,
+            salinity,
+            tc.oxygen_63_coefs_sn2568,
+            tc.thermistor_63_coefs_sn2568,
+        )
+        request.node.return_value = result.tolist()
+        assert np.allclose(expected, result, rtol=0, atol=1e-3)
+
+    def test_convert_sbe63_oxygen_from_hex(self, request):
+        raw_oxygen = np.array([16.774, 16.775, 16.779, 16.778, 16.774, 16.779])
+        pressure = np.array([-0.057, -0.062, -0.057, -0.056, -0.068, -0.056])
+        raw_temperature = np.array([0.581763, 0.581758, 0.581753, 0.581737, 0.581725, 0.581717])
+        salinity = np.array([0.0115, 0.0115, 0.0115, 0.0115, 0.0115, 0.0115])
+        expected = np.array([5.872, 5.872, 5.868, 5.869, 5.872, 5.868])
+
+        result = dc.convert_sbe63_oxygen(
+            raw_oxygen,
+            raw_temperature,
+            pressure,
+            salinity,
+            tc.oxygen_63_coefs_sn11459,
+            tc.thermistor_63_coefs_sn11459,
+        )
+        request.node.return_value = result.tolist()
+        assert np.allclose(expected, result, rtol=0, atol=1e-3)
+
+    def test_convert_sbe63_oxygen_ml_per_l(self, request, source_data):
+        expected = source_data["sbeopoxML/L"].values
+        result = dc.convert_sbe63_oxygen(
+            source_data["sbeoxpd"].values,
+            source_data["sbeoxtv"].values,
+            source_data["prdM"].values,
+            source_data["sal00"].values,
+            tc.oxygen_63_coefs_sn11459,
+            tc.thermistor_63_coefs_sn11459,
+            "volts",
+            "ml/l",
+        )
+        request.node.return_value = result.tolist()
+        assert np.allclose(expected, result, rtol=0, atol=1e-3)
+
+    def test_convert_sbe63_oxygen_mg_per_l(self, request, source_data):
+        expected = source_data["sbeopoxMg/L"].values
+        result = dc.convert_sbe63_oxygen(
+            source_data["sbeoxpd"].values,
+            source_data["sbeoxtv"].values,
+            source_data["prdM"].values,
+            source_data["sal00"].values,
+            tc.oxygen_63_coefs_sn11459,
+            tc.thermistor_63_coefs_sn11459,
+            "volts",
+            "mg/l",
+        )
+        request.node.return_value = result.tolist()
+        assert np.allclose(expected, result, rtol=0, atol=1e-3)
+
+    def test_convert_sbe63_oxygen_saturation_percent(self, request, source_data):
+        expected = source_data["sbeopoxPS"].values
+        result = dc.convert_sbe63_oxygen(
+            source_data["sbeoxpd"].values,
+            source_data["sbeoxtv"].values,
+            source_data["prdM"].values,
+            source_data["sal00"].values,
+            tc.oxygen_63_coefs_sn11459,
+            tc.thermistor_63_coefs_sn11459,
+            "volts",
+            "saturation_percent",
+            source_data["tv290C"].values,
+        )
+        request.node.return_value = result.tolist()
+        assert np.allclose(expected, result, rtol=0, atol=1e-2)
+
+    def test_convert_sbe63_oxygen_umol_per_kg(self, request, source_data):
+        expected = source_data["sbeopoxMm/Kg"].values
+        result = dc.convert_sbe63_oxygen(
+            source_data["sbeoxpd"].values,
+            source_data["sbeoxtv"].values,
+            source_data["prdM"].values,
+            source_data["sal00"].values,
+            tc.oxygen_63_coefs_sn11459,
+            tc.thermistor_63_coefs_sn11459,
+            "volts",
+            "umol/kg",
+            source_data["tv290C"].values,
+        )
+        request.node.return_value = result.tolist()
+        assert np.allclose(expected, result, rtol=0, atol=1e-2)
+
+    def test_convert_sbe63_oxygen_umol_per_l(self, request, source_data):
+        expected = source_data["sbeopoxMm/L"].values
+        result = dc.convert_sbe63_oxygen(
+            source_data["sbeoxpd"].values,
+            source_data["sbeoxtv"].values,
+            source_data["prdM"].values,
+            source_data["sal00"].values,
+            tc.oxygen_63_coefs_sn11459,
+            tc.thermistor_63_coefs_sn11459,
+            "volts",
+            "umol/l",
+        )
+        request.node.return_value = result.tolist()
+        assert np.allclose(expected, result, rtol=0, atol=1e-2)
+
+    def test_convert_sbe63_oxygen_raw_pd(self, request, source_data):
+        expected = source_data["sbeoxpd"].values
+        result = dc.convert_sbe63_oxygen(
+            source_data["sbeoxpd"].values,
+            source_data["sbeoxtv"].values,
+            source_data["prdM"].values,
+            source_data["sal00"].values,
+            tc.oxygen_63_coefs_sn11459,
+            tc.thermistor_63_coefs_sn11459,
+            "volts",
+            "raw_phase_usec",
+        )
+        request.node.return_value = result.tolist()
+        assert np.allclose(expected, result, rtol=0, atol=1e-2)
+
+    def test_convert_sbe63_oxygen_raw_pd_v(self, request, source_data):
+        expected = source_data["sbeoxpdv"].values
+        result = dc.convert_sbe63_oxygen(
+            source_data["sbeoxpd"].values,
+            source_data["sbeoxtv"].values,
+            source_data["prdM"].values,
+            source_data["sal00"].values,
+            tc.oxygen_63_coefs_sn11459,
+            tc.thermistor_63_coefs_sn11459,
+            "volts",
+            "raw_phase_v",
+        )
+        request.node.return_value = result.tolist()
+        assert np.allclose(expected, result, rtol=0, atol=1e-3)
+
+    def test_convert_sbe63_oxygen_ox_temp_c(self, request, source_data):
+        expected = source_data["sbeoxTC"].values
+        result = dc.convert_sbe63_oxygen(
+            source_data["sbeoxpd"].values,
+            source_data["sbeoxtv"].values,
+            source_data["prdM"].values,
+            source_data["sal00"].values,
+            tc.oxygen_63_coefs_sn11459,
+            tc.thermistor_63_coefs_sn11459,
+            "volts",
+            "ox_temperature_c",
+        )
+        request.node.return_value = result.tolist()
+        assert np.allclose(expected, result, rtol=0, atol=1e-3)
+
+    def test_convert_sbe63_oxygen_ox_temp_f(self, request, source_data):
+        expected = source_data["sbeoxTF"].values
+        result = dc.convert_sbe63_oxygen(
+            source_data["sbeoxpd"].values,
+            source_data["sbeoxtv"].values,
+            source_data["prdM"].values,
+            source_data["sal00"].values,
+            tc.oxygen_63_coefs_sn11459,
+            tc.thermistor_63_coefs_sn11459,
+            "volts",
+            "ox_temperature_f",
+        )
+        request.node.return_value = result.tolist()
+        assert np.allclose(expected, result, rtol=0, atol=1e-3)
+
+    def test_oxygen_saturation_percent_gg(self, request, source_data):
+        result = dc.derive_oxygen_saturation_gg(
+            source_data["tv290C"].values, source_data["sal00"].values
+        )
+        request.node.return_value = result.tolist()
+        assert np.allclose(result, source_data["oxsolML/L"].values, rtol=0, atol=1e-4)
 
 
 class TestSPAR:
@@ -850,6 +1198,142 @@ class TestAltimeter:
         assert np.allclose(expected, height, atol=1e-2)
 
 
+class TestBuoyancy:
+    # fmt: off
+    # Testing data comes from a CalCOFI cruise
+    # SBE911plus\Fathom-Testing\RL2301001seasoft-convert-bin-5-buoy2.cnv
+    temperature = np.asarray([13.4288, 10.3983, 9.2891, 8.3246, 7.6800, 7.1504, 6.7090, 6.1575, 5.8453, 5.6158])
+    # bin_average will return floats so make sure we're replicating that here
+    pressure = np.asarray([50.0, 100.0, 150.0, 200.0, 250.0, 300.0, 350.0, 400.0, 450.0, 500.0])
+    salinity = np.array([33.1678, 33.6430, 33.9238, 33.9917, 34.0375, 34.0499, 34.0697, 34.1113, 34.1726, 34.2101])
+
+    expected_buoyancy_freq_squared = np.asarray([-9.990e-29, 1.3072e-04, 5.9338e-05, 3.3027e-05, 2.1500e-05, 1.6153e-05, 1.8199e-05, 1.9350e-05, 1.4610e-05, -9.990e-29])
+    expected_buoyancy_freq = np.asarray([-9.990e-29, 6.55, 4.41, 3.29, 2.66, 2.30, 2.44, 2.52, 2.19, -9.990e-29])
+    expected_stability = np.asarray([-9.990e-29, 1.3343e-05, 6.0570e-06, 3.3713e-06, 2.1946e-06, 1.6489e-06, 1.8577e-06, 1.9752e-06, 1.4913e-06, -9.990e-29])
+    expected_scaled_stability = np.asarray([-9.990e-29, 1334.3, 605.7, 337.1, 219.5, 164.9, 185.8, 197.5, 149.1, -9.990e-29])
+    # fmt: on
+
+    def test_buoyancy(self):
+        (buoyancy_freq_squared, buoyancy_freq, stability, scaled_stability) = dc.buoyancy(
+            self.temperature,
+            self.salinity,
+            self.pressure,
+            np.asarray([34.034167]),  # converted from metadata 34.02.03 N in H,M,S
+            np.asarray([121.060556]),  # converted from metadata 121 03.38 W in H, M, S
+            150,  # window size
+            True,
+        )
+
+        # Comparing EOS-80 to TEOS-10 buoyancy calculations.
+        # We do not expect them to agree better than +/-1.5% due to differences in the algorithms
+        rel_tol = 0.02  # 2%
+        assert buoyancy_freq_squared == pytest.approx(
+            self.expected_buoyancy_freq_squared, rel=rel_tol
+        )
+        assert buoyancy_freq == pytest.approx(self.expected_buoyancy_freq, rel=rel_tol)
+        assert stability == pytest.approx(self.expected_stability, rel=rel_tol)
+        assert scaled_stability == pytest.approx(self.expected_scaled_stability, rel=rel_tol)
+
+        # fmt: off
+        # adding exact result comparisons to detect changes that still pass the tolerance tests
+        expected_buoyancy_freq_squared = np.array([-9.99e-29, 0.00012830774423210731, 5.9061904158766353e-05, 3.285253714504237e-05, 2.1427260827130063e-05, 1.610786846795634e-05, 1.8197855102567525e-05, 1.928895593187585e-05, 1.4586979090250307e-05, -9.99e-29])
+        expected_buoyancy_freq = np.array([-9.99e-29, 6.490065311850448, 4.403280527245377, 3.28402980427617, 2.6521981054713932, 2.2995437132561976, 2.4441774544272, 2.5163844503226995, 2.188292201351598, -9.99e-29])
+        expected_scaled_stability = np.array([-9.99e-29, 1309.6979919526298, 602.8661047814034, 335.33390726433163, 218.7108575931272, 164.41328104617097, 185.74372883265428, 196.8782837049103, 148.88453614380862, -9.99e-29])
+        expected_stability = np.array([-9.99e-29, 1.3096979919526299e-05, 6.028661047814034e-06, 3.353339072643316e-06, 2.187108575931272e-06, 1.6441328104617097e-06, 1.8574372883265428e-06, 1.968782837049103e-06, 1.4888453614380862e-06, -9.99e-29])
+        # fmt: on
+        assert np.allclose(
+            buoyancy_freq_squared, expected_buoyancy_freq_squared, rtol=0, atol=1e-12
+        )
+        assert np.allclose(buoyancy_freq, expected_buoyancy_freq, rtol=0, atol=1e-12)
+        assert np.allclose(stability, expected_stability, rtol=0, atol=1e-12)
+        assert np.allclose(scaled_stability, expected_scaled_stability, rtol=0, atol=1e-12)
+
+    def test_buoyancy_eos80(self):
+        (buoyancy_freq_squared, buoyancy_freq, stability, scaled_stability) = (
+            eos80dc.buoyancy_eos80(
+                self.temperature,
+                self.salinity,
+                self.pressure,
+                np.asarray([34.034167]),  # converted from metadata 34.02.03 N in H,M,S
+                np.asarray([121.060556]),  # converted from metadata 121 03.38 W in H, M, S
+                150,  # window size
+            )
+        )
+
+        # Comparing SBE Data Processing C++ to local Python results using the same EOS-80 calculations.
+        # We expect very very close agreement: << 1% differnce
+        rel_tol = 0.002  # 0.2%
+        assert buoyancy_freq_squared == pytest.approx(
+            self.expected_buoyancy_freq_squared, rel=rel_tol
+        )
+        assert buoyancy_freq == pytest.approx(self.expected_buoyancy_freq, rel=rel_tol)
+        assert stability == pytest.approx(self.expected_stability, rel=rel_tol)
+        assert scaled_stability == pytest.approx(self.expected_scaled_stability, rel=rel_tol)
+
+        # fmt: off
+        # adding exact result comparisons to detect changes that still pass the tolerance tests
+        expected_buoyancy_freq_squared = np.array([-9.99e-29, 0.00013072500166651785, 5.934350674193085e-05, 3.303155341595788e-05, 2.1503068969356434e-05, 1.615635977801661e-05, 1.8203316755516265e-05, 1.9354424319455387e-05, 1.4614084738850457e-05, -9.99e-29])
+        expected_buoyancy_freq = np.array([-9.99e-29, 6.550914940496027, 4.413765294670474, 3.2929651274293605, 2.656885608326858, 2.303002398443112, 2.444544207746793, 2.5206512463395225, 2.1903244093126477, -9.99e-29])
+        expected_scaled_stability = np.array([-9.99e-29, 1334.3617812985951, 605.7332036761078, 337.15562524399235, 219.48007436374587, 164.9040823386679, 185.79398932698678, 197.5398117231211, 149.15549026920988, -9.99e-29])
+        expected_stability = np.array([-9.99e-29, 1.3343617812985952e-05, 6.057332036761078e-06, 3.3715562524399232e-06, 2.1948007436374588e-06, 1.649040823386679e-06, 1.8579398932698679e-06, 1.975398117231211e-06, 1.4915549026920987e-06, -9.99e-29])
+        # fmt: on
+        assert np.allclose(
+            buoyancy_freq_squared, expected_buoyancy_freq_squared, rtol=0, atol=1e-12
+        )
+        assert np.allclose(buoyancy_freq, expected_buoyancy_freq, rtol=0, atol=1e-12)
+        assert np.allclose(stability, expected_stability, rtol=0, atol=1e-12)
+        assert np.allclose(scaled_stability, expected_scaled_stability, rtol=0, atol=1e-12)
+
+
+class TestDeriveDescentRateAcceleration:
+    cnv_path = test_data / "SBE19plus_01906398_2019_07_15_0033-seasoft-convert-speeds.cnv"
+
+    @pytest.fixture
+    def source_data(self):
+        return si.read_cnv_file(self.cnv_path, "seasoft")
+
+    def test_derive_descent_rate_meters(self, source_data):
+        descent_rate_m = dc.derive_descent_rate(source_data["depSM"].values, 2, 0.25)
+        assert np.allclose(descent_rate_m, source_data["dz/dtM"].values, rtol=0, atol=1e-2)
+
+    def test_derive_descent_rate_feet(self, source_data):
+        descent_rate_f = dc.derive_descent_rate(source_data["depSF"].values, 2, 0.25)
+        # TODO: SBE data processing is imprecise and returns a value that is slightly different than the expected value. The atol is set to 1e-1 to account for this.
+        expected_dzdtF = (
+            source_data["dz/dtF"].values * 3.28084
+        )  # TODO: for some reason the dz/dtF returns meters/s too in SBE Data Proc
+        assert np.allclose(descent_rate_f, expected_dzdtF, rtol=0, atol=1e-1)
+
+    def test_derive_acc_meters(self, source_data):
+        acc_m = dc.derive_acceleration(source_data["depSM"].values, 2, 0.25)
+        assert np.allclose(acc_m, source_data["accM"].values, rtol=0, atol=1e-2)
+
+    def test_derive_acc_feet(self, source_data):
+        acc_f = dc.derive_acceleration(source_data["depSF"].values, 2, 0.25)
+        # TODO: SBE data processing is imprecise and returns a value that is slightly different than the expected value. The atol is set to 1e-1 to account for this.
+        assert np.allclose(acc_f, source_data["accF"].values, rtol=0, atol=1e-1)
+
+
+class TestDeriveOxygenSaturation:
+    cnv_path = test_data / "SBE19plus_01906398_2019_07_15_0033-seasoft-convert-Ox-Sat.cnv"
+
+    @pytest.fixture
+    def source_data(self):
+        return si.read_cnv_file(self.cnv_path, "seasoft")
+
+    def test_derive_oxygen_saturation_gg(self, source_data):
+        ox_sat_gg = dc.derive_oxygen_saturation_gg(
+            source_data["tv290C"].values, source_data["sal00"].values
+        )
+        assert np.allclose(ox_sat_gg, source_data["oxsolML/L"].values, rtol=0, atol=1e-3)
+
+    def test_derive_oxygen_saturation_w(self, source_data):
+        ox_sat_gg = dc.derive_oxygen_saturation_w(
+            source_data["tv290C"].values, source_data["sal00"].values
+        )
+        assert np.allclose(ox_sat_gg, source_data["oxsatML/L"].values, rtol=0, atol=1e-3)
+
+
 class TestCstar:
     def test_cstar_attenuation(self, request):
         raw = np.array([3.7186, 4.3632, 4.2264])
@@ -868,3 +1352,92 @@ class TestCstar:
 
         request.node.return_value = result.tolist()
         assert np.allclose(expected, result, rtol=0, atol=1e-3)
+
+
+class TestDeriveThermostericAnomaly:
+    cnv_path = test_data / "SBE19plus_derive_testing.cnv"
+
+    @pytest.fixture
+    def source_data(self):
+        return si.read_cnv_file(self.cnv_path, "seasoft")
+
+    def test_derive_tsa(self, source_data):
+        tsa = eos80dc.derive_thermosteric_anomaly(
+            source_data["sal00"].values, source_data["tv290C"].values
+        )
+        assert np.allclose(tsa, source_data["tsa"].values, rtol=0, atol=1e-2)
+
+
+class TestDeriveSpecificConductance:
+    cnv_path = test_data / "SBE19plus_derive_testing.cnv"
+
+    @pytest.fixture
+    def source_data(self):
+        return si.read_cnv_file(self.cnv_path, "seasoft")
+
+    def test_derive_sc(self, source_data):
+        # TODO: no explanation for why this is so off?
+        tsa = eos80dc.derive_specific_conductance(
+            source_data["tv290C"].values, source_data["c0S/m"].values, to_units="uS/cm"
+        )
+
+        # These use large numbers, use rtol=1e-2 to allow for small relative differences
+        assert np.allclose(tsa, source_data["specc"].values, rtol=1e-2, atol=0)
+
+
+class TestDerivePotentialTemperatureAnomaly:
+    cnv_path = test_data / "SBE19plus_derive_testing.cnv"
+
+    @pytest.fixture
+    def source_data(self):
+        return si.read_cnv_file(self.cnv_path, "seasoft")
+
+    def test_derive_pta(self, source_data):
+        pta = eos80dc.derive_potential_temperature_anomaly(
+            source_data["sal00"].values,
+            source_data["tv290C"].values,
+            source_data["prdM"].values,
+            a0=1,
+            a1=2,
+        )
+
+        assert np.allclose(pta, source_data["pta090C"].values, rtol=0, atol=1e-3)
+
+    @pytest.mark.parametrize(
+        "to_standard, to_units",
+        [("ITS90", "F"), ("IPTS68", "C"), ("IPTS68", "F")],
+    )
+    def test_derive_pta_units(self, source_data, to_standard, to_units):
+        # SeaSoft converts potential temperature to the output units, then
+        # subtracts a0 + a1 * salinity without converting a0 or a1
+        salinity = source_data["sal00"].values
+        reference = 1 + 2 * salinity
+        po_temp_90_c = source_data["pta090C"].values + reference
+        expected = (
+            dc.convert_temperature_units(po_temp_90_c, "ITS90", "C", to_standard, to_units)
+            - reference
+        )
+
+        pta = eos80dc.derive_potential_temperature_anomaly(
+            salinity,
+            source_data["tv290C"].values,
+            source_data["prdM"].values,
+            a0=1,
+            a1=2,
+            to_standard=to_standard,
+            to_units=to_units,
+        )
+
+        assert np.allclose(pta, expected, rtol=0, atol=2e-3)
+
+
+class TestDeriveGeopotentialAnomaly:
+    cnv_path = test_data / "SBE19plus_derive_testing.cnv"
+
+    @pytest.fixture
+    def source_data(self):
+        return si.read_cnv_file(self.cnv_path, "seasoft")
+
+    def test_derive_gpa(self, source_data):
+        gpa = eos80dc.derive_gpa(source_data["sva"], source_data["prdM"].values)
+        assert np.allclose(gpa, source_data["gpa"].values, rtol=0, atol=1e-3)
