@@ -25,24 +25,24 @@ classifiers = [
 dependencies = [
   "gsw >= 3.6.18",
   "numpy >= 2.2.0",
-  "pandas >= 2.3.00",
+  "pandas >= 2.3.0",
   "scipy >= 1.15.0",
   "seawater >= 3.3.3",
   "xarray >= 2024.10.0",
 ]
 
 [project.optional-dependencies]
+docs = [
+  "sbsfuro >= 0.1.0",
+  "sphinx >= 8.2.0",
+  "sphinx-mdinclude >= 0.6.2",
+]
 notebooks = [
   "ipykernel >= 6.30.0",
   "ipython >= 8.10.0",
   "nbconvert[webpdf] >= 7.17.0",
   "nbformat >= 5.11.0",
   "notebook >= 7.6.3", 
-]
-docs = [
-  "sbsfuro >= 0.1.0",
-  "sphinx >= 8.2.0",
-  "sphinx-mdinclude >= 0.6.2",
 ]
 plots = [
   "kaleido >= 1.0.0",
