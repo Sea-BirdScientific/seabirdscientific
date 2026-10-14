@@ -258,6 +258,202 @@ class TestReadSeaFET2:
         assert pd.to_datetime(hex_data["date time"][0].item()) == datetime(2025, 9, 15, 21, 35, 48)
 
 
+class TestReadpHyre:
+    # The following expected values were output directly by a pHyre with the TSS command and
+    # outputformat=0. The samples were then uploaded using the uploaddata command in terminal.
+    @pytest.mark.parametrize(
+        "hex_segment, date, event, ph_temperature_external, ph_temperature_internal, "
+        "vrs_external, vrs_internal, vk, ib, ik",
+        [
+            (
+                "4FB8A04FB3290AA3EE0AA42258D2A357994E99004B326176670008",
+                "2026-10-13T23:08:23",
+                8,
+                697326,
+                697378,
+                5224608,
+                5223209,
+                5821091,
+                5740878,
+                10027083,
+            ),
+            (
+                "4FB8A24FB3250AA3D50AA42258D28D57986C98FD553261766B0008",
+                "2026-10-13T23:08:27",
+                8,
+                697301,
+                697378,
+                5224610,
+                5223205,
+                5821069,
+                5740652,
+                10026325,
+            ),
+            (
+                "4FB8C44FB3410AA3E90AA41F58D27F57970D98FFCE3261766E0008",
+                "2026-10-13T23:08:30",
+                8,
+                697321,
+                697375,
+                5224644,
+                5223233,
+                5821055,
+                5740301,
+                10026958,
+            ),
+            # Below is test data provided by Adam N
+            (
+                "6291E06082EE05DED205C7FE681A7D7FEC287FF4823232B3AC0000",
+                "2026-09-08T11:53:16",
+                0,
+                384722,
+                378878,
+                6459872,
+                6324974,
+                6822525,
+                8383528,
+                8385666,
+            ),
+        ],
+    )
+    def test_read_phyre_hex(
+        self,
+        hex_segment,
+        date,
+        event,
+        ph_temperature_external,
+        ph_temperature_internal,
+        vrs_external,
+        vrs_internal,
+        vk,
+        ib,
+        ik,
+    ):
+        result = si.read_hex(si.InstrumentType.pHyre, hex_segment)
+        assert result[si.HEX_TYPE_DATE_TIME] == datetime.fromisoformat(date)
+        assert result[si.HEX_TYPE_ERROR_FLAG] == event
+        assert result[si.HEX_TYPE_PH_TEMPERATURE_EXTERNAL] == ph_temperature_external
+        assert result[si.HEX_TYPE_PH_TEMPERATURE_INTERNAL] == ph_temperature_internal
+        assert result[si.HEX_TYPE_VRS_EXTERNAL] == vrs_external
+        assert result[si.HEX_TYPE_VRS_INTERNAL] == vrs_internal
+        assert result[si.HEX_TYPE_VK] == vk
+        assert result[si.HEX_TYPE_IB] == ib
+        assert result[si.HEX_TYPE_IK] == ik
+
+
+class TestReadpHyreCAT:
+    # The following expected values were output directly by a pHyreCAT with the TSS command and
+    # outputformat=0. The samples were then uploaded using the uploaddata command in terminal.
+    @pytest.mark.parametrize(
+        "hex_segment, date, event, ph_temperature_external, ph_temperature_internal, "
+        "vrs_external, vrs_internal, vk, ib, ik, "
+        "temperature, conductivity, pressure, pressure_temp, ox_phase, ox_temp",
+        [
+            (
+                "0365BB0A45BD08056A0AA728B900181BD54FB88A4FB3320AA3DF0AA42258D3F85799BD98FE5F32616C380008",
+                "2026-10-13T22:24:56",
+                8,
+                697311,
+                697378,
+                5224586,
+                5223218,
+                5821432,
+                5740989,
+                10026591,
+                222651,
+                673213,
+                525674,
+                2727,
+                2668800,
+                1579989,
+            ),
+            (
+                "0365EF0A45BC08056A0AA828B964181BD64FB8B44FB31F0AA3DC0AA42958D3E9579A3598FF5932616C400008",
+                "2026-10-13T22:25:04",
+                8,
+                697308,
+                697385,
+                5224628,
+                5223199,
+                5821417,
+                5741109,
+                10026841,
+                222703,
+                673212,
+                525674,
+                2728,
+                2668900,
+                1579990,
+            ),
+            (
+                "03660F0A45BC0805690AA728B900181BD94FB8884FB3370AA3CE0AA42258D3D457987598FEFA32616C470008",
+                "2026-10-13T22:25:11",
+                8,
+                697294,
+                697378,
+                5224584,
+                5223223,
+                5821396,
+                5740661,
+                10026746,
+                222735,
+                673212,
+                525673,
+                2727,
+                2668800,
+                1579993,
+            ),
+        ],
+    )
+    def test_read_phyre_cat_hex(
+        self,
+        hex_segment,
+        date,
+        event,
+        ph_temperature_external,
+        ph_temperature_internal,
+        vrs_external,
+        vrs_internal,
+        vk,
+        ib,
+        ik,
+        temperature,
+        conductivity,
+        pressure,
+        pressure_temp,
+        ox_phase,
+        ox_temp,
+    ):
+        result = si.read_hex(si.InstrumentType.pHyreCAT, hex_segment)
+        assert result[si.HEX_TYPE_DATE_TIME] == datetime.fromisoformat(date)
+        assert result[si.HEX_TYPE_ERROR_FLAG] == event
+        assert result[si.HEX_TYPE_PH_TEMPERATURE_EXTERNAL] == ph_temperature_external
+        assert result[si.HEX_TYPE_PH_TEMPERATURE_INTERNAL] == ph_temperature_internal
+        assert result[si.HEX_TYPE_VRS_EXTERNAL] == vrs_external
+        assert result[si.HEX_TYPE_VRS_INTERNAL] == vrs_internal
+        assert result[si.HEX_TYPE_VK] == vk
+        assert result[si.HEX_TYPE_IB] == ib
+        assert result[si.HEX_TYPE_IK] == ik
+
+        assert result[si.HEX_TYPE_TEMPERATURE] == temperature
+        assert result[si.HEX_TYPE_CONDUCTIVITY] == conductivity
+        assert result[si.HEX_TYPE_PRESSURE] == pressure
+        assert result[si.HEX_TYPE_TEMPERATURE_COMPENSATION] == pressure_temp
+        assert result[si.HEX_TYPE_SBE63_PHASE] == ox_phase
+        assert result[si.HEX_TYPE_SBE63_TEMPERATURE] == ox_temp
+
+    def test_wrong_instrument_type(self):
+        with pytest.raises(ValueError):
+            si.read_phyre_data("", si.InstrumentType.SeaFET2)
+
+    def test_wrong_hex_length(self):
+        with pytest.raises(ValueError):
+            si.read_phyre_data(
+                "4FB8A04FB3290AA3EE0AA42258D2A357994E99004B326176670008",
+                si.InstrumentType.pHyreCAT,
+            )
+
+
 class TestReadNMEAHex:
     filepath = test_data / "19plus_V2_CTD_nmea_data.hex"
 

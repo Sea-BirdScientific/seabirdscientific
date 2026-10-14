@@ -55,6 +55,8 @@ HEX_TYPE_STATUS_SIGN = "status and sign"
 HEX_TYPE_VRS_INTERNAL = "vrs internal"
 HEX_TYPE_VRS_EXTERNAL = "vrs external"
 HEX_TYPE_PH_TEMPERATURE = "ph temperature"
+HEX_TYPE_PH_TEMPERATURE_EXTERNAL = "ph temperature external"
+HEX_TYPE_PH_TEMPERATURE_INTERNAL = "ph temperature internal"
 HEX_TYPE_VK = "vk"
 HEX_TYPE_IB = "ib"
 HEX_TYPE_IK = "ik"
@@ -123,6 +125,8 @@ class InstrumentType(Enum):
     SBE911Plus = "911plus"
     SeaFET2 = "SeaFET2"
     SeapHox2 = "SeapHox2"
+    pHyre = "pHyre"
+    pHyreCAT = "pHyreCAT"
     HydroCAT = "HydroCAT"
     HydroCATODO = "HydroCAT-ODO"
 
@@ -526,6 +530,9 @@ def read_hex(
     elif instrument_type in [InstrumentType.SeaFET2, InstrumentType.SeapHox2]:
         return read_seafet_data(hex_segment, instrument_type, is_shallow)
 
+    elif instrument_type in [InstrumentType.pHyre, InstrumentType.pHyreCAT]:
+        return read_phyre_data(hex_segment, instrument_type)
+
     elif instrument_type == InstrumentType.SBE911Plus:
         return read_sbe911plus_data(
             hex_segment,
@@ -649,7 +656,7 @@ def read_seafet_data(
         results[HEX_TYPE_PH_TEMPERATURE] = int(hex_segment[n : n + HEX_LEN_TEMPERATURE], 16)
         n += HEX_LEN_TEMPERATURE
 
-    # Other sensors
+    # diagnostics
     results[HEX_TYPE_VK] = int(hex_segment[n : n + HEX_LEN_VK], 16)
     n += HEX_LEN_VK
 
@@ -690,6 +697,90 @@ def read_seafet_data(
 def read_seafet_format_0(*args, **kwargs):
     warnings.warn("Deprecated, use read_seafet_data", DeprecationWarning)
     return read_seafet_data(*args, **kwargs)
+
+
+def read_phyre_data(
+    hex_segment: str,
+    instrument_type: InstrumentType,
+) -> dict[str, int | datetime]:
+    """Converts a pHyre or pHyreCAT hex string into raw numeric values.
+
+    :param hex_segment: one line from a hex data file
+    :param instrument_type: InstrumentType.pHyre or InstrumentType.pHyreCAT
+
+    :return: raw sensor values extracted from the hex string
+    """
+
+    if instrument_type not in (InstrumentType.pHyre, InstrumentType.pHyreCAT):
+        raise ValueError(
+            f"In read_phyre_data {instrument_type} is not recognized as a pHyre or pHyreCAT"
+        )
+
+    results: dict[str, int | datetime] = {}
+    n = 0
+
+    # pHyreCAT specific values
+    if instrument_type == InstrumentType.pHyreCAT:
+        results[HEX_TYPE_TEMPERATURE] = int(hex_segment[n : n + HEX_LEN_TEMPERATURE], 16)
+        n += HEX_LEN_TEMPERATURE
+
+        results[HEX_TYPE_CONDUCTIVITY] = int(hex_segment[n : n + HEX_LEN_CONDUCTIVITY], 16)
+        n += HEX_LEN_CONDUCTIVITY
+
+        results[HEX_TYPE_PRESSURE] = int(hex_segment[n : n + HEX_LEN_PRESSURE], 16)
+        n += HEX_LEN_PRESSURE
+
+        results[HEX_TYPE_TEMPERATURE_COMPENSATION] = int(
+            hex_segment[n : n + HEX_LEN_TEMPERATURE_COMPENSATION], 16
+        )
+        n += HEX_LEN_TEMPERATURE_COMPENSATION
+
+        results[HEX_TYPE_SBE63_PHASE] = int(hex_segment[n : n + HEX_LEN_SBE63_PHASE], 16)
+        n += HEX_LEN_SBE63_PHASE
+
+        results[HEX_TYPE_SBE63_TEMPERATURE] = int(hex_segment[n : n + HEX_LEN_TEMPERATURE], 16)
+        n += HEX_LEN_TEMPERATURE
+
+    # External pH
+    results[HEX_TYPE_VRS_EXTERNAL] = int(hex_segment[n : n + HEX_LEN_VRS_EXTERNAL], 16)
+    n += HEX_LEN_VRS_EXTERNAL
+
+    # Internal pH
+    results[HEX_TYPE_VRS_INTERNAL] = int(hex_segment[n : n + HEX_LEN_VRS_INTERNAL], 16)
+    n += HEX_LEN_VRS_INTERNAL
+
+    # pH reference temperature - external
+    results[HEX_TYPE_PH_TEMPERATURE_EXTERNAL] = int(hex_segment[n : n + HEX_LEN_TEMPERATURE], 16)
+    n += HEX_LEN_TEMPERATURE
+
+    # pH reference temperature - internal
+    results[HEX_TYPE_PH_TEMPERATURE_INTERNAL] = int(hex_segment[n : n + HEX_LEN_TEMPERATURE], 16)
+    n += HEX_LEN_TEMPERATURE
+
+    # diagnostics
+    results[HEX_TYPE_VK] = int(hex_segment[n : n + HEX_LEN_VK], 16)
+    n += HEX_LEN_VK
+
+    results[HEX_TYPE_IB] = int(hex_segment[n : n + HEX_LEN_IB], 16)
+    n += HEX_LEN_IB
+
+    results[HEX_TYPE_IK] = int(hex_segment[n : n + HEX_LEN_IK], 16)
+    n += HEX_LEN_IK
+
+    # Datetime (naive, no timezone conversion)
+    seconds_since_2000 = int(hex_segment[n : n + HEX_LEN_DATE_TIME], 16)
+    results[HEX_TYPE_DATE_TIME] = datetime(2000, 1, 1) + timedelta(seconds=seconds_since_2000)
+    n += HEX_LEN_DATE_TIME
+
+    # Error flag
+    results[HEX_TYPE_ERROR_FLAG] = int(hex_segment[n : n + HEX_LEN_ERROR_FLAG], 16)
+    n += HEX_LEN_ERROR_FLAG
+
+    # Validate hex length
+    if n != len(hex_segment.strip()):
+        raise ValueError("Hex string length does not match expectation based on instrument_type")
+
+    return results
 
 
 def read_sbe911plus_data(
