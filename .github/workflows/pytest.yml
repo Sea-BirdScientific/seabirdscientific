@@ -33,5 +33,16 @@ jobs:
       - name: Install dependencies
         run: uv sync
 
+      # Coverage is shown in the job's log, and as a table on the job's summary page
       - name: Run pytest
-        run: uv run pytest
+        run: uv run pytest --cov=seabirdscientific --cov-report=term-missing:skip-covered
+
+      # coverage's own markdown report works with every pytest-cov the dev group allows
+      # (pytest-cov's markdown-append report needs 6.3 or later)
+      - name: Coverage summary
+        if: ${{ !cancelled() }}
+        run: |
+          if [ -f .coverage ]; then
+            echo "### Coverage (Python ${{ matrix.python-version }})" >> "$GITHUB_STEP_SUMMARY"
+            uv run coverage report --format=markdown >> "$GITHUB_STEP_SUMMARY"
+          fi
