@@ -3,10 +3,17 @@ name: Ruff Linter
 on:
   pull_request:
     branches: ["**"]
+  push:
+    branches: [main]
 
 concurrency:
-  group: ruff-${{ github.ref }}
-  cancel-in-progress: true
+  # A new push to a PR cancels its superseded run. Pushes to main get a group per commit,
+  # because GitHub keeps only one pending run per group and would otherwise drop queued runs
+  group: ruff-${{ github.event_name == 'pull_request' && github.ref || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
 
 jobs:
   ruff:
@@ -19,6 +26,8 @@ jobs:
 
       - name: Set up uv
         uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
 
       - name: Install dependencies
         run: uv sync
