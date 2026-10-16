@@ -3129,6 +3129,62 @@
   },
   {
     "aliases": [],
+    "name": "phTemperatureExternal",
+    "units": "deg C",
+    "title": "pH Reference External Temperature",
+    "info": []
+  },
+  {
+    "aliases": [],
+    "name": "phTemperatureExternalVolt",
+    "units": "volts",
+    "title": "pH Reference External Temperature Raw Voltage",
+    "info": []
+  },
+  {
+    "aliases": [],
+    "name": "phTemperatureInternal",
+    "units": "deg C",
+    "title": "pH Reference Internal Temperature",
+    "info": []
+  },
+  {
+    "aliases": [],
+    "name": "phTemperatureInternalVolt",
+    "units": "volts",
+    "title": "pH Reference Internal Temperature Raw Voltage",
+    "info": []
+  },
+  {
+    "aliases": [],
+    "name": "vk",
+    "units": "volts",
+    "title": "VK Counterelectrode Voltage",
+    "info": []
+  },
+  {
+    "aliases": [],
+    "name": "ib",
+    "units": "nano amps",
+    "title": "IB ISFET Body Current",
+    "info": []
+  },
+  {
+    "aliases": [],
+    "name": "ik",
+    "units": "nano amps",
+    "title": "IK Counterelectrode current",
+    "info": []
+  },
+  {
+    "aliases": [],
+    "name": "errorFlag",
+    "units": "",
+    "title": "Error Flag",
+    "info": []
+  },
+  {
+    "aliases": [],
     "name": "internalTemperatureCelsius",
     "units": "deg C",
     "title": "Internal Temperature",
