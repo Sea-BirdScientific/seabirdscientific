@@ -1,6 +1,6 @@
 [project]
 name = "seabirdscientific"
-version = "3.1.0"
+version = "3.0.1"
 description = "Sea-Bird Scientific Community Toolkit"
 readme = "README.md"
 license = "MIT"
@@ -59,12 +59,6 @@ dev = [
   "seabirdscientific[docs]",
   "seabirdscientific[notebooks]",
   "seabirdscientific[plots]",
-]
-
-[tool.uv]
-constraint-dependencies = [
-  "pillow >= 13",
-  "certifi >= 2026.10.19",
 ]
 
 [project.urls]

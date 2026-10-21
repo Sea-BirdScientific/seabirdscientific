@@ -1235,18 +1235,19 @@ class TestBuoyancy:
         assert scaled_stability == pytest.approx(self.expected_scaled_stability, rel=rel_tol)
 
         # fmt: off
-        # adding exact result comparisons to detect changes that still pass the tolerance tests
+        # adding exact result comparisons to detect changes that still pass the tolerance tests.
+        # Relative tolerance, because results differ by a few ULPs across platforms (libm, gsw)
         expected_buoyancy_freq_squared = np.array([-9.99e-29, 0.00012830774423210731, 5.9061904158766353e-05, 3.285253714504237e-05, 2.1427260827130063e-05, 1.610786846795634e-05, 1.8197855102567525e-05, 1.928895593187585e-05, 1.4586979090250307e-05, -9.99e-29])
         expected_buoyancy_freq = np.array([-9.99e-29, 6.490065311850448, 4.403280527245377, 3.28402980427617, 2.6521981054713932, 2.2995437132561976, 2.4441774544272, 2.5163844503226995, 2.188292201351598, -9.99e-29])
         expected_scaled_stability = np.array([-9.99e-29, 1309.6979919526298, 602.8661047814034, 335.33390726433163, 218.7108575931272, 164.41328104617097, 185.74372883265428, 196.8782837049103, 148.88453614380862, -9.99e-29])
         expected_stability = np.array([-9.99e-29, 1.3096979919526299e-05, 6.028661047814034e-06, 3.353339072643316e-06, 2.187108575931272e-06, 1.6441328104617097e-06, 1.8574372883265428e-06, 1.968782837049103e-06, 1.4888453614380862e-06, -9.99e-29])
         # fmt: on
         assert np.allclose(
-            buoyancy_freq_squared, expected_buoyancy_freq_squared, rtol=0, atol=1e-12
+            buoyancy_freq_squared, expected_buoyancy_freq_squared, rtol=1e-12, atol=0
         )
-        assert np.allclose(buoyancy_freq, expected_buoyancy_freq, rtol=0, atol=1e-12)
-        assert np.allclose(stability, expected_stability, rtol=0, atol=1e-12)
-        assert np.allclose(scaled_stability, expected_scaled_stability, rtol=0, atol=1e-12)
+        assert np.allclose(buoyancy_freq, expected_buoyancy_freq, rtol=1e-12, atol=0)
+        assert np.allclose(stability, expected_stability, rtol=1e-12, atol=0)
+        assert np.allclose(scaled_stability, expected_scaled_stability, rtol=1e-12, atol=0)
 
     def test_buoyancy_eos80(self):
         (buoyancy_freq_squared, buoyancy_freq, stability, scaled_stability) = (
@@ -1271,18 +1272,19 @@ class TestBuoyancy:
         assert scaled_stability == pytest.approx(self.expected_scaled_stability, rel=rel_tol)
 
         # fmt: off
-        # adding exact result comparisons to detect changes that still pass the tolerance tests
+        # adding exact result comparisons to detect changes that still pass the tolerance tests.
+        # Relative tolerance, because results differ by a few ULPs across platforms (libm, gsw)
         expected_buoyancy_freq_squared = np.array([-9.99e-29, 0.00013072500166651785, 5.934350674193085e-05, 3.303155341595788e-05, 2.1503068969356434e-05, 1.615635977801661e-05, 1.8203316755516265e-05, 1.9354424319455387e-05, 1.4614084738850457e-05, -9.99e-29])
         expected_buoyancy_freq = np.array([-9.99e-29, 6.550914940496027, 4.413765294670474, 3.2929651274293605, 2.656885608326858, 2.303002398443112, 2.444544207746793, 2.5206512463395225, 2.1903244093126477, -9.99e-29])
         expected_scaled_stability = np.array([-9.99e-29, 1334.3617812985951, 605.7332036761078, 337.15562524399235, 219.48007436374587, 164.9040823386679, 185.79398932698678, 197.5398117231211, 149.15549026920988, -9.99e-29])
         expected_stability = np.array([-9.99e-29, 1.3343617812985952e-05, 6.057332036761078e-06, 3.3715562524399232e-06, 2.1948007436374588e-06, 1.649040823386679e-06, 1.8579398932698679e-06, 1.975398117231211e-06, 1.4915549026920987e-06, -9.99e-29])
         # fmt: on
         assert np.allclose(
-            buoyancy_freq_squared, expected_buoyancy_freq_squared, rtol=0, atol=1e-12
+            buoyancy_freq_squared, expected_buoyancy_freq_squared, rtol=1e-12, atol=0
         )
-        assert np.allclose(buoyancy_freq, expected_buoyancy_freq, rtol=0, atol=1e-12)
-        assert np.allclose(stability, expected_stability, rtol=0, atol=1e-12)
-        assert np.allclose(scaled_stability, expected_scaled_stability, rtol=0, atol=1e-12)
+        assert np.allclose(buoyancy_freq, expected_buoyancy_freq, rtol=1e-12, atol=0)
+        assert np.allclose(stability, expected_stability, rtol=1e-12, atol=0)
+        assert np.allclose(scaled_stability, expected_scaled_stability, rtol=1e-12, atol=0)
 
 
 class TestDeriveDescentRateAcceleration:
