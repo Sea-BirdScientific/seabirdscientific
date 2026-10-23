@@ -47,9 +47,13 @@ Source
 
 :ref:`cal_coefficients`: Classes for storing calibration coefficients used with data conversion functions.
 
+:ref:`constants`: Physical constants and unit conversion factors shared across the toolkit.
+
 :ref:`contour`: A class and helper functions for storing data used with TS plots.
 
 :ref:`conversion`: A collection of functions for converting raw instrument data to SI units. Also includes some functions for converting between SI units, for exampel from depth from pressure.
+
+:ref:`eos80_conversion`: EOS-80 functions for legacy conversions, matching SeaSoft.
 
 :ref:`eos80_processing`: Legacy functions for legacy data.
 
@@ -82,8 +86,10 @@ Theory
    :hidden:
 
    cal_coefficients
+   constants
    contour
    conversion
+   eos80_conversion
    eos80_processing
    instrument_data
    interpret_sbs_variable
