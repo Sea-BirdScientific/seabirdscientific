@@ -248,9 +248,10 @@ cal_coefficients
   ``offset`` (default 0, dbar) fields have been added.
 - ``TemperatureCoefficients`` and ``PressureCoefficients`` have a new
   ``offset`` field (default 0).
-- ``PHSeaFETInternalCoefficients`` is now a dataclass. ``kdf0`` and ``kdf2``
-  are required, and the deprecated ``k0``, ``k2``, ``int_k0``, and ``int_k2``
-  parameters have been removed.
+- ``PHSeaFETInternalCoefficients`` is now a dataclass. Use ``k0`` and ``k2``
+  instead of ``kdf0`` and ``kdf2``. ``k0`` is required; ``k2`` and the
+  pressure polynomial coefficients default to zero. The deprecated
+  ``int_k0`` and ``int_k2`` parameters have been removed.
 - ``PHSeaFETExternalCoefficients`` is now a dataclass. The deprecated
   ``ext_k0`` and ``ext_k2`` parameters have been removed, and
   ``k2_poly_order`` and ``fp_poly_order`` are now the last fields. Code that

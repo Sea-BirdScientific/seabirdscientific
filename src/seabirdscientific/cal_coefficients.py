@@ -270,8 +270,8 @@ class TemperatureSeaFETCoefficients:
 @dataclass
 class PHSeaFETInternalCoefficients:
     """
-    :param k0: external K0 coefficient
-    :param k2: external K2 coefficient
+    :param k0: internal K0 coefficient
+    :param k2: internal K2 coefficient
     :param k2f0: f(P) coefficient
     :param k2f1: f(P) coefficient
     :param k2f2: f(P) coefficient
