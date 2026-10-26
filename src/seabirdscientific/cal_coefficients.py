@@ -270,12 +270,37 @@ class TemperatureSeaFETCoefficients:
 @dataclass
 class PHSeaFETInternalCoefficients:
     """
-    :param kdf0: internal K0 coefficient
-    :param kdf2: internal K2 coefficient
+    :param k0: external K0 coefficient
+    :param k2: external K2 coefficient
+    :param k2f0: f(P) coefficient
+    :param k2f1: f(P) coefficient
+    :param k2f2: f(P) coefficient
+    :param k2f3: f(P) coefficient
+    :param f1: f(P) coefficient
+    :param f2: f(P) coefficient
+    :param f3: f(P) coefficient
+    :param f4: f(P) coefficient
+    :param f5: f(P) coefficient
+    :param f6: f(P) coefficient
+    :param k2_poly_order: order of K2 pressure compensation calculation,
+        defaults to 0
+
+    Pressure polynomial coefficients use pressure in dbar and default to zero.
     """
 
-    kdf0: float
-    kdf2: float
+    k0: float
+    k2: float = 0
+    k2f0: float = 0
+    k2f1: float = 0
+    k2f2: float = 0
+    k2f3: float = 0
+    f1: float = 0
+    f2: float = 0
+    f3: float = 0
+    f4: float = 0
+    f5: float = 0
+    f6: float = 0
+    k2_poly_order: int = 0
 
 
 @dataclass

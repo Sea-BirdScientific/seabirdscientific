@@ -547,7 +547,9 @@ def convert_sbe63_oxygen(
 
         # handle cases where oxygen saturation is flagged
         return np.where(
-            oxygen_saturation != const.FLAG_VALUE, oxygen_saturation_percent, const.FLAG_VALUE
+            oxygen_saturation != const.FLAG_VALUE,
+            oxygen_saturation_percent,
+            const.FLAG_VALUE,
         )
 
 
@@ -583,7 +585,13 @@ def convert_sbe43_oxygen(
     window_size: float = 1,
     sample_interval: float = 1,
     units: Literal[
-        "ml/l", "mg/l", "umol/kg", "umol/l", "dov/dt", "saturation_percent", "raw_voltage"
+        "ml/l",
+        "mg/l",
+        "umol/kg",
+        "umol/l",
+        "dov/dt",
+        "saturation_percent",
+        "raw_voltage",
     ] = "ml/l",
 ):
     """Returns the data after converting it to desired units.
@@ -673,7 +681,9 @@ def convert_sbe43_oxygen(
         oxygen_saturation_percent = oxygen * 100 / oxygen_saturation
         # handle cases where oxygen saturation is flagged
         return np.where(
-            oxygen_saturation != const.FLAG_VALUE, oxygen_saturation_percent, const.FLAG_VALUE
+            oxygen_saturation != const.FLAG_VALUE,
+            oxygen_saturation_percent,
+            const.FLAG_VALUE,
         )
 
 
@@ -1019,6 +1029,7 @@ def _calculate_nernst(temperature: np.ndarray) -> np.ndarray:
     :param temperature: temperature in kelvin
     :return: the nernst term (J/Coulomb; electrical potential; volts)
     """
+
     nernst_term = const.R * temperature * np.log(10) / const.F
     return nernst_term
 
@@ -1028,14 +1039,16 @@ def convert_internal_seafet_ph(
     temperature: np.ndarray,
     coefs: cc.PHSeaFETInternalCoefficients,
     ph_units: Literal["counts", "volts"] = "counts",
+    pressure: np.ndarray | float = 0.0,
 ):
     """Calculates the internal pH on the total scale given the
-    temperature and internal FET voltage
+    temperature, internal FET voltage, and pressure.
 
     :param raw_ph: Raw voltage or voltage counts
-    :param temperature: Sample temperature
+    :param temperature: Sample temperature in degrees C
     :param coefs: SeaFET calibration coefficients
     :param ph_units: The units of raw_ph, defaults to 'counts'
+    :param pressure: Pressure in dbar, defaults to zero for existing calls.
     :return: calculated pH on the total scale for the SeaFET internal
         reference
     """
@@ -1045,7 +1058,15 @@ def convert_internal_seafet_ph(
         ph_volts = raw_ph
 
     nernst = _calculate_nernst(temperature + const.KELVIN_OFFSET_0C)
-    ph = (ph_volts - coefs.kdf0 - coefs.kdf2 * temperature) / nernst
+
+    if coefs.k2_poly_order == 0:
+        k2_poly = Polynomial([coefs.k2])
+    else:
+        k2_poly = Polynomial([coefs.k2f0, coefs.k2f1, coefs.k2f2, coefs.k2f3])
+
+    eot = k2_poly(pressure) * temperature
+    f_p = _pressure_response(pressure, coefs)
+    ph = (ph_volts - coefs.k0 - eot - f_p) / nernst
     return ph
 
 
@@ -1196,12 +1217,15 @@ def _acid_dissociation_constant_of_hso4_tp(
     return k_stp
 
 
-def _pressure_response(pressure: np.ndarray, coefs: cc.PHSeaFETExternalCoefficients):
+def _pressure_response(
+    pressure: np.ndarray | float,
+    coefs: cc.PHSeaFETExternalCoefficients | cc.PHSeaFETInternalCoefficients,
+):
     """The sensor pressure response function from SBS application note
     99.
 
-    :param pressure: Pressure in bar
-    :param coefs: External pH coefficients
+    :param pressure: Pressure in dbar
+    :param coefs: External or internal pH coefficients
     :return: The pressure response
     """
     term_1 = coefs.f1 * pressure
