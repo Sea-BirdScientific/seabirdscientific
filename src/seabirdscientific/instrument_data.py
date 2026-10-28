@@ -564,11 +564,14 @@ def read_hex_file(
     # cell, and avoids holding a scans x measurands array of boxed values.
     columns: dict[str, list] = {}
 
+    # list of tuples matching SensorID to the key to be used in results dict like 'SensorID.TEMPERATURE_0'
+    sensor_layout = _build_hex_sensor_layout(enabled_sensor_ids)
+
     for line in data_lines:
         hex_data = read_hex(
             line,
             instrument_type,
-            enabled_sensor_ids,
+            sensor_layout,
         )
         if not columns:
             columns = {key: [] for key in hex_data}
@@ -591,18 +594,37 @@ def read_hex_file(
     )
 
 
-def read_hex(
-    hex_segment: str, instrument_type: InstrumentType, enabled_sensor_ids: list[SensorID]
-) -> dict[str, float | datetime]:
-    """Converts a data hex string into raw decimal values"""
+def _build_hex_sensor_layout(
+    enabled_sensor_ids: list[SensorID],
+) -> list[tuple[SensorID, str]]:
+    """Precompute each sensor's output key, suffixed with its zero-based replicate number."""
+    replicate_by_sensor_id: dict[SensorID, int] = {}
+    sensor_layout: list[tuple[SensorID, str]] = []
+    for sensor_id in enabled_sensor_ids:
+        replicate = replicate_by_sensor_id.get(sensor_id, 0)
+        sensor_layout.append((sensor_id, f"{sensor_id}_{replicate}"))
+        replicate_by_sensor_id[sensor_id] = replicate + 1
+    return sensor_layout
 
+
+def read_hex(
+    hex_segment: str,
+    instrument_type: InstrumentType,
+    sensor_layout: list[tuple[SensorID, str]],
+) -> dict[str, float | datetime]:
+    """Converts a data hex string into raw decimal values.
+
+    :param hex_segment: the hex string for one scan
+    :param instrument_type: the instrument that generated the scan
+    :param sensor_layout: ordered (sensor id, output key) pairs from
+        _build_hex_sensor_layout, prepared once per sensor configuration
+    :return: a dictionary of output key to raw value
+    """
     results: dict[str, int | float | datetime] = {}
     n = 0
     sbe911_status: int | None = None
-    replicate_by_sensor_id = [0] * 1000
 
-    for sensor_id in enabled_sensor_ids:
-        key = str(sensor_id) + "_" + str(replicate_by_sensor_id[int(sensor_id.value)])
+    for sensor_id, key in sensor_layout:
         # -------- Internal Sensors  ---------
         if sensor_id in [
             SensorID.TEMPERATURE,
@@ -797,30 +819,16 @@ def read_hex(
             n += HEX_LEN_NMEA_LONGITUDE
 
         elif sensor_id == SensorID.NMEA_STATUS_AND_SIGN:
+            replicate = key.rsplit("_", 1)[1]
+            latitude_key = f"{SensorID.NMEA_LATITUDE}_{replicate}"
+            longitude_key = f"{SensorID.NMEA_LONGITUDE}_{replicate}"
             signs = read_status_sign(hex_segment[n : n + HEX_LEN_NMEA_STATUS_AND_SIGN])
             if np.any(pd.isna(signs)):
-                key = str(sensor_id) + "_" + str(replicate_by_sensor_id)
-                results[
-                    str(SensorID.NMEA_LATITUDE)
-                    + "_"
-                    + str(replicate_by_sensor_id[int(sensor_id.value)])
-                ] = np.nan
-                results[
-                    str(SensorID.NMEA_LONGITUDE)
-                    + "_"
-                    + str(replicate_by_sensor_id[int(sensor_id.value)])
-                ] = np.nan
+                results[latitude_key] = np.nan
+                results[longitude_key] = np.nan
             else:
-                results[
-                    str(SensorID.NMEA_LATITUDE)
-                    + "_"
-                    + str(replicate_by_sensor_id[int(sensor_id.value)])
-                ] *= signs[0]
-                results[
-                    str(SensorID.NMEA_LONGITUDE)
-                    + "_"
-                    + str(replicate_by_sensor_id[int(sensor_id.value)])
-                ] *= signs[1]
+                results[latitude_key] *= signs[0]
+                results[longitude_key] *= signs[1]
             n += HEX_LEN_NMEA_STATUS_AND_SIGN
 
         elif sensor_id == SensorID.NMEA_DATE_TIME:
@@ -894,8 +902,6 @@ def read_hex(
         elif sensor_id == SensorID.ERROR_FLAG:
             results[key] = int(hex_segment[n : n + HEX_LEN_ERROR_FLAG], 16)
             n += HEX_LEN_ERROR_FLAG
-
-        replicate_by_sensor_id[int(sensor_id.value)] += 1
 
     # Validate hex length. Ensure length matches what is expected based
     # on enabled sensors and moored mode. If it does not, set all values

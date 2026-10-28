@@ -106,15 +106,17 @@ class TestReadHex37smpOdo:
             # dataupload response
             "03AB8A0A5B492968C81899270877D308B5327396D4",
             si.InstrumentType.SBE37SMPODO,
-            [
-                si.SensorID.TEMPERATURE,
-                si.SensorID.CONDUCTIVITY,
-                si.SensorID.SBE63_DISSOLVED_OXYGEN_PHASE,
-                si.SensorID.SBE63_DISSOLVED_OXYGEN_TEMPERATURE,
-                si.SensorID.STRAIN_GAUGE_PRESSURE,
-                si.SensorID.STRAIN_GAUGE_PRESSURE_TEMPERATURE,
-                si.SensorID.INSTRUMENT_DATE_TIME,
-            ],
+            si._build_hex_sensor_layout(
+                [
+                    si.SensorID.TEMPERATURE,
+                    si.SensorID.CONDUCTIVITY,
+                    si.SensorID.SBE63_DISSOLVED_OXYGEN_PHASE,
+                    si.SensorID.SBE63_DISSOLVED_OXYGEN_TEMPERATURE,
+                    si.SensorID.STRAIN_GAUGE_PRESSURE,
+                    si.SensorID.STRAIN_GAUGE_PRESSURE_TEMPERATURE,
+                    si.SensorID.INSTRUMENT_DATE_TIME,
+                ]
+            ),
         )
 
     print(hex_data)
@@ -148,22 +150,24 @@ class TestReadHex19plus:
             # "03EC41 0A918B 0826F9 68C8 08C1 4890 0000 0000 0002 0000 00BF 0032 1022 32739C93" outputformat=0 (raw hex) getsamples:0,0
             "03EC410A918B0826F968C808C24891000100000003000000BF00321022",
             si.InstrumentType.SBE19Plus,
-            [
-                si.SensorID.TEMPERATURE,
-                si.SensorID.CONDUCTIVITY,
-                si.SensorID.STRAIN_GAUGE_PRESSURE,
-                si.SensorID.STRAIN_GAUGE_PRESSURE_TEMPERATURE,
-                si.SensorID.VOLTAGE_0,
-                si.SensorID.VOLTAGE_1,
-                si.SensorID.VOLTAGE_2,
-                si.SensorID.VOLTAGE_3,
-                si.SensorID.VOLTAGE_4,
-                si.SensorID.VOLTAGE_5,
-                si.SensorID.ECO_SERIAL_BACKSCATTERING_412,
-                si.SensorID.ECO_SERIAL_BACKSCATTERING_440,
-                si.SensorID.ECO_SERIAL_BACKSCATTERING_470,
-                # si.SensorID.INSTRUMENT_DATE_TIME,
-            ],
+            si._build_hex_sensor_layout(
+                [
+                    si.SensorID.TEMPERATURE,
+                    si.SensorID.CONDUCTIVITY,
+                    si.SensorID.STRAIN_GAUGE_PRESSURE,
+                    si.SensorID.STRAIN_GAUGE_PRESSURE_TEMPERATURE,
+                    si.SensorID.VOLTAGE_0,
+                    si.SensorID.VOLTAGE_1,
+                    si.SensorID.VOLTAGE_2,
+                    si.SensorID.VOLTAGE_3,
+                    si.SensorID.VOLTAGE_4,
+                    si.SensorID.VOLTAGE_5,
+                    si.SensorID.ECO_SERIAL_BACKSCATTERING_412,
+                    si.SensorID.ECO_SERIAL_BACKSCATTERING_440,
+                    si.SensorID.ECO_SERIAL_BACKSCATTERING_470,
+                    # si.SensorID.INSTRUMENT_DATE_TIME,
+                ]
+            ),
         )
 
     def test_read_19plus_hex(self, hex_data):
@@ -192,18 +196,20 @@ class TestReadHex19plus:
         hex_data = si.read_hex(
             "08E1A913C11D08085550CB9D40033C2518A45E391940D767A82B",  # first scan in 19plus_V2_CTD_nmea_data.hex
             si.InstrumentType.SBE19Plus,
-            [
-                si.SensorID.TEMPERATURE,
-                si.SensorID.CONDUCTIVITY,
-                si.SensorID.STRAIN_GAUGE_PRESSURE,
-                si.SensorID.STRAIN_GAUGE_PRESSURE_TEMPERATURE,
-                si.SensorID.VOLTAGE_0,
-                si.SensorID.VOLTAGE_1,
-                si.SensorID.NMEA_LATITUDE,
-                si.SensorID.NMEA_LONGITUDE,
-                si.SensorID.NMEA_STATUS_AND_SIGN,
-                si.SensorID.NMEA_DATE_TIME,
-            ],
+            si._build_hex_sensor_layout(
+                [
+                    si.SensorID.TEMPERATURE,
+                    si.SensorID.CONDUCTIVITY,
+                    si.SensorID.STRAIN_GAUGE_PRESSURE,
+                    si.SensorID.STRAIN_GAUGE_PRESSURE_TEMPERATURE,
+                    si.SensorID.VOLTAGE_0,
+                    si.SensorID.VOLTAGE_1,
+                    si.SensorID.NMEA_LATITUDE,
+                    si.SensorID.NMEA_LONGITUDE,
+                    si.SensorID.NMEA_STATUS_AND_SIGN,
+                    si.SensorID.NMEA_DATE_TIME,
+                ]
+            ),
         )
         assert hex_data[str(si.SensorID.NMEA_LATITUDE) + "_0"] == 48.62280000
         assert hex_data[str(si.SensorID.NMEA_LONGITUDE) + "_0"] == -123.50002000
@@ -218,21 +224,23 @@ class TestReadHex16plusDigiquartz:
         hex_data = si.read_hex(
             "051E3C0A69C708726649CD0003000300040004000900040000640003E83273CF39",  # Fathom upload
             si.InstrumentType.SBE16Plus,
-            [
-                si.SensorID.TEMPERATURE,
-                si.SensorID.CONDUCTIVITY,
-                si.SensorID.STRAIN_GAUGE_PRESSURE,
-                si.SensorID.STRAIN_GAUGE_PRESSURE_TEMPERATURE,
-                si.SensorID.VOLTAGE_0,
-                si.SensorID.VOLTAGE_1,
-                si.SensorID.VOLTAGE_2,
-                si.SensorID.VOLTAGE_3,
-                si.SensorID.VOLTAGE_4,
-                si.SensorID.VOLTAGE_5,
-                si.SensorID.SBE63_DISSOLVED_OXYGEN_PHASE,
-                si.SensorID.SBE63_DISSOLVED_OXYGEN_TEMPERATURE,
-                si.SensorID.INSTRUMENT_DATE_TIME,
-            ],
+            si._build_hex_sensor_layout(
+                [
+                    si.SensorID.TEMPERATURE,
+                    si.SensorID.CONDUCTIVITY,
+                    si.SensorID.STRAIN_GAUGE_PRESSURE,
+                    si.SensorID.STRAIN_GAUGE_PRESSURE_TEMPERATURE,
+                    si.SensorID.VOLTAGE_0,
+                    si.SensorID.VOLTAGE_1,
+                    si.SensorID.VOLTAGE_2,
+                    si.SensorID.VOLTAGE_3,
+                    si.SensorID.VOLTAGE_4,
+                    si.SensorID.VOLTAGE_5,
+                    si.SensorID.SBE63_DISSOLVED_OXYGEN_PHASE,
+                    si.SensorID.SBE63_DISSOLVED_OXYGEN_TEMPERATURE,
+                    si.SensorID.INSTRUMENT_DATE_TIME,
+                ]
+            ),
         )
         # outputformat=2 (raw decimal) getsamples:0,0 response: 335420, 2665.777, 553574, 1.4414, 0.0002, 0.0002, 0.0003, 0.0003, 0.0007, 0.0003, -9.999, -0.999000, 27 Oct 2026 21:08:09
         assert hex_data[str(si.SensorID.TEMPERATURE) + "_0"] == 335420
@@ -259,12 +267,14 @@ class TestReadHex39plus:
         hex_data = si.read_hex(
             "32407EF51A485301A5418459",  # Fathom upload
             si.InstrumentType.SBE39Plus,
-            [
-                si.SensorID.INSTRUMENT_DATE_TIME,
-                si.SensorID.TEMPERATURE,
-                si.SensorID.STRAIN_GAUGE_PRESSURE,
-                si.SensorID.STRAIN_GAUGE_PRESSURE_TEMPERATURE,
-            ],
+            si._build_hex_sensor_layout(
+                [
+                    si.SensorID.INSTRUMENT_DATE_TIME,
+                    si.SensorID.TEMPERATURE,
+                    si.SensorID.STRAIN_GAUGE_PRESSURE,
+                    si.SensorID.STRAIN_GAUGE_PRESSURE_TEMPERATURE,
+                ]
+            ),
         )
 
         # outputformat=0 (raw decimal) getsamples:0,0 response: 1722451,  107841, 33881, 18 Sep 2026, 23:00:05
@@ -282,35 +292,35 @@ class TestReadHexSBE911plus:
         hex_data = si.read_hex(
             "122B2B19EEFC821642122BC818567B40DF5203788580976EF847110004941A26795B9280409C2353390B8868",
             si.InstrumentType.SBE911Plus,
-            [
-                si.SensorID.TEMPERATURE,
-                si.SensorID.CONDUCTIVITY,
-                si.SensorID.DIGIQUARTZ_PRESSURE,
-                si.SensorID.TEMPERATURE,
-                si.SensorID.CONDUCTIVITY,
-                si.SensorID.VOLTAGE_0,
-                si.SensorID.VOLTAGE_1,
-                si.SensorID.VOLTAGE_2,
-                si.SensorID.VOLTAGE_3,
-                si.SensorID.VOLTAGE_4,
-                si.SensorID.VOLTAGE_5,
-                si.SensorID.VOLTAGE_6,
-                si.SensorID.VOLTAGE_7,
-                si.SensorID.SPAR_LINEAR,
-                si.SensorID.NMEA_LATITUDE,
-                si.SensorID.NMEA_LONGITUDE,
-                si.SensorID.NMEA_STATUS_AND_SIGN,
-                si.SensorID.DIGIQUARTZ_PRESSURE_TEMPERATURE,
-                si.SensorID.SBE911_PUMP_STATUS,
-                si.SensorID.SBE911_BOTTOM_CONTACT_STATUS,
-                si.SensorID.SBE911_CONFIRM_STATUS,
-                si.SensorID.SBE911_MODEM_STATUS,
-                si.SensorID.DATA_INTEGRITY,
-                si.SensorID.INSTRUMENT_DATE_TIME,
-            ],
+            si._build_hex_sensor_layout(
+                [
+                    si.SensorID.TEMPERATURE,
+                    si.SensorID.CONDUCTIVITY,
+                    si.SensorID.DIGIQUARTZ_PRESSURE,
+                    si.SensorID.TEMPERATURE,
+                    si.SensorID.CONDUCTIVITY,
+                    si.SensorID.VOLTAGE_0,
+                    si.SensorID.VOLTAGE_1,
+                    si.SensorID.VOLTAGE_2,
+                    si.SensorID.VOLTAGE_3,
+                    si.SensorID.VOLTAGE_4,
+                    si.SensorID.VOLTAGE_5,
+                    si.SensorID.VOLTAGE_6,
+                    si.SensorID.VOLTAGE_7,
+                    si.SensorID.SPAR_LINEAR,
+                    si.SensorID.NMEA_LATITUDE,
+                    si.SensorID.NMEA_LONGITUDE,
+                    si.SensorID.NMEA_STATUS_AND_SIGN,
+                    si.SensorID.DIGIQUARTZ_PRESSURE_TEMPERATURE,
+                    si.SensorID.SBE911_PUMP_STATUS,
+                    si.SensorID.SBE911_BOTTOM_CONTACT_STATUS,
+                    si.SensorID.SBE911_CONFIRM_STATUS,
+                    si.SensorID.SBE911_MODEM_STATUS,
+                    si.SensorID.DATA_INTEGRITY,
+                    si.SensorID.INSTRUMENT_DATE_TIME,
+                ]
+            ),
         )
-
-        print(hex_data)
 
         assert round(hex_data[str(si.SensorID.TEMPERATURE) + "_0"], 3) == 4651.168
         assert round(hex_data[str(si.SensorID.CONDUCTIVITY) + "_0"], 3) == 6638.984
@@ -342,27 +352,29 @@ class TestReadHexSBE911plus:
 
 class TestReadHexSBE911PlusStatusBits:
     # 5 frequencies, 4 voltage words, pressure sensor temperature, status, modulo count
-    enabled_sensor_ids: ClassVar[list[si.SensorID]] = [
-        si.SensorID.TEMPERATURE,
-        si.SensorID.CONDUCTIVITY,
-        si.SensorID.DIGIQUARTZ_PRESSURE,
-        si.SensorID.TEMPERATURE,
-        si.SensorID.CONDUCTIVITY,
-        si.SensorID.VOLTAGE_0,
-        si.SensorID.VOLTAGE_1,
-        si.SensorID.VOLTAGE_2,
-        si.SensorID.VOLTAGE_3,
-        si.SensorID.VOLTAGE_4,
-        si.SensorID.VOLTAGE_5,
-        si.SensorID.VOLTAGE_6,
-        si.SensorID.VOLTAGE_7,
-        si.SensorID.DIGIQUARTZ_PRESSURE_TEMPERATURE,
-        si.SensorID.SBE911_PUMP_STATUS,
-        si.SensorID.SBE911_BOTTOM_CONTACT_STATUS,
-        si.SensorID.SBE911_CONFIRM_STATUS,
-        si.SensorID.SBE911_MODEM_STATUS,
-        si.SensorID.DATA_INTEGRITY,
-    ]
+    enabled_sensor_ids: ClassVar[list[tuple[si.SensorID, str]]] = si._build_hex_sensor_layout(
+        [
+            si.SensorID.TEMPERATURE,
+            si.SensorID.CONDUCTIVITY,
+            si.SensorID.DIGIQUARTZ_PRESSURE,
+            si.SensorID.TEMPERATURE,
+            si.SensorID.CONDUCTIVITY,
+            si.SensorID.VOLTAGE_0,
+            si.SensorID.VOLTAGE_1,
+            si.SensorID.VOLTAGE_2,
+            si.SensorID.VOLTAGE_3,
+            si.SensorID.VOLTAGE_4,
+            si.SensorID.VOLTAGE_5,
+            si.SensorID.VOLTAGE_6,
+            si.SensorID.VOLTAGE_7,
+            si.SensorID.DIGIQUARTZ_PRESSURE_TEMPERATURE,
+            si.SensorID.SBE911_PUMP_STATUS,
+            si.SensorID.SBE911_BOTTOM_CONTACT_STATUS,
+            si.SensorID.SBE911_CONFIRM_STATUS,
+            si.SensorID.SBE911_MODEM_STATUS,
+            si.SensorID.DATA_INTEGRITY,
+        ]
+    )
 
     def scan(self, nibble: int) -> str:
         return "0" * 30 + "0" * 24 + "ABC" + f"{nibble:X}" + "6C"
@@ -403,18 +415,20 @@ class TestReadHexSeaFET2:
         hex_data = si.read_hex(
             "470F0245403C03884649C5CC7FD8357FF109FFF5D8327403BA0000",
             si.InstrumentType.SeaFET2,
-            [
-                si.SensorID.SEAFET_PH_EXTERNAL,
-                si.SensorID.SEAFET_PH_INTERNAL,
-                si.SensorID.SEAFET_TEMPERATURE,
-                si.SensorID.PH_VK,
-                si.SensorID.PH_IB,
-                si.SensorID.PH_IK,
-                si.SensorID.RELATIVE_HUMIDITY,
-                si.SensorID.INTERNAL_TEMPERATURE,
-                si.SensorID.INSTRUMENT_DATE_TIME,
-                si.SensorID.ERROR_FLAG,
-            ],
+            si._build_hex_sensor_layout(
+                [
+                    si.SensorID.SEAFET_PH_EXTERNAL,
+                    si.SensorID.SEAFET_PH_INTERNAL,
+                    si.SensorID.SEAFET_TEMPERATURE,
+                    si.SensorID.PH_VK,
+                    si.SensorID.PH_IB,
+                    si.SensorID.PH_IK,
+                    si.SensorID.RELATIVE_HUMIDITY,
+                    si.SensorID.INTERNAL_TEMPERATURE,
+                    si.SensorID.INSTRUMENT_DATE_TIME,
+                    si.SensorID.ERROR_FLAG,
+                ]
+            ),
         )
 
         # outputformat=0 (raw decimal) getsamples:1,1 response: SEAFET00391,2026-10-28T00:52:10, 0000, 4656898, 4538428,  231494, 4834764, 8378421, 8384777, 23936, 65520
@@ -437,24 +451,26 @@ class TestReadHexSeapHOx:
         hex_data = si.read_hex(
             "0396ED0A3EB708738908922963501869FC470F8D4541F4038B7049C8187FD7B17FF088FFF5DA32740BB30000",
             si.InstrumentType.SeapHox2,
-            [
-                si.SensorID.TEMPERATURE,
-                si.SensorID.CONDUCTIVITY,
-                si.SensorID.STRAIN_GAUGE_PRESSURE,
-                si.SensorID.STRAIN_GAUGE_PRESSURE_TEMPERATURE,
-                si.SensorID.SBE63_DISSOLVED_OXYGEN_PHASE,
-                si.SensorID.SBE63_DISSOLVED_OXYGEN_TEMPERATURE,
-                si.SensorID.SEAFET_PH_EXTERNAL,
-                si.SensorID.SEAFET_PH_INTERNAL,
-                si.SensorID.SEAFET_TEMPERATURE,
-                si.SensorID.PH_VK,
-                si.SensorID.PH_IB,
-                si.SensorID.PH_IK,
-                si.SensorID.RELATIVE_HUMIDITY,
-                si.SensorID.INTERNAL_TEMPERATURE,
-                si.SensorID.INSTRUMENT_DATE_TIME,
-                si.SensorID.ERROR_FLAG,
-            ],
+            si._build_hex_sensor_layout(
+                [
+                    si.SensorID.TEMPERATURE,
+                    si.SensorID.CONDUCTIVITY,
+                    si.SensorID.STRAIN_GAUGE_PRESSURE,
+                    si.SensorID.STRAIN_GAUGE_PRESSURE_TEMPERATURE,
+                    si.SensorID.SBE63_DISSOLVED_OXYGEN_PHASE,
+                    si.SensorID.SBE63_DISSOLVED_OXYGEN_TEMPERATURE,
+                    si.SensorID.SEAFET_PH_EXTERNAL,
+                    si.SensorID.SEAFET_PH_INTERNAL,
+                    si.SensorID.SEAFET_TEMPERATURE,
+                    si.SensorID.PH_VK,
+                    si.SensorID.PH_IB,
+                    si.SensorID.PH_IK,
+                    si.SensorID.RELATIVE_HUMIDITY,
+                    si.SensorID.INTERNAL_TEMPERATURE,
+                    si.SensorID.INSTRUMENT_DATE_TIME,
+                    si.SensorID.ERROR_FLAG,
+                ]
+            ),
         )
         #                                                       frame       date time            error  T       vrs_ext  vrs_int   ph_temp vk       ib       ik        p        pt    c         ox_ph   ox_t      it     rh
         # outputformat=0 (raw decimal) getsamples:1,1 response: SSPHOX00391,2026-10-28T01:26:11, 0000,  235245, 4657037, 4538868,  232304, 4835352, 8378289, 8384648,  553865,  2194, 2622.715, 17.124, 0.599996, 23968, 65520
@@ -556,17 +572,19 @@ class TestReadpHyre:
         result = si.read_hex(
             hex_segment,
             si.InstrumentType.pHyre,
-            [
-                si.SensorID.PHYRE_PH_EXTERNAL,
-                si.SensorID.PHYRE_PH_INTERNAL,
-                si.SensorID.PHYRE_TEMPERATURE_EXTERNAL,
-                si.SensorID.PHYRE_TEMPERATURE_INTERNAL,
-                si.SensorID.PH_VK,
-                si.SensorID.PH_IB,
-                si.SensorID.PH_IK,
-                si.SensorID.INSTRUMENT_DATE_TIME,
-                si.SensorID.ERROR_FLAG,
-            ],
+            si._build_hex_sensor_layout(
+                [
+                    si.SensorID.PHYRE_PH_EXTERNAL,
+                    si.SensorID.PHYRE_PH_INTERNAL,
+                    si.SensorID.PHYRE_TEMPERATURE_EXTERNAL,
+                    si.SensorID.PHYRE_TEMPERATURE_INTERNAL,
+                    si.SensorID.PH_VK,
+                    si.SensorID.PH_IB,
+                    si.SensorID.PH_IK,
+                    si.SensorID.INSTRUMENT_DATE_TIME,
+                    si.SensorID.ERROR_FLAG,
+                ]
+            ),
         )
 
         assert result[str(si.SensorID.PHYRE_PH_EXTERNAL) + "_0"] == vrs_external
@@ -670,23 +688,25 @@ class TestReadpHyreCAT:
         result = si.read_hex(
             hex_segment,
             si.InstrumentType.pHyreCAT,
-            [
-                si.SensorID.TEMPERATURE,
-                si.SensorID.CONDUCTIVITY,
-                si.SensorID.STRAIN_GAUGE_PRESSURE,
-                si.SensorID.STRAIN_GAUGE_PRESSURE_TEMPERATURE,
-                si.SensorID.SBE63_DISSOLVED_OXYGEN_PHASE,
-                si.SensorID.SBE63_DISSOLVED_OXYGEN_TEMPERATURE,
-                si.SensorID.PHYRE_PH_EXTERNAL,
-                si.SensorID.PHYRE_PH_INTERNAL,
-                si.SensorID.PHYRE_TEMPERATURE_EXTERNAL,
-                si.SensorID.PHYRE_TEMPERATURE_INTERNAL,
-                si.SensorID.PH_VK,
-                si.SensorID.PH_IB,
-                si.SensorID.PH_IK,
-                si.SensorID.INSTRUMENT_DATE_TIME,
-                si.SensorID.ERROR_FLAG,
-            ],
+            si._build_hex_sensor_layout(
+                [
+                    si.SensorID.TEMPERATURE,
+                    si.SensorID.CONDUCTIVITY,
+                    si.SensorID.STRAIN_GAUGE_PRESSURE,
+                    si.SensorID.STRAIN_GAUGE_PRESSURE_TEMPERATURE,
+                    si.SensorID.SBE63_DISSOLVED_OXYGEN_PHASE,
+                    si.SensorID.SBE63_DISSOLVED_OXYGEN_TEMPERATURE,
+                    si.SensorID.PHYRE_PH_EXTERNAL,
+                    si.SensorID.PHYRE_PH_INTERNAL,
+                    si.SensorID.PHYRE_TEMPERATURE_EXTERNAL,
+                    si.SensorID.PHYRE_TEMPERATURE_INTERNAL,
+                    si.SensorID.PH_VK,
+                    si.SensorID.PH_IB,
+                    si.SensorID.PH_IK,
+                    si.SensorID.INSTRUMENT_DATE_TIME,
+                    si.SensorID.ERROR_FLAG,
+                ]
+            ),
         )
         assert result[str(si.SensorID.TEMPERATURE) + "_0"] == temperature
         assert result[str(si.SensorID.CONDUCTIVITY) + "_0"] == conductivity
@@ -719,6 +739,85 @@ class TestReadHexNoDataRows:
         assert len(raw.data_vars) == 0
 
 
+class TestReadHexSensorLayout:
+    def test_interleaved_replicates(self):
+        sensor_layout = si._build_hex_sensor_layout(
+            [
+                si.SensorID.TEMPERATURE,
+                si.SensorID.CONDUCTIVITY,
+                si.SensorID.TEMPERATURE,
+                si.SensorID.CONDUCTIVITY,
+            ]
+        )
+        result = si.read_hex(
+            "000001000100000002000200", si.InstrumentType.SBE19Plus, sensor_layout
+        )
+
+        assert result == {
+            f"{si.SensorID.TEMPERATURE}_0": 1,
+            f"{si.SensorID.CONDUCTIVITY}_0": 1,
+            f"{si.SensorID.TEMPERATURE}_1": 2,
+            f"{si.SensorID.CONDUCTIVITY}_1": 2,
+        }
+        assert list(result) == [
+            f"{si.SensorID.TEMPERATURE}_0",
+            f"{si.SensorID.CONDUCTIVITY}_0",
+            f"{si.SensorID.TEMPERATURE}_1",
+            f"{si.SensorID.CONDUCTIVITY}_1",
+        ]
+
+    @pytest.mark.parametrize("last_sign", ["80", "8"], ids=["valid", "truncated"])
+    def test_replicated_nmea_coordinates(self, last_sign):
+        sensor_layout = si._build_hex_sensor_layout(
+            [
+                si.SensorID.NMEA_LATITUDE,
+                si.SensorID.NMEA_LONGITUDE,
+                si.SensorID.NMEA_STATUS_AND_SIGN,
+            ]
+            * 2
+        )
+        result = si.read_hex(
+            "00000100000240000003000004" + last_sign,
+            si.InstrumentType.SBE19Plus,
+            sensor_layout,
+        )
+        expected = {
+            f"{si.SensorID.NMEA_LATITUDE}_0": 0.00002,
+            f"{si.SensorID.NMEA_LONGITUDE}_0": -0.00004,
+            f"{si.SensorID.NMEA_LATITUDE}_1": -0.00006,
+            f"{si.SensorID.NMEA_LONGITUDE}_1": 0.00008,
+        }
+        assert set(result) == set(expected)
+        if last_sign == "8":
+            assert all(pd.isna(value) for value in result.values())
+        else:
+            assert result == pytest.approx(expected)
+
+    def test_file_builds_layout_once(self, tmp_path, monkeypatch):
+        filepath = tmp_path / "replicates.hex"
+        filepath.write_text("*END*\n000001000002\n000003000004\n")
+        sensor_ids = [si.SensorID.TEMPERATURE] * 2
+        build_layout = si._build_hex_sensor_layout
+        layouts = []
+
+        def track_layout(enabled_sensor_ids):
+            layout = build_layout(enabled_sensor_ids)
+            layouts.append(layout)
+            return layout
+
+        monkeypatch.setattr(si, "_build_hex_sensor_layout", track_layout)
+        dataset = si.read_hex_file(filepath, si.InstrumentType.SBE19Plus, sensor_ids)
+
+        assert len(layouts) == 1
+        assert list(dataset.data_vars) == [
+            f"{si.SensorID.TEMPERATURE}_0",
+            f"{si.SensorID.TEMPERATURE}_1",
+        ]
+        assert dataset[f"{si.SensorID.TEMPERATURE}_0"].values.tolist() == [1, 3]
+        assert dataset[f"{si.SensorID.TEMPERATURE}_1"].values.tolist() == [2, 4]
+        assert sensor_ids == [si.SensorID.TEMPERATURE] * 2
+
+
 class TestReadHexIncorrectLength:
     @pytest.mark.parametrize(
         "hex_segment",
@@ -727,7 +826,8 @@ class TestReadHexIncorrectLength:
     )
     def test_incorrect_hex_length_sets_all_values_to_nan(self, hex_segment):
         sensor_ids = [si.SensorID.TEMPERATURE, si.SensorID.CONDUCTIVITY]
-        result = si.read_hex(hex_segment, si.InstrumentType.SBE19Plus, sensor_ids)
+        sensor_layout = si._build_hex_sensor_layout(sensor_ids)
+        result = si.read_hex(hex_segment, si.InstrumentType.SBE19Plus, sensor_layout)
 
-        assert set(result) == {str(sensor_id) + "_0" for sensor_id in sensor_ids}
+        assert set(result) == {key for _, key in sensor_layout}
         assert all(pd.isna(value) for value in result.values())
