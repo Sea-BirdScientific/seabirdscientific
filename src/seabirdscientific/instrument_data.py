@@ -19,6 +19,30 @@ from seabirdscientific.utils import WarnAllMembersMeta
 logger = getLogger(__name__)
 
 
+class InstrumentType(Enum):
+    """The type of instrument that generated the hex file being read"""
+
+    SBE37SM = "37-SM"
+    SBE37SMP = "37-SMP"
+    SBE37SMPODO = "37-SMP-ODO"
+    SBE37SI = "37-SI"
+    SBE37SIP = "37-SIP"
+    SBE37IM = "37-IM"
+    SBE37IMP = "37-IMP"
+    SBE37IMPODO = "37-IMP-ODO"
+    SBE19Plus = "19plus"
+    SBE16Plus = "16plus"
+    SBE39Plus = "39plus"
+    SBE39PlusIM = "39plus-IM"
+    SBE911Plus = "911plus"
+    SeaFET2 = "SeaFET2"
+    SeapHox2 = "SeapHox2"
+    pHyre = "pHyre"
+    pHyreCAT = "pHyreCAT"
+    HydroCAT = "HydroCAT"
+    HydroCATODO = "HydroCAT-ODO"
+
+
 class SensorID(Enum):
     ALTIMETER = 0
     CONDUCTIVITY = 3
@@ -124,12 +148,13 @@ class SensorID(Enum):
     ECO_VOLTAGE_FLPC = 165
     ECO_VOLTAGE_CHL_435 = 166
     ECO_VOLTAGE_CHL_470 = 167
-    SBE911_PUMP_STATUS = 168
-    SBE911_BOTTOM_CONTACT_STATUS = 169
-    SBE911_CONFIRM_STATUS = 170
-    SBE911_MODEM_STATUS = 171
-    DATA_INTEGRITY = 172
-    ERROR_FLAG = 173
+    SBE911_DIAGNOSTICS = 168
+    SBE911_PUMP_STATUS = 169
+    SBE911_BOTTOM_CONTACT_STATUS = 170
+    SBE911_CONFIRM_STATUS = 171
+    SBE911_MODEM_STATUS = 172
+    DATA_INTEGRITY = 173
+    ERROR_FLAG = 174
     VOLTAGE = 998
     UNSUPORTED = 999
 
@@ -170,6 +195,128 @@ HEX_LEN_NMEA_LOCATION = 14
 HEX_LEN_NMEA_STATUS_AND_SIGN = 2
 HEX_LEN_NMEA_DEPTH = 6
 HEX_LEN_SYSTEM_TIME = 8
+
+
+def sensor_id_to_hex_length(sensorID: SensorID, instrument_type: InstrumentType):
+    general_map = {
+        SensorID.TEMPERATURE: HEX_LEN_TEMPERATURE,
+        SensorID.SEAFET_TEMPERATURE: HEX_LEN_TEMPERATURE,
+        SensorID.PHYRE_TEMPERATURE_EXTERNAL: HEX_LEN_TEMPERATURE,
+        SensorID.PHYRE_TEMPERATURE_INTERNAL: HEX_LEN_TEMPERATURE,
+        SensorID.CONDUCTIVITY: HEX_LEN_CONDUCTIVITY,
+        SensorID.STRAIN_GAUGE_PRESSURE: HEX_LEN_STRAIN_GAUGE_PRESSURE,
+        SensorID.STRAIN_GAUGE_PRESSURE_TEMPERATURE: HEX_LEN_STRAIN_GAUGE_PRESSURE_TEMP_COMP,
+        SensorID.DIGIQUARTZ_PRESSURE: HEX_LEN_DIGIQUARTZ_PRESSURE,
+        SensorID.DIGIQUARTZ_PRESSURE_TEMPERATURE: HEX_LEN_DIGIQUARTZ_PRESSURE_TEMP_COMP,
+        SensorID.SEAFET_PH_EXTERNAL: HEX_LEN_VRS_EXTERNAL,
+        SensorID.PHYRE_PH_EXTERNAL: HEX_LEN_VRS_EXTERNAL,
+        SensorID.SEAFET_PH_INTERNAL: HEX_LEN_VRS_INTERNAL,
+        SensorID.PHYRE_PH_INTERNAL: HEX_LEN_VRS_INTERNAL,
+        SensorID.SBE38_TEMPERATURE: HEX_LEN_SBE38_TEMPERATURE,
+        SensorID.ECO_SERIAL_BACKSCATTERING_880: HEX_LEN_WETLABS_SINGLE_SENSOR,
+        SensorID.ECO_SERIAL_BACKSCATTERING_870: HEX_LEN_WETLABS_SINGLE_SENSOR,
+        SensorID.ECO_SERIAL_BACKSCATTERING_780: HEX_LEN_WETLABS_SINGLE_SENSOR,
+        SensorID.ECO_SERIAL_BACKSCATTERING_770: HEX_LEN_WETLABS_SINGLE_SENSOR,
+        SensorID.ECO_SERIAL_BACKSCATTERING_720: HEX_LEN_WETLABS_SINGLE_SENSOR,
+        SensorID.ECO_SERIAL_BACKSCATTERING_715: HEX_LEN_WETLABS_SINGLE_SENSOR,
+        SensorID.ECO_SERIAL_BACKSCATTERING_700: HEX_LEN_WETLABS_SINGLE_SENSOR,
+        SensorID.ECO_SERIAL_BACKSCATTERING_676: HEX_LEN_WETLABS_SINGLE_SENSOR,
+        SensorID.ECO_SERIAL_BACKSCATTERING_650: HEX_LEN_WETLABS_SINGLE_SENSOR,
+        SensorID.ECO_SERIAL_BACKSCATTERING_630: HEX_LEN_WETLABS_SINGLE_SENSOR,
+        SensorID.ECO_SERIAL_BACKSCATTERING_595: HEX_LEN_WETLABS_SINGLE_SENSOR,
+        SensorID.ECO_SERIAL_BACKSCATTERING_532: HEX_LEN_WETLABS_SINGLE_SENSOR,
+        SensorID.ECO_SERIAL_BACKSCATTERING_530: HEX_LEN_WETLABS_SINGLE_SENSOR,
+        SensorID.ECO_SERIAL_BACKSCATTERING_510: HEX_LEN_WETLABS_SINGLE_SENSOR,
+        SensorID.ECO_SERIAL_BACKSCATTERING_488: HEX_LEN_WETLABS_SINGLE_SENSOR,
+        SensorID.ECO_SERIAL_BACKSCATTERING_470: HEX_LEN_WETLABS_SINGLE_SENSOR,
+        SensorID.ECO_SERIAL_BACKSCATTERING_440: HEX_LEN_WETLABS_SINGLE_SENSOR,
+        SensorID.ECO_SERIAL_BACKSCATTERING_412: HEX_LEN_WETLABS_SINGLE_SENSOR,
+        SensorID.ECO_SERIAL_FDOM: HEX_LEN_WETLABS_SINGLE_SENSOR,
+        SensorID.ECO_SERIAL_FLUR: HEX_LEN_WETLABS_SINGLE_SENSOR,
+        SensorID.ECO_SERIAL_FLRH: HEX_LEN_WETLABS_SINGLE_SENSOR,
+        SensorID.ECO_SERIAL_FLPE: HEX_LEN_WETLABS_SINGLE_SENSOR,
+        SensorID.ECO_SERIAL_FLPC: HEX_LEN_WETLABS_SINGLE_SENSOR,
+        SensorID.ECO_SERIAL_CHL_435: HEX_LEN_WETLABS_SINGLE_SENSOR,
+        SensorID.ECO_SERIAL_CHL_470: HEX_LEN_WETLABS_SINGLE_SENSOR,
+        SensorID.GTD_PRESSURE: HEX_LEN_GTD_PRESSURE,
+        SensorID.GTD_TEMPERATURE: HEX_LEN_TEMPERATURE,
+        SensorID.OPTODE_OXYGEN: HEX_LEN_OPTODE_OXYGEN,
+        SensorID.SBE63_DISSOLVED_OXYGEN_PHASE: HEX_LEN_SBE63_PHASE,
+        SensorID.SBE63_DISSOLVED_OXYGEN_TEMPERATURE: HEX_LEN_SBE63_TEMPERATURE,
+        SensorID.NMEA_LATITUDE: 2,  # 3 bytes, total of 6 hex chacters
+        SensorID.NMEA_LONGITUDE: 2,  # 3 bytes, total of 6 hex chacters
+        SensorID.NMEA_STATUS_AND_SIGN: HEX_LEN_NMEA_STATUS_AND_SIGN,
+        SensorID.NMEA_DATE_TIME: HEX_LEN_NMEA_TIME,
+        SensorID.INSTRUMENT_DATE_TIME: HEX_LEN_DATE_TIME,
+        SensorID.SBE911_PUMP_STATUS: HEX_LEN_SBE911_STATUS,
+        SensorID.SBE911_BOTTOM_CONTACT_STATUS: HEX_LEN_SBE911_STATUS,
+        SensorID.SBE911_CONFIRM_STATUS: HEX_LEN_SBE911_STATUS,
+        SensorID.SBE911_MODEM_STATUS: HEX_LEN_SBE911_STATUS,
+        SensorID.SBE911_DIAGNOSTICS: HEX_LEN_SBE911_STATUS,
+        SensorID.DATA_INTEGRITY: HEX_LEN_SBE911_DATA_INTEGRITY,
+        SensorID.PH_VK: HEX_LEN_VK,
+        SensorID.PH_IB: HEX_LEN_IB,
+        SensorID.PH_IK: HEX_LEN_IK,
+        SensorID.RELATIVE_HUMIDITY: HEX_LEN_RELATIVE_HUMIDITY,
+        SensorID.INTERNAL_TEMPERATURE: HEX_LEN_INTERNAL_TEMPERATURE,
+        SensorID.ERROR_FLAG: HEX_LEN_ERROR_FLAG,
+    }
+
+    if sensorID in [
+        SensorID.VOLTAGE_0,
+        SensorID.VOLTAGE_1,
+        SensorID.VOLTAGE_2,
+        SensorID.VOLTAGE_3,
+        SensorID.VOLTAGE_4,
+        SensorID.VOLTAGE_5,
+        SensorID.VOLTAGE_6,
+        SensorID.VOLTAGE_7,
+        SensorID.SBE18_PH,
+        SensorID.SBE27_PH,
+        SensorID.SBE27_ORP,
+        SensorID.SBE43_DISSOLVED_OXYGEN,
+        SensorID.PAR,
+        SensorID.SPAR_BIOSPHERICAL,
+        SensorID.SPAR_LINEAR,
+        SensorID.SPAR_LOGARITHMIC,
+        SensorID.SUNA,
+        SensorID.ALTIMETER,
+        SensorID.CSTAR,
+        SensorID.CUSTOM_POLYNOMIAL,
+        SensorID.CUSTOM_EXPONENTIAL,
+        SensorID.CUSTOM_EQUATION,
+        SensorID.ECO_VOLTAGE_BACKSCATTERING_880,
+        SensorID.ECO_VOLTAGE_BACKSCATTERING_870,
+        SensorID.ECO_VOLTAGE_BACKSCATTERING_780,
+        SensorID.ECO_VOLTAGE_BACKSCATTERING_770,
+        SensorID.ECO_VOLTAGE_BACKSCATTERING_720,
+        SensorID.ECO_VOLTAGE_BACKSCATTERING_715,
+        SensorID.ECO_VOLTAGE_BACKSCATTERING_700,
+        SensorID.ECO_VOLTAGE_BACKSCATTERING_676,
+        SensorID.ECO_VOLTAGE_BACKSCATTERING_650,
+        SensorID.ECO_VOLTAGE_BACKSCATTERING_630,
+        SensorID.ECO_VOLTAGE_BACKSCATTERING_595,
+        SensorID.ECO_VOLTAGE_BACKSCATTERING_532,
+        SensorID.ECO_VOLTAGE_BACKSCATTERING_530,
+        SensorID.ECO_VOLTAGE_BACKSCATTERING_510,
+        SensorID.ECO_VOLTAGE_BACKSCATTERING_488,
+        SensorID.ECO_VOLTAGE_BACKSCATTERING_470,
+        SensorID.ECO_VOLTAGE_BACKSCATTERING_440,
+        SensorID.ECO_VOLTAGE_BACKSCATTERING_412,
+        SensorID.ECO_VOLTAGE_FDOM,
+        SensorID.ECO_VOLTAGE_FLUR,
+        SensorID.ECO_VOLTAGE_FLRH,
+        SensorID.ECO_VOLTAGE_FLPE,
+        SensorID.ECO_VOLTAGE_FLPC,
+        SensorID.ECO_VOLTAGE_CHL_435,
+        SensorID.ECO_VOLTAGE_CHL_470,
+    ]:
+        if instrument_type == InstrumentType.SBE911Plus:
+            return HEX_LEN_SBE911_VOLTAGE
+        else:
+            return HEX_LEN_VOLTAGE
+    else:
+        return general_map[sensorID]
 
 
 """Possible data types in hex files"""
@@ -223,30 +370,6 @@ HEX_TYPE_SBE911_CONFIRM_STATUS = "SBE911 confirm status"
 HEX_TYPE_SBE911_MODEM_STATUS = "SBE911 modem status"
 HEX_TYPE_DATA_INTEGRITY = "data integrity"
 HEX_TYPE_SYSTEM_TIME = "system time"
-
-
-class InstrumentType(Enum):
-    """The type of instrument that generated the hex file being read"""
-
-    SBE37SM = "37-SM"
-    SBE37SMP = "37-SMP"
-    SBE37SMPODO = "37-SMP-ODO"
-    SBE37SI = "37-SI"
-    SBE37SIP = "37-SIP"
-    SBE37IM = "37-IM"
-    SBE37IMP = "37-IMP"
-    SBE37IMPODO = "37-IMP-ODO"
-    SBE19Plus = "19plus"
-    SBE16Plus = "16plus"
-    SBE39Plus = "39plus"
-    SBE39PlusIM = "39plus-IM"
-    SBE911Plus = "911plus"
-    SeaFET2 = "SeaFET2"
-    SeapHox2 = "SeapHox2"
-    pHyre = "pHyre"
-    pHyreCAT = "pHyreCAT"
-    HydroCAT = "HydroCAT"
-    HydroCATODO = "HydroCAT-ODO"
 
 
 class Sensors(Enum):
@@ -436,6 +559,10 @@ def _column_array(values: list | tuple) -> np.ndarray:
 
     :return: a 1D array of the column
     """
+    values_array = np.asarray(values)
+    if np.issubdtype(values_array.dtype, np.datetime64):
+        return values_array
+
     try:
         return np.array(values, dtype=float)
     except (ValueError, TypeError):
@@ -559,24 +686,12 @@ def read_hex_file(
     if not data_lines:
         return xr.Dataset({}, attrs=attrs)
 
-    # Accumulate one list per measurand, then convert each column in a single
-    # pass. Appending is cheaper than writing into a preallocated array cell by
-    # cell, and avoids holding a scans x measurands array of boxed values.
-    columns: dict[str, list] = {}
-
     # list of tuples matching SensorID to the key to be used in results dict like 'SensorID.TEMPERATURE_0'
-    sensor_layout = _build_hex_sensor_layout(enabled_sensor_ids)
+    sensor_layout = _build_hex_sensor_layout(enabled_sensor_ids, instrument_type)
 
-    for line in data_lines:
-        hex_data = read_hex(
-            line,
-            instrument_type,
-            sensor_layout,
-        )
-        if not columns:
-            columns = {key: [] for key in hex_data}
-        for key, column in columns.items():
-            column.append(hex_data[key])
+    columns = batch_convert_hex_to_dec(data_lines, sensor_layout)
+
+    columns = _apply_transforms(columns, instrument_type, sensor_layout)
 
     # Build the Dataset in one construction so the scan coord is allocated once
     # and aligned once, rather than per measurand.
@@ -595,22 +710,88 @@ def read_hex_file(
 
 
 def _build_hex_sensor_layout(
-    enabled_sensor_ids: list[SensorID],
-) -> list[tuple[SensorID, str]]:
+    enabled_sensor_ids: list[SensorID], instrument_type: InstrumentType
+) -> list[tuple[SensorID, str, int]]:
     """Precompute each sensor's output key, suffixed with its zero-based replicate number."""
     replicate_by_sensor_id: dict[SensorID, int] = {}
-    sensor_layout: list[tuple[SensorID, str]] = []
+    sensor_layout: list[tuple[SensorID, str, int]] = []
     for sensor_id in enabled_sensor_ids:
         replicate = replicate_by_sensor_id.get(sensor_id, 0)
-        sensor_layout.append((sensor_id, f"{sensor_id}_{replicate}"))
+        hex_length = sensor_id_to_hex_length(sensor_id, instrument_type)
+
+        if sensor_id in [SensorID.NMEA_LONGITUDE, SensorID.NMEA_LATITUDE]:
+            sensor_layout.append((f"{sensor_id}_byte0", f"{sensor_id}_byte0", hex_length))
+            sensor_layout.append((f"{sensor_id}_byte1", f"{sensor_id}_byte1", hex_length))
+            sensor_layout.append((f"{sensor_id}_byte2", f"{sensor_id}_byte2", hex_length))
+        elif sensor_id in [
+            SensorID.SPAR_BIOSPHERICAL,
+            SensorID.SPAR_LINEAR,
+            SensorID.SPAR_LOGARITHMIC,
+        ]:
+            sensor_layout.append(
+                (f"{sensor_id}_unused_bytes", f"{sensor_id}_unused_bytes", 3)
+            )  # first three bytes not used in spar, this column is deleted later
+            sensor_layout.append((sensor_id, f"{sensor_id}_{replicate}", hex_length))
+        elif sensor_id in [
+            SensorID.NMEA_STATUS_AND_SIGN,
+            SensorID.DATA_INTEGRITY,
+            SensorID.SBE911_DIAGNOSTICS,
+            SensorID.INSTRUMENT_DATE_TIME,
+        ]:
+            # Don't add replicate suffix
+            sensor_layout.append((sensor_id, str(sensor_id), hex_length))
+        else:
+            sensor_layout.append((sensor_id, f"{sensor_id}_{replicate}", hex_length))
+
         replicate_by_sensor_id[sensor_id] = replicate + 1
     return sensor_layout
 
 
-def read_hex(
-    hex_segment: str,
+def batch_convert_hex_to_dec(
+    lines: list[str], sensor_layout: list[tuple[str, str, int]]
+) -> dict[str, np.ndarray]:
+    """
+    Processes all lines at once using NumPy.
+    Splits and converts fixed-length hex data to decimal columns at maximum speed.
+    """
+    # 1. Clean and convert your raw text lines into a NumPy string array
+    # Stripping and casting to an 'S' (byte-string) type drops Python string overhead
+    cleaned_lines = [line.strip() for line in lines]
+    max_len = max(len(s) for s in cleaned_lines)
+    arr = np.array(cleaned_lines, dtype=f"S{max_len}")
+
+    # 2. View the data as raw byte characters (columns)
+    # This turns a list of strings into a 2D matrix of individual characters
+    char_matrix = arr.view(np.uint8).reshape(len(arr), -1)
+
+    results = {}
+    offset = 0
+
+    # 3. Process each sensor column in bulk
+    for _, key, hex_length in sensor_layout:
+        # Slice out the character block for this specific sensor across ALL rows
+        sensor_chars = char_matrix[:, offset : offset + hex_length]
+
+        # Fast vector math to convert ASCII bytes to numeric values
+        is_letter = sensor_chars > 57
+        values = sensor_chars - 48
+        values[is_letter] -= 7  # Adjusts 'A'-'F' or 'a'-'f' (assuming uniform casing)
+
+        # Generate powers of 16 multipliers for this specific hex length
+        multipliers = 16 ** np.arange(hex_length - 1, -1, -1)
+
+        # Matrix multiplication computes the decimal equivalent instantly for all rows
+        results[key] = np.dot(values, multipliers)
+
+        offset += hex_length
+
+    return results
+
+
+def _apply_transforms(
+    columns: dict[str, np.ndarray],
     instrument_type: InstrumentType,
-    sensor_layout: list[tuple[SensorID, str]],
+    sensor_layout: list[tuple[SensorID, str, int]],
 ) -> dict[str, float | datetime]:
     """Converts a data hex string into raw decimal values.
 
@@ -620,128 +801,41 @@ def read_hex(
         _build_hex_sensor_layout, prepared once per sensor configuration
     :return: a dictionary of output key to raw value
     """
-    results: dict[str, int | float | datetime] = {}
-    n = 0
-    sbe911_status: int | None = None
 
-    for sensor_id, key in sensor_layout:
+    for sensor_id, key, hex_length in sensor_layout:
         # -------- Internal Sensors  ---------
-        if sensor_id in [
-            SensorID.TEMPERATURE,
-            SensorID.SEAFET_TEMPERATURE,
-            SensorID.PHYRE_TEMPERATURE_EXTERNAL,
-            SensorID.PHYRE_TEMPERATURE_INTERNAL,
-        ]:
-            if instrument_type == InstrumentType.SBE911Plus:
-                results[key] = int(hex_segment[n : n + HEX_LEN_TEMPERATURE], 16) / 256
-            else:
-                results[key] = int(hex_segment[n : n + HEX_LEN_TEMPERATURE], 16)
-            n += HEX_LEN_TEMPERATURE
+        if sensor_id == SensorID.TEMPERATURE and instrument_type == InstrumentType.SBE911Plus:
+            columns[key] = columns[key] / 256
 
         elif sensor_id == SensorID.CONDUCTIVITY:
-            if instrument_type == InstrumentType.pHyreCAT:
-                results[key] = int(hex_segment[n : n + HEX_LEN_CONDUCTIVITY], 16)
-            else:
-                results[key] = int(hex_segment[n : n + HEX_LEN_CONDUCTIVITY], 16) / 256
-            n += HEX_LEN_CONDUCTIVITY
-
-        elif sensor_id == SensorID.STRAIN_GAUGE_PRESSURE:
-            results[key] = int(hex_segment[n : n + HEX_LEN_STRAIN_GAUGE_PRESSURE], 16)
-            n += HEX_LEN_STRAIN_GAUGE_PRESSURE
+            if instrument_type != InstrumentType.pHyreCAT:
+                columns[key] = columns[key] / 256
 
         elif sensor_id == SensorID.STRAIN_GAUGE_PRESSURE_TEMPERATURE:
-            pressure_temperature = int(
-                hex_segment[n : n + HEX_LEN_STRAIN_GAUGE_PRESSURE_TEMP_COMP], 16
-            )
-
             if instrument_type in [InstrumentType.SBE19Plus, InstrumentType.SBE16Plus]:
-                pressure_temperature /= COUNTS_TO_VOLTS
-
-            results[key] = pressure_temperature
-            n += HEX_LEN_STRAIN_GAUGE_PRESSURE_TEMP_COMP
+                columns[key] = columns[key] / COUNTS_TO_VOLTS
 
         elif sensor_id == SensorID.DIGIQUARTZ_PRESSURE:
-            results[key] = int(hex_segment[n : n + HEX_LEN_DIGIQUARTZ_PRESSURE], 16) / 256
-            n += HEX_LEN_DIGIQUARTZ_PRESSURE
-
-        elif sensor_id == SensorID.DIGIQUARTZ_PRESSURE_TEMPERATURE:
-            results[key] = int(hex_segment[n : n + HEX_LEN_DIGIQUARTZ_PRESSURE_TEMP_COMP], 16)
-            if instrument_type == InstrumentType.SBE911Plus:
-                n += HEX_LEN_SBE911_TEMPERATURE_COMPENSATION
-            else:
-                n += HEX_LEN_DIGIQUARTZ_PRESSURE_TEMP_COMP + 1  # 4th hex character is not used
-
-        elif sensor_id in [SensorID.SEAFET_PH_EXTERNAL, SensorID.PHYRE_PH_EXTERNAL]:
-            results[key] = int(hex_segment[n : n + HEX_LEN_VRS_EXTERNAL], 16)
-            n += HEX_LEN_VRS_EXTERNAL
-
-        elif sensor_id in [SensorID.SEAFET_PH_INTERNAL, SensorID.PHYRE_PH_INTERNAL]:
-            results[key] = int(hex_segment[n : n + HEX_LEN_VRS_INTERNAL], 16)
-            n += HEX_LEN_VRS_INTERNAL
+            columns[key] = columns[key] / 256
 
         # -------------- Aux Serial Sensors -------------------
 
         elif sensor_id == SensorID.SBE38_TEMPERATURE:
-            results[key] = int(hex_segment[n : n + HEX_LEN_SBE38_TEMPERATURE], 16) / 100000 - 10
-            n += HEX_LEN_SBE38_TEMPERATURE
-
-        elif sensor_id in [
-            SensorID.ECO_SERIAL_BACKSCATTERING_880,
-            SensorID.ECO_SERIAL_BACKSCATTERING_870,
-            SensorID.ECO_SERIAL_BACKSCATTERING_780,
-            SensorID.ECO_SERIAL_BACKSCATTERING_770,
-            SensorID.ECO_SERIAL_BACKSCATTERING_720,
-            SensorID.ECO_SERIAL_BACKSCATTERING_715,
-            SensorID.ECO_SERIAL_BACKSCATTERING_700,
-            SensorID.ECO_SERIAL_BACKSCATTERING_676,
-            SensorID.ECO_SERIAL_BACKSCATTERING_650,
-            SensorID.ECO_SERIAL_BACKSCATTERING_630,
-            SensorID.ECO_SERIAL_BACKSCATTERING_595,
-            SensorID.ECO_SERIAL_BACKSCATTERING_532,
-            SensorID.ECO_SERIAL_BACKSCATTERING_530,
-            SensorID.ECO_SERIAL_BACKSCATTERING_510,
-            SensorID.ECO_SERIAL_BACKSCATTERING_488,
-            SensorID.ECO_SERIAL_BACKSCATTERING_470,
-            SensorID.ECO_SERIAL_BACKSCATTERING_440,
-            SensorID.ECO_SERIAL_BACKSCATTERING_412,
-            SensorID.ECO_SERIAL_FDOM,
-            SensorID.ECO_SERIAL_FLUR,
-            SensorID.ECO_SERIAL_FLRH,
-            SensorID.ECO_SERIAL_FLPE,
-            SensorID.ECO_SERIAL_FLPC,
-            SensorID.ECO_SERIAL_CHL_435,
-            SensorID.ECO_SERIAL_CHL_470,
-        ]:
-            results[key] = int(hex_segment[n : n + HEX_LEN_WETLABS_SINGLE_SENSOR], 16)
-            n += HEX_LEN_WETLABS_SINGLE_SENSOR
+            columns[key] = columns[key] / 100000 - 10
 
         elif sensor_id == SensorID.GTD_PRESSURE:
-            results[key] = int(hex_segment[n : n + HEX_LEN_GTD_PRESSURE], 16) / 10000
-            n += HEX_LEN_GTD_PRESSURE
+            columns[key] = columns[key] / 10000
 
-        elif sensor_id == SensorID.GTD_TEMPERATURE:
-            results[key] = int(hex_segment[n : n + HEX_LEN_TEMPERATURE], 16) / 10000 - 10
-            n += HEX_LEN_TEMPERATURE
-
-        elif sensor_id == SensorID.OPTODE_OXYGEN:
-            results[key] = int(hex_segment[n : n + HEX_LEN_OPTODE_OXYGEN], 16) / 10000 - 10
-            n += HEX_LEN_OPTODE_OXYGEN
+        elif sensor_id in [SensorID.GTD_TEMPERATURE, SensorID.OPTODE_OXYGEN]:
+            columns[key] = columns[key] / 10000 - 10
 
         elif sensor_id == SensorID.SBE63_DISSOLVED_OXYGEN_PHASE:
-            if instrument_type == InstrumentType.pHyreCAT:
-                results[key] = int(hex_segment[n : n + HEX_LEN_SBE63_PHASE], 16)
-            else:
-                results[key] = int(hex_segment[n : n + HEX_LEN_SBE63_PHASE], 16) / 100000 - 10
-            n += HEX_LEN_SBE63_PHASE
+            if instrument_type != InstrumentType.pHyreCAT:
+                columns[key] = columns[key] / 100000 - 10
 
         elif sensor_id == SensorID.SBE63_DISSOLVED_OXYGEN_TEMPERATURE:
-            if instrument_type == InstrumentType.pHyreCAT:
-                results[key] = int(hex_segment[n : n + HEX_LEN_SBE63_TEMPERATURE], 16)
-            else:
-                results[key] = (
-                    int(hex_segment[n : n + HEX_LEN_SBE63_TEMPERATURE], 16) / 1000000 - 1
-                )
-            n += HEX_LEN_SBE63_TEMPERATURE
+            if instrument_type != InstrumentType.pHyreCAT:
+                columns[key] = columns[key] / 1000000 - 1
 
         # -------------- Aux Voltage Sensors -----------------
         elif sensor_id in [
@@ -798,172 +892,127 @@ def read_hex(
                 SensorID.SPAR_LINEAR,
                 SensorID.SPAR_LOGARITHMIC,
             ]:
-                n += 3  # unused bits
-                results[key] = int(hex_segment[n : n + HEX_LEN_SBE911_SURFACE_PAR], 16) / 819
-                n += HEX_LEN_SBE911_SURFACE_PAR
+                # n += 3  # unused bits
+                columns[key] = columns[key] / 819
+                columns.pop(f"{sensor_id}_unused_bytes")
             elif instrument_type == InstrumentType.SBE911Plus:
-                decimal_a = int(hex_segment[n : n + HEX_LEN_SBE911_VOLTAGE], 16)
-                results[key] = 5 * (1 - decimal_a / 4095)
-                n += HEX_LEN_SBE911_VOLTAGE
+                decimal_a = columns[key]
+                columns[key] = 5 * (1 - decimal_a / 4095)
             else:
-                results[key] = int(hex_segment[n : n + HEX_LEN_VOLTAGE], 16) / COUNTS_TO_VOLTS
-                n += HEX_LEN_VOLTAGE
+                columns[key] = columns[key] / COUNTS_TO_VOLTS
 
         # ------------- Additional Parameters ---------------
-        elif sensor_id == SensorID.NMEA_LATITUDE:
-            results[key] = read_nmea_coordinates(hex_segment[n : n + HEX_LEN_NMEA_LATITUDE])
-            n += HEX_LEN_NMEA_LATITUDE
+        elif sensor_id == f"{SensorID.NMEA_LATITUDE}_byte0":
+            columns[str(SensorID.NMEA_LATITUDE)] = read_nmea_coordinates(
+                columns[f"{SensorID.NMEA_LATITUDE}_byte0"],
+                columns[f"{SensorID.NMEA_LATITUDE}_byte1"],
+                columns[f"{SensorID.NMEA_LATITUDE}_byte2"],
+            )
+            columns.pop(f"{SensorID.NMEA_LATITUDE}_byte0")
+            columns.pop(f"{SensorID.NMEA_LATITUDE}_byte1")
+            columns.pop(f"{SensorID.NMEA_LATITUDE}_byte2")
 
-        elif sensor_id == SensorID.NMEA_LONGITUDE:
-            results[key] = read_nmea_coordinates(hex_segment[n : n + HEX_LEN_NMEA_LONGITUDE])
-            n += HEX_LEN_NMEA_LONGITUDE
+        elif sensor_id == f"{SensorID.NMEA_LONGITUDE}_byte0":
+            columns[str(SensorID.NMEA_LONGITUDE)] = read_nmea_coordinates(
+                columns[f"{SensorID.NMEA_LONGITUDE}_byte0"],
+                columns[f"{SensorID.NMEA_LONGITUDE}_byte1"],
+                columns[f"{SensorID.NMEA_LONGITUDE}_byte2"],
+            )
+            columns.pop(f"{SensorID.NMEA_LONGITUDE}_byte0")
+            columns.pop(f"{SensorID.NMEA_LONGITUDE}_byte1")
+            columns.pop(f"{SensorID.NMEA_LONGITUDE}_byte2")
 
         elif sensor_id == SensorID.NMEA_STATUS_AND_SIGN:
-            replicate = key.rsplit("_", 1)[1]
-            latitude_key = f"{SensorID.NMEA_LATITUDE}_{replicate}"
-            longitude_key = f"{SensorID.NMEA_LONGITUDE}_{replicate}"
-            signs = read_status_sign(hex_segment[n : n + HEX_LEN_NMEA_STATUS_AND_SIGN])
+            signs = read_status_sign(columns[key])
             if np.any(pd.isna(signs)):
-                results[latitude_key] = np.nan
-                results[longitude_key] = np.nan
+                columns[str(SensorID.NMEA_LATITUDE)] = np.nan
+                columns[str(SensorID.NMEA_LONGITUDE)] = np.nan
             else:
-                results[latitude_key] *= signs[0]
-                results[longitude_key] *= signs[1]
-            n += HEX_LEN_NMEA_STATUS_AND_SIGN
+                columns[str(SensorID.NMEA_LATITUDE)] *= signs[0]
+                columns[str(SensorID.NMEA_LONGITUDE)] *= signs[1]
+            columns.pop(key)
 
         elif sensor_id == SensorID.NMEA_DATE_TIME:
-            seconds_since_2000 = read_nmea_date_time(hex_segment[n : n + HEX_LEN_NMEA_TIME])
-            # naive, no timezone conversion
-            results[key] = datetime(1970, 1, 1) + timedelta(
-                seconds=seconds_since_2000 + SECONDS_BETWEEN_EPOCH_AND_2000
+            seconds_since_2000 = columns[key]
+            seconds_since_2000 = (
+                ((seconds_since_2000 & 0x000000FF) << 24)
+                | ((seconds_since_2000 & 0x0000FF00) << 8)
+                | ((seconds_since_2000 & 0x00FF0000) >> 8)
+                | ((seconds_since_2000 & 0xFF000000) >> 24)
             )
-            n += HEX_LEN_NMEA_TIME
+            columns[key] = np.datetime64("1970-01-01T00:00:00", "s") + (
+                seconds_since_2000 + SECONDS_BETWEEN_EPOCH_AND_2000
+            ).astype("timedelta64[s]")
 
         elif sensor_id == SensorID.INSTRUMENT_DATE_TIME:
-            date_time_hex = hex_segment[n : n + HEX_LEN_DATE_TIME]
             if instrument_type == InstrumentType.SBE911Plus:
-                seconds_since_1970 = int(reverse_hex_bytes(date_time_hex), 16)
-                results[key] = datetime(1970, 1, 1) + timedelta(seconds=seconds_since_1970)
-            else:
-                seconds_since_2000 = int(date_time_hex, 16)
-                results[key] = datetime(1970, 1, 1) + timedelta(
-                    seconds=seconds_since_2000 + SECONDS_BETWEEN_EPOCH_AND_2000
+                seconds_since_1970 = columns[key]
+                seconds_since_1970 = (
+                    ((seconds_since_1970 & 0x000000FF) << 24)
+                    | ((seconds_since_1970 & 0x0000FF00) << 8)
+                    | ((seconds_since_1970 & 0x00FF0000) >> 8)
+                    | ((seconds_since_1970 & 0xFF000000) >> 24)
                 )
-            n += HEX_LEN_DATE_TIME
+                columns[key] = np.datetime64("1970-01-01T00:00:00", "s") + (
+                    seconds_since_1970
+                ).astype("timedelta64[s]")
 
-        elif sensor_id == SensorID.SBE911_PUMP_STATUS:
-            if sbe911_status is None:
-                sbe911_status = int(hex_segment[n : n + HEX_LEN_SBE911_STATUS], 16)
-                n += HEX_LEN_SBE911_STATUS
-            results[key] = sbe911_status & 1
+            else:
+                seconds_since_2000 = columns[key]
+                columns[key] = np.datetime64("1970-01-01T00:00:00", "s") + (
+                    seconds_since_2000 + SECONDS_BETWEEN_EPOCH_AND_2000
+                ).astype("timedelta64[s]")
 
-        elif sensor_id == SensorID.SBE911_BOTTOM_CONTACT_STATUS:
-            if sbe911_status is None:
-                sbe911_status = int(hex_segment[n : n + HEX_LEN_SBE911_STATUS], 16)
-                n += HEX_LEN_SBE911_STATUS
-            results[key] = (sbe911_status >> 1) & 1
+        elif sensor_id in [SensorID.RELATIVE_HUMIDITY, SensorID.INTERNAL_TEMPERATURE]:
+            columns[key] = columns[key] << 4
 
-        elif sensor_id == SensorID.SBE911_CONFIRM_STATUS:
-            if sbe911_status is None:
-                sbe911_status = int(hex_segment[n : n + HEX_LEN_SBE911_STATUS], 16)
-                n += HEX_LEN_SBE911_STATUS
-            results[key] = (sbe911_status >> 2) & 1
-
-        elif sensor_id == SensorID.SBE911_MODEM_STATUS:
-            if sbe911_status is None:
-                sbe911_status = int(hex_segment[n : n + HEX_LEN_SBE911_STATUS], 16)
-                n += HEX_LEN_SBE911_STATUS
-            results[key] = (sbe911_status >> 3) & 1
-
-        elif sensor_id == SensorID.DATA_INTEGRITY:
-            results[key] = int(hex_segment[n : n + HEX_LEN_SBE911_DATA_INTEGRITY], 16)
-            n += HEX_LEN_SBE911_DATA_INTEGRITY
-
-        elif sensor_id == SensorID.PH_VK:
-            results[key] = int(hex_segment[n : n + HEX_LEN_VK], 16)
-            n += HEX_LEN_VK
-
-        elif sensor_id == SensorID.PH_IB:
-            results[key] = int(hex_segment[n : n + HEX_LEN_IB], 16)
-            n += HEX_LEN_IB
-
-        elif sensor_id == SensorID.PH_IK:
-            results[key] = int(hex_segment[n : n + HEX_LEN_IK], 16)
-            n += HEX_LEN_IK
-
-        elif sensor_id == SensorID.RELATIVE_HUMIDITY:
-            results[key] = int(hex_segment[n : n + HEX_LEN_RELATIVE_HUMIDITY] + "0", 16)
-            n += HEX_LEN_RELATIVE_HUMIDITY
-
-        elif sensor_id == SensorID.INTERNAL_TEMPERATURE:
-            results[key] = int(hex_segment[n : n + HEX_LEN_INTERNAL_TEMPERATURE] + "0", 16)
-            n += HEX_LEN_INTERNAL_TEMPERATURE
-
-        elif sensor_id == SensorID.ERROR_FLAG:
-            results[key] = int(hex_segment[n : n + HEX_LEN_ERROR_FLAG], 16)
-            n += HEX_LEN_ERROR_FLAG
+        elif sensor_id == SensorID.SBE911_DIAGNOSTICS:
+            columns[str(SensorID.SBE911_PUMP_STATUS)] = columns[key] & 1
+            columns[str(SensorID.SBE911_BOTTOM_CONTACT_STATUS)] = (columns[key] >> 1) & 1
+            columns[str(SensorID.SBE911_CONFIRM_STATUS)] = (columns[key] >> 2) & 1
+            columns[str(SensorID.SBE911_MODEM_STATUS)] = (columns[key] >> 3) & 1
+            columns.pop(key)
 
     # Validate hex length. Ensure length matches what is expected based
     # on enabled sensors and moored mode. If it does not, set all values
     # to NaN
-    if n != len(hex_segment.strip()):
-        for key in results:
-            results[key] = np.nan
-        return results
+    # if n != len(hex_segment.strip()):
+    #     for key in results:
+    #         results[key] = np.nan
+    #     return results
 
     # Final validation to check if any values have been set to NaN, and if so,
     # set all values to NaN
-    for key, value in results.items():
-        if pd.isna(value):
-            logger.warning("Invalid scan detected, values set to NaN")
-            for key in results:
-                results[key] = np.nan
-            break
+    # for key, value in results.items():
+    #     if pd.isna(value):
+    #         logger.warning("Invalid scan detected, values set to NaN")
+    #         for key in results:
+    #             results[key] = np.nan
+    #         break
 
-    return results
+    return columns
 
 
-def read_nmea_coordinates(hex_segment: str):
+def read_nmea_coordinates(byte0: int, byte1: int, byte2: int):
     """Converts a 3 byte NMEA hex string to latitude or longitude
 
     :param hex_segment: 3 byte hex string
     :return: latitude or longitide coordinate or nan if the hex length
         is wrong
     """
-    if len(hex_segment) != 6:
-        return np.nan
-
-    byte0 = int(hex_segment[0:2], 16)
-    byte1 = int(hex_segment[2:4], 16)
-    byte2 = int(hex_segment[4:6], 16)
     coordinate = (byte0 * 65536 + byte1 * 256 + byte2) / 50000
     return coordinate
 
 
-def read_status_sign(hex_segment: str):
+def read_status_sign(integer: np.ndarray) -> list[np.ndarray]:
     """Converts a hex byte to the signs for NMEA latitude and longitude
 
     :param hex_segment: 1 byte hex string
-    :return: a list of two integers (1 or -1) or nan if the hex length
-        is wrong
+    :return: latitude and longitude sign arrays containing 1 or -1
     """
-    if len(hex_segment) != 2:
-        return np.nan
-    integer = int(hex_segment, 16)
-    binary = format(integer, "0>8b")
-    signs = []
-    if binary[0] == "0":
-        signs.append(1)
-    elif binary[0] == "1":
-        signs.append(-1)
-
-    if binary[1] == "0":
-        signs.append(1)
-    elif binary[1] == "1":
-        signs.append(-1)
-    if len(signs) != 2:
-        return [np.nan, np.nan]
-    return signs
+    latitude_sign = np.where((integer & 0x80) == 0, 1, -1)
+    longitude_sign = np.where((integer & 0x40) == 0, 1, -1)
+    return [latitude_sign, longitude_sign]
 
 
 def read_nmea_date_time(hex_segment: str):
