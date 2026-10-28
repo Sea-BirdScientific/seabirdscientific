@@ -835,21 +835,37 @@ class TestReadHexIncorrectLength:
 
 
 class TestReadHexFileSpeed:
-    def test_read_19plus_v2_hex_file_speed(self):
+    def test_read_911plus_hex_file_speed(self):
         sensor_ids = [
             si.SensorID.TEMPERATURE,
             si.SensorID.CONDUCTIVITY,
-            si.SensorID.STRAIN_GAUGE_PRESSURE,
-            si.SensorID.STRAIN_GAUGE_PRESSURE_TEMPERATURE,
+            si.SensorID.DIGIQUARTZ_PRESSURE,
+            si.SensorID.TEMPERATURE,
+            si.SensorID.CONDUCTIVITY,
             si.SensorID.VOLTAGE_0,
             si.SensorID.VOLTAGE_1,
             si.SensorID.VOLTAGE_2,
             si.SensorID.VOLTAGE_3,
+            si.SensorID.VOLTAGE_4,
+            si.SensorID.VOLTAGE_5,
+            si.SensorID.VOLTAGE_6,
+            si.SensorID.VOLTAGE_7,
+            si.SensorID.SPAR_LINEAR,
+            si.SensorID.NMEA_LATITUDE,
+            si.SensorID.NMEA_LONGITUDE,
+            si.SensorID.NMEA_STATUS_AND_SIGN,
+            si.SensorID.DIGIQUARTZ_PRESSURE_TEMPERATURE,
+            si.SensorID.SBE911_PUMP_STATUS,
+            si.SensorID.SBE911_BOTTOM_CONTACT_STATUS,
+            si.SensorID.SBE911_CONFIRM_STATUS,
+            si.SensorID.SBE911_MODEM_STATUS,
+            si.SensorID.DATA_INTEGRITY,
+            si.SensorID.INSTRUMENT_DATE_TIME,
         ]
 
         start = time.perf_counter()
         dataset = si.read_hex_file(
-            test_data / "19plus_V2.hex", si.InstrumentType.SBE19Plus, sensor_ids
+            test_data / "911plus_2401002.hex", si.InstrumentType.SBE911Plus, sensor_ids
         )
         elapsed = time.perf_counter() - start
 
@@ -857,5 +873,6 @@ class TestReadHexFileSpeed:
         print(
             f"read_hex_file: {scans} scans in {elapsed:.3f}s ({elapsed / scans * 1e6:.1f} us/scan)"
         )
-        assert scans == 3069
+        assert scans == 18926
+        assert elapsed < 6  # seconds
         assert not dataset[f"{si.SensorID.TEMPERATURE}_0"].isnull().any()
