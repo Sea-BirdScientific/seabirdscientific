@@ -1,5 +1,6 @@
 """instrument data conversion unit tests."""
 
+import time
 from datetime import datetime
 from pathlib import Path
 from typing import ClassVar
@@ -831,3 +832,30 @@ class TestReadHexIncorrectLength:
 
         assert set(result) == {key for _, key in sensor_layout}
         assert all(pd.isna(value) for value in result.values())
+
+
+class TestReadHexFileSpeed:
+    def test_read_19plus_v2_hex_file_speed(self):
+        sensor_ids = [
+            si.SensorID.TEMPERATURE,
+            si.SensorID.CONDUCTIVITY,
+            si.SensorID.STRAIN_GAUGE_PRESSURE,
+            si.SensorID.STRAIN_GAUGE_PRESSURE_TEMPERATURE,
+            si.SensorID.VOLTAGE_0,
+            si.SensorID.VOLTAGE_1,
+            si.SensorID.VOLTAGE_2,
+            si.SensorID.VOLTAGE_3,
+        ]
+
+        start = time.perf_counter()
+        dataset = si.read_hex_file(
+            test_data / "19plus_V2.hex", si.InstrumentType.SBE19Plus, sensor_ids
+        )
+        elapsed = time.perf_counter() - start
+
+        scans = dataset.sizes["scan"]
+        print(
+            f"read_hex_file: {scans} scans in {elapsed:.3f}s ({elapsed / scans * 1e6:.1f} us/scan)"
+        )
+        assert scans == 3069
+        assert not dataset[f"{si.SensorID.TEMPERATURE}_0"].isnull().any()
