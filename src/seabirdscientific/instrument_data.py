@@ -42,6 +42,8 @@ class InstrumentType(Enum):
     pHyreCAT = "pHyreCAT"
     HydroCAT = "HydroCAT"
     HydroCATODO = "HydroCAT-ODO"
+    HydroCATEP2 = "HydroCAT-EP-V2"
+    ECOV2 = "ECOV2"
 
 
 class SensorID(Enum):
@@ -517,7 +519,9 @@ def _read_seasoft_cnv_file(filepath: Path | str) -> xr.Dataset:
                     n_name += 1
 
                 if safe_name != name:
-                    logger.warning(f'Duplicate measurand "{name}" will use key "{safe_name}"')
+                    logger.warning(
+                        f'Duplicate measurand "{name}" will use key "{safe_name}"'
+                    )
 
                 data_array = xr.DataArray(
                     data=np.zeros(total_scans),
@@ -549,7 +553,10 @@ def _read_seasoft_cnv_file(filepath: Path | str) -> xr.Dataset:
                 break
 
     np_data = np.array(
-        [np.fromstring(dl.replace("-", " -").replace("e -", "e-"), sep=" ") for dl in data_lines]
+        [
+            np.fromstring(dl.replace("-", " -").replace("e -", "e-"), sep=" ")
+            for dl in data_lines
+        ]
     )
 
     for n, measurand in enumerate(list(dataset.data_vars)):
@@ -619,7 +626,9 @@ def _read_fathom_cnv_file(filepath: Path | str) -> xr.Dataset:
 
             # update the scan coord if there is a scan variable in the data
             if name in dataset.coords:
-                dataset[name] = dataset[name].copy(data=np.array(values, dtype=np.int64))
+                dataset[name] = dataset[name].copy(
+                    data=np.array(values, dtype=np.int64)
+                )
                 dataset[name].attrs.update(attrs)
                 continue
 
@@ -632,7 +641,9 @@ def _read_fathom_cnv_file(filepath: Path | str) -> xr.Dataset:
                 n_name += 1
 
             if safe_name != name:
-                logger.warning(f'Duplicate measurand "{name}" will use key "{safe_name}"')
+                logger.warning(
+                    f'Duplicate measurand "{name}" will use key "{safe_name}"'
+                )
 
             dataset[safe_name] = xr.DataArray(
                 data=_column_array(values),
@@ -730,9 +741,15 @@ def _build_hex_sensor_layout(
         hex_length = sensor_id_to_hex_length(sensor_id, instrument_type)
 
         if sensor_id in [SensorID.NMEA_LONGITUDE, SensorID.NMEA_LATITUDE]:
-            sensor_layout.append((f"{sensor_id}_byte0", f"{sensor_id}_byte0", hex_length))
-            sensor_layout.append((f"{sensor_id}_byte1", f"{sensor_id}_byte1", hex_length))
-            sensor_layout.append((f"{sensor_id}_byte2", f"{sensor_id}_byte2", hex_length))
+            sensor_layout.append(
+                (f"{sensor_id}_byte0", f"{sensor_id}_byte0", hex_length)
+            )
+            sensor_layout.append(
+                (f"{sensor_id}_byte1", f"{sensor_id}_byte1", hex_length)
+            )
+            sensor_layout.append(
+                (f"{sensor_id}_byte2", f"{sensor_id}_byte2", hex_length)
+            )
         elif sensor_id in [
             SensorID.SPAR_BIOSPHERICAL,
             SensorID.SPAR_LINEAR,
@@ -814,7 +831,10 @@ def _apply_transforms(
 
     for sensor_id, key, hex_length in sensor_layout:
         # -------- Internal Sensors  ---------
-        if sensor_id == SensorID.TEMPERATURE and instrument_type == InstrumentType.SBE911Plus:
+        if (
+            sensor_id == SensorID.TEMPERATURE
+            and instrument_type == InstrumentType.SBE911Plus
+        ):
             columns[key] = columns[key] / 256
 
         elif sensor_id == SensorID.CONDUCTIVITY:
@@ -978,7 +998,9 @@ def _apply_transforms(
 
         elif sensor_id == SensorID.SBE911_DIAGNOSTICS:
             columns[str(SensorID.SBE911_PUMP_STATUS)] = columns[key] & 1
-            columns[str(SensorID.SBE911_BOTTOM_CONTACT_STATUS)] = (columns[key] >> 1) & 1
+            columns[str(SensorID.SBE911_BOTTOM_CONTACT_STATUS)] = (
+                columns[key] >> 1
+            ) & 1
             columns[str(SensorID.SBE911_CONFIRM_STATUS)] = (columns[key] >> 2) & 1
             columns[str(SensorID.SBE911_MODEM_STATUS)] = (columns[key] >> 3) & 1
             columns.pop(key)
@@ -1093,15 +1115,21 @@ def create_hex_from_decimal(
     is_phyre = instrument_type in (InstrumentType.pHyre, InstrumentType.pHyreCAT)
     has_header = is_seafet or is_phyre
 
-    if not frame_present and not timestamp_first and not has_header and instrument_type not in (
-        InstrumentType.SBE37IM,
-        InstrumentType.SBE37IMP,
-        InstrumentType.SBE37IMPODO,
-        InstrumentType.SBE37SI,
-        InstrumentType.SBE37SIP,
-        InstrumentType.SBE37SM,
-        InstrumentType.SBE37SMP,
-        InstrumentType.SBE37SMPODO,
+    if (
+        not frame_present
+        and not timestamp_first
+        and not has_header
+        and instrument_type
+        not in (
+            InstrumentType.SBE37IM,
+            InstrumentType.SBE37IMP,
+            InstrumentType.SBE37IMPODO,
+            InstrumentType.SBE37SI,
+            InstrumentType.SBE37SIP,
+            InstrumentType.SBE37SM,
+            InstrumentType.SBE37SMP,
+            InstrumentType.SBE37SMPODO,
+        )
     ):
         raise ValueError(f"Raw decimal to hex is not supported for {instrument_type}")
 
@@ -1115,7 +1143,9 @@ def create_hex_from_decimal(
         SensorID.SBE63_DISSOLVED_OXYGEN_TEMPERATURE,
     )
 
-    sensor_order = [sensor for sensor in decimal_sensor_order if sensor in enabled_sensors]
+    sensor_order = [
+        sensor for sensor in decimal_sensor_order if sensor in enabled_sensors
+    ]
     if timestamp_first:
         sensor_order = [SensorID.TEMPERATURE]
         if SensorID.STRAIN_GAUGE_PRESSURE in enabled_sensors:
@@ -1141,7 +1171,10 @@ def create_hex_from_decimal(
             SensorID.INTERNAL_TEMPERATURE,
             SensorID.RELATIVE_HUMIDITY,
         ]
-        if SensorID.TEMPERATURE in enabled_sensors or instrument_type == InstrumentType.SeapHox2:
+        if (
+            SensorID.TEMPERATURE in enabled_sensors
+            or instrument_type == InstrumentType.SeapHox2
+        ):
             raw_sensor_order = (
                 [SensorID.TEMPERATURE]
                 + raw_sensor_order[:-2]
@@ -1196,7 +1229,10 @@ def create_hex_from_decimal(
         for sensor_id in sensor_order:
             field = fields[index]
             index += 1
-            if sensor_id == SensorID.CONDUCTIVITY and instrument_type != InstrumentType.pHyreCAT:
+            if (
+                sensor_id == SensorID.CONDUCTIVITY
+                and instrument_type != InstrumentType.pHyreCAT
+            ):
                 value = floor(float(field) * 256 + 0.5)
             elif (
                 sensor_id == SensorID.SBE63_DISSOLVED_OXYGEN_PHASE
@@ -1216,7 +1252,9 @@ def create_hex_from_decimal(
                 SensorID.INTERNAL_TEMPERATURE,
             ):
                 if not 0 <= value <= 0xFFFF:
-                    raise ValueError(f"Value for {sensor_id} does not fit its decimal field")
+                    raise ValueError(
+                        f"Value for {sensor_id} does not fit its decimal field"
+                    )
                 value >>= 4
             elif sensor_id == SensorID.SEAFET_TEMPERATURE and value == 0xFFFFFFFF:
                 # The invalid-temperature sentinel is stored in a 24-bit field.
@@ -1240,6 +1278,12 @@ def create_hex_from_decimal(
             raise ValueError("Timestamp does not fit its hex field")
         time_hex = f"{seconds_since_2000:0{HEX_LEN_DATE_TIME}X}"
         sensor_hex = "".join(result + pressure_hex)
-        return time_hex + sensor_hex if timestamp_first else sensor_hex + time_hex + error_hex
+        return (
+            time_hex + sensor_hex
+            if timestamp_first
+            else sensor_hex + time_hex + error_hex
+        )
     except (ValueError, OverflowError) as error:
-        raise ValueError(f"Unable to parse raw decimal data from {raw_decimal!r}") from error
+        raise ValueError(
+            f"Unable to parse raw decimal data from {raw_decimal!r}"
+        ) from error
