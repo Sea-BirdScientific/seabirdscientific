@@ -938,3 +938,215 @@ class TestReadHexFile:
         assert scans == 15
         assert elapsed < 0.1  # seconds
         assert not dataset[f"{si.SensorID.TEMPERATURE}_0"].isnull().any()
+
+
+class TestHexFromDecimal:
+    def test_37SMP(self):
+        raw_decimal = "225392,  2579.801, 524623, 2739,  09 Sep 2024, 20:50:35"
+        enabled_sensors = [
+            si.SensorID.TEMPERATURE,
+            si.SensorID.CONDUCTIVITY,
+            si.SensorID.STRAIN_GAUGE_PRESSURE,
+            si.SensorID.STRAIN_GAUGE_PRESSURE_TEMPERATURE,
+            si.SensorID.INSTRUMENT_DATE_TIME,
+        ]
+
+        hex_data = si.create_hex_from_decimal(
+            si.InstrumentType.SBE37SMP, raw_decimal, enabled_sensors
+        )
+
+        assert hex_data == "0370700A13CD08014F0AB32E721C1B"
+
+    def test_37SMP_no_pressure(self):
+        raw_decimal = "225392,  2579.801,  09 Sep 2024, 20:50:35"
+        enabled_sensors = [
+            si.SensorID.TEMPERATURE,
+            si.SensorID.CONDUCTIVITY,
+            si.SensorID.INSTRUMENT_DATE_TIME,
+        ]
+
+        hex_data = si.create_hex_from_decimal(
+            si.InstrumentType.SBE37SMP, raw_decimal, enabled_sensors
+        )
+
+        assert hex_data == "0370700A13CD2E721C1B"
+
+    def test_37SMPODO(self):
+        raw_decimal = "225392,  2579.801, 524623, 2739, 16.969, 0.596183,  09 Sep 2024, 20:50:35"
+        enabled_sensors = [
+            si.SensorID.TEMPERATURE,
+            si.SensorID.CONDUCTIVITY,
+            si.SensorID.SBE63_DISSOLVED_OXYGEN_PHASE,
+            si.SensorID.SBE63_DISSOLVED_OXYGEN_TEMPERATURE,
+            si.SensorID.STRAIN_GAUGE_PRESSURE,
+            si.SensorID.STRAIN_GAUGE_PRESSURE_TEMPERATURE,
+            si.SensorID.INSTRUMENT_DATE_TIME,
+        ]
+
+        hex_data = si.create_hex_from_decimal(
+            si.InstrumentType.SBE37SMPODO, raw_decimal, enabled_sensors
+        )
+
+        assert hex_data == "0370700A13CD2926C4185B1708014F0AB32E721C1B"
+
+    def test_39plus(self):
+        raw_decimal = "1777930,   93475, 33231, 09 Sep 2024, 20:50:35"
+        enabled_sensors = [
+            si.SensorID.TEMPERATURE,
+            si.SensorID.STRAIN_GAUGE_PRESSURE,
+            si.SensorID.STRAIN_GAUGE_PRESSURE_TEMPERATURE,
+            si.SensorID.INSTRUMENT_DATE_TIME,
+        ]
+
+        hex_data = si.create_hex_from_decimal(
+            si.InstrumentType.SBE39Plus, raw_decimal, enabled_sensors
+        )
+
+        assert hex_data == "2E721C1B1B210A016D2381CF"
+
+    def test_39plus_no_pressure(self):
+        raw_decimal = "1777930, 09 Sep 2024, 20:50:35"
+        enabled_sensors = [
+            si.SensorID.TEMPERATURE,
+            si.SensorID.INSTRUMENT_DATE_TIME,
+        ]
+
+        hex_data = si.create_hex_from_decimal(
+            si.InstrumentType.SBE39Plus, raw_decimal, enabled_sensors
+        )
+
+        assert hex_data == "2E721C1B1B210A"
+
+    def test_hydroCAT(self):
+        raw_decimal = "HCAT03720842,248047,  2691.754, 553598, 2379,  16 Jul 2025, 22:13:41"
+        enabled_sensors = [
+            si.SensorID.TEMPERATURE,
+            si.SensorID.CONDUCTIVITY,
+            si.SensorID.STRAIN_GAUGE_PRESSURE,
+            si.SensorID.STRAIN_GAUGE_PRESSURE_TEMPERATURE,
+            si.SensorID.INSTRUMENT_DATE_TIME,
+        ]
+
+        hex_data = si.create_hex_from_decimal(
+            si.InstrumentType.HydroCAT, raw_decimal, enabled_sensors
+        )
+
+        assert hex_data == "03C8EF0A83C108727E094B300AE095"
+
+    def test_hydroCAT_ODO(self):
+        raw_decimal = "HCAT03711459,232753,  2579.801, 524624, 2721, 17.074, 0.610814,  17 Jul 2025, 19:42:56"
+        enabled_sensors = [
+            si.SensorID.TEMPERATURE,
+            si.SensorID.CONDUCTIVITY,
+            si.SensorID.SBE63_DISSOLVED_OXYGEN_PHASE,
+            si.SensorID.SBE63_DISSOLVED_OXYGEN_TEMPERATURE,
+            si.SensorID.STRAIN_GAUGE_PRESSURE,
+            si.SensorID.STRAIN_GAUGE_PRESSURE_TEMPERATURE,
+            si.SensorID.INSTRUMENT_DATE_TIME,
+        ]
+
+        hex_data = si.create_hex_from_decimal(
+            si.InstrumentType.HydroCAT, raw_decimal, enabled_sensors
+        )
+
+        assert hex_data == "038D310A13CD294FC818943E0801500AA1300C0EC0"
+
+    def test_seaFET(self):
+        raw_decimal = "SEAFET00107,2024-11-20T16:03:34, 0108, 14321946, 10945430, 4294967295,       0, 16777215, 13358363, 25032, 31852"
+        enabled_sensors = [
+            si.SensorID.SEAFET_PH_EXTERNAL,
+            si.SensorID.SEAFET_PH_INTERNAL,
+            si.SensorID.SEAFET_TEMPERATURE,
+            si.SensorID.PH_VK,
+            si.SensorID.PH_IB,
+            si.SensorID.PH_IK,
+            si.SensorID.RELATIVE_HUMIDITY,
+            si.SensorID.INTERNAL_TEMPERATURE,
+            si.SensorID.INSTRUMENT_DATE_TIME,
+            si.SensorID.ERROR_FLAG,
+        ]
+
+        hex_data = si.create_hex_from_decimal(
+            si.InstrumentType.SeaFET2, raw_decimal, enabled_sensors
+        )
+
+        assert hex_data == "DA891AA70396FFFFFF000000FFFFFFCBD51B7C661C2ED0C4D60108"
+
+    def test_shallow_seapHOx(self):
+        raw_decimal = "SSPHOX00107,2024-11-26T00:01:47, 0108,  251681, 14324951, 10596575, 16777215,       0, 16777215, 13276765,  527043,  1492, 2593.434, 17.119, 0.620930, 25488, 31792"
+        enabled_sensors = [
+            si.SensorID.TEMPERATURE,
+            si.SensorID.CONDUCTIVITY,
+            si.SensorID.STRAIN_GAUGE_PRESSURE,
+            si.SensorID.STRAIN_GAUGE_PRESSURE_TEMPERATURE,
+            si.SensorID.SBE63_DISSOLVED_OXYGEN_PHASE,
+            si.SensorID.SBE63_DISSOLVED_OXYGEN_TEMPERATURE,
+            si.SensorID.SEAFET_PH_EXTERNAL,
+            si.SensorID.SEAFET_PH_INTERNAL,
+            si.SensorID.SEAFET_TEMPERATURE,
+            si.SensorID.PH_VK,
+            si.SensorID.PH_IB,
+            si.SensorID.PH_IK,
+            si.SensorID.RELATIVE_HUMIDITY,
+            si.SensorID.INTERNAL_TEMPERATURE,
+            si.SensorID.INSTRUMENT_DATE_TIME,
+            si.SensorID.ERROR_FLAG,
+        ]
+
+        hex_data = si.create_hex_from_decimal(
+            si.InstrumentType.SeaFET2, raw_decimal, enabled_sensors
+        )
+
+        assert (
+            hex_data
+            == "03D7210A216F080AC305D429615C18BBC2DA94D7A1B0DFFFFFFF000000FFFFFFCA965D7C36392ED7CC6B0108"
+        )
+
+    def test_pHyre(self):
+        raw_decimal = "PHYRE00000,2026-10-14T21:20:45, 0008,  697306,  697363, 5224628, 5223202, 5822273, 5740997, 10025739"
+        enabled_sensors = [
+            si.SensorID.PHYRE_PH_EXTERNAL,
+            si.SensorID.PHYRE_PH_INTERNAL,
+            si.SensorID.PHYRE_TEMPERATURE_EXTERNAL,
+            si.SensorID.PHYRE_TEMPERATURE_INTERNAL,
+            si.SensorID.PH_VK,
+            si.SensorID.PH_IB,
+            si.SensorID.PH_IK,
+            si.SensorID.INSTRUMENT_DATE_TIME,
+            si.SensorID.ERROR_FLAG,
+        ]
+
+        hex_data = si.create_hex_from_decimal(
+            si.InstrumentType.pHyre, raw_decimal, enabled_sensors
+        )
+
+        assert hex_data == "4FB8B44FB3220AA3DA0AA41358D7415799C598FB0B3262AEAD0008"
+
+    def test_pHyreCAT(self):
+        raw_decimal = "PHYRECAT00000,2026-10-14T21:21:41, 0008,  697306,  697356, 5224616, 5223201, 5822599, 5741028, 10026103, 221583, 672462, 525677, 2725,2667100,1582634"
+        enabled_sensors = [
+            si.SensorID.TEMPERATURE,
+            si.SensorID.CONDUCTIVITY,
+            si.SensorID.STRAIN_GAUGE_PRESSURE,
+            si.SensorID.STRAIN_GAUGE_PRESSURE_TEMPERATURE,
+            si.SensorID.SBE63_DISSOLVED_OXYGEN_PHASE,
+            si.SensorID.SBE63_DISSOLVED_OXYGEN_TEMPERATURE,
+            si.SensorID.PHYRE_PH_EXTERNAL,
+            si.SensorID.PHYRE_PH_INTERNAL,
+            si.SensorID.PHYRE_TEMPERATURE_EXTERNAL,
+            si.SensorID.PHYRE_TEMPERATURE_INTERNAL,
+            si.SensorID.PH_VK,
+            si.SensorID.PH_IB,
+            si.SensorID.PH_IK,
+            si.SensorID.INSTRUMENT_DATE_TIME,
+            si.SensorID.ERROR_FLAG,
+        ]
+
+        hex_data = si.create_hex_from_decimal(
+            si.InstrumentType.pHyreCAT, raw_decimal, enabled_sensors
+        )
+
+        assert (
+            hex_data
+            == "03618F0A42CE08056D0AA528B25C18262A4FB8A84FB3210AA3DA0AA40C58D8875799E498FC773262AEE50008"
+        )

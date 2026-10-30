@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 from enum import Enum
 from itertools import dropwhile, takewhile
 from logging import getLogger
+from math import floor
 from pathlib import Path
 from typing import Literal
 
@@ -163,6 +164,7 @@ class SensorID(Enum):
 
 
 """Possible lengths for hex data types"""
+
 HEX_LEN_TEMPERATURE = 6
 HEX_LEN_SBE38_TEMPERATURE = 6
 HEX_LEN_CONDUCTIVITY = 6
@@ -325,6 +327,7 @@ def sensor_id_to_hex_length(sensorID: SensorID, instrument_type: InstrumentType)
 
 
 """Possible data types in hex files"""
+# TODO Eliminate this
 HEX_TYPE_TEMPERATURE = "temperature"
 HEX_TYPE_SECONDARY_TEMPERATURE = "secondary temperature"
 HEX_TYPE_CONDUCTIVITY = "conductivity"
@@ -377,6 +380,7 @@ HEX_TYPE_DATA_INTEGRITY = "data integrity"
 HEX_TYPE_SYSTEM_TIME = "system time"
 
 
+# TODO Eliminate this
 class Sensors(Enum):
     """Available sensors to read hex data from"""
 
@@ -411,6 +415,7 @@ class Sensors(Enum):
     SystemTime = "systemTime"
 
 
+# TODO Eliminate this
 class HexDataTypes(Enum, metaclass=WarnAllMembersMeta):
     """Possible data types in hex files.
     Deprecated. Use HEX_TYPE_* constants."""
@@ -1060,3 +1065,181 @@ def reverse_hex_bytes(bytes_str: str) -> str:
         swapped += bytes_str[idx * 2 : idx * 2 + 2]
 
     return swapped
+
+
+def create_hex_from_decimal(
+    instrument_type: InstrumentType,
+    raw_decimal: str,
+    enabled_sensors: list[SensorID],
+) -> str:
+    """Convert a supported instrument's raw decimal sample to upload hex.
+
+    Sensor fields are read in instrument order, regardless of enabled_sensors
+    ordering. HydroCAT samples start with a frame field. SeaFET and pHyre samples start
+    with a frame, ISO timestamp and hexadecimal error flag; other samples end
+    with comma-separated date and time fields, interpreted as UTC. SBE39plus hex
+    starts with the timestamp, followed by temperature and optional pressure.
+
+    :raises ValueError: If the instrument or sensors are unsupported, or the
+        sample is malformed or contains values outside their hex field widths.
+    """
+    frame_present = instrument_type in (
+        InstrumentType.HydroCAT,
+        InstrumentType.HydroCATODO,
+    )
+
+    timestamp_first = instrument_type == InstrumentType.SBE39Plus
+    is_seafet = instrument_type in (InstrumentType.SeaFET2, InstrumentType.SeapHox2)
+    is_phyre = instrument_type in (InstrumentType.pHyre, InstrumentType.pHyreCAT)
+    has_header = is_seafet or is_phyre
+
+    if not frame_present and not timestamp_first and not has_header and instrument_type not in (
+        InstrumentType.SBE37IM,
+        InstrumentType.SBE37IMP,
+        InstrumentType.SBE37IMPODO,
+        InstrumentType.SBE37SI,
+        InstrumentType.SBE37SIP,
+        InstrumentType.SBE37SM,
+        InstrumentType.SBE37SMP,
+        InstrumentType.SBE37SMPODO,
+    ):
+        raise ValueError(f"Raw decimal to hex is not supported for {instrument_type}")
+
+    # Order of decimal values is different from hex
+    decimal_sensor_order = (
+        SensorID.TEMPERATURE,
+        SensorID.CONDUCTIVITY,
+        SensorID.STRAIN_GAUGE_PRESSURE,
+        SensorID.STRAIN_GAUGE_PRESSURE_TEMPERATURE,
+        SensorID.SBE63_DISSOLVED_OXYGEN_PHASE,
+        SensorID.SBE63_DISSOLVED_OXYGEN_TEMPERATURE,
+    )
+
+    sensor_order = [sensor for sensor in decimal_sensor_order if sensor in enabled_sensors]
+    if timestamp_first:
+        sensor_order = [SensorID.TEMPERATURE]
+        if SensorID.STRAIN_GAUGE_PRESSURE in enabled_sensors:
+            sensor_order.extend(
+                [
+                    SensorID.STRAIN_GAUGE_PRESSURE,
+                    SensorID.STRAIN_GAUGE_PRESSURE_TEMPERATURE,
+                ]
+            )
+    fields = [field.strip() for field in raw_decimal.split(",")]
+    if is_seafet:
+        sensor_order = [
+            SensorID.SEAFET_PH_EXTERNAL,
+            SensorID.SEAFET_PH_INTERNAL,
+            SensorID.SEAFET_TEMPERATURE,
+            SensorID.PH_VK,
+            SensorID.PH_IB,
+            SensorID.PH_IK,
+            SensorID.RELATIVE_HUMIDITY,
+            SensorID.INTERNAL_TEMPERATURE,
+        ]
+        raw_sensor_order = sensor_order[:-2] + [
+            SensorID.INTERNAL_TEMPERATURE,
+            SensorID.RELATIVE_HUMIDITY,
+        ]
+        if SensorID.TEMPERATURE in enabled_sensors or instrument_type == InstrumentType.SeapHox2:
+            raw_sensor_order = (
+                [SensorID.TEMPERATURE]
+                + raw_sensor_order[:-2]
+                + [
+                    SensorID.STRAIN_GAUGE_PRESSURE,
+                    SensorID.STRAIN_GAUGE_PRESSURE_TEMPERATURE,
+                    SensorID.CONDUCTIVITY,
+                    SensorID.SBE63_DISSOLVED_OXYGEN_PHASE,
+                    SensorID.SBE63_DISSOLVED_OXYGEN_TEMPERATURE,
+                ]
+                + raw_sensor_order[-2:]
+            )
+            sensor_order = list(decimal_sensor_order) + sensor_order
+    elif is_phyre:
+        sensor_order = [
+            SensorID.PHYRE_PH_EXTERNAL,
+            SensorID.PHYRE_PH_INTERNAL,
+            SensorID.PHYRE_TEMPERATURE_EXTERNAL,
+            SensorID.PHYRE_TEMPERATURE_INTERNAL,
+            SensorID.PH_VK,
+            SensorID.PH_IB,
+            SensorID.PH_IK,
+        ]
+        raw_sensor_order = sensor_order[2:4] + sensor_order[:2] + sensor_order[4:]
+        if instrument_type == InstrumentType.pHyreCAT:
+            raw_sensor_order += list(decimal_sensor_order)
+            sensor_order = list(decimal_sensor_order) + sensor_order
+    index = int(frame_present)
+    result: list[str] = []
+    pressure_hex: list[str] = []
+    error_hex = ""
+
+    try:
+        if has_header:
+            if len(fields) != len(sensor_order) + 3:
+                raise ValueError("Unexpected number of raw decimal fields")
+            sample_time = datetime.strptime(fields[1], "%Y-%m-%dT%H:%M:%S")
+            error_flag = int(fields[2], 16)
+            if not 0 <= error_flag < 16**HEX_LEN_ERROR_FLAG:
+                raise ValueError("Error flag does not fit its hex field")
+            error_hex = f"{error_flag:0{HEX_LEN_ERROR_FLAG}X}"
+            fields_by_sensor = dict(zip(raw_sensor_order, fields[3:], strict=True))
+            fields = [fields_by_sensor[sensor_id] for sensor_id in sensor_order]
+
+        else:
+            if len(fields) != index + len(sensor_order) + 2:
+                raise ValueError("Unexpected number of raw decimal fields")
+            sample_time = datetime.strptime(
+                f"{fields[-2]} {fields[-1]}", "%d %b %Y %H:%M:%S"
+            )
+
+        for sensor_id in sensor_order:
+            field = fields[index]
+            index += 1
+            if sensor_id == SensorID.CONDUCTIVITY and instrument_type != InstrumentType.pHyreCAT:
+                value = floor(float(field) * 256 + 0.5)
+            elif (
+                sensor_id == SensorID.SBE63_DISSOLVED_OXYGEN_PHASE
+                and instrument_type != InstrumentType.pHyreCAT
+            ):
+                value = floor((float(field) + 10) * 100000 + 0.5)
+            elif (
+                sensor_id == SensorID.SBE63_DISSOLVED_OXYGEN_TEMPERATURE
+                and instrument_type != InstrumentType.pHyreCAT
+            ):
+                value = floor((float(field) + 1) * 1000000 + 0.5)
+            else:
+                value = int(field)
+
+            if is_seafet and sensor_id in (
+                SensorID.RELATIVE_HUMIDITY,
+                SensorID.INTERNAL_TEMPERATURE,
+            ):
+                if not 0 <= value <= 0xFFFF:
+                    raise ValueError(f"Value for {sensor_id} does not fit its decimal field")
+                value >>= 4
+            elif sensor_id == SensorID.SEAFET_TEMPERATURE and value == 0xFFFFFFFF:
+                # The invalid-temperature sentinel is stored in a 24-bit field.
+                value = 0xFFFFFF
+
+            hex_length = sensor_id_to_hex_length(sensor_id, instrument_type)
+            if not 0 <= value < 16**hex_length:
+                raise ValueError(f"Value for {sensor_id} does not fit its hex field")
+            hex_field = f"{value:0{hex_length}X}"
+            # Pressure precedes oxygen in decimal output, but follows it in hex.
+            if not has_header and sensor_id in (
+                SensorID.STRAIN_GAUGE_PRESSURE,
+                SensorID.STRAIN_GAUGE_PRESSURE_TEMPERATURE,
+            ):
+                pressure_hex.append(hex_field)
+            else:
+                result.append(hex_field)
+
+        seconds_since_2000 = int((sample_time - datetime(2000, 1, 1)).total_seconds())
+        if not 0 <= seconds_since_2000 < 16**HEX_LEN_DATE_TIME:
+            raise ValueError("Timestamp does not fit its hex field")
+        time_hex = f"{seconds_since_2000:0{HEX_LEN_DATE_TIME}X}"
+        sensor_hex = "".join(result + pressure_hex)
+        return time_hex + sensor_hex if timestamp_first else sensor_hex + time_hex + error_hex
+    except (ValueError, OverflowError) as error:
+        raise ValueError(f"Unable to parse raw decimal data from {raw_decimal!r}") from error
