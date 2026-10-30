@@ -241,6 +241,7 @@ def sensor_id_to_hex_length(sensorID: SensorID, instrument_type: InstrumentType)
         SensorID.ECO_SERIAL_FLPC: HEX_LEN_WETLABS_SINGLE_SENSOR,
         SensorID.ECO_SERIAL_CHL_435: HEX_LEN_WETLABS_SINGLE_SENSOR,
         SensorID.ECO_SERIAL_CHL_470: HEX_LEN_WETLABS_SINGLE_SENSOR,
+        SensorID.ECO_SERIAL_UNKNOWN: HEX_LEN_WETLABS_SINGLE_SENSOR,
         SensorID.GTD_PRESSURE: HEX_LEN_GTD_PRESSURE,
         SensorID.GTD_TEMPERATURE: HEX_LEN_TEMPERATURE,
         SensorID.OPTODE_OXYGEN: HEX_LEN_OPTODE_OXYGEN,
@@ -313,6 +314,7 @@ def sensor_id_to_hex_length(sensorID: SensorID, instrument_type: InstrumentType)
         SensorID.ECO_VOLTAGE_FLPC,
         SensorID.ECO_VOLTAGE_CHL_435,
         SensorID.ECO_VOLTAGE_CHL_470,
+        SensorID.ECO_VOLTAGE_UNKNOWN,
     ]:
         if instrument_type == InstrumentType.SBE911Plus:
             return HEX_LEN_SBE911_VOLTAGE
