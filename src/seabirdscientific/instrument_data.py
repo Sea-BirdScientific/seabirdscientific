@@ -1126,7 +1126,7 @@ def create_hex_from_decimal(
             instrument_type, raw_decimal, enabled_sensors, frame_present=True
         )
 
-    if instrument_type == InstrumentType.SBE39Plus:
+    if instrument_type in (InstrumentType.SBE39Plus, InstrumentType.SBE39PlusIM):
         return _create_hex_from_39_decimal(instrument_type, raw_decimal, enabled_sensors)
 
     if instrument_type in (InstrumentType.SeaFET2, InstrumentType.SeapHox2):
