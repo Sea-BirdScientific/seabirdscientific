@@ -268,18 +268,7 @@ class TemperatureSeaFETCoefficients:
 
 
 @dataclass
-class PHSeaFETInternalCoefficients:
-    """
-    :param kdf0: internal K0 coefficient
-    :param kdf2: internal K2 coefficient
-    """
-
-    kdf0: float
-    kdf2: float
-
-
-@dataclass
-class PHSeaFETExternalCoefficients:
+class ISFETpHCoefficients:
     """
     :param k0: external K0 coefficient
     :param k2: external K2 coefficient
@@ -300,7 +289,7 @@ class PHSeaFETExternalCoefficients:
         defaults to 0
     """
 
-    k0: float = 0
+    k0: float
     k2: float = 0
     k2f0: float = 0
     k2f1: float = 0
