@@ -6,6 +6,7 @@ from datetime import datetime
 from enum import Enum
 from itertools import dropwhile, takewhile
 from logging import getLogger
+from math import floor
 from pathlib import Path
 from typing import Literal
 
@@ -41,6 +42,8 @@ class InstrumentType(Enum):
     pHyreCAT = "pHyreCAT"
     HydroCAT = "HydroCAT"
     HydroCATODO = "HydroCAT-ODO"
+    HydroCATEP2 = "HydroCAT-EP-V2"
+    ECOV2 = "ECOV2"
 
 
 class SensorID(Enum):
@@ -163,6 +166,7 @@ class SensorID(Enum):
 
 
 """Possible lengths for hex data types"""
+
 HEX_LEN_TEMPERATURE = 6
 HEX_LEN_SBE38_TEMPERATURE = 6
 HEX_LEN_CONDUCTIVITY = 6
@@ -325,6 +329,7 @@ def sensor_id_to_hex_length(sensorID: SensorID, instrument_type: InstrumentType)
 
 
 """Possible data types in hex files"""
+# TODO Eliminate this
 HEX_TYPE_TEMPERATURE = "temperature"
 HEX_TYPE_SECONDARY_TEMPERATURE = "secondary temperature"
 HEX_TYPE_CONDUCTIVITY = "conductivity"
@@ -377,6 +382,7 @@ HEX_TYPE_DATA_INTEGRITY = "data integrity"
 HEX_TYPE_SYSTEM_TIME = "system time"
 
 
+# TODO Eliminate this
 class Sensors(Enum):
     """Available sensors to read hex data from"""
 
@@ -411,6 +417,7 @@ class Sensors(Enum):
     SystemTime = "systemTime"
 
 
+# TODO Eliminate this
 class HexDataTypes(Enum, metaclass=WarnAllMembersMeta):
     """Possible data types in hex files.
     Deprecated. Use HEX_TYPE_* constants."""
@@ -1060,3 +1067,403 @@ def reverse_hex_bytes(bytes_str: str) -> str:
         swapped += bytes_str[idx * 2 : idx * 2 + 2]
 
     return swapped
+
+
+def create_hex_from_decimal(
+    instrument_type: InstrumentType,
+    raw_decimal: str,
+    enabled_sensors: list[SensorID],
+) -> str:
+    """Convert a raw decimal sample from a supported instrument to upload hex.
+
+    :param instrument_type: The instrument that produced the sample.
+    :param raw_decimal: One line of comma separated raw decimal instrument data.
+    :param enabled_sensors: The sensors enabled on the instrument. The 37, HydroCAT
+        and SBE39plus samples only contain the enabled sensors. A SeaFET2 sample
+        also contains CTD and oxygen values when TEMPERATURE is enabled.
+
+    :return: Hex data matching what the instrument uploads for the same sample.
+
+    :raises ValueError: If the instrument is unsupported, or the sample is
+        malformed or contains values that do not fit their hex field widths.
+    """
+    if instrument_type in (
+        InstrumentType.SBE37IM,
+        InstrumentType.SBE37IMP,
+        InstrumentType.SBE37IMPODO,
+        InstrumentType.SBE37SI,
+        InstrumentType.SBE37SIP,
+        InstrumentType.SBE37SM,
+        InstrumentType.SBE37SMP,
+        InstrumentType.SBE37SMPODO,
+    ):
+        return _create_hex_from_37_decimal(
+            instrument_type, raw_decimal, enabled_sensors, frame_present=False
+        )
+
+    if instrument_type in (InstrumentType.HydroCAT, InstrumentType.HydroCATODO):
+        return _create_hex_from_37_decimal(
+            instrument_type, raw_decimal, enabled_sensors, frame_present=True
+        )
+
+    if instrument_type in (InstrumentType.SBE39Plus, InstrumentType.SBE39PlusIM):
+        return _create_hex_from_39_decimal(instrument_type, raw_decimal, enabled_sensors)
+
+    if instrument_type in (InstrumentType.SeaFET2, InstrumentType.SeapHox2):
+        return _create_hex_from_seafet_decimal(instrument_type, raw_decimal, enabled_sensors)
+
+    if instrument_type in (InstrumentType.pHyre, InstrumentType.pHyreCAT):
+        return _create_hex_from_phyre_decimal(instrument_type, raw_decimal)
+
+    raise ValueError(f"Raw decimal to hex is not supported for {instrument_type}")
+
+
+def _create_hex_from_37_decimal(
+    instrument_type: InstrumentType,
+    raw_decimal: str,
+    enabled_sensors: list[SensorID],
+    frame_present: bool,
+) -> str:
+    """Convert a raw decimal sample from a 37 or HydroCAT to hex.
+
+    The decimal sample is the enabled sensors followed by the date and time. The
+    HydroCAT also starts with a frame. In hex the date and time moves to the end and
+    the pressure moves after the oxygen.
+    """
+    try:
+        fields = _split_decimal_fields(raw_decimal)
+
+        index = 0
+        if frame_present:
+            index += 1  # skip the frame
+
+        result = ""
+
+        if SensorID.TEMPERATURE in enabled_sensors:
+            temperature = int(fields[index])
+            result += _sensor_to_hex(temperature, SensorID.TEMPERATURE, instrument_type)
+            index += 1
+
+        if SensorID.CONDUCTIVITY in enabled_sensors:
+            conductivity = _conductivity_to_counts(fields[index])
+            result += _sensor_to_hex(conductivity, SensorID.CONDUCTIVITY, instrument_type)
+            index += 1
+
+        # Save the pressure hex to add after the oxygen, the order differs in decimal
+        pressure_hex = ""
+        if SensorID.STRAIN_GAUGE_PRESSURE in enabled_sensors:
+            pressure = int(fields[index])
+            pressure_hex += _sensor_to_hex(
+                pressure, SensorID.STRAIN_GAUGE_PRESSURE, instrument_type
+            )
+            index += 1
+
+        if SensorID.STRAIN_GAUGE_PRESSURE_TEMPERATURE in enabled_sensors:
+            pressure_temperature = int(fields[index])
+            pressure_hex += _sensor_to_hex(
+                pressure_temperature,
+                SensorID.STRAIN_GAUGE_PRESSURE_TEMPERATURE,
+                instrument_type,
+            )
+            index += 1
+
+        if SensorID.SBE63_DISSOLVED_OXYGEN_PHASE in enabled_sensors:
+            phase = _sbe63_phase_to_counts(fields[index])
+            result += _sensor_to_hex(phase, SensorID.SBE63_DISSOLVED_OXYGEN_PHASE, instrument_type)
+            index += 1
+
+        if SensorID.SBE63_DISSOLVED_OXYGEN_TEMPERATURE in enabled_sensors:
+            oxygen_temperature = _sbe63_temperature_to_counts(fields[index])
+            result += _sensor_to_hex(
+                oxygen_temperature,
+                SensorID.SBE63_DISSOLVED_OXYGEN_TEMPERATURE,
+                instrument_type,
+            )
+            index += 1
+
+        result += pressure_hex
+
+        # The date and time are the last two fields
+        if len(fields) != index + 2:
+            raise ValueError("Unexpected number of raw decimal fields")
+        sample_time = _read_date_time(fields[index], fields[index + 1])
+        result += _date_time_to_hex(sample_time, instrument_type)
+
+        return result
+
+    except (ValueError, IndexError, OverflowError) as error:
+        raise ValueError(
+            f"Unable to parse {instrument_type.value} raw decimal data from {raw_decimal!r}"
+        ) from error
+
+
+def _create_hex_from_39_decimal(
+    instrument_type: InstrumentType,
+    raw_decimal: str,
+    enabled_sensors: list[SensorID],
+) -> str:
+    """Convert a raw decimal sample from an SBE39plus to hex.
+
+    The decimal sample is the temperature, optional pressure and the date and time.
+    In hex the date and time moves to the start.
+    """
+    try:
+        fields = _split_decimal_fields(raw_decimal)
+
+        temperature = int(fields[0])
+        temperature_hex = _sensor_to_hex(temperature, SensorID.TEMPERATURE, instrument_type)
+        index = 1
+
+        pressure_hex = ""
+        if SensorID.STRAIN_GAUGE_PRESSURE in enabled_sensors:
+            pressure = int(fields[index])
+            pressure_hex += _sensor_to_hex(
+                pressure, SensorID.STRAIN_GAUGE_PRESSURE, instrument_type
+            )
+            index += 1
+
+        if SensorID.STRAIN_GAUGE_PRESSURE_TEMPERATURE in enabled_sensors:
+            pressure_temperature = int(fields[index])
+            pressure_hex += _sensor_to_hex(
+                pressure_temperature,
+                SensorID.STRAIN_GAUGE_PRESSURE_TEMPERATURE,
+                instrument_type,
+            )
+            index += 1
+
+        # The date and time are the last two fields
+        if len(fields) != index + 2:
+            raise ValueError("Unexpected number of raw decimal fields")
+        sample_time = _read_date_time(fields[index], fields[index + 1])
+        date_time_hex = _date_time_to_hex(sample_time, instrument_type)
+
+        return date_time_hex + temperature_hex + pressure_hex
+
+    except (ValueError, IndexError, OverflowError) as error:
+        raise ValueError(
+            f"Unable to parse {instrument_type.value} raw decimal data from {raw_decimal!r}"
+        ) from error
+
+
+def _create_hex_from_seafet_decimal(
+    instrument_type: InstrumentType,
+    raw_decimal: str,
+    enabled_sensors: list[SensorID],
+) -> str:
+    """Convert a raw decimal sample from a SeaFET2 or SeapHox2 to hex.
+
+    The decimal sample is the frame, ISO date and time, error flag, then the sensor
+    values. In hex the date and time and error flag move to the end.
+    """
+    # A SeapHox2 always has a CTD and oxygen sensor, a SeaFET2 only if enabled
+    has_ctd = instrument_type == InstrumentType.SeapHox2 or SensorID.TEMPERATURE in enabled_sensors
+
+    raw_sensor_order = [
+        SensorID.SEAFET_PH_EXTERNAL,
+        SensorID.SEAFET_PH_INTERNAL,
+        SensorID.SEAFET_TEMPERATURE,
+        SensorID.PH_VK,
+        SensorID.PH_IB,
+        SensorID.PH_IK,
+    ]
+    if has_ctd:
+        raw_sensor_order = (
+            [SensorID.TEMPERATURE]
+            + raw_sensor_order
+            + [
+                SensorID.STRAIN_GAUGE_PRESSURE,
+                SensorID.STRAIN_GAUGE_PRESSURE_TEMPERATURE,
+                SensorID.CONDUCTIVITY,
+                SensorID.SBE63_DISSOLVED_OXYGEN_PHASE,
+                SensorID.SBE63_DISSOLVED_OXYGEN_TEMPERATURE,
+            ]
+        )
+    raw_sensor_order += [SensorID.INTERNAL_TEMPERATURE, SensorID.RELATIVE_HUMIDITY]
+
+    try:
+        sample_time, error_flag, raw = _read_raw_decimal_with_header(raw_decimal, raw_sensor_order)
+
+        result = ""
+
+        if has_ctd:
+            temperature = int(raw[SensorID.TEMPERATURE])
+            result += _sensor_to_hex(temperature, SensorID.TEMPERATURE, instrument_type)
+
+            conductivity = _conductivity_to_counts(raw[SensorID.CONDUCTIVITY])
+            result += _sensor_to_hex(conductivity, SensorID.CONDUCTIVITY, instrument_type)
+
+            pressure = int(raw[SensorID.STRAIN_GAUGE_PRESSURE])
+            result += _sensor_to_hex(pressure, SensorID.STRAIN_GAUGE_PRESSURE, instrument_type)
+
+            pressure_temperature = int(raw[SensorID.STRAIN_GAUGE_PRESSURE_TEMPERATURE])
+            result += _sensor_to_hex(
+                pressure_temperature,
+                SensorID.STRAIN_GAUGE_PRESSURE_TEMPERATURE,
+                instrument_type,
+            )
+
+            phase = _sbe63_phase_to_counts(raw[SensorID.SBE63_DISSOLVED_OXYGEN_PHASE])
+            result += _sensor_to_hex(phase, SensorID.SBE63_DISSOLVED_OXYGEN_PHASE, instrument_type)
+
+            oxygen_temperature = _sbe63_temperature_to_counts(
+                raw[SensorID.SBE63_DISSOLVED_OXYGEN_TEMPERATURE]
+            )
+            result += _sensor_to_hex(
+                oxygen_temperature,
+                SensorID.SBE63_DISSOLVED_OXYGEN_TEMPERATURE,
+                instrument_type,
+            )
+
+        for sensor_id in (SensorID.SEAFET_PH_EXTERNAL, SensorID.SEAFET_PH_INTERNAL):
+            result += _sensor_to_hex(int(raw[sensor_id]), sensor_id, instrument_type)
+
+        ph_temperature = int(raw[SensorID.SEAFET_TEMPERATURE])
+        if ph_temperature == 0xFFFFFFFF:
+            # The invalid temperature marker is stored in a 24 bit field
+            ph_temperature = 0xFFFFFF
+        result += _sensor_to_hex(ph_temperature, SensorID.SEAFET_TEMPERATURE, instrument_type)
+
+        for sensor_id in (SensorID.PH_VK, SensorID.PH_IB, SensorID.PH_IK):
+            result += _sensor_to_hex(int(raw[sensor_id]), sensor_id, instrument_type)
+
+        # Scale the internal humidity and temperature from 16 bits to 12
+        for sensor_id in (SensorID.RELATIVE_HUMIDITY, SensorID.INTERNAL_TEMPERATURE):
+            scaled = _scale_16_bits_to_12_bits(raw[sensor_id], sensor_id)
+            result += _sensor_to_hex(scaled, sensor_id, instrument_type)
+
+        result += _date_time_to_hex(sample_time, instrument_type)
+        result += _sensor_to_hex(error_flag, SensorID.ERROR_FLAG, instrument_type)
+
+        return result
+
+    except (ValueError, IndexError, OverflowError) as error:
+        raise ValueError(
+            f"Unable to parse {instrument_type.value} raw decimal data from {raw_decimal!r}"
+        ) from error
+
+
+def _create_hex_from_phyre_decimal(
+    instrument_type: InstrumentType,
+    raw_decimal: str,
+) -> str:
+    """Convert a raw decimal sample from a pHyre or pHyreCAT to hex.
+
+    The decimal sample is the frame, ISO date and time, error flag, then the sensor
+    values. In hex the date and time and error flag move to the end, and the pH
+    temperatures move after the pH.
+    """
+    # A pHyreCAT also reports CTD and oxygen values, as plain counts
+    ctd_sensors = [
+        SensorID.TEMPERATURE,
+        SensorID.CONDUCTIVITY,
+        SensorID.STRAIN_GAUGE_PRESSURE,
+        SensorID.STRAIN_GAUGE_PRESSURE_TEMPERATURE,
+        SensorID.SBE63_DISSOLVED_OXYGEN_PHASE,
+        SensorID.SBE63_DISSOLVED_OXYGEN_TEMPERATURE,
+    ]
+    ph_sensors = [
+        SensorID.PHYRE_PH_EXTERNAL,
+        SensorID.PHYRE_PH_INTERNAL,
+        SensorID.PHYRE_TEMPERATURE_EXTERNAL,
+        SensorID.PHYRE_TEMPERATURE_INTERNAL,
+        SensorID.PH_VK,
+        SensorID.PH_IB,
+        SensorID.PH_IK,
+    ]
+
+    raw_sensor_order = [
+        SensorID.PHYRE_TEMPERATURE_EXTERNAL,
+        SensorID.PHYRE_TEMPERATURE_INTERNAL,
+        SensorID.PHYRE_PH_EXTERNAL,
+        SensorID.PHYRE_PH_INTERNAL,
+        SensorID.PH_VK,
+        SensorID.PH_IB,
+        SensorID.PH_IK,
+    ]
+    hex_sensor_order = ph_sensors
+    if instrument_type == InstrumentType.pHyreCAT:
+        raw_sensor_order += ctd_sensors
+        hex_sensor_order = ctd_sensors + ph_sensors
+
+    try:
+        sample_time, error_flag, raw = _read_raw_decimal_with_header(raw_decimal, raw_sensor_order)
+
+        result = ""
+        for sensor_id in hex_sensor_order:
+            result += _sensor_to_hex(int(raw[sensor_id]), sensor_id, instrument_type)
+
+        result += _date_time_to_hex(sample_time, instrument_type)
+        result += _sensor_to_hex(error_flag, SensorID.ERROR_FLAG, instrument_type)
+
+        return result
+
+    except (ValueError, IndexError, OverflowError) as error:
+        raise ValueError(
+            f"Unable to parse {instrument_type.value} raw decimal data from {raw_decimal!r}"
+        ) from error
+
+
+def _split_decimal_fields(raw_decimal: str) -> list[str]:
+    """Split one line of raw decimal data into its comma separated fields."""
+    fields = [field.strip() for field in raw_decimal.split(",")]
+    if len(fields) == 1:
+        raise ValueError("Raw decimal data is not comma separated")
+    return fields
+
+
+def _read_raw_decimal_with_header(
+    raw_decimal: str, raw_sensor_order: list[SensorID]
+) -> tuple[datetime, int, dict[SensorID, str]]:
+    """Read a SeaFET or pHyre raw decimal sample.
+
+    The sample is the frame, ISO date and time, hexadecimal error flag, then the
+    sensor values in raw_sensor_order.
+
+    :return: The sample time, the error flag and the sensor values by sensor.
+    """
+    fields = _split_decimal_fields(raw_decimal)
+    if len(fields) != len(raw_sensor_order) + 3:
+        raise ValueError("Unexpected number of raw decimal fields")
+
+    sample_time = datetime.strptime(fields[1], "%Y-%m-%dT%H:%M:%S")
+    error_flag = int(fields[2], 16)
+    sensor_values = dict(zip(raw_sensor_order, fields[3:], strict=True))
+    return sample_time, error_flag, sensor_values
+
+
+def _read_date_time(date: str, time: str) -> datetime:
+    """Read the date and time fields of a 37, HydroCAT or SBE39plus sample."""
+    return datetime.strptime(f"{date} {time}", "%d %b %Y %H:%M:%S")
+
+
+def _date_time_to_hex(sample_time: datetime, instrument_type: InstrumentType) -> str:
+    """Convert a sample time to hex seconds since 2000."""
+    seconds_since_2000 = int((sample_time - datetime(2000, 1, 1)).total_seconds())
+    return _sensor_to_hex(seconds_since_2000, SensorID.INSTRUMENT_DATE_TIME, instrument_type)
+
+
+def _sensor_to_hex(value: int, sensor_id: SensorID, instrument_type: InstrumentType) -> str:
+    """Convert a sensor's integer value to zero padded upper case hex."""
+    hex_length = sensor_id_to_hex_length(sensor_id, instrument_type)
+    if not 0 <= value < 16**hex_length:
+        raise ValueError(f"Value for {sensor_id} does not fit its hex field")
+    return f"{value:0{hex_length}X}"
+
+
+def _conductivity_to_counts(decimal_conductivity: str) -> int:
+    return floor(float(decimal_conductivity) * 256 + 0.5)
+
+
+def _sbe63_phase_to_counts(decimal_phase: str) -> int:
+    return floor((float(decimal_phase) + 10) * 100000 + 0.5)
+
+
+def _sbe63_temperature_to_counts(decimal_temperature: str) -> int:
+    return floor((float(decimal_temperature) + 1) * 1000000 + 0.5)
+
+
+def _scale_16_bits_to_12_bits(decimal_value: str, sensor_id: SensorID) -> int:
+    value = int(decimal_value)
+    if not 0 <= value <= 0xFFFF:
+        raise ValueError(f"Value for {sensor_id} does not fit its decimal field")
+    return value >> 4
