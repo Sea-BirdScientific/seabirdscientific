@@ -3,7 +3,6 @@
 import time
 from datetime import datetime
 from pathlib import Path
-from pprint import pprint
 from typing import ClassVar
 
 import numpy as np

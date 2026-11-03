@@ -2,7 +2,7 @@
 
 import warnings
 import xml.etree.ElementTree as ET
-from datetime import datetime, timedelta
+from datetime import datetime
 from enum import Enum
 from itertools import dropwhile, takewhile
 from logging import getLogger
