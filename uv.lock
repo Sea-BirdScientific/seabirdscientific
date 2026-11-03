@@ -3215,7 +3215,7 @@ wheels = [
 
 [[package]]
 name = "seabirdscientific"
-version = "3.1.1"
+version = "4.0.0a1"
 source = { editable = "." }
 dependencies = [
     { name = "gsw" },

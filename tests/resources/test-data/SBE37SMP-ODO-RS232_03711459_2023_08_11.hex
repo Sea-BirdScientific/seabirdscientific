@@ -1,0 +1,297 @@
+* Sea-Bird SBE37SMP-ODO-RS232  Data File:
+* FileName = C:\Users\dlucas\Documents\Temp\Data-output-temp\SBE37SMP-ODO-RS232_03711459_2023_08_11.hex
+* Software version SeatermV2 2.8.0.119
+* Temperature SN = 11459
+* Conductivity SN = 11459
+* System UpLoad Time = Aug 11 2023 16:10:29
+* sample interval = 10 seconds
+* <ApplicationData>
+* <Seaterm232>
+* <SoftwareVersion>2.8.0.119</SoftwareVersion>
+* <BuildDate>07-Nov-2018</BuildDate>
+* </Seaterm232>
+* </ApplicationData>
+* <InstrumentState>
+* <HardwareData DeviceType='SBE37SMP-ODO-RS232' SerialNumber='03711459'>
+* 
+*    <Manufacturer>Sea-Bird Scientific</Manufacturer>
+* 
+*    <FirmwareVersion>6.3.2</FirmwareVersion>
+* 
+*    <FirmwareDate>Oct 23 2020 11:20:51</FirmwareDate>
+* 
+*    <CommandSetVersion>1.3</CommandSetVersion>
+* 
+*    <PCBAssembly SerialNum='not set' AssemblyNum='not set'/>
+* 
+*    <PCBAssembly SerialNum='not set' AssemblyNum='not set'/>
+* 
+*    <PCBAssembly SerialNum='not set' AssemblyNum='not set'/>
+* 
+*    <PCBAssembly SerialNum='not set' AssemblyNum='not set'/>
+* 
+*    <MfgDate>not set</MfgDate>
+* 
+*    <FirmwareLoader>SBE 37-232-V3 FirmwareLoader V 1.0</FirmwareLoader>
+* 
+*    <InternalSensors>
+* 
+*       <Sensor id='Temperature'>
+* 
+*          <type>temperature-1</type>
+* 
+*          <SerialNumber>03711459</SerialNumber>
+* 
+*       </Sensor>
+* 
+*       <Sensor id='Conductivity'>
+* 
+*          <type>conductivity-1</type>
+* 
+*          <SerialNumber>03711459</SerialNumber>
+* 
+*       </Sensor>
+* 
+*       <Sensor id='Pressure'>
+* 
+*          <type>strain-0</type>
+* 
+*          <SerialNumber>2147097</SerialNumber>
+* 
+*       </Sensor>
+* 
+*       <Sensor id='Oxygen'>
+* 
+*          <type>oxygen-1</type>
+* 
+*          <SerialNumber>0596</SerialNumber>
+* 
+*       </Sensor>
+* 
+*    </InternalSensors>
+* 
+* </HardwareData>
+* <StatusData DeviceType='SBE37SMP-ODO-RS232' SerialNumber='03711459'>
+* 
+*    <DateTime>2023-08-11T23:10:13</DateTime>
+* 
+*    <EventSummary numEvents='110'/>
+* 
+*    <Power>
+* 
+*       <vMain>10.32</vMain>
+* 
+*       <vLith> 2.89</vLith>
+* 
+*    </Power>
+* 
+*    <MemorySummary>
+* 
+*       <Bytes>315</Bytes>
+* 
+*       <Samples>15</Samples>
+* 
+*       <SamplesFree>399417</SamplesFree>
+* 
+*       <SampleLength>21</SampleLength>
+* 
+*    </MemorySummary>
+* 
+*    <AutonomousSampling>no, stop command</AutonomousSampling>
+* 
+* </StatusData>
+* <ConfigurationData DeviceType='SBE37SMP-ODO-RS232' SerialNumber='03711459'>
+* 
+*    <PressureInstalled>yes</PressureInstalled>
+* 
+*    <SampleDataFormat>converted engineering</SampleDataFormat>
+* 
+*    <TemperatureUnits>Celsius</TemperatureUnits>
+* 
+*    <ConductivityUnits>S/m</ConductivityUnits>
+* 
+*    <PressureUnits>Decibar</PressureUnits>
+* 
+*    <OxygenUnits>ml/L</OxygenUnits>
+* 
+*    <OutputTemperature>yes</OutputTemperature>
+* 
+*    <OutputConductivity>yes</OutputConductivity>
+* 
+*    <OutputPressure>yes</OutputPressure>
+* 
+*    <OutputOxygen>yes</OutputOxygen>
+* 
+*    <OutputSalinity>yes</OutputSalinity>
+* 
+*    <OutputSV>yes</OutputSV>
+* 
+*    <OutputSC>yes</OutputSC>
+* 
+*    <SCCoeff>0.0200</SCCoeff>
+* 
+*    <TxSampleNumber>no</TxSampleNumber>
+* 
+*    <SampleInterval>10</SampleInterval>
+* 
+*    <TxRealTime>no</TxRealTime>
+* 
+*    <SyncMode>no</SyncMode>
+* 
+*    <MinCondFreq>5000.0</MinCondFreq>
+* 
+*    <AdaptivePumpControl>yes</AdaptivePumpControl>
+* 
+*    <nTau>1.0</nTau>
+* 
+*    <LegacyMode>no</LegacyMode>
+* 
+*    <CompatibleMode>no</CompatibleMode>
+* 
+* </ConfigurationData>
+* <CalibrationCoefficients DeviceType='SBE37SMP-ODO-RS232' SerialNumber='03711459'>
+* 
+*    <Calibration format='TEMP1' id='Temperature'>
+* 
+*       <SerialNum>03711459</SerialNum>
+* 
+*       <CalDate>16-Jun-18</CalDate>
+* 
+*       <A0>-9.377649e-05</A0>
+* 
+*       <A1>3.059047e-04</A1>
+* 
+*       <A2>-4.445992e-06</A2>
+* 
+*       <A3>2.014555e-07</A3>
+* 
+*    </Calibration>
+* 
+*    <Calibration format='WBCOND0' id='Conductivity'>
+* 
+*       <SerialNum>03711459</SerialNum>
+* 
+*       <CalDate>16-Jun-18</CalDate>
+* 
+*       <G>-9.988043e-01</G>
+* 
+*       <H>1.502702e-01</H>
+* 
+*       <I>-1.575969e-04</I>
+* 
+*       <J>3.239340e-05</J>
+* 
+*       <PCOR>-9.570000e-08</PCOR>
+* 
+*       <TCOR>3.250000e-06</TCOR>
+* 
+*       <WBOTC>4.117014e-07</WBOTC>
+* 
+*    </Calibration>
+* 
+*    <Calibration format='STRAIN0' id='Pressure'>
+* 
+*       <SerialNum>2147097</SerialNum>
+* 
+*       <CalDate>20-Jul-16</CalDate>
+* 
+*       <PA0>-1.177128e+00</PA0>
+* 
+*       <PA1>9.216265e-03</PA1>
+* 
+*       <PA2>7.654627e-11</PA2>
+* 
+*       <PTCA0>5.230538e+05</PTCA0>
+* 
+*       <PTCA1>-1.527190e+01</PTCA1>
+* 
+*       <PTCA2>4.120696e-01</PTCA2>
+* 
+*       <PTCB0>1.043064e+02</PTCB0>
+* 
+*       <PTCB1>-6.333462e-03</PTCB1>
+* 
+*       <PTCB2>0.000000e+00</PTCB2>
+* 
+*       <PTEMPA0>-9.640760e+01</PTEMPA0>
+* 
+*       <PTEMPA1>3.965814e-02</PTEMPA1>
+* 
+*       <PTEMPA2>1.385976e-06</PTEMPA2>
+* 
+*       <POFFSET>0.000000e+00</POFFSET>
+* 
+*       <PRANGE>2.900000e+03</PRANGE>
+* 
+*    </Calibration>
+* 
+*    <Calibration format='OXYGEN1' id='Oxygen'>
+* 
+*       <SerialNum>0596</SerialNum>
+* 
+*       <CalDate>05-Sep-20</CalDate>
+* 
+*       <TAU20>4.000000e+00</TAU20>
+* 
+*       <NTAU>1.000000e+00</NTAU>
+* 
+*       <OXA0>1.051300e+00</OXA0>
+* 
+*       <OXA1>-1.500000e-03</OXA1>
+* 
+*       <OXA2>4.149243e-01</OXA2>
+* 
+*       <OXB0>-2.449207e-01</OXB0>
+* 
+*       <OXB1>1.643613e+00</OXB1>
+* 
+*       <OXC0>1.036735e-01</OXC0>
+* 
+*       <OXC1>4.416997e-03</OXC1>
+* 
+*       <OXC2>6.092370e-05</OXC2>
+* 
+*       <OXTA0>7.082572e-04</OXTA0>
+* 
+*       <OXTA1>2.496316e-04</OXTA1>
+* 
+*       <OXTA2>8.447513e-07</OXTA2>
+* 
+*       <OXTA3>9.333618e-08</OXTA3>
+* 
+*       <OXE>1.100000e-02</OXE>
+* 
+*    </Calibration>
+* 
+* </CalibrationCoefficients>
+* <EventCounters DeviceType='SBE37SMP-ODO-RS232' SerialNumber='03711459'>
+* 
+*    <EventSummary numEvents='110'/>
+* 
+*    <Event type='WDT reset' count='6'/>
+* 
+*    <Event type='PON reset' count='98'/>
+* 
+*    <Event type='Alarm long' count='1'/>
+* 
+*    <Event type='Alarm short' count='4'/>
+* 
+*    <Event type='LoggingRestartPON' count='1'/>
+* 
+* </EventCounters></InstrumentState>
+*END*
+034DCC0A13CC28DA981822C308015B0ACC2C653728
+034DC20A13CB28DAFC1822BE08015A0ACB2C653732
+034DBC0A13CC28DC8C1822B908015B0ACC2C65373C
+034DBC0A13CB28DC281822A908015B0ACB2C653746
+034DB20A13CC28DA9818229D0801590ACB2C653750
+034DA90A13CB28DC8C18229508015B0ACB2C65375A
+034DA30A13CA28DAFC18229508015B0ACC2C653764
+034D950A13CB28D8A418227908015B0ACB2C65376E
+034D920A13CA28D9D018227208015B0ACC2C653778
+034D8A0A13CC28DC8C18226608015A0ACC2C653782
+034D880A13CB28DC8C18225A08015B0ACB2C65378C
+034D800A13CB28D96C18224508015A0ACC2C653796
+034D770A13CA28D8A418224708015A0ACC2C6537A0
+034D770A13CC28DA9818222F0801590ACB2C6537AA
+03454C0A13CB28D32C1811B508015B0AD12C6549B5
