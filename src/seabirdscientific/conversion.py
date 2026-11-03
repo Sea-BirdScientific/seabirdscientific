@@ -1037,7 +1037,7 @@ def _calculate_nernst(temperature: np.ndarray) -> np.ndarray:
 def convert_internal_seafet_ph(
     raw_ph: np.ndarray,
     temperature: np.ndarray,
-    coefs: cc.PHSeaFETInternalCoefficients,
+    coefs: cc.ISFETpHCoefficients,
     ph_units: Literal["counts", "volts"] = "counts",
     pressure: np.ndarray | float = 0.0,
 ):
@@ -1219,7 +1219,7 @@ def _acid_dissociation_constant_of_hso4_tp(
 
 def _pressure_response(
     pressure: np.ndarray | float,
-    coefs: cc.PHSeaFETExternalCoefficients | cc.PHSeaFETInternalCoefficients,
+    coefs: cc.ISFETpHCoefficients,
 ):
     """The sensor pressure response function from SBS application note
     99.
@@ -1273,7 +1273,7 @@ def convert_external_seafet_ph(
     temperature: np.ndarray,
     salinity: np.ndarray,
     pressure: np.ndarray,
-    coefs: cc.PHSeaFETExternalCoefficients,
+    coefs: cc.ISFETpHCoefficients,
     ph_units: Literal["counts", "volts"] = "counts",
     formula_version: Literal["legacy", "1.3"] = "1.3",
 ):

@@ -213,30 +213,30 @@ par_coefs_sn0411 = cc.PARCoefficients(
 
 spar_coefs = cc.SPARCoefficients(im=2.2, a0=1, a1=2, conversion_factor=1.5596e3)
 
-ph_seafet_internal_coefs = cc.PHSeaFETInternalCoefficients(
+ph_seafet_internal_coefs = cc.ISFETpHCoefficients(
     k0=-1.354051,
     k2=-0.001272858,
 )
 
-ph_seafet_external_coefs = cc.PHSeaFETExternalCoefficients(
+ph_seafet_external_coefs = cc.ISFETpHCoefficients(
     k0=-1.345407,
     k2=-0.001106957,
 )
 
 # from application note 99
-internal_ph_coefs = cc.PHSeaFETInternalCoefficients(
+internal_ph_coefs = cc.ISFETpHCoefficients(
     k0=-1.438788,
     k2=-1.304895e-3,
 )
 
 # from application note 99
-external_shallow_ph_coefs = cc.PHSeaFETExternalCoefficients(
+external_shallow_ph_coefs = cc.ISFETpHCoefficients(
     k0=-1.429278,
     k2=-1.42026e-3,
 )
 
 # from application note 99
-external_ph_coefs = cc.PHSeaFETExternalCoefficients(
+external_ph_coefs = cc.ISFETpHCoefficients(
     k0=-1.361736,
     k2=-1.07686e-3,
     fp_poly_order=6,
@@ -249,7 +249,7 @@ external_ph_coefs = cc.PHSeaFETExternalCoefficients(
 )
 
 # from Processing BGC-Argo pH data at the DAC level
-external_ph_k2_poly_coefs = cc.PHSeaFETExternalCoefficients(
+external_ph_k2_poly_coefs = cc.ISFETpHCoefficients(
     k0=-1.321959,
     k2_poly_order=3,
     k2f0=-0.8682e-3,
