@@ -187,7 +187,7 @@ class TestDigiquartzPressure:
 
 class TestConductivity19plus:
     cnv_path = test_data / "19plus_V2_CTD-processing_example.cnv"
-    hex_path = test_data / "19plus_V2.hex"
+    hex_path = test_data / "19plus_V2.hex"  # profile mode, no instrument time
 
     def test_convert_conductivity(self):
         # expected_data = si.read_cnv_file(self.cnv_path)
@@ -196,13 +196,14 @@ class TestConductivity19plus:
             self.hex_path,
             si.InstrumentType.SBE19Plus,
             [
-                si.Sensors.Temperature,
-                si.Sensors.Conductivity,
-                si.Sensors.Pressure,
-                si.Sensors.ExtVolt0,
-                si.Sensors.ExtVolt1,
-                si.Sensors.ExtVolt2,
-                si.Sensors.ExtVolt4,
+                si.SensorID.TEMPERATURE,
+                si.SensorID.CONDUCTIVITY,
+                si.SensorID.STRAIN_GAUGE_PRESSURE,
+                si.SensorID.STRAIN_GAUGE_PRESSURE_TEMPERATURE,
+                si.SensorID.VOLTAGE_0,
+                si.SensorID.VOLTAGE_1,
+                si.SensorID.VOLTAGE_2,
+                si.SensorID.VOLTAGE_4,
             ],
         )
 
@@ -210,7 +211,7 @@ class TestConductivity19plus:
 
         # test_temp_data = np.array([20.4459, 20.4451, 20.4436, 20.4427, 20.4413, 20.4401])
         temperature = dc.convert_temperature(
-            raw["temperature"][0:6].values,
+            raw[str(si.SensorID.TEMPERATURE) + "_0"][0:6].values,
             tc.temperature_coefs_sn6130,
             "IPTS68",
             "C",
@@ -219,14 +220,14 @@ class TestConductivity19plus:
 
         # test_press_data = np.array([-0.105, -0.106, -0.104, -0.107, -0.105, -0.104])
         pressure = dc.convert_pressure(
-            raw["pressure"][0:6].values,
-            raw["temperature compensation"][0:6].values,
+            raw[str(si.SensorID.STRAIN_GAUGE_PRESSURE) + "_0"][0:6].values,
+            raw[str(si.SensorID.STRAIN_GAUGE_PRESSURE_TEMPERATURE) + "_0"][0:6].values,
             tc.pressure_coefs_sn6130,
             "psia",
         )
         expected = [0.008453, 0.008420, 0.008423, 0.008402, 0.008380, 0.008344]
         result = dc.convert_conductivity(
-            raw["conductivity"][0:6].values,
+            raw[str(si.SensorID.CONDUCTIVITY) + "_0"][0:6].values,
             temperature,
             pressure,
             tc.conductivity_coefs_sn6130,
@@ -247,14 +248,15 @@ class TestConductivity37SM:
             self.hex_path,
             si.InstrumentType.SBE37SM,
             [
-                si.Sensors.Temperature,
-                si.Sensors.Conductivity,
-                si.Sensors.Pressure,
+                si.SensorID.TEMPERATURE,
+                si.SensorID.CONDUCTIVITY,
+                si.SensorID.STRAIN_GAUGE_PRESSURE,
+                si.SensorID.STRAIN_GAUGE_PRESSURE_TEMPERATURE,
             ],
         )
 
         temperature = dc.convert_temperature(
-            raw["temperature"][0:6].values,
+            raw[str(si.SensorID.TEMPERATURE) + "_0"][0:6].values,
             tc.temperature_coefs_sn6130,
             "IPTS68",
             "C",
@@ -262,14 +264,14 @@ class TestConductivity37SM:
         )
 
         pressure = dc.convert_pressure(
-            raw["pressure"][0:6].values,
-            raw["temperature compensation"][0:6].values,
+            raw[str(si.SensorID.STRAIN_GAUGE_PRESSURE) + "_0"][0:6].values,
+            raw[str(si.SensorID.STRAIN_GAUGE_PRESSURE_TEMPERATURE) + "_0"][0:6].values,
             tc.pressure_coefs_sn16125,
             "psia",
         )
         expected = [2.711842, 2.715786, 2.715857, 2.715846, 2.715846, 2.715857]
         result = dc.convert_conductivity(
-            raw["conductivity"][0:6].values,
+            raw[str(si.SensorID.CONDUCTIVITY) + "_0"][0:6].values,
             temperature,
             pressure,
             tc.conductivity_coefs_sn16125,
