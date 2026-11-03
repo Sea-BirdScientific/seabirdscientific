@@ -826,7 +826,7 @@ class TestSeaFETPH:
     def test_internal_shallow_ph_app_note_99(self, request):
         # from application note 99
         ph_counts = self.ph_voltage_to_counts(-1.010404)
-        # coefs = cc.PHSeaFETInternalCoefficients(k0=-1.438788, k2=-1.304895e-3)
+        # coefs = cc.ISFETpHCoefficients(k0=-1.438788, k2=-1.304895e-3)
         internal_ph = dc.convert_internal_seafet_ph(
             raw_ph=ph_counts,
             temperature=15.8735,
