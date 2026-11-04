@@ -4,8 +4,8 @@
 COUNTS_TO_VOLTS = 13107
 #: psi per decibar (dbar * DBAR_TO_PSI = psi)
 DBAR_TO_PSI = 1.450377
-#: [Coulombs mol^{-1}] Faraday constant from SBS application note 99
-F = 96485.365
+#: [Coulombs mol^{-1}] Faraday constant from CODATA 2022.
+F = 96485.332
 #: Value that marks bad or missing samples, which are flagged rather than removed
 FLAG_VALUE = -9.99e-29
 #: Meters of fresh water per decibar, for depth from pressure in fresh water
@@ -30,8 +30,8 @@ OXYGEN_MLPERL_TO_UMOLPERL = 44.66
 OXYGEN_PHASE_TO_VOLTS = 39.457071
 #: Decibars per psi (psi * PSI_TO_DBAR = dbar)
 PSI_TO_DBAR = 0.6894759
-#: [J K^{-1} mol^{-1}] Gas constant from SBS application note 99
-R = 8.3144621
+#: [J K^{-1} mol^{-1}] Gas constant from CODATA 2022
+R = 8.314462618
 #: [dbar] Atmospheric pressure at sea level
 SEA_LEVEL_PRESSURE_DBAR = 10.1325
 #: [psi] Atmospheric pressure at sea level, for converting between absolute and gauge pressure
