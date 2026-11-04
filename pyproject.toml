@@ -105,4 +105,13 @@ norecursedirs = [
   "resources",
   "results",
 ]
+# Warnings fail the tests, so deprecations in dependencies surface early. CI installs the
+# versions in uv.lock (and the oldest allowed ones in pytest-lowest.yml), so a new dependency
+# release can't break it unexpectedly. List tolerated third-party warnings here with a reason.
+filterwarnings = [
+  "error",
+  # seawater warns on import that it's deprecated, but eos80_* use it on purpose for SeaSoft
+  # parity
+  "ignore:The seawater library is deprecated:UserWarning",
+]
 
