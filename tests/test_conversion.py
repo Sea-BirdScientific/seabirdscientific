@@ -252,6 +252,7 @@ class TestConductivity37SM:
                 si.SensorID.CONDUCTIVITY,
                 si.SensorID.STRAIN_GAUGE_PRESSURE,
                 si.SensorID.STRAIN_GAUGE_PRESSURE_TEMPERATURE,
+                si.SensorID.INSTRUMENT_DATE_TIME,
             ],
         )
 
