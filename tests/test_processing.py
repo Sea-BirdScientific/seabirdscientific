@@ -1235,17 +1235,19 @@ class TestTrim:
 
         result = sp.trim(data, "scan", 3, 6)
 
-        assert result is data
-        assert list(data["prdM"]) == [4.0, 6.0, 8.0, 10.0]
-        assert list(data.index) == [0, 1, 2, 3]
+        assert result is not data
+        assert list(result["prdM"]) == [4.0, 6.0, 8.0, 10.0]
+        assert list(result.index) == [0, 1, 2, 3]
+        assert len(data) == 10
 
     def test_trim_by_control(self):
         data = pd.DataFrame({"prdM": [0.0, 1.0, 5.0, 3.0, 2.0, 8.0]})
 
-        sp.trim(data, "prdM", 1.0, 3.0)
+        result = sp.trim(data, "prdM", 1.0, 3.0)
 
-        assert list(data["prdM"]) == [1.0, 3.0, 2.0]
-        assert list(data.index) == [0, 1, 2]
+        assert list(result["prdM"]) == [1.0, 3.0, 2.0]
+        assert list(result.index) == [0, 1, 2]
+        assert list(data["prdM"]) == [0.0, 1.0, 5.0, 3.0, 2.0, 8.0]
 
 
 class TestSplit:

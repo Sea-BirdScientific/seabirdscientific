@@ -198,8 +198,7 @@ def parse_instrument_data(source: str | Path | pd.DataFrame | xr.Dataset) -> xr.
             raise TypeError
 
         columns = [sbs(column)["name"] for column in data.columns]
-        for old_column, new_column in zip(data.columns, columns):
-            data.rename(columns={old_column: new_column}, inplace=True)
+        data = data.rename(columns=dict(zip(data.columns, columns)))
         scan_coords = np.arange(len(data))
         dataset = xr.Dataset(coords={"scan": scan_coords})
         for column in data.columns:

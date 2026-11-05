@@ -1154,10 +1154,10 @@ def trim(
     start: float,
     end: float,
 ) -> pd.DataFrame:
-    """Trims a dataframe to the rows within a range of a control
-    variable, operating on the dataframe in place. Rows outside the
-    range are dropped and the index is reset so positional access stays
-    contiguous.
+    """Return a dataframe trimmed to the rows within a control-variable range.
+
+    Rows outside the range are dropped and the index is reset so positional
+    access stays contiguous. The input dataframe is not modified.
 
     :param dataframe: The dataframe to trim
     :param control: The name of the column to trim by, or "scan" to
@@ -1173,10 +1173,7 @@ def trim(
         control_values = dataframe[control].to_numpy()
         mask = (control_values >= start) & (control_values <= end)
 
-    dataframe.drop(index=dataframe.index[~mask], inplace=True)
-    dataframe.reset_index(drop=True, inplace=True)
-
-    return dataframe
+    return dataframe.loc[mask].reset_index(drop=True)
 
 
 def split(
