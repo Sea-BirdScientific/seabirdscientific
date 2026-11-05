@@ -8,6 +8,9 @@ concurrency:
   group: ruff-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   ruff:
     name: Run Ruff
@@ -19,6 +22,8 @@ jobs:
 
       - name: Set up uv
         uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
 
       - name: Install dependencies
         run: uv sync

@@ -8,6 +8,9 @@ concurrency:
   group: pytest-lowest-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   pytest-lowest:
     name: Run Pytest with minimum dependency versions
