@@ -834,7 +834,8 @@ class TestReadHexSensorLayout:
             str(si.SensorID.NMEA_LATITUDE): [0.00002],
             str(si.SensorID.NMEA_LONGITUDE): [-0.00004],
         }
-        assert {key: values.tolist() for key, values in result.items()} == pytest.approx(expected)
+        for key, values in result.items():
+            np.testing.assert_allclose(values, expected[key])
 
     def test_file_builds_layout_once(self, tmp_path, monkeypatch):
         filepath = tmp_path / "replicates.hex"
@@ -859,6 +860,88 @@ class TestReadHexSensorLayout:
         assert dataset[f"{si.SensorID.TEMPERATURE}_0"].values.tolist() == [1, 3]
         assert dataset[f"{si.SensorID.TEMPERATURE}_1"].values.tolist() == [2, 4]
         assert sensor_ids == [si.SensorID.TEMPERATURE] * 2
+
+    def test_clipped_scan(self):
+        sensor_layout = si._build_hex_sensor_layout(
+            [
+                si.SensorID.TEMPERATURE,
+                si.SensorID.CONDUCTIVITY,
+                si.SensorID.TEMPERATURE,
+            ],
+            si.InstrumentType.SBE37SM,
+        )
+
+        result = si.batch_convert_hex_to_dec(
+            [
+                "000001000002000003",
+                "00000100000200",  # clipped scan, from bad data transfer
+                "000001000002000003",
+            ],
+            sensor_layout,
+        )
+
+        expected = {
+            f"{si.SensorID.TEMPERATURE}_0": [1, np.nan, 1],
+            f"{si.SensorID.CONDUCTIVITY}_0": [2, np.nan, 2],
+            f"{si.SensorID.TEMPERATURE}_1": [3, np.nan, 3],
+        }
+        for key, values in result.items():
+            np.testing.assert_equal(values, expected[key])
+
+    def test_extended_scan(self):
+        sensor_layout = si._build_hex_sensor_layout(
+            [
+                si.SensorID.TEMPERATURE,
+                si.SensorID.CONDUCTIVITY,
+                si.SensorID.TEMPERATURE,
+            ],
+            si.InstrumentType.SBE37SM,
+        )
+
+        result = si.batch_convert_hex_to_dec(
+            [
+                "000001000002000003",
+                "00000100000200000300",  # scan that ended up with extra characters from bad data transfer
+                "000001000002000003",
+            ],
+            sensor_layout,
+        )
+
+        expected = {
+            f"{si.SensorID.TEMPERATURE}_0": [1, np.nan, 1],
+            f"{si.SensorID.CONDUCTIVITY}_0": [2, np.nan, 2],
+            f"{si.SensorID.TEMPERATURE}_1": [3, np.nan, 3],
+        }
+        for key, values in result.items():
+            np.testing.assert_equal(values, expected[key])
+
+    def test_short_sensor_layout(self):
+        # test if error is thrown when the sensor_layout is short (missing a sensor)
+        sensor_layout = si._build_hex_sensor_layout(
+            [
+                si.SensorID.TEMPERATURE,
+                si.SensorID.CONDUCTIVITY,
+            ],
+            si.InstrumentType.SBE37SM,
+        )
+
+        with pytest.raises(ValueError, match="Sensor layout expects 12 hex characters"):
+            si.batch_convert_hex_to_dec(["000001000002000003"], sensor_layout)
+
+    def test_long_sensor_layout(self):
+        # test if error is thrown when the sensor_layout is long (extra sensor)
+        sensor_layout = si._build_hex_sensor_layout(
+            [
+                si.SensorID.TEMPERATURE,
+                si.SensorID.CONDUCTIVITY,
+                si.SensorID.STRAIN_GAUGE_PRESSURE,
+                si.SensorID.STRAIN_GAUGE_PRESSURE_TEMPERATURE,
+            ],
+            si.InstrumentType.SBE37SM,
+        )
+
+        with pytest.raises(ValueError, match="Sensor layout expects 22 hex characters"):
+            si.batch_convert_hex_to_dec(["000001000002000003"], sensor_layout)
 
 
 class TestReadHexFileSpeed:

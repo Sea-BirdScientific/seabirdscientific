@@ -73,51 +73,51 @@ class SensorID(Enum):
     SEAFET_TEMPERATURE = 87
     INTERNAL_TEMPERATURE = 88
     RELATIVE_HUMIDITY = 89
-    ECO_SERIAL_BACKSCATTERING_880 = 90
-    ECO_SERIAL_BACKSCATTERING_870 = 91
-    ECO_SERIAL_BACKSCATTERING_780 = 92
-    ECO_SERIAL_BACKSCATTERING_770 = 93
-    ECO_SERIAL_BACKSCATTERING_720 = 94
-    ECO_SERIAL_BACKSCATTERING_715 = 95
-    ECO_SERIAL_BACKSCATTERING_700 = 96
-    ECO_SERIAL_BACKSCATTERING_676 = 97
-    ECO_SERIAL_BACKSCATTERING_650 = 98
-    ECO_SERIAL_BACKSCATTERING_630 = 99
-    ECO_SERIAL_BACKSCATTERING_595 = 100
-    ECO_SERIAL_BACKSCATTERING_532 = 101
-    ECO_SERIAL_BACKSCATTERING_530 = 102
-    ECO_SERIAL_BACKSCATTERING_510 = 103
-    ECO_SERIAL_BACKSCATTERING_488 = 104
-    ECO_SERIAL_BACKSCATTERING_470 = 105
-    ECO_SERIAL_BACKSCATTERING_440 = 106
-    ECO_SERIAL_BACKSCATTERING_412 = 107
-    ECO_SERIAL_FDOM = 108
-    ECO_SERIAL_FLUR = 109
-    ECO_SERIAL_FLRH = 110
-    ECO_SERIAL_FLPE = 111
-    ECO_SERIAL_FLPC = 112
-    ECO_SERIAL_CHL_435 = 113
-    ECO_SERIAL_CHL_470 = 114
-    ECO_SERIAL_UNKNOWN = 115
-    CONDUCTIVITY_FREQUENCY = 116
-    SBE27_PH = 117
-    CUSTOM_EQUATION = 118
-    PHYRE_PH_INTERNAL = 119
-    PHYRE_PH_EXTERNAL = 120
-    PHYRE_TEMPERATURE_INTERNAL = 121
-    PHYRE_TEMPERATURE_EXTERNAL = 122
-    PH_VK = 123
-    PH_IB = 124
-    PH_IK = 125
-    STRAIN_GAUGE_PRESSURE_TEMPERATURE = 126
-    DIGIQUARTZ_PRESSURE_TEMPERATURE = 127
-    GTD_PRESSURE = 128  # TODO This may have an existing SensorID
-    GTD_TEMPERATURE = 129  # TODO This may have an existing SensorID
-    SBE63_DISSOLVED_OXYGEN_TEMPERATURE = 130
-    NMEA_LATITUDE = 131
-    NMEA_LONGITUDE = 132
-    NMEA_STATUS_AND_SIGN = 133
-    NMEA_DATE_TIME = 134
+    ECO_VOLTAGE_BACKSCATTERING_880 = 90
+    ECO_VOLTAGE_BACKSCATTERING_870 = 91
+    ECO_VOLTAGE_BACKSCATTERING_780 = 92
+    ECO_VOLTAGE_BACKSCATTERING_770 = 93
+    ECO_VOLTAGE_BACKSCATTERING_720 = 94
+    ECO_VOLTAGE_BACKSCATTERING_715 = 95
+    ECO_VOLTAGE_BACKSCATTERING_700 = 96
+    ECO_VOLTAGE_BACKSCATTERING_676 = 97
+    ECO_VOLTAGE_BACKSCATTERING_650 = 98
+    ECO_VOLTAGE_BACKSCATTERING_630 = 99
+    ECO_VOLTAGE_BACKSCATTERING_595 = 100
+    ECO_VOLTAGE_BACKSCATTERING_532 = 101
+    ECO_VOLTAGE_BACKSCATTERING_530 = 102
+    ECO_VOLTAGE_BACKSCATTERING_510 = 103
+    ECO_VOLTAGE_BACKSCATTERING_488 = 104
+    ECO_VOLTAGE_BACKSCATTERING_470 = 105
+    ECO_VOLTAGE_BACKSCATTERING_440 = 106
+    ECO_VOLTAGE_BACKSCATTERING_412 = 107
+    ECO_VOLTAGE_FDOM = 108
+    ECO_VOLTAGE_FLUR = 109
+    ECO_VOLTAGE_FLRH = 110
+    ECO_VOLTAGE_FLPE = 111
+    ECO_VOLTAGE_FLPC = 112
+    ECO_VOLTAGE_CHL_435 = 113
+    ECO_VOLTAGE_CHL_470 = 114
+    CONDUCTIVITY_FREQUENCY = 115
+    SBE27_PH = 116
+    CUSTOM_EQUATION = 117
+    PHYRE_PH_INTERNAL = 118
+    PHYRE_PH_EXTERNAL = 119
+    PHYRE_TEMPERATURE_INTERNAL = 120
+    PHYRE_TEMPERATURE_EXTERNAL = 121
+    PH_VK = 122
+    PH_IB = 123
+    PH_IK = 124
+    STRAIN_GAUGE_PRESSURE_TEMPERATURE = 125
+    DIGIQUARTZ_PRESSURE_TEMPERATURE = 126
+    GTD_PRESSURE = 127  # TODO This may have an existing SensorID
+    GTD_TEMPERATURE = 128  # TODO This may have an existing SensorID
+    SBE63_DISSOLVED_OXYGEN_TEMPERATURE = 129
+    NMEA_LATITUDE = 130
+    NMEA_LONGITUDE = 131
+    NMEA_STATUS_AND_SIGN = 132
+    NMEA_DATE_TIME = 133
+    NMEA_DEPTH = 134
     INSTRUMENT_DATE_TIME = 135
     VOLTAGE_0 = 136  # raw voltage
     VOLTAGE_1 = 137
@@ -127,40 +127,41 @@ class SensorID(Enum):
     VOLTAGE_5 = 141
     VOLTAGE_6 = 142
     VOLTAGE_7 = 143
-    ECO_VOLTAGE_BACKSCATTERING_880 = 144
-    ECO_VOLTAGE_BACKSCATTERING_870 = 145
-    ECO_VOLTAGE_BACKSCATTERING_780 = 146
-    ECO_VOLTAGE_BACKSCATTERING_770 = 147
-    ECO_VOLTAGE_BACKSCATTERING_720 = 148
-    ECO_VOLTAGE_BACKSCATTERING_715 = 149
-    ECO_VOLTAGE_BACKSCATTERING_700 = 150
-    ECO_VOLTAGE_BACKSCATTERING_676 = 151
-    ECO_VOLTAGE_BACKSCATTERING_650 = 152
-    ECO_VOLTAGE_BACKSCATTERING_630 = 153
-    ECO_VOLTAGE_BACKSCATTERING_595 = 154
-    ECO_VOLTAGE_BACKSCATTERING_532 = 155
-    ECO_VOLTAGE_BACKSCATTERING_530 = 156
-    ECO_VOLTAGE_BACKSCATTERING_510 = 157
-    ECO_VOLTAGE_BACKSCATTERING_488 = 158
-    ECO_VOLTAGE_BACKSCATTERING_470 = 159
-    ECO_VOLTAGE_BACKSCATTERING_440 = 160
-    ECO_VOLTAGE_BACKSCATTERING_412 = 161
-    ECO_VOLTAGE_FDOM = 162
-    ECO_VOLTAGE_FLUR = 163
-    ECO_VOLTAGE_FLRH = 164
-    ECO_VOLTAGE_FLPE = 165
-    ECO_VOLTAGE_FLPC = 166
-    ECO_VOLTAGE_CHL_435 = 167
-    ECO_VOLTAGE_CHL_470 = 168
-    ECO_VOLTAGE_UNKNOWN = 169
-    SBE911_DIAGNOSTICS = 170
-    SBE911_PUMP_STATUS = 171
-    SBE911_BOTTOM_CONTACT_STATUS = 172
-    SBE911_CONFIRM_STATUS = 173
-    SBE911_MODEM_STATUS = 174
-    DATA_INTEGRITY = 175
-    ERROR_FLAG = 176
-    counts = 997
+    ECO_SERIAL_BACKSCATTERING_880 = 144
+    ECO_SERIAL_BACKSCATTERING_870 = 145
+    ECO_SERIAL_BACKSCATTERING_780 = 146
+    ECO_SERIAL_BACKSCATTERING_770 = 147
+    ECO_SERIAL_BACKSCATTERING_720 = 148
+    ECO_SERIAL_BACKSCATTERING_715 = 149
+    ECO_SERIAL_BACKSCATTERING_700 = 150
+    ECO_SERIAL_BACKSCATTERING_676 = 151
+    ECO_SERIAL_BACKSCATTERING_650 = 152
+    ECO_SERIAL_BACKSCATTERING_630 = 153
+    ECO_SERIAL_BACKSCATTERING_595 = 154
+    ECO_SERIAL_BACKSCATTERING_532 = 155
+    ECO_SERIAL_BACKSCATTERING_530 = 156
+    ECO_SERIAL_BACKSCATTERING_510 = 157
+    ECO_SERIAL_BACKSCATTERING_488 = 158
+    ECO_SERIAL_BACKSCATTERING_470 = 159
+    ECO_SERIAL_BACKSCATTERING_440 = 160
+    ECO_SERIAL_BACKSCATTERING_412 = 161
+    ECO_SERIAL_FDOM = 162
+    ECO_SERIAL_FLUR = 163
+    ECO_SERIAL_FLRH = 164
+    ECO_SERIAL_FLPE = 165
+    ECO_SERIAL_FLPC = 166
+    ECO_SERIAL_CHL_435 = 167
+    ECO_SERIAL_CHL_470 = 168
+    ECO_SERIAL_UNKNOWN = 169
+    ECO_VOLTAGE_UNKNOWN = 170
+    SBE911_DIAGNOSTICS = 171
+    SBE911_PUMP_STATUS = 172
+    SBE911_BOTTOM_CONTACT_STATUS = 173
+    SBE911_CONFIRM_STATUS = 174
+    SBE911_MODEM_STATUS = 175
+    DATA_INTEGRITY = 176
+    ERROR_FLAG = 177
+    SYSTEM_DATE_TIME = 178
     VOLTAGE = 998
     UNSUPORTED = 999
 
@@ -766,20 +767,35 @@ def batch_convert_hex_to_dec(
     Processes all lines at once using NumPy.
     Splits and converts fixed-length hex data to decimal columns at maximum speed.
     """
-    # 1. Clean and convert your raw text lines into a NumPy string array
+    # Clean and convert your raw text lines into a NumPy string array
     # Stripping and casting to an 'S' (byte-string) type drops Python string overhead
     cleaned_lines = [line.strip() for line in lines]
+
+    # Find rows that are wrong hex length
+    expected_len = sum(hex_length for _, _, hex_length in sensor_layout)
+    line_lengths = np.array([len(line) for line in cleaned_lines])
+
+    # Check first scan hex length matches expected hex length based on sensor layout
+    if len(line_lengths) and line_lengths[0] != expected_len:
+        raise ValueError(
+            f"Sensor layout expects {expected_len} hex characters, "
+            f"but the first input line contains {line_lengths[0]}"
+        )
+
+    invalid_rows = line_lengths != expected_len
+    has_invalid_rows = np.any(invalid_rows)
+
     max_len = max(len(s) for s in cleaned_lines)
     arr = np.array(cleaned_lines, dtype=f"S{max_len}")
 
-    # 2. View the data as raw byte characters (columns)
+    # View the data as raw byte characters (columns)
     # This turns a list of strings into a 2D matrix of individual characters
     char_matrix = arr.view(np.uint8).reshape(len(arr), -1)
 
     results = {}
     offset = 0
 
-    # 3. Process each sensor column in bulk
+    # Process each sensor column in bulk
     for _, key, hex_length in sensor_layout:
         # Slice out the character block for this specific sensor across ALL rows
         sensor_chars = char_matrix[:, offset : offset + hex_length]
@@ -793,7 +809,10 @@ def batch_convert_hex_to_dec(
         multipliers = 16 ** np.arange(hex_length - 1, -1, -1)
 
         # Matrix multiplication computes the decimal equivalent instantly for all rows
-        results[key] = np.dot(values, multipliers)
+        decoded = np.dot(values, multipliers)
+        if has_invalid_rows:
+            decoded = np.where(invalid_rows, np.nan, decoded)
+        results[key] = decoded
 
         offset += hex_length
 
