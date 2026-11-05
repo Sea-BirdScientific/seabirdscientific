@@ -61,6 +61,13 @@ dev = [
   "seabirdscientific[plots]",
 ]
 
+[tool.uv]
+constraint-dependencies = [
+  "certifi >= 2026.10.18",
+  "pillow >= 13.0.0",
+  "tornado >= 6.6",
+]
+
 [project.urls]
 Homepage = "https://www.seabird.com/software"
 Repository = "https://github.com/Sea-BirdScientific/seabirdscientific"
@@ -68,7 +75,7 @@ Repository = "https://github.com/Sea-BirdScientific/seabirdscientific"
 [build-system]
 build-backend = "setuptools.build_meta"
 requires = [
-  "setuptools>=61",
+  "setuptools >= 84.1.0",
 ]
 
 [tool.setuptools.package-data]
@@ -104,5 +111,14 @@ norecursedirs = [
   "__pycache__",
   "resources",
   "results",
+]
+# Warnings fail the tests, so deprecations in dependencies surface early. CI installs the
+# versions in uv.lock (and the oldest allowed ones in pytest-lowest.yml), so a new dependency
+# release can't break it unexpectedly. List tolerated third-party warnings here with a reason.
+filterwarnings = [
+  "error",
+  # seawater warns on import that it's deprecated, but eos80_* use it on purpose for SeaSoft
+  # parity
+  "ignore:The seawater library is deprecated:UserWarning",
 ]
 
