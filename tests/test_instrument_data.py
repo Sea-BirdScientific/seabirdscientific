@@ -834,7 +834,8 @@ class TestReadHexSensorLayout:
             str(si.SensorID.NMEA_LATITUDE): [0.00002],
             str(si.SensorID.NMEA_LONGITUDE): [-0.00004],
         }
-        assert {key: values.tolist() for key, values in result.items()} == pytest.approx(expected)
+        for key, values in result.items():
+            np.testing.assert_allclose(values, expected[key])
 
     def test_file_builds_layout_once(self, tmp_path, monkeypatch):
         filepath = tmp_path / "replicates.hex"
