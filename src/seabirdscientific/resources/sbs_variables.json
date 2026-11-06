@@ -3178,13 +3178,6 @@
   },
   {
     "aliases": [],
-    "name": "errorFlag",
-    "units": "",
-    "title": "Error Flag",
-    "info": []
-  },
-  {
-    "aliases": [],
     "name": "internalTemperatureCelsius",
     "units": "deg C",
     "title": "Internal Temperature",
@@ -3945,6 +3938,13 @@
     "name": "flag",
     "units": "",
     "title": "Flag",
+    "info": []
+  },
+  {
+    "aliases": [],
+    "name": "errorFlag",
+    "units": "",
+    "title": "Error Flag",
     "info": []
   },
   {
