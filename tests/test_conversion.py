@@ -211,7 +211,7 @@ class TestConductivity19plus:
 
         # test_temp_data = np.array([20.4459, 20.4451, 20.4436, 20.4427, 20.4413, 20.4401])
         temperature = dc.convert_temperature(
-            raw[str(si.SensorID.TEMPERATURE) + "_0"][0:6].values,
+            raw[str(si.SensorID.TEMPERATURE.value) + "_0"][0:6].values,
             tc.temperature_coefs_sn6130,
             "IPTS68",
             "C",
@@ -220,14 +220,14 @@ class TestConductivity19plus:
 
         # test_press_data = np.array([-0.105, -0.106, -0.104, -0.107, -0.105, -0.104])
         pressure = dc.convert_pressure(
-            raw[str(si.SensorID.STRAIN_GAUGE_PRESSURE) + "_0"][0:6].values,
-            raw[str(si.SensorID.STRAIN_GAUGE_PRESSURE_TEMPERATURE) + "_0"][0:6].values,
+            raw[str(si.SensorID.STRAIN_GAUGE_PRESSURE.value) + "_0"][0:6].values,
+            raw[str(si.SensorID.STRAIN_GAUGE_PRESSURE_TEMPERATURE.value) + "_0"][0:6].values,
             tc.pressure_coefs_sn6130,
             "psia",
         )
         expected = [0.008453, 0.008420, 0.008423, 0.008402, 0.008380, 0.008344]
         result = dc.convert_conductivity(
-            raw[str(si.SensorID.CONDUCTIVITY) + "_0"][0:6].values,
+            raw[str(si.SensorID.CONDUCTIVITY.value) + "_0"][0:6].values,
             temperature,
             pressure,
             tc.conductivity_coefs_sn6130,
@@ -257,7 +257,7 @@ class TestConductivity37SM:
         )
 
         temperature = dc.convert_temperature(
-            raw[str(si.SensorID.TEMPERATURE) + "_0"][0:6].values,
+            raw[str(si.SensorID.TEMPERATURE.value) + "_0"][0:6].values,
             tc.temperature_coefs_sn6130,
             "IPTS68",
             "C",
@@ -265,14 +265,14 @@ class TestConductivity37SM:
         )
 
         pressure = dc.convert_pressure(
-            raw[str(si.SensorID.STRAIN_GAUGE_PRESSURE) + "_0"][0:6].values,
-            raw[str(si.SensorID.STRAIN_GAUGE_PRESSURE_TEMPERATURE) + "_0"][0:6].values,
+            raw[str(si.SensorID.STRAIN_GAUGE_PRESSURE.value) + "_0"][0:6].values,
+            raw[str(si.SensorID.STRAIN_GAUGE_PRESSURE_TEMPERATURE.value) + "_0"][0:6].values,
             tc.pressure_coefs_sn16125,
             "psia",
         )
         expected = [2.711842, 2.715786, 2.715857, 2.715846, 2.715846, 2.715857]
         result = dc.convert_conductivity(
-            raw[str(si.SensorID.CONDUCTIVITY) + "_0"][0:6].values,
+            raw[str(si.SensorID.CONDUCTIVITY.value) + "_0"][0:6].values,
             temperature,
             pressure,
             tc.conductivity_coefs_sn16125,

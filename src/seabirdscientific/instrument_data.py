@@ -162,6 +162,8 @@ class SensorID(Enum):
     DATA_INTEGRITY = 176
     ERROR_FLAG = 177
     SYSTEM_DATE_TIME = 178
+    CORRECTION_TEMPERATURE = 179
+    CORRECTION_SALINITY = 180
     VOLTAGE = 998
     UNSUPORTED = 999
 
@@ -733,18 +735,24 @@ def _build_hex_sensor_layout(
         hex_length = sensor_id_to_hex_length(sensor_id, instrument_type)
 
         if sensor_id in [SensorID.NMEA_LONGITUDE, SensorID.NMEA_LATITUDE]:
-            sensor_layout.append((f"{sensor_id}_byte0", f"{sensor_id}_byte0", hex_length))
-            sensor_layout.append((f"{sensor_id}_byte1", f"{sensor_id}_byte1", hex_length))
-            sensor_layout.append((f"{sensor_id}_byte2", f"{sensor_id}_byte2", hex_length))
+            sensor_layout.append(
+                (f"{sensor_id.value}_byte0", f"{sensor_id.value}_byte0", hex_length)
+            )
+            sensor_layout.append(
+                (f"{sensor_id.value}_byte1", f"{sensor_id.value}_byte1", hex_length)
+            )
+            sensor_layout.append(
+                (f"{sensor_id.value}_byte2", f"{sensor_id.value}_byte2", hex_length)
+            )
         elif sensor_id in [
             SensorID.SPAR_BIOSPHERICAL,
             SensorID.SPAR_LINEAR,
             SensorID.SPAR_LOGARITHMIC,
         ]:
             sensor_layout.append(
-                (f"{sensor_id}_unused_bytes", f"{sensor_id}_unused_bytes", 3)
+                (f"{sensor_id.value}_unused_bytes", f"{sensor_id.value}_unused_bytes", 3)
             )  # first three bytes not used in spar, this column is deleted later
-            sensor_layout.append((sensor_id, f"{sensor_id}_{replicate}", hex_length))
+            sensor_layout.append((sensor_id, f"{sensor_id.value}_{replicate}", hex_length))
         elif sensor_id in [
             SensorID.NMEA_STATUS_AND_SIGN,
             SensorID.DATA_INTEGRITY,
@@ -752,9 +760,9 @@ def _build_hex_sensor_layout(
             SensorID.INSTRUMENT_DATE_TIME,
         ]:
             # Don't add replicate suffix
-            sensor_layout.append((sensor_id, str(sensor_id), hex_length))
+            sensor_layout.append((sensor_id, str(sensor_id.value), hex_length))
         else:
-            sensor_layout.append((sensor_id, f"{sensor_id}_{replicate}", hex_length))
+            sensor_layout.append((sensor_id, f"{sensor_id.value}_{replicate}", hex_length))
 
         replicate_by_sensor_id[sensor_id] = replicate + 1
     return sensor_layout
@@ -925,7 +933,7 @@ def _apply_transforms(
             ]:
                 # n += 3  # unused bits
                 columns[key] = columns[key] / 819
-                columns.pop(f"{sensor_id}_unused_bytes")
+                columns.pop(f"{sensor_id.value}_unused_bytes")
             elif instrument_type == InstrumentType.SBE911Plus:
                 decimal_a = columns[key]
                 columns[key] = 5 * (1 - decimal_a / 4095)
@@ -933,34 +941,34 @@ def _apply_transforms(
                 columns[key] = columns[key] / COUNTS_TO_VOLTS
 
         # ------------- Additional Parameters ---------------
-        elif sensor_id == f"{SensorID.NMEA_LATITUDE}_byte0":
-            columns[str(SensorID.NMEA_LATITUDE)] = read_nmea_coordinates(
-                columns[f"{SensorID.NMEA_LATITUDE}_byte0"],
-                columns[f"{SensorID.NMEA_LATITUDE}_byte1"],
-                columns[f"{SensorID.NMEA_LATITUDE}_byte2"],
+        elif sensor_id == f"{SensorID.NMEA_LATITUDE.value}_byte0":
+            columns[str(SensorID.NMEA_LATITUDE.value)] = read_nmea_coordinates(
+                columns[f"{SensorID.NMEA_LATITUDE.value}_byte0"],
+                columns[f"{SensorID.NMEA_LATITUDE.value}_byte1"],
+                columns[f"{SensorID.NMEA_LATITUDE.value}_byte2"],
             )
-            columns.pop(f"{SensorID.NMEA_LATITUDE}_byte0")
-            columns.pop(f"{SensorID.NMEA_LATITUDE}_byte1")
-            columns.pop(f"{SensorID.NMEA_LATITUDE}_byte2")
+            columns.pop(f"{SensorID.NMEA_LATITUDE.value}_byte0")
+            columns.pop(f"{SensorID.NMEA_LATITUDE.value}_byte1")
+            columns.pop(f"{SensorID.NMEA_LATITUDE.value}_byte2")
 
-        elif sensor_id == f"{SensorID.NMEA_LONGITUDE}_byte0":
-            columns[str(SensorID.NMEA_LONGITUDE)] = read_nmea_coordinates(
-                columns[f"{SensorID.NMEA_LONGITUDE}_byte0"],
-                columns[f"{SensorID.NMEA_LONGITUDE}_byte1"],
-                columns[f"{SensorID.NMEA_LONGITUDE}_byte2"],
+        elif sensor_id == f"{SensorID.NMEA_LONGITUDE.value}_byte0":
+            columns[str(SensorID.NMEA_LONGITUDE.value)] = read_nmea_coordinates(
+                columns[f"{SensorID.NMEA_LONGITUDE.value}_byte0"],
+                columns[f"{SensorID.NMEA_LONGITUDE.value}_byte1"],
+                columns[f"{SensorID.NMEA_LONGITUDE.value}_byte2"],
             )
-            columns.pop(f"{SensorID.NMEA_LONGITUDE}_byte0")
-            columns.pop(f"{SensorID.NMEA_LONGITUDE}_byte1")
-            columns.pop(f"{SensorID.NMEA_LONGITUDE}_byte2")
+            columns.pop(f"{SensorID.NMEA_LONGITUDE.value}_byte0")
+            columns.pop(f"{SensorID.NMEA_LONGITUDE.value}_byte1")
+            columns.pop(f"{SensorID.NMEA_LONGITUDE.value}_byte2")
 
         elif sensor_id == SensorID.NMEA_STATUS_AND_SIGN:
             signs = read_status_sign(columns[key])
             if np.any(pd.isna(signs)):
-                columns[str(SensorID.NMEA_LATITUDE)] = np.nan
-                columns[str(SensorID.NMEA_LONGITUDE)] = np.nan
+                columns[str(SensorID.NMEA_LATITUDE.value)] = np.nan
+                columns[str(SensorID.NMEA_LONGITUDE.value)] = np.nan
             else:
-                columns[str(SensorID.NMEA_LATITUDE)] *= signs[0]
-                columns[str(SensorID.NMEA_LONGITUDE)] *= signs[1]
+                columns[str(SensorID.NMEA_LATITUDE.value)] *= signs[0]
+                columns[str(SensorID.NMEA_LONGITUDE.value)] *= signs[1]
             columns.pop(key)
 
         elif sensor_id == SensorID.NMEA_DATE_TIME:
@@ -998,10 +1006,10 @@ def _apply_transforms(
             columns[key] = columns[key] << 4
 
         elif sensor_id == SensorID.SBE911_DIAGNOSTICS:
-            columns[str(SensorID.SBE911_PUMP_STATUS)] = columns[key] & 1
-            columns[str(SensorID.SBE911_BOTTOM_CONTACT_STATUS)] = (columns[key] >> 1) & 1
-            columns[str(SensorID.SBE911_CONFIRM_STATUS)] = (columns[key] >> 2) & 1
-            columns[str(SensorID.SBE911_MODEM_STATUS)] = (columns[key] >> 3) & 1
+            columns[str(SensorID.SBE911_PUMP_STATUS.value)] = columns[key] & 1
+            columns[str(SensorID.SBE911_BOTTOM_CONTACT_STATUS.value)] = (columns[key] >> 1) & 1
+            columns[str(SensorID.SBE911_CONFIRM_STATUS.value)] = (columns[key] >> 2) & 1
+            columns[str(SensorID.SBE911_MODEM_STATUS.value)] = (columns[key] >> 3) & 1
             columns.pop(key)
 
     # Validate hex length. Ensure length matches what is expected based
