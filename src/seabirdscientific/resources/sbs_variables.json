@@ -3677,175 +3677,251 @@
     "info": []
   },
   {
-    "aliases": [],
+    "aliases": [
+      "ECOserialBackscattering880",
+      "ECOvoltageBackscattering880"
+    ],
     "name": "ECObackscattering880",
     "units": "",
     "title": "ECO Backscattering 880",
     "info": []
   },
   {
-    "aliases": [],
+    "aliases": [
+      "ECOserialBackscattering870",
+      "ECOvoltageBackscattering870"
+    ],
     "name": "ECObackscattering870",
     "units": "",
     "title": "ECO Backscattering 870",
     "info": []
   },
   {
-    "aliases": [],
+    "aliases": [
+      "ECOserialBackscattering780",
+      "ECOvoltageBackscattering780"
+    ],
     "name": "ECObackscattering780",
     "units": "",
     "title": "ECO Backscattering 780",
     "info": []
   },
   {
-    "aliases": [],
+    "aliases": [
+      "ECOserialBackscattering770",
+      "ECOvoltageBackscattering770"
+    ],
     "name": "ECObackscattering770",
     "units": "",
     "title": "ECO Backscattering 770",
     "info": []
   },
   {
-    "aliases": [],
+    "aliases": [
+      "ECOserialBackscattering720",
+      "ECOvoltageBackscattering720"
+    ],
     "name": "ECObackscattering720",
     "units": "",
     "title": "ECO Backscattering 720",
     "info": []
   },
   {
-    "aliases": [],
+    "aliases": [
+      "ECOserialBackscattering715",
+      "ECOvoltageBackscattering715"
+    ],
     "name": "ECObackscattering715",
     "units": "",
     "title": "ECO Backscattering 715",
     "info": []
   },
   {
-    "aliases": [],
+    "aliases": [
+      "ECOserialBackscattering700",
+      "ECOvoltageBackscattering700"
+    ],
     "name": "ECObackscattering700",
     "units": "",
     "title": "ECO Backscattering 700",
     "info": []
   },
   {
-    "aliases": [],
+    "aliases": [
+      "ECOserialBackscattering676",
+      "ECOvoltageBackscattering676"
+    ],
     "name": "ECObackscattering676",
     "units": "",
     "title": "ECO Backscattering 676",
     "info": []
   },
   {
-    "aliases": [],
+    "aliases": [
+      "ECOserialBackscattering650",
+      "ECOvoltageBackscattering650"
+    ],
     "name": "ECObackscattering650",
     "units": "",
     "title": "ECO Backscattering 650",
     "info": []
   },
   {
-    "aliases": [],
+    "aliases": [
+      "ECOserialBackscattering630",
+      "ECOvoltageBackscattering630"
+    ],
     "name": "ECObackscattering630",
     "units": "",
     "title": "ECO Backscattering 630",
     "info": []
   },
   {
-    "aliases": [],
+    "aliases": [
+      "ECOserialBackscattering595",
+      "ECOvoltageBackscattering595"
+    ],
     "name": "ECObackscattering595",
     "units": "",
     "title": "ECO Backscattering 595",
     "info": []
   },
   {
-    "aliases": [],
+    "aliases": [
+      "ECOserialBackscattering532",
+      "ECOvoltageBackscattering532"
+    ],
     "name": "ECObackscattering532",
     "units": "",
     "title": "ECO Backscattering 532",
     "info": []
   },
   {
-    "aliases": [],
+    "aliases": [
+      "ECObackscattering530",
+      "ECOserialBackscattering530",
+      "ECOvoltageBackscattering530"
+    ],
     "name": "ECObackscattering530",
     "units": "",
     "title": "ECO Backscattering 530",
     "info": []
   },
   {
-    "aliases": [],
+    "aliases": [
+      "ECOserialBackscattering510",
+      "ECOvoltageBackscattering510"
+    ],
     "name": "ECObackscattering510",
     "units": "",
     "title": "ECO Backscattering 510",
     "info": []
   },
   {
-    "aliases": [],
+    "aliases": [
+      "ECOserialBackscattering488",
+      "ECOvoltageBackscattering488"
+    ],
     "name": "ECObackscattering488",
     "units": "",
     "title": "ECO Backscattering 488",
     "info": []
   },
   {
-    "aliases": [],
+    "aliases": [
+      "ECOserialBackscattering470",
+      "ECOvoltageBackscattering470"
+    ],
     "name": "ECObackscattering470",
     "units": "",
     "title": "ECO Backscattering 470",
     "info": []
   },
   {
-    "aliases": [],
+    "aliases": [
+      "ECOserialBackscattering440",
+      "ECOvoltageBackscattering440"
+    ],
     "name": "ECObackscattering440",
     "units": "",
     "title": "ECO Backscattering 440",
     "info": []
   },
   {
-    "aliases": [],
+    "aliases": [
+      "ECOserialBackscattering412",
+      "ECOvoltageBackscattering412"
+    ],
     "name": "ECObackscattering412",
     "units": "",
     "title": "ECO Backscattering 412",
     "info": []
   },
   {
-    "aliases": [],
+    "aliases": [
+      "ECOserialFDOM",
+      "ECOvoltageFDOM"
+    ],
     "name": "ECOFDOM",
     "units": "",
     "title": "ECO FDOM",
     "info": []
   },
   {
-    "aliases": [],
+    "aliases": [
+      "ECOserialFLUR",
+      "ECOvoltageFLUR"
+    ],
     "name": "ECOFLUR",
     "units": "",
     "title": "ECO FLUR",
     "info": []
   },
   {
-    "aliases": [],
+    "aliases": [
+      "ECOserialFLRH",
+      "ECOvoltageFLRH"
+    ],
     "name": "ECOFLRH",
     "units": "",
     "title": "ECO FLRH",
     "info": []
   },
   {
-    "aliases": [],
+    "aliases": [
+      "ECOserialFLPE",
+      "ECOvoltageFLPE"
+    ],
     "name": "ECOFLPE",
     "units": "",
     "title": "ECO FLPE",
     "info": []
   },
   {
-    "aliases": [],
+    "aliases": [
+      "ECOserialFLPC",
+      "ECOvoltageFLPC"
+    ],
     "name": "ECOFLPC",
     "units": "",
     "title": "ECO FLPC",
     "info": []
   },
   {
-    "aliases": [],
+    "aliases": [
+      "ECOserialCHL435",
+      "ECOvoltageCHL435"
+    ],
     "name": "ECOCHL435",
     "units": "",
     "title": "ECO CHL-435",
     "info": []
   },
   {
-    "aliases": [],
+    "aliases": [
+      "ECOserialCHL470",
+      "ECOvoltageCHL470"
+    ],
     "name": "ECOCHL470",
     "units": "",
     "title": "ECO CHL-470",
