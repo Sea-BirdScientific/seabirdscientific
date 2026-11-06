@@ -765,6 +765,7 @@ class TestReadpHyreCAT:
         assert result[str(si.SensorID.ERROR_FLAG.value) + "_0"] == event
 
 
+
 class TestReadHexNoDataRows:
     def test_read_hex_file_without_scans(self, tmp_path):
         """A .hex file whose header is not followed by any scans gives an empty dataset."""
