@@ -263,10 +263,13 @@ class TestReadHex16plusDigiquartz:
         assert round(hex_data[str(si.SensorID.VOLTAGE_4.value) + "_0"][0], 4) == 0.0007
         assert round(hex_data[str(si.SensorID.VOLTAGE_5.value) + "_0"][0], 4) == 0.0003
         assert hex_data[str(si.SensorID.SBE63_DISSOLVED_OXYGEN_PHASE.value) + "_0"][0] == -9.999
-        assert hex_data[str(si.SensorID.SBE63_DISSOLVED_OXYGEN_TEMPERATURE.value) + "_0"][0] == -0.999000
-        assert pd.to_datetime(hex_data[str(si.SensorID.INSTRUMENT_DATE_TIME.value)][0]) == datetime(
-            2026, 10, 27, 21, 8, 9
+        assert (
+            hex_data[str(si.SensorID.SBE63_DISSOLVED_OXYGEN_TEMPERATURE.value) + "_0"][0]
+            == -0.999000
         )
+        assert pd.to_datetime(
+            hex_data[str(si.SensorID.INSTRUMENT_DATE_TIME.value)][0]
+        ) == datetime(2026, 10, 27, 21, 8, 9)
 
 
 class TestReadHex39plus:
@@ -291,10 +294,12 @@ class TestReadHex39plus:
         # outputformat=0 (raw decimal) getsamples:0,0 response: 1722451,  107841, 33881, 18 Sep 2026, 23:00:05
         assert hex_data[str(si.SensorID.TEMPERATURE.value) + "_0"][0] == 1722451
         assert hex_data[str(si.SensorID.STRAIN_GAUGE_PRESSURE.value) + "_0"][0] == 107841
-        assert hex_data[str(si.SensorID.STRAIN_GAUGE_PRESSURE_TEMPERATURE.value) + "_0"][0] == 33881
-        assert pd.to_datetime(hex_data[str(si.SensorID.INSTRUMENT_DATE_TIME.value)][0]) == datetime(
-            2026, 9, 18, 23, 0, 5
+        assert (
+            hex_data[str(si.SensorID.STRAIN_GAUGE_PRESSURE_TEMPERATURE.value) + "_0"][0] == 33881
         )
+        assert pd.to_datetime(
+            hex_data[str(si.SensorID.INSTRUMENT_DATE_TIME.value)][0]
+        ) == datetime(2026, 9, 18, 23, 0, 5)
 
 
 class TestReadHexSBE911plus:
@@ -339,7 +344,9 @@ class TestReadHexSBE911plus:
 
         assert round(hex_data[str(si.SensorID.TEMPERATURE.value) + "_0"][0], 3) == 4651.168
         assert round(hex_data[str(si.SensorID.CONDUCTIVITY.value) + "_0"][0], 3) == 6638.984
-        assert round(hex_data[str(si.SensorID.DIGIQUARTZ_PRESSURE.value) + "_0"][0], 3) == 33302.258
+        assert (
+            round(hex_data[str(si.SensorID.DIGIQUARTZ_PRESSURE.value) + "_0"][0], 3) == 33302.258
+        )
         assert round(hex_data[str(si.SensorID.TEMPERATURE.value) + "_1"][0], 3) == 4651.781
         assert round(hex_data[str(si.SensorID.CONDUCTIVITY.value) + "_1"][0], 3) == 6230.480
         assert round(hex_data[str(si.SensorID.VOLTAGE_0.value) + "_0"][0], 4) == 3.7338
@@ -360,9 +367,9 @@ class TestReadHexSBE911plus:
         assert int(hex_data[str(si.SensorID.SBE911_CONFIRM_STATUS.value)][0]) == 0
         assert int(hex_data[str(si.SensorID.SBE911_MODEM_STATUS.value)][0]) == 0
         assert int(hex_data[str(si.SensorID.DATA_INTEGRITY.value)][0]) == 83
-        assert pd.to_datetime(hex_data[str(si.SensorID.INSTRUMENT_DATE_TIME.value)][0]) == datetime(
-            2025, 7, 28, 23, 43, 53
-        )
+        assert pd.to_datetime(
+            hex_data[str(si.SensorID.INSTRUMENT_DATE_TIME.value)][0]
+        ) == datetime(2025, 7, 28, 23, 43, 53)
 
 
 class TestReadHexSBE911PlusStatusBits:
@@ -458,7 +465,9 @@ class TestReadHexSeaFET2:
         assert hex_data[str(si.SensorID.PH_IK.value) + "_0"] == 8384777
         assert hex_data[str(si.SensorID.RELATIVE_HUMIDITY.value) + "_0"] == 65520
         assert hex_data[str(si.SensorID.INTERNAL_TEMPERATURE.value) + "_0"] == 23936
-        assert hex_data[str(si.SensorID.INSTRUMENT_DATE_TIME.value)] == datetime(2026, 10, 28, 0, 52, 10)
+        assert hex_data[str(si.SensorID.INSTRUMENT_DATE_TIME.value)] == datetime(
+            2026, 10, 28, 0, 52, 10
+        )
         assert hex_data[str(si.SensorID.ERROR_FLAG.value) + "_0"] == 0000
 
 
@@ -503,7 +512,8 @@ class TestReadHexSeapHOx:
         assert hex_data[str(si.SensorID.STRAIN_GAUGE_PRESSURE.value) + "_0"] == 553865
         assert hex_data[str(si.SensorID.STRAIN_GAUGE_PRESSURE_TEMPERATURE.value) + "_0"] == 2194
         assert (
-            round(hex_data[str(si.SensorID.SBE63_DISSOLVED_OXYGEN_PHASE.value) + "_0"][0], 3) == 17.124
+            round(hex_data[str(si.SensorID.SBE63_DISSOLVED_OXYGEN_PHASE.value) + "_0"][0], 3)
+            == 17.124
         )
         assert (
             round(hex_data[str(si.SensorID.SBE63_DISSOLVED_OXYGEN_TEMPERATURE.value) + "_0"][0], 6)
@@ -518,7 +528,9 @@ class TestReadHexSeapHOx:
         assert hex_data[str(si.SensorID.PH_IK.value) + "_0"] == 8384648
         assert hex_data[str(si.SensorID.RELATIVE_HUMIDITY.value) + "_0"] == 65520
         assert hex_data[str(si.SensorID.INTERNAL_TEMPERATURE.value) + "_0"] == 23968
-        assert hex_data[str(si.SensorID.INSTRUMENT_DATE_TIME.value)] == datetime(2026, 10, 28, 1, 26, 11)
+        assert hex_data[str(si.SensorID.INSTRUMENT_DATE_TIME.value)] == datetime(
+            2026, 10, 28, 1, 26, 11
+        )
         assert hex_data[str(si.SensorID.ERROR_FLAG.value) + "_0"] == 0000
 
 
@@ -619,10 +631,12 @@ class TestReadpHyre:
         assert result[str(si.SensorID.PHYRE_PH_EXTERNAL.value) + "_0"] == vrs_external
         assert result[str(si.SensorID.PHYRE_PH_INTERNAL.value) + "_0"] == vrs_internal
         assert (
-            result[str(si.SensorID.PHYRE_TEMPERATURE_EXTERNAL.value) + "_0"] == ph_temperature_external
+            result[str(si.SensorID.PHYRE_TEMPERATURE_EXTERNAL.value) + "_0"]
+            == ph_temperature_external
         )
         assert (
-            result[str(si.SensorID.PHYRE_TEMPERATURE_INTERNAL.value) + "_0"] == ph_temperature_internal
+            result[str(si.SensorID.PHYRE_TEMPERATURE_INTERNAL.value) + "_0"]
+            == ph_temperature_internal
         )
         assert result[str(si.SensorID.PH_VK.value) + "_0"] == vk
         assert result[str(si.SensorID.PH_IB.value) + "_0"] == ib
@@ -746,16 +760,21 @@ class TestReadpHyreCAT:
         assert result[str(si.SensorID.TEMPERATURE.value) + "_0"] == temperature
         assert result[str(si.SensorID.CONDUCTIVITY.value) + "_0"] == conductivity
         assert result[str(si.SensorID.STRAIN_GAUGE_PRESSURE.value) + "_0"] == pressure
-        assert result[str(si.SensorID.STRAIN_GAUGE_PRESSURE_TEMPERATURE.value) + "_0"] == pressure_temp
+        assert (
+            result[str(si.SensorID.STRAIN_GAUGE_PRESSURE_TEMPERATURE.value) + "_0"]
+            == pressure_temp
+        )
         assert result[str(si.SensorID.SBE63_DISSOLVED_OXYGEN_PHASE.value) + "_0"] == ox_phase
         assert result[str(si.SensorID.SBE63_DISSOLVED_OXYGEN_TEMPERATURE.value) + "_0"] == ox_temp
         assert result[str(si.SensorID.PHYRE_PH_EXTERNAL.value) + "_0"] == vrs_external
         assert result[str(si.SensorID.PHYRE_PH_INTERNAL.value) + "_0"] == vrs_internal
         assert (
-            result[str(si.SensorID.PHYRE_TEMPERATURE_EXTERNAL.value) + "_0"] == ph_temperature_external
+            result[str(si.SensorID.PHYRE_TEMPERATURE_EXTERNAL.value) + "_0"]
+            == ph_temperature_external
         )
         assert (
-            result[str(si.SensorID.PHYRE_TEMPERATURE_INTERNAL.value) + "_0"] == ph_temperature_internal
+            result[str(si.SensorID.PHYRE_TEMPERATURE_INTERNAL.value) + "_0"]
+            == ph_temperature_internal
         )
         assert result[str(si.SensorID.PH_VK.value) + "_0"] == vk
         assert result[str(si.SensorID.PH_IB.value) + "_0"] == ib
@@ -763,7 +782,6 @@ class TestReadpHyreCAT:
 
         assert result[str(si.SensorID.INSTRUMENT_DATE_TIME.value)] == datetime.fromisoformat(date)
         assert result[str(si.SensorID.ERROR_FLAG.value) + "_0"] == event
-
 
 
 class TestReadHexNoDataRows:
