@@ -1,10 +1,15 @@
 """Calibration coefficient dataclasses for data conversion."""
-
+from abc import ABC
 from dataclasses import dataclass
 
 
+class CoefficientsBaseClass(ABC):
+    """Base class for calibration coefficient dataclasses."""
+    # TODO: add some functions to covnert to and from dicts
+
+
 @dataclass
-class TemperatureCoefficients:
+class TemperatureCoefficients(CoefficientsBaseClass):
     """
     :param a0: coefficient
     :param a1: coefficient
@@ -20,7 +25,7 @@ class TemperatureCoefficients:
 
 
 @dataclass
-class TemperatureFrequencyCoefficients:
+class TemperatureFrequencyCoefficients(CoefficientsBaseClass):
     """
     :param g: coefficient
     :param h: coefficient
@@ -37,7 +42,7 @@ class TemperatureFrequencyCoefficients:
 
 
 @dataclass
-class PressureCoefficients:
+class PressureCoefficients(CoefficientsBaseClass):
     """
     :param pa0: coefficient
     :param pa1: coefficient
@@ -70,7 +75,7 @@ class PressureCoefficients:
 
 
 @dataclass
-class PressureDigiquartzCoefficients:
+class PressureDigiquartzCoefficients(CoefficientsBaseClass):
     """
     :param c1: coefficient
     :param c2: coefficient
@@ -105,7 +110,7 @@ class PressureDigiquartzCoefficients:
 
 
 @dataclass
-class ConductivityCoefficients:
+class ConductivityCoefficients(CoefficientsBaseClass):
     """
     :param g: coefficient
     :param h: coefficient
@@ -138,7 +143,7 @@ class ECOCoefficients:
 
 
 @dataclass
-class Oxygen63Coefficients:
+class Oxygen63Coefficients(CoefficientsBaseClass):
     """
     :param a0: coefficient
     :param a1: coefficient
@@ -163,7 +168,7 @@ class Oxygen63Coefficients:
 
 
 @dataclass
-class Thermistor63Coefficients:
+class Thermistor63Coefficients(CoefficientsBaseClass):
     """
     :param ta0: coefficient
     :param ta1: coefficient
@@ -178,7 +183,7 @@ class Thermistor63Coefficients:
 
 
 @dataclass
-class Oxygen43Coefficients:
+class Oxygen43Coefficients(CoefficientsBaseClass):
     """
     :param soc: linear scaling coefficient
     :param v_offset: voltage at zero oxygen signal
@@ -212,7 +217,7 @@ class Oxygen43Coefficients:
 
 
 @dataclass
-class PH18Coefficients:
+class PH18Coefficients(CoefficientsBaseClass):
     """
     :param slope: calibration slope
     :param offset: calibration offset
@@ -223,7 +228,7 @@ class PH18Coefficients:
 
 
 @dataclass
-class PARCoefficients:
+class PARCoefficients(CoefficientsBaseClass):
     """
     :param im: immersion coefficient
     :param a0: calibration slope
@@ -238,7 +243,7 @@ class PARCoefficients:
 
 
 @dataclass
-class SPARCoefficients:
+class SPARCoefficients(CoefficientsBaseClass):
     """
     :param im: immersion coefficient
     :param a0: calibration slope
@@ -253,7 +258,7 @@ class SPARCoefficients:
 
 
 @dataclass
-class TemperatureSeaFETCoefficients:
+class TemperatureSeaFETCoefficients(CoefficientsBaseClass):
     """
     :param tdfa0: temperature coefficient
     :param tdfa1: temperature coefficient
@@ -268,7 +273,7 @@ class TemperatureSeaFETCoefficients:
 
 
 @dataclass
-class ISFETpHCoefficients:
+class ISFETpHCoefficients(CoefficientsBaseClass):
     """
     :param k0: external K0 coefficient
     :param k2: external K2 coefficient
@@ -307,7 +312,7 @@ class ISFETpHCoefficients:
 
 
 @dataclass
-class AltimeterCoefficients:
+class AltimeterCoefficients(CoefficientsBaseClass):
     """
     :param slope: coefficient
     :param offset: coefficient
@@ -318,7 +323,7 @@ class AltimeterCoefficients:
 
 
 @dataclass
-class CstarCoefficients:
+class CstarCoefficients(CoefficientsBaseClass):
     """
     :param m: slope coefficient
     :param b: offset coefficient
