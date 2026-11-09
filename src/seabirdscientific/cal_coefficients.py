@@ -1,10 +1,12 @@
 """Calibration coefficient dataclasses for data conversion."""
+
 from abc import ABC
 from dataclasses import dataclass
 
 
 class CoefficientsBaseClass(ABC):
     """Base class for calibration coefficient dataclasses."""
+
     # TODO: add some functions to covnert to and from dicts
 
 
