@@ -150,6 +150,7 @@ def convert_pressure_units(
     else:  # psig
         return gauge_psi
 
+
 def convert_pressure_temperature(
     compensation_voltage: np.ndarray,
     coefs: cc.PressureCoefficients,
@@ -179,6 +180,7 @@ def convert_pressure_temperature(
         return temp_c * 9 / 5 + 32
     else:  # units == "C"
         return temp_c
+
 
 def convert_pressure(
     pressure_count: np.ndarray,
