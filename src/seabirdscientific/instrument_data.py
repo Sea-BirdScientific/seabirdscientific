@@ -271,6 +271,7 @@ def sensor_id_to_hex_length(sensorID: SensorID, instrument_type: InstrumentType)
         SensorID.RELATIVE_HUMIDITY: HEX_LEN_RELATIVE_HUMIDITY,
         SensorID.INTERNAL_TEMPERATURE: HEX_LEN_INTERNAL_TEMPERATURE,
         SensorID.ERROR_FLAG: HEX_LEN_ERROR_FLAG,
+        SensorID.SYSTEM_DATE_TIME: HEX_LEN_SYSTEM_TIME,
     }
 
     if sensorID in [
