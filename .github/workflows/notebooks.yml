@@ -1,0 +1,61 @@
+name: Notebooks
+
+on:
+  pull_request:
+    branches: ["**"]
+
+concurrency:
+  group: notebooks-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  outputs-cleared:
+    name: Notebook outputs cleared
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check notebook outputs
+        run: python3 .github/check_notebook_outputs.py notebooks/*.ipynb
+
+  execute:
+    name: Notebooks execute
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+
+      - name: Install dependencies
+        run: uv sync
+
+      # Runs every example notebook top to bottom so API changes that break them fail the PR.
+      # Executed copies go to a scratch directory and the committed notebooks stay cleared.
+      # Each notebook runs separately so one failure doesn't hide the others.
+      - name: Execute notebooks
+        working-directory: notebooks
+        run: |
+          failed=()
+          for notebook in *.ipynb; do
+            echo "::group::$notebook"
+            uv run jupyter nbconvert --to notebook --execute \
+              --ExecutePreprocessor.timeout=600 --output-dir "$RUNNER_TEMP/notebooks" \
+              "$notebook" || failed+=("$notebook")
+            echo "::endgroup::"
+          done
+          if (( ${#failed[@]} )); then
+            for notebook in "${failed[@]}"; do
+              echo "::error file=notebooks/$notebook::$notebook failed to execute"
+            done
+            exit 1
+          fi
