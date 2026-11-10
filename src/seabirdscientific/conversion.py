@@ -198,7 +198,8 @@ def convert_pressure(
 
     :param pressure_count: pressure value to convert, in A/D counts
     :param compensation_voltage: pressure temperature compensation
-        voltage, in counts or volts depending on the instrument
+        voltage, in counts or volts depending on the instrument.
+        To convert from counts to volts, divide counts by COUNTS_TO_VOLTS
     :param coefs: calibration coefficients for the pressure sensor
     :param units: returned unit type, defaults to psia
 
