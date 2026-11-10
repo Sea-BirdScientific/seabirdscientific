@@ -205,7 +205,7 @@ def convert_pressure(
     :return: sea pressure val in dbar, psig, or psia according to units
     """
 
-    t = convert_pressure_temperature(compensation_voltage, coefs, "SGptempC")
+    t = convert_pressure_temperature(compensation_voltage, coefs, "C")
     x = pressure_count - coefs.ptca0 - coefs.ptca1 * t - coefs.ptca2 * t**2
     n = x * coefs.ptcb0 / (coefs.ptcb0 + coefs.ptcb1 * t + coefs.ptcb2 * t**2)
     p_psia = coefs.pa0 + coefs.pa1 * n + coefs.pa2 * n**2
