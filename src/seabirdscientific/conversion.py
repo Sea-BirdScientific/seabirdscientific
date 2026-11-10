@@ -150,6 +150,35 @@ def convert_pressure_units(
     else:  # psig
         return gauge_psi
 
+def convert_pressure_temperature(
+    compensation_voltage: np.ndarray,
+    coefs: cc.PressureCoefficients,
+    units: Literal["C", "F"] = "C",
+):
+    """Converts pressure temperature compensation voltage to temperature.
+
+    compensation_voltage is expected to be raw data from an instrument
+    in A/D counts or volts
+
+    :param compensation_voltage: pressure temperature compensation
+        voltage, in counts or volts depending on the instrument
+    :param coefs: calibration coefficients for the pressure sensor
+    :param units: returned unit type:
+            - C: temperature in Celsius (default)
+            - F: temperature in Fahrenheit
+
+    :return: temperature value according to units parameter
+    """
+
+    temp_c = (
+        coefs.ptempa0
+        + coefs.ptempa1 * compensation_voltage
+        + coefs.ptempa2 * compensation_voltage**2
+    )
+    if units == "F":
+        return temp_c * 9 / 5 + 32
+    else:  # units == "C"
+        return temp_c
 
 def convert_pressure(
     pressure_count: np.ndarray,
@@ -174,11 +203,7 @@ def convert_pressure(
     :return: sea pressure val in dbar, psig, or psia according to units
     """
 
-    t = (
-        coefs.ptempa0
-        + coefs.ptempa1 * compensation_voltage
-        + coefs.ptempa2 * compensation_voltage**2
-    )
+    t = convert_pressure_temperature(compensation_voltage, coefs, "SGptempC")
     x = pressure_count - coefs.ptca0 - coefs.ptca1 * t - coefs.ptca2 * t**2
     n = x * coefs.ptcb0 / (coefs.ptcb0 + coefs.ptcb1 * t + coefs.ptcb2 * t**2)
     p_psia = coefs.pa0 + coefs.pa1 * n + coefs.pa2 * n**2
@@ -189,6 +214,44 @@ def convert_pressure(
     pressure = convert_pressure_units(p_dbar, "dbar", units)
 
     return pressure
+
+
+def convert_pressure_temperature_digiquartz(
+    compensation_voltage: np.ndarray,
+    coefs: cc.PressureDigiquartzCoefficients,
+    sample_interval: float,
+    units: Literal["C", "F"] = "C",
+):
+    """Converts digiquartz pressure temperature compensation voltage to temperature.
+
+    compensation_voltage is expected to be raw data from an instrument
+    in A/D counts or volts. The compensation voltage is averaged over 30 seconds
+    and then converted to temperature using the digiquartz calibration coefficients.
+
+    :param compensation_voltage: pressure temperature compensation
+        voltage, in counts or volts depending on the instrument
+    :param coefs: calibration coefficients for the digiquartz pressure sensor
+    :param sample_interval: sample rate of the data, in seconds
+    :param units: returned unit type:
+        - C: temperature in Celsius (default)
+        - F: temperature in Fahrenheit
+
+    :return: temperature value in Celsius or Fahrenheit according to units parameter
+    """
+
+    # Modification function to convert raw compensation voltage to temperature voltage
+    def modification_function(x):
+        return x * coefs.ad590m + coefs.ad590b
+
+    # Average temperature compensation over 30 seconds
+    temp_c = _compute_rolling_average(
+        compensation_voltage, 30, sample_interval, modification_function
+    )
+
+    if units == "F":
+        return temp_c * 9 / 5 + 32
+    else:  # units == "C"
+        return temp_c
 
 
 def convert_pressure_digiquartz(
@@ -213,12 +276,8 @@ def convert_pressure_digiquartz(
     :return: pressure val in dbar, psig, or psia according to units
     """
 
-    # average temperature compensation over 30 seconds
-    def modification_function(x):
-        return x * coefs.ad590m + coefs.ad590b
-
     # using a short name to make the equations a little easier to read
-    v = _compute_rolling_average(compensation_voltage, 30, sample_interval, modification_function)
+    v = convert_pressure_temperature_digiquartz(compensation_voltage, coefs, sample_interval, "C")
 
     # calculate pressure
     t = 1 / pressure_count * 1e6  # convert to period in usec
