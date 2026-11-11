@@ -20,8 +20,6 @@ logger = getLogger(__name__)
 
 
 class SubModel(Enum):
-    """The type of instrument that generated the hex file being read"""
-
     SBE37SM = "37-SM"
     SBE37SMP = "37-SMP"
     SBE37SMPODO = "37-SMP-ODO"
