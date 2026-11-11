@@ -337,7 +337,7 @@ def convert_conductivity(
     temperature: np.ndarray,
     pressure: np.ndarray,
     coefs: cc.ConductivityCoefficients,
-    instrument_type: si.InstrumentType,
+    sub_model: si.SubModel,
     units: Literal["S/m", "mS/cm", "uS/cm"] = "S/m",
 ):
     """Converts raw conductivity counts to S/m, mS/cm, or uS/cm.
@@ -349,19 +349,19 @@ def convert_conductivity(
     :param temperature: reference temperature, in degrees C
     :param pressure: reference pressure, in dbar
     :param coefs: calibration coefficient for the conductivity sensor
-    :param instrument_type: the instrument that recorded conductivity
+    :param sub_model: the instrument that recorded conductivity
     :param units: the conductivity units to convert to, defaults to S/m
 
     :return: conductivity val converted to S/m
     """
     scalar = 1
-    if instrument_type == si.InstrumentType.SBE911Plus:
+    if sub_model == si.SubModel.SBE911Plus:
         scalar = 1 / 10
 
-    if instrument_type in (
-        si.InstrumentType.SBE16Plus,
-        si.InstrumentType.SBE19Plus,
-        si.InstrumentType.SBE911Plus,
+    if sub_model in (
+        si.SubModel.SBE16Plus,
+        si.SubModel.SBE19Plus,
+        si.SubModel.SBE911Plus,
     ):
         f = conductivity_count / 1000
     else:
