@@ -194,7 +194,7 @@ class TestConductivity19plus:
 
         raw = si.read_hex_file(
             self.hex_path,
-            si.InstrumentType.SBE19Plus,
+            si.SubModel.SBE19Plus,
             [
                 si.SensorID.TEMPERATURE,
                 si.SensorID.CONDUCTIVITY,
@@ -231,7 +231,7 @@ class TestConductivity19plus:
             temperature,
             pressure,
             tc.conductivity_coefs_sn6130,
-            si.InstrumentType.SBE19Plus,
+            si.SubModel.SBE19Plus,
         )
 
         assert np.allclose(expected, result, rtol=0, atol=1e-6)
@@ -246,7 +246,7 @@ class TestConductivity37SM:
 
         raw = si.read_hex_file(
             self.hex_path,
-            si.InstrumentType.SBE37SM,
+            si.SubModel.SBE37SM,
             [
                 si.SensorID.TEMPERATURE,
                 si.SensorID.CONDUCTIVITY,
@@ -276,7 +276,7 @@ class TestConductivity37SM:
             temperature,
             pressure,
             tc.conductivity_coefs_sn16125,
-            si.InstrumentType.SBE37SM,
+            si.SubModel.SBE37SM,
         )
 
         assert np.allclose(expected, result, rtol=0, atol=1e-4)

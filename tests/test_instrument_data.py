@@ -113,7 +113,7 @@ class TestReadHex37smpOdo:
                 si.SensorID.STRAIN_GAUGE_PRESSURE_TEMPERATURE,
                 si.SensorID.INSTRUMENT_DATE_TIME,
             ],
-            si.InstrumentType.SBE37SMPODO,
+            si.SubModel.SBE37SMPODO,
         )
 
         columns = si.batch_convert_hex_to_dec(
@@ -121,7 +121,7 @@ class TestReadHex37smpOdo:
             sensor_layout,
         )
 
-        hex_data = si._apply_transforms(columns, si.InstrumentType.SBE37SMPODO, sensor_layout)
+        hex_data = si._apply_transforms(columns, si.SubModel.SBE37SMPODO, sensor_layout)
 
         # Test case from instrument sample
         # Instrument tss response with output format 0 (raw decimal): 240522,  2651.285, 554963, 2229, 17.138, 0.612071,  27 Oct 2026, 17:07:32
@@ -161,7 +161,7 @@ class TestReadHex19plus:
                 si.SensorID.ECO_SERIAL_BACKSCATTERING_470,
                 # si.SensorID.INSTRUMENT_DATE_TIME,
             ],
-            si.InstrumentType.SBE19Plus,
+            si.SubModel.SBE19Plus,
         )
 
         columns = si.batch_convert_hex_to_dec(
@@ -169,7 +169,7 @@ class TestReadHex19plus:
             sensor_layout,
         )
 
-        hex_data = si._apply_transforms(columns, si.InstrumentType.SBE19Plus, sensor_layout)
+        hex_data = si._apply_transforms(columns, si.SubModel.SBE19Plus, sensor_layout)
 
         # outputformat=2 (raw decimal) getsamples:0,0 response:  257089, 2705.543, 534265, 2.0465, 0.1711, 1.4173, 0.0001, 0.0000, 0.0002, 0.0000, 191, 50, 4130, 27 Oct 2026 17:32:03
         assert hex_data[str(si.SensorID.TEMPERATURE.value) + "_0"][0] == 257089
@@ -197,7 +197,7 @@ class TestReadHex19plus:
 
         hex_data = si.read_hex_file(
             test_data / "19plus_V2_CTD_nmea_data.hex",
-            si.InstrumentType.SBE19Plus,
+            si.SubModel.SBE19Plus,
             [
                 si.SensorID.TEMPERATURE,
                 si.SensorID.CONDUCTIVITY,
@@ -236,7 +236,7 @@ class TestReadHex16plusDigiquartz:
                 si.SensorID.SBE63_DISSOLVED_OXYGEN_TEMPERATURE,
                 si.SensorID.INSTRUMENT_DATE_TIME,
             ],
-            si.InstrumentType.SBE16Plus,
+            si.SubModel.SBE16Plus,
         )
 
         columns = si.batch_convert_hex_to_dec(
@@ -246,7 +246,7 @@ class TestReadHex16plusDigiquartz:
             sensor_layout,
         )
 
-        hex_data = si._apply_transforms(columns, si.InstrumentType.SBE16Plus, sensor_layout)
+        hex_data = si._apply_transforms(columns, si.SubModel.SBE16Plus, sensor_layout)
 
         # outputformat=2 (raw decimal) getsamples:0,0 response: 335420, 2665.777, 553574, 1.4414, 0.0002, 0.0002, 0.0003, 0.0003, 0.0007, 0.0003, -9.999, -0.999000, 27 Oct 2026 21:08:09
         assert hex_data[str(si.SensorID.TEMPERATURE.value) + "_0"][0] == 335420
@@ -281,7 +281,7 @@ class TestReadHex39plus:
                 si.SensorID.STRAIN_GAUGE_PRESSURE,
                 si.SensorID.STRAIN_GAUGE_PRESSURE_TEMPERATURE,
             ],
-            si.InstrumentType.SBE39Plus,
+            si.SubModel.SBE39Plus,
         )
 
         columns = si.batch_convert_hex_to_dec(
@@ -289,7 +289,7 @@ class TestReadHex39plus:
             sensor_layout,
         )
 
-        hex_data = si._apply_transforms(columns, si.InstrumentType.SBE39Plus, sensor_layout)
+        hex_data = si._apply_transforms(columns, si.SubModel.SBE39Plus, sensor_layout)
 
         # outputformat=0 (raw decimal) getsamples:0,0 response: 1722451,  107841, 33881, 18 Sep 2026, 23:00:05
         assert hex_data[str(si.SensorID.TEMPERATURE.value) + "_0"][0] == 1722451
@@ -330,7 +330,7 @@ class TestReadHexSBE911plus:
                 si.SensorID.DATA_INTEGRITY,
                 si.SensorID.INSTRUMENT_DATE_TIME,
             ],
-            si.InstrumentType.SBE911Plus,
+            si.SubModel.SBE911Plus,
         )
 
         columns = si.batch_convert_hex_to_dec(
@@ -340,7 +340,7 @@ class TestReadHexSBE911plus:
             sensor_layout,
         )
 
-        hex_data = si._apply_transforms(columns, si.InstrumentType.SBE911Plus, sensor_layout)
+        hex_data = si._apply_transforms(columns, si.SubModel.SBE911Plus, sensor_layout)
 
         assert round(hex_data[str(si.SensorID.TEMPERATURE.value) + "_0"][0], 3) == 4651.168
         assert round(hex_data[str(si.SensorID.CONDUCTIVITY.value) + "_0"][0], 3) == 6638.984
@@ -393,7 +393,7 @@ class TestReadHexSBE911PlusStatusBits:
             si.SensorID.SBE911_DIAGNOSTICS,
             si.SensorID.DATA_INTEGRITY,
         ],
-        si.InstrumentType.SBE911Plus,
+        si.SubModel.SBE911Plus,
     )
 
     def scan(self, nibble: int) -> str:
@@ -401,7 +401,7 @@ class TestReadHexSBE911PlusStatusBits:
 
     def read_scan(self, nibble: int) -> dict[str, np.ndarray]:
         columns = si.batch_convert_hex_to_dec([self.scan(nibble)], self.enabled_sensor_ids)
-        return si._apply_transforms(columns, si.InstrumentType.SBE911Plus, self.enabled_sensor_ids)
+        return si._apply_transforms(columns, si.SubModel.SBE911Plus, self.enabled_sensor_ids)
 
     @pytest.mark.parametrize("nibble", range(16))
     def test_bits_read_least_significant_first(self, nibble):
@@ -446,7 +446,7 @@ class TestReadHexSeaFET2:
                 si.SensorID.INSTRUMENT_DATE_TIME,
                 si.SensorID.ERROR_FLAG,
             ],
-            si.InstrumentType.SeaFET2,
+            si.SubModel.SeaFET2,
         )
 
         columns = si.batch_convert_hex_to_dec(
@@ -454,7 +454,7 @@ class TestReadHexSeaFET2:
             sensor_layout,
         )
 
-        hex_data = si._apply_transforms(columns, si.InstrumentType.SeaFET2, sensor_layout)
+        hex_data = si._apply_transforms(columns, si.SubModel.SeaFET2, sensor_layout)
 
         # outputformat=0 (raw decimal) getsamples:1,1 response: SEAFET00391,2026-10-28T00:52:10, 0000, 4656898, 4538428,  231494, 4834764, 8378421, 8384777, 23936, 65520
         assert hex_data[str(si.SensorID.SEAFET_PH_EXTERNAL.value) + "_0"] == 4656898
@@ -493,7 +493,7 @@ class TestReadHexSeapHOx:
                 si.SensorID.INSTRUMENT_DATE_TIME,
                 si.SensorID.ERROR_FLAG,
             ],
-            si.InstrumentType.SeapHox2,
+            si.SubModel.SeapHox2,
         )
 
         columns = si.batch_convert_hex_to_dec(
@@ -503,7 +503,7 @@ class TestReadHexSeapHOx:
             sensor_layout,
         )
 
-        hex_data = si._apply_transforms(columns, si.InstrumentType.SeapHox2, sensor_layout)
+        hex_data = si._apply_transforms(columns, si.SubModel.SeapHox2, sensor_layout)
 
         #                                                       frame       date time            error  T       vrs_ext  vrs_int   ph_temp vk       ib       ik        p        pt    c         ox_ph   ox_t      it     rh
         # outputformat=0 (raw decimal) getsamples:1,1 response: SSPHOX00391,2026-10-28T01:26:11, 0000,  235245, 4657037, 4538868,  232304, 4835352, 8378289, 8384648,  553865,  2194, 2622.715, 17.124, 0.599996, 23968, 65520
@@ -618,7 +618,7 @@ class TestReadpHyre:
                 si.SensorID.INSTRUMENT_DATE_TIME,
                 si.SensorID.ERROR_FLAG,
             ],
-            si.InstrumentType.pHyre,
+            si.SubModel.pHyre,
         )
 
         columns = si.batch_convert_hex_to_dec(
@@ -626,7 +626,7 @@ class TestReadpHyre:
             sensor_layout,
         )
 
-        result = si._apply_transforms(columns, si.InstrumentType.pHyre, sensor_layout)
+        result = si._apply_transforms(columns, si.SubModel.pHyre, sensor_layout)
 
         assert result[str(si.SensorID.PHYRE_PH_EXTERNAL.value) + "_0"] == vrs_external
         assert result[str(si.SensorID.PHYRE_PH_INTERNAL.value) + "_0"] == vrs_internal
@@ -747,7 +747,7 @@ class TestReadpHyreCAT:
                 si.SensorID.INSTRUMENT_DATE_TIME,
                 si.SensorID.ERROR_FLAG,
             ],
-            si.InstrumentType.pHyreCAT,
+            si.SubModel.pHyreCAT,
         )
 
         columns = si.batch_convert_hex_to_dec(
@@ -755,7 +755,7 @@ class TestReadpHyreCAT:
             sensor_layout,
         )
 
-        result = si._apply_transforms(columns, si.InstrumentType.pHyreCAT, sensor_layout)
+        result = si._apply_transforms(columns, si.SubModel.pHyreCAT, sensor_layout)
 
         assert result[str(si.SensorID.TEMPERATURE.value) + "_0"] == temperature
         assert result[str(si.SensorID.CONDUCTIVITY.value) + "_0"] == conductivity
@@ -789,7 +789,7 @@ class TestReadHexNoDataRows:
         """A .hex file whose header is not followed by any scans gives an empty dataset."""
         filepath = tmp_path / "header_only.hex"
         filepath.write_text("* Sea-Bird SBE19plus Data File:\n*END*\n")
-        raw = si.read_hex_file(filepath, si.InstrumentType.SBE19Plus, [])
+        raw = si.read_hex_file(filepath, si.SubModel.SBE19Plus, [])
         assert len(raw.data_vars) == 0
 
 
@@ -797,7 +797,7 @@ class TestReadHexSensorLayout:
     def test_sensor_id_value_is_used_in_key(self):
         sensor_layout = si._build_hex_sensor_layout(
             [si.SensorID.SBE43_DISSOLVED_OXYGEN],
-            si.InstrumentType.SBE19Plus,
+            si.SubModel.SBE19Plus,
         )
 
         assert sensor_layout[0][1] == "38_0"
@@ -809,7 +809,7 @@ class TestReadHexSensorLayout:
                 si.SensorID.CONDUCTIVITY,
                 si.SensorID.TEMPERATURE,
             ],
-            si.InstrumentType.SBE37SM,
+            si.SubModel.SBE37SM,
         )
 
         result = si.batch_convert_hex_to_dec(["000001000002000003"], sensor_layout)
@@ -828,10 +828,10 @@ class TestReadHexSensorLayout:
                 si.SensorID.TEMPERATURE,
                 si.SensorID.CONDUCTIVITY,
             ],
-            si.InstrumentType.SBE37SM,
+            si.SubModel.SBE37SM,
         )
         columns = si.batch_convert_hex_to_dec(["000001000100000002000200"], sensor_layout)
-        result = si._apply_transforms(columns, si.InstrumentType.SBE37SM, sensor_layout)
+        result = si._apply_transforms(columns, si.SubModel.SBE37SM, sensor_layout)
 
         assert {key: values.tolist() for key, values in result.items()} == {
             f"{si.SensorID.TEMPERATURE.value}_0": [1],
@@ -853,10 +853,10 @@ class TestReadHexSensorLayout:
                 si.SensorID.NMEA_LONGITUDE,
                 si.SensorID.NMEA_STATUS_AND_SIGN,
             ],
-            si.InstrumentType.SBE19Plus,
+            si.SubModel.SBE19Plus,
         )
         columns = si.batch_convert_hex_to_dec(["00000100000240"], sensor_layout)
-        result = si._apply_transforms(columns, si.InstrumentType.SBE19Plus, sensor_layout)
+        result = si._apply_transforms(columns, si.SubModel.SBE19Plus, sensor_layout)
         expected = {
             str(si.SensorID.NMEA_LATITUDE.value): [0.00002],
             str(si.SensorID.NMEA_LONGITUDE.value): [-0.00004],
@@ -871,13 +871,13 @@ class TestReadHexSensorLayout:
         build_layout = si._build_hex_sensor_layout
         layouts = []
 
-        def track_layout(enabled_sensor_ids, instrument_type):
-            layout = build_layout(enabled_sensor_ids, instrument_type)
+        def track_layout(enabled_sensor_ids, sub_model):
+            layout = build_layout(enabled_sensor_ids, sub_model)
             layouts.append(layout)
             return layout
 
         monkeypatch.setattr(si, "_build_hex_sensor_layout", track_layout)
-        dataset = si.read_hex_file(filepath, si.InstrumentType.SBE19Plus, sensor_ids)
+        dataset = si.read_hex_file(filepath, si.SubModel.SBE19Plus, sensor_ids)
 
         assert len(layouts) == 1
         assert list(dataset.data_vars) == [
@@ -895,7 +895,7 @@ class TestReadHexSensorLayout:
                 si.SensorID.CONDUCTIVITY,
                 si.SensorID.TEMPERATURE,
             ],
-            si.InstrumentType.SBE37SM,
+            si.SubModel.SBE37SM,
         )
 
         result = si.batch_convert_hex_to_dec(
@@ -922,7 +922,7 @@ class TestReadHexSensorLayout:
                 si.SensorID.CONDUCTIVITY,
                 si.SensorID.TEMPERATURE,
             ],
-            si.InstrumentType.SBE37SM,
+            si.SubModel.SBE37SM,
         )
 
         result = si.batch_convert_hex_to_dec(
@@ -949,7 +949,7 @@ class TestReadHexSensorLayout:
                 si.SensorID.TEMPERATURE,
                 si.SensorID.CONDUCTIVITY,
             ],
-            si.InstrumentType.SBE37SM,
+            si.SubModel.SBE37SM,
         )
 
         with pytest.raises(ValueError, match="Sensor layout expects 12 hex characters"):
@@ -964,7 +964,7 @@ class TestReadHexSensorLayout:
                 si.SensorID.STRAIN_GAUGE_PRESSURE,
                 si.SensorID.STRAIN_GAUGE_PRESSURE_TEMPERATURE,
             ],
-            si.InstrumentType.SBE37SM,
+            si.SubModel.SBE37SM,
         )
 
         with pytest.raises(ValueError, match="Sensor layout expects 22 hex characters"):
@@ -999,7 +999,7 @@ class TestReadHexFileSpeed:
 
         start = time.perf_counter()
         dataset = si.read_hex_file(
-            test_data / "911plus_2401002.hex", si.InstrumentType.SBE911Plus, sensor_ids
+            test_data / "911plus_2401002.hex", si.SubModel.SBE911Plus, sensor_ids
         )
         elapsed = time.perf_counter() - start
 
@@ -1035,7 +1035,7 @@ class TestReadHexFile:
         start = time.perf_counter()
         dataset = si.read_hex_file(
             test_data / "SBE37SMP-ODO-RS232_03711459_2023_08_11.hex",
-            si.InstrumentType.SBE37SMPODO,
+            si.SubModel.SBE37SMPODO,
             sensor_ids,
         )
         elapsed = time.perf_counter() - start
@@ -1060,9 +1060,7 @@ class TestHexFromDecimal:
             si.SensorID.INSTRUMENT_DATE_TIME,
         ]
 
-        hex_data = si.create_hex_from_decimal(
-            si.InstrumentType.SBE37SMP, raw_decimal, enabled_sensors
-        )
+        hex_data = si.create_hex_from_decimal(si.SubModel.SBE37SMP, raw_decimal, enabled_sensors)
 
         assert hex_data == "0370700A13CD08014F0AB32E721C1B"
 
@@ -1074,9 +1072,7 @@ class TestHexFromDecimal:
             si.SensorID.INSTRUMENT_DATE_TIME,
         ]
 
-        hex_data = si.create_hex_from_decimal(
-            si.InstrumentType.SBE37SMP, raw_decimal, enabled_sensors
-        )
+        hex_data = si.create_hex_from_decimal(si.SubModel.SBE37SMP, raw_decimal, enabled_sensors)
 
         assert hex_data == "0370700A13CD2E721C1B"
 
@@ -1093,7 +1089,7 @@ class TestHexFromDecimal:
         ]
 
         hex_data = si.create_hex_from_decimal(
-            si.InstrumentType.SBE37SMPODO, raw_decimal, enabled_sensors
+            si.SubModel.SBE37SMPODO, raw_decimal, enabled_sensors
         )
 
         assert hex_data == "0370700A13CD2926C4185B1708014F0AB32E721C1B"
@@ -1107,9 +1103,7 @@ class TestHexFromDecimal:
             si.SensorID.INSTRUMENT_DATE_TIME,
         ]
 
-        hex_data = si.create_hex_from_decimal(
-            si.InstrumentType.SBE39Plus, raw_decimal, enabled_sensors
-        )
+        hex_data = si.create_hex_from_decimal(si.SubModel.SBE39Plus, raw_decimal, enabled_sensors)
 
         assert hex_data == "2E721C1B1B210A016D2381CF"
 
@@ -1120,9 +1114,7 @@ class TestHexFromDecimal:
             si.SensorID.INSTRUMENT_DATE_TIME,
         ]
 
-        hex_data = si.create_hex_from_decimal(
-            si.InstrumentType.SBE39Plus, raw_decimal, enabled_sensors
-        )
+        hex_data = si.create_hex_from_decimal(si.SubModel.SBE39Plus, raw_decimal, enabled_sensors)
 
         assert hex_data == "2E721C1B1B210A"
 
@@ -1136,9 +1128,7 @@ class TestHexFromDecimal:
             si.SensorID.INSTRUMENT_DATE_TIME,
         ]
 
-        hex_data = si.create_hex_from_decimal(
-            si.InstrumentType.HydroCAT, raw_decimal, enabled_sensors
-        )
+        hex_data = si.create_hex_from_decimal(si.SubModel.HydroCAT, raw_decimal, enabled_sensors)
 
         assert hex_data == "03C8EF0A83C108727E094B300AE095"
 
@@ -1154,9 +1144,7 @@ class TestHexFromDecimal:
             si.SensorID.INSTRUMENT_DATE_TIME,
         ]
 
-        hex_data = si.create_hex_from_decimal(
-            si.InstrumentType.HydroCAT, raw_decimal, enabled_sensors
-        )
+        hex_data = si.create_hex_from_decimal(si.SubModel.HydroCAT, raw_decimal, enabled_sensors)
 
         assert hex_data == "038D310A13CD294FC818943E0801500AA1300C0EC0"
 
@@ -1175,9 +1163,7 @@ class TestHexFromDecimal:
             si.SensorID.ERROR_FLAG,
         ]
 
-        hex_data = si.create_hex_from_decimal(
-            si.InstrumentType.SeaFET2, raw_decimal, enabled_sensors
-        )
+        hex_data = si.create_hex_from_decimal(si.SubModel.SeaFET2, raw_decimal, enabled_sensors)
 
         assert hex_data == "DA891AA70396FFFFFF000000FFFFFFCBD51B7C661C2ED0C4D60108"
 
@@ -1202,9 +1188,7 @@ class TestHexFromDecimal:
             si.SensorID.ERROR_FLAG,
         ]
 
-        hex_data = si.create_hex_from_decimal(
-            si.InstrumentType.SeaFET2, raw_decimal, enabled_sensors
-        )
+        hex_data = si.create_hex_from_decimal(si.SubModel.SeaFET2, raw_decimal, enabled_sensors)
 
         assert (
             hex_data
@@ -1225,9 +1209,7 @@ class TestHexFromDecimal:
             si.SensorID.ERROR_FLAG,
         ]
 
-        hex_data = si.create_hex_from_decimal(
-            si.InstrumentType.pHyre, raw_decimal, enabled_sensors
-        )
+        hex_data = si.create_hex_from_decimal(si.SubModel.pHyre, raw_decimal, enabled_sensors)
 
         assert hex_data == "4FB8B44FB3220AA3DA0AA41358D7415799C598FB0B3262AEAD0008"
 
@@ -1251,9 +1233,7 @@ class TestHexFromDecimal:
             si.SensorID.ERROR_FLAG,
         ]
 
-        hex_data = si.create_hex_from_decimal(
-            si.InstrumentType.pHyreCAT, raw_decimal, enabled_sensors
-        )
+        hex_data = si.create_hex_from_decimal(si.SubModel.pHyreCAT, raw_decimal, enabled_sensors)
 
         assert (
             hex_data
