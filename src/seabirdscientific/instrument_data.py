@@ -210,10 +210,12 @@ HEX_LEN_SYSTEM_TIME = 8
 def sensor_id_to_hex_length(sensorID: SensorID, instrument_type: InstrumentType):
     general_map = {
         SensorID.TEMPERATURE: HEX_LEN_TEMPERATURE,
+        SensorID.TEMPERATURE_FREQUENCY: HEX_LEN_TEMPERATURE,
         SensorID.SEAFET_TEMPERATURE: HEX_LEN_TEMPERATURE,
         SensorID.PHYRE_TEMPERATURE_EXTERNAL: HEX_LEN_TEMPERATURE,
         SensorID.PHYRE_TEMPERATURE_INTERNAL: HEX_LEN_TEMPERATURE,
         SensorID.CONDUCTIVITY: HEX_LEN_CONDUCTIVITY,
+        SensorID.CONDUCTIVITY_FREQUENCY: HEX_LEN_CONDUCTIVITY,
         SensorID.STRAIN_GAUGE_PRESSURE: HEX_LEN_STRAIN_GAUGE_PRESSURE,
         SensorID.STRAIN_GAUGE_PRESSURE_TEMPERATURE: HEX_LEN_STRAIN_GAUGE_PRESSURE_TEMP_COMP,
         SensorID.DIGIQUARTZ_PRESSURE: HEX_LEN_DIGIQUARTZ_PRESSURE,
@@ -759,6 +761,7 @@ def _build_hex_sensor_layout(
             SensorID.DATA_INTEGRITY,
             SensorID.SBE911_DIAGNOSTICS,
             SensorID.INSTRUMENT_DATE_TIME,
+            SensorID.SYSTEM_DATE_TIME,
         ]:
             # Don't add replicate suffix
             sensor_layout.append((sensor_id, str(sensor_id.value), hex_length))
@@ -844,10 +847,10 @@ def _apply_transforms(
 
     for sensor_id, key, hex_length in sensor_layout:
         # -------- Internal Sensors  ---------
-        if sensor_id == SensorID.TEMPERATURE and instrument_type == InstrumentType.SBE911Plus:
+        if sensor_id == SensorID.TEMPERATURE_FREQUENCY and instrument_type == InstrumentType.SBE911Plus:
             columns[key] = columns[key] / 256
 
-        elif sensor_id == SensorID.CONDUCTIVITY:
+        elif sensor_id in [SensorID.CONDUCTIVITY, SensorID.CONDUCTIVITY_FREQUENCY]:
             if instrument_type != InstrumentType.pHyreCAT:
                 columns[key] = columns[key] / 256
 
@@ -1012,6 +1015,9 @@ def _apply_transforms(
             columns[str(SensorID.SBE911_CONFIRM_STATUS.value)] = (columns[key] >> 2) & 1
             columns[str(SensorID.SBE911_MODEM_STATUS.value)] = (columns[key] >> 3) & 1
             columns.pop(key)
+
+        else:
+            logger.warning(f"Unexpected SensorID: {sensor_id}")
 
     # Validate hex length. Ensure length matches what is expected based
     # on enabled sensors and moored mode. If it does not, set all values
