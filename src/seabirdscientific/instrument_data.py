@@ -987,7 +987,7 @@ def _apply_transforms(
                 seconds_since_2000 + SECONDS_BETWEEN_EPOCH_AND_2000
             ).astype("timedelta64[s]")
 
-        elif sensor_id == SensorID.INSTRUMENT_DATE_TIME:
+        elif sensor_id in [SensorID.INSTRUMENT_DATE_TIME, SensorID.SYSTEM_DATE_TIME]:
             if instrument_type == InstrumentType.SBE911Plus:
                 seconds_since_1970 = columns[key]
                 seconds_since_1970 = (
