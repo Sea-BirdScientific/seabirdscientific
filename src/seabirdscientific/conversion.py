@@ -518,7 +518,6 @@ def convert_sbe63_oxygen(
     pressure: np.ndarray,
     salinity: np.ndarray,
     coefs: cc.Oxygen63Coefficients,
-    thermistor_coefs: cc.Thermistor63Coefficients,
     thermistor_units: Literal["volts", "C"] = "volts",  # Is this volts or frequency?
     units: Literal[
         "ml/l",
@@ -547,8 +546,6 @@ def convert_sbe63_oxygen(
         practical salinity PSU
     :param coefs (cc.Oxygen63Coefficients): calibration coefficients for
         the SBE63 sensor
-    :param thermistor_coefs (cc.Thermistor63Coefficients): calibration coefficients for
-        the SBE63 thermistor sensor
     :param thermistor_units: units of thermistor_temp input
     :param units: the units to return the oxygen values in. Options are:
         ml/l, mg/l, umol/kg, umol/l, saturation_percent, ox_temperature_c, ox_temperature_f, raw_phase_usec, raw_phase_v. Defaults to ml/l.
@@ -557,7 +554,7 @@ def convert_sbe63_oxygen(
     :return: converted Oxygen value, in ml/l
     """
     if thermistor_units == "volts":
-        temperature = convert_sbe63_thermistor(thermistor, thermistor_coefs)
+        temperature = convert_sbe63_thermistor(thermistor, coefs)
     elif thermistor_units == "C":
         temperature = thermistor
     else:
@@ -617,14 +614,13 @@ def convert_sbe63_oxygen(
 
 def convert_sbe63_thermistor(
     instrument_output: np.ndarray,
-    coefs: cc.Thermistor63Coefficients,
+    coefs: cc.Oxygen63Coefficients,
 ):
     """Converts a SBE63 thermistor raw output array to temperature in
     ITS-90 deg C.
 
     :param instrument_output: raw values from the thermistor
-    :param coefs: calibration coefficients for the thermistor in the
-        SBE63 sensor
+    :param coefs: calibration coefficients for the SBE63 sensor
 
     :return: converted thermistor temperature values in ITS-90 deg C
     """

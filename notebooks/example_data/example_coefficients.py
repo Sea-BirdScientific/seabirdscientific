@@ -12,7 +12,6 @@ from seabirdscientific.cal_coefficients import (
     TemperatureCoefficients,
     TemperatureFrequencyCoefficients,
     TemperatureSeaFETCoefficients,
-    Thermistor63Coefficients,
 )
 
 # @dataclass
@@ -207,15 +206,11 @@ oxygen_63_coefs_sn2568 = Oxygen63Coefficients(
     c1=4.4295e-3,
     c2=6.0011e-5,
     e=1.1e-2,
-)
-
-thermistor_63_coefs_sn2568 = Thermistor63Coefficients(
     ta0=7.059180e-4,
     ta1=2.504670e-4,
     ta2=7.402389e-7,
     ta3=9.756123e-8,
 )
-
 
 # cal coefficients for SN1590
 oxygen_43_coefs_sn1590 = Oxygen43Coefficients(

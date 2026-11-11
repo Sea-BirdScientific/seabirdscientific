@@ -156,6 +156,10 @@ class Oxygen63Coefficients(CoefficientsBaseClass):
     :param c1: coefficient
     :param c2: coefficient
     :param e: coefficient
+    :param ta0: thermistor coefficient
+    :param ta1: thermistor coefficient
+    :param ta2: thermistor coefficient
+    :param ta3: thermistor coefficient
     """
 
     a0: float
@@ -167,22 +171,10 @@ class Oxygen63Coefficients(CoefficientsBaseClass):
     c1: float
     c2: float
     e: float
-
-
-@dataclass
-class Thermistor63Coefficients(CoefficientsBaseClass):
-    """
-    :param ta0: coefficient
-    :param ta1: coefficient
-    :param ta2: coefficient
-    :param ta3: coefficient
-    """
-
     ta0: float
     ta1: float
     ta2: float
     ta3: float
-
 
 @dataclass
 class Oxygen43Coefficients(CoefficientsBaseClass):
