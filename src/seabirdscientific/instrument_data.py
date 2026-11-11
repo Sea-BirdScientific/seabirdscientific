@@ -31,6 +31,9 @@ class InstrumentType(Enum):
     SBE37IM = "37-IM"
     SBE37IMP = "37-IMP"
     SBE37IMPODO = "37-IMP-ODO"
+    HydroCAT = 'HydroCAT-SMP'
+    HydroCATODO = 'HydroCAT-SMP-ODO'
+    HydroCATEP2 = 'HydroCAT-EP-V2'
     SBE19Plus = "19plus"
     SBE16Plus = "16plus"
     SBE39Plus = "39plus"
@@ -40,11 +43,10 @@ class InstrumentType(Enum):
     SeapHox2 = "SeapHox2"
     pHyre = "pHyre"
     pHyreCAT = "pHyreCAT"
-    HydroCAT = "HydroCAT"
-    HydroCATODO = "HydroCAT-ODO"
-    HydroCATEP2 = "HydroCAT-EP-V2"
     ECOV2 = "ECOV2"
-
+	SBE911Plus = '911plus'
+	WATERSAMPLER = 'WaterSampler'
+	NMEA = 'NMEA'
 
 class SensorID(Enum):
     ALTIMETER = 0
