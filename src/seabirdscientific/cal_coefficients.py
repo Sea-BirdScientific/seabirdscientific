@@ -176,6 +176,7 @@ class Oxygen63Coefficients(CoefficientsBaseClass):
     ta2: float
     ta3: float
 
+
 @dataclass
 class Oxygen43Coefficients(CoefficientsBaseClass):
     """
