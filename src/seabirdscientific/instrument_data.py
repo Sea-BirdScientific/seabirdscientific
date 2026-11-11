@@ -765,10 +765,10 @@ def _build_hex_sensor_layout(
             sensor_layout.append((sensor_id, f"{sensor_id.value}_{replicate}", hex_length))
 
         # Add unused byte after digiquartz pressure temperature for 19plus and 16plus
-        if (
-            sensor_id == SensorID.DIGIQUARTZ_PRESSURE_TEMPERATURE
-            and instrument_type in [InstrumentType.SBE19Plus, InstrumentType.SBE16Plus]
-        ):
+        if sensor_id == SensorID.DIGIQUARTZ_PRESSURE_TEMPERATURE and instrument_type in [
+            InstrumentType.SBE19Plus,
+            InstrumentType.SBE16Plus,
+        ]:
             sensor_layout.append(
                 (
                     f"{sensor_id.value}_unused_byte",
