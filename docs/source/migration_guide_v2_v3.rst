@@ -33,7 +33,7 @@ Summary of changes
 - ``buoyancy`` and ``buoyancy_frequency`` have moved from ``processing`` to
   ``conversion`` and now return NumPy arrays.
 - ``convert_pressure`` now returns psia by default, and ``convert_conductivity``
-  takes an ``sub_model`` parameter in place of ``scalar``.
+  takes an ``instrument_type`` parameter in place of ``scalar``.
 - ``loop_edit_depth`` and ``loop_edit_pressure`` are replaced by ``loop_edit``,
   which returns flags instead of a cast array.
 - ``split`` now labels casts with a ``cast_type`` coordinate instead of
@@ -165,7 +165,7 @@ dataset instead of an empty DataFrame.
 
 .. code-block:: python
 
-   dataset = si.read_hex_file(filepath, sub_model, enabled_sensors)
+   dataset = si.read_hex_file(filepath, instrument_type, enabled_sensors)
    temperature_counts = dataset["temperature"].values
 
 Removed classes and functions
@@ -279,7 +279,7 @@ Pressure
 Conductivity
 ============
 
-``convert_conductivity`` now takes a required ``sub_model`` parameter
+``convert_conductivity`` now takes a required ``instrument_type`` parameter
 in place of ``scalar``. The SBE 911plus scaling is applied automatically, and
 the ``wbotc`` term is not applied for the SBE 16plus, SBE 19plus, and
 SBE 911plus. A new ``units`` parameter selects ``"S/m"`` (default),
