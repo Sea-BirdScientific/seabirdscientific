@@ -15,7 +15,6 @@ import pandas as pd
 import xarray as xr
 
 from seabirdscientific.constants import COUNTS_TO_VOLTS, SECONDS_BETWEEN_EPOCH_AND_2000
-from seabirdscientific.utils import WarnAllMembersMeta
 
 logger = getLogger(__name__)
 
