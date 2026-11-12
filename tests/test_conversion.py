@@ -976,7 +976,6 @@ class TestConvertSBE63Oxygen:
             self.pressure,
             self.salinity,
             tc.oxygen_63_coefs_sn2568,
-            tc.thermistor_63_coefs_sn2568,
             "C",
         )
         # TODO: fix tolerance in TKIT-110
@@ -988,7 +987,7 @@ class TestConvertSBE63Oxygen:
 
         expected = np.array([2.0002, 2.0002, 1.9999, 1.9999, 5.9998, 12.0, 19.9998])
         thermistor_temperature = dc.convert_sbe63_thermistor(
-            raw_temperature, tc.thermistor_63_coefs_sn2568
+            raw_temperature, tc.oxygen_63_coefs_sn2568
         )
 
         request.node.return_value = thermistor_temperature.tolist()
@@ -1007,7 +1006,6 @@ class TestConvertSBE63Oxygen:
             pressure,
             salinity,
             tc.oxygen_63_coefs_sn2568,
-            tc.thermistor_63_coefs_sn2568,
         )
         request.node.return_value = result.tolist()
         assert np.allclose(expected, result, rtol=0, atol=1e-3)
@@ -1025,7 +1023,6 @@ class TestConvertSBE63Oxygen:
             pressure,
             salinity,
             tc.oxygen_63_coefs_sn11459,
-            tc.thermistor_63_coefs_sn11459,
         )
         request.node.return_value = result.tolist()
         assert np.allclose(expected, result, rtol=0, atol=1e-3)
@@ -1038,7 +1035,6 @@ class TestConvertSBE63Oxygen:
             source_data["prdM"].values,
             source_data["sal00"].values,
             tc.oxygen_63_coefs_sn11459,
-            tc.thermistor_63_coefs_sn11459,
             "volts",
             "ml/l",
         )
@@ -1053,7 +1049,6 @@ class TestConvertSBE63Oxygen:
             source_data["prdM"].values,
             source_data["sal00"].values,
             tc.oxygen_63_coefs_sn11459,
-            tc.thermistor_63_coefs_sn11459,
             "volts",
             "mg/l",
         )
@@ -1068,7 +1063,6 @@ class TestConvertSBE63Oxygen:
             source_data["prdM"].values,
             source_data["sal00"].values,
             tc.oxygen_63_coefs_sn11459,
-            tc.thermistor_63_coefs_sn11459,
             "volts",
             "saturation_percent",
             source_data["tv290C"].values,
@@ -1084,7 +1078,6 @@ class TestConvertSBE63Oxygen:
             source_data["prdM"].values,
             source_data["sal00"].values,
             tc.oxygen_63_coefs_sn11459,
-            tc.thermistor_63_coefs_sn11459,
             "volts",
             "umol/kg",
             source_data["tv290C"].values,
@@ -1100,7 +1093,6 @@ class TestConvertSBE63Oxygen:
             source_data["prdM"].values,
             source_data["sal00"].values,
             tc.oxygen_63_coefs_sn11459,
-            tc.thermistor_63_coefs_sn11459,
             "volts",
             "umol/l",
         )
@@ -1115,7 +1107,6 @@ class TestConvertSBE63Oxygen:
             source_data["prdM"].values,
             source_data["sal00"].values,
             tc.oxygen_63_coefs_sn11459,
-            tc.thermistor_63_coefs_sn11459,
             "volts",
             "raw_phase_usec",
         )
@@ -1130,7 +1121,6 @@ class TestConvertSBE63Oxygen:
             source_data["prdM"].values,
             source_data["sal00"].values,
             tc.oxygen_63_coefs_sn11459,
-            tc.thermistor_63_coefs_sn11459,
             "volts",
             "raw_phase_v",
         )
@@ -1145,7 +1135,6 @@ class TestConvertSBE63Oxygen:
             source_data["prdM"].values,
             source_data["sal00"].values,
             tc.oxygen_63_coefs_sn11459,
-            tc.thermistor_63_coefs_sn11459,
             "volts",
             "ox_temperature_c",
         )
@@ -1160,7 +1149,6 @@ class TestConvertSBE63Oxygen:
             source_data["prdM"].values,
             source_data["sal00"].values,
             tc.oxygen_63_coefs_sn11459,
-            tc.thermistor_63_coefs_sn11459,
             "volts",
             "ox_temperature_f",
         )
