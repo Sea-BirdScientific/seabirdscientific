@@ -342,13 +342,21 @@ class TestReadHexSBE911plus:
 
         hex_data = si._apply_transforms(columns, si.SubModel.SBE911Plus, sensor_layout)
 
-        assert round(hex_data[str(si.SensorID.TEMPERATURE_FREQUENCY.value) + "_0"][0], 3) == 4651.168
-        assert round(hex_data[str(si.SensorID.CONDUCTIVITY_FREQUENCY.value) + "_0"][0], 3) == 6638.984
+        assert (
+            round(hex_data[str(si.SensorID.TEMPERATURE_FREQUENCY.value) + "_0"][0], 3) == 4651.168
+        )
+        assert (
+            round(hex_data[str(si.SensorID.CONDUCTIVITY_FREQUENCY.value) + "_0"][0], 3) == 6638.984
+        )
         assert (
             round(hex_data[str(si.SensorID.DIGIQUARTZ_PRESSURE.value) + "_0"][0], 3) == 33302.258
         )
-        assert round(hex_data[str(si.SensorID.TEMPERATURE_FREQUENCY.value) + "_1"][0], 3) == 4651.781
-        assert round(hex_data[str(si.SensorID.CONDUCTIVITY_FREQUENCY.value) + "_1"][0], 3) == 6230.480
+        assert (
+            round(hex_data[str(si.SensorID.TEMPERATURE_FREQUENCY.value) + "_1"][0], 3) == 4651.781
+        )
+        assert (
+            round(hex_data[str(si.SensorID.CONDUCTIVITY_FREQUENCY.value) + "_1"][0], 3) == 6230.480
+        )
         assert round(hex_data[str(si.SensorID.VOLTAGE_0.value) + "_0"][0], 4) == 3.7338
         assert round(hex_data[str(si.SensorID.VOLTAGE_1.value) + "_0"][0], 4) == 0.2112
         assert round(hex_data[str(si.SensorID.VOLTAGE_2.value) + "_0"][0], 4) == 4.9328
