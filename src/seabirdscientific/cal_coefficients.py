@@ -231,10 +231,10 @@ class PARCoefficients(CoefficientsBaseClass):
     :param multiplier: 1.0 for units of μmol photons/m2*s
     """
 
-    im: float
-    a0: float
-    a1: float
-    multiplier: float
+    im: float = 1.0
+    a0: float = 1.0
+    a1: float = 0
+    multiplier: float = 1.0
 
 
 @dataclass
@@ -246,10 +246,10 @@ class SPARCoefficients(CoefficientsBaseClass):
     :param conversion_factor: 1.0 for units of μmol photons/m2*s
     """
 
-    im: float
-    a0: float
-    a1: float
-    conversion_factor: float
+    im: float = 1.0
+    a0: float = 1.0
+    a1: float = 0
+    conversion_factor: float = 1.0
 
 
 @dataclass
