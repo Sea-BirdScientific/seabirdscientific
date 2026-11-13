@@ -209,10 +209,12 @@ HEX_LEN_SYSTEM_TIME = 8
 def sensor_id_to_hex_length(sensorID: SensorID, sub_model: SubModel):
     general_map = {
         SensorID.TEMPERATURE: HEX_LEN_TEMPERATURE,
+        SensorID.TEMPERATURE_FREQUENCY: HEX_LEN_TEMPERATURE,
         SensorID.SEAFET_TEMPERATURE: HEX_LEN_TEMPERATURE,
         SensorID.PHYRE_TEMPERATURE_EXTERNAL: HEX_LEN_TEMPERATURE,
         SensorID.PHYRE_TEMPERATURE_INTERNAL: HEX_LEN_TEMPERATURE,
         SensorID.CONDUCTIVITY: HEX_LEN_CONDUCTIVITY,
+        SensorID.CONDUCTIVITY_FREQUENCY: HEX_LEN_CONDUCTIVITY,
         SensorID.STRAIN_GAUGE_PRESSURE: HEX_LEN_STRAIN_GAUGE_PRESSURE,
         SensorID.STRAIN_GAUGE_PRESSURE_TEMPERATURE: HEX_LEN_STRAIN_GAUGE_PRESSURE_TEMP_COMP,
         SensorID.DIGIQUARTZ_PRESSURE: HEX_LEN_DIGIQUARTZ_PRESSURE,
@@ -270,6 +272,7 @@ def sensor_id_to_hex_length(sensorID: SensorID, sub_model: SubModel):
         SensorID.RELATIVE_HUMIDITY: HEX_LEN_RELATIVE_HUMIDITY,
         SensorID.INTERNAL_TEMPERATURE: HEX_LEN_INTERNAL_TEMPERATURE,
         SensorID.ERROR_FLAG: HEX_LEN_ERROR_FLAG,
+        SensorID.SYSTEM_DATE_TIME: HEX_LEN_SYSTEM_TIME,
     }
 
     if sensorID in [
@@ -613,6 +616,7 @@ def _build_hex_sensor_layout(
             SensorID.DATA_INTEGRITY,
             SensorID.SBE911_DIAGNOSTICS,
             SensorID.INSTRUMENT_DATE_TIME,
+            SensorID.SYSTEM_DATE_TIME,
         ]:
             # Don't add replicate suffix
             sensor_layout.append((sensor_id, str(sensor_id.value), hex_length))
@@ -711,10 +715,10 @@ def _apply_transforms(
 
     for sensor_id, key, hex_length in sensor_layout:
         # -------- Internal Sensors  ---------
-        if sensor_id == SensorID.TEMPERATURE and sub_model == SubModel.SBE911Plus:
+        if sensor_id == SensorID.TEMPERATURE_FREQUENCY and sub_model == SubModel.SBE911Plus:
             columns[key] = columns[key] / 256
 
-        elif sensor_id == SensorID.CONDUCTIVITY:
+        elif sensor_id in [SensorID.CONDUCTIVITY, SensorID.CONDUCTIVITY_FREQUENCY]:
             if sub_model != SubModel.pHyreCAT:
                 columns[key] = columns[key] / 256
 
@@ -851,7 +855,7 @@ def _apply_transforms(
                 seconds_since_2000 + SECONDS_BETWEEN_EPOCH_AND_2000
             ).astype("timedelta64[s]")
 
-        elif sensor_id == SensorID.INSTRUMENT_DATE_TIME:
+        elif sensor_id in [SensorID.INSTRUMENT_DATE_TIME, SensorID.SYSTEM_DATE_TIME]:
             if sub_model == SubModel.SBE911Plus:
                 seconds_since_1970 = columns[key]
                 seconds_since_1970 = (
@@ -879,6 +883,9 @@ def _apply_transforms(
             columns[str(SensorID.SBE911_CONFIRM_STATUS.value)] = (columns[key] >> 2) & 1
             columns[str(SensorID.SBE911_MODEM_STATUS.value)] = (columns[key] >> 3) & 1
             columns.pop(key)
+
+        else:
+            logger.warning(f"Unexpected SensorID: {sensor_id}")
 
     # Validate hex length. Ensure length matches what is expected based
     # on enabled sensors and moored mode. If it does not, set all values

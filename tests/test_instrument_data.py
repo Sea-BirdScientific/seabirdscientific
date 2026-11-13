@@ -191,7 +191,7 @@ class TestReadHex19plus:
         # assert pd.to_datetime(hex_data[str(si.SensorID.INSTRUMENT_DATE_TIME.value) + "_0"]) == datetime(
         #     2026, 10, 27, 17, 32, 3
         # )
-        print("hex data", hex_data)
+        # print("hex data", hex_data)
 
     def test_read_19plus_nmea_hex(self):
 
@@ -308,11 +308,11 @@ class TestReadHexSBE911plus:
 
         sensor_layout = si._build_hex_sensor_layout(
             [
-                si.SensorID.TEMPERATURE,
-                si.SensorID.CONDUCTIVITY,
+                si.SensorID.TEMPERATURE_FREQUENCY,
+                si.SensorID.CONDUCTIVITY_FREQUENCY,
                 si.SensorID.DIGIQUARTZ_PRESSURE,
-                si.SensorID.TEMPERATURE,
-                si.SensorID.CONDUCTIVITY,
+                si.SensorID.TEMPERATURE_FREQUENCY,
+                si.SensorID.CONDUCTIVITY_FREQUENCY,
                 si.SensorID.VOLTAGE_0,
                 si.SensorID.VOLTAGE_1,
                 si.SensorID.VOLTAGE_2,
@@ -342,13 +342,21 @@ class TestReadHexSBE911plus:
 
         hex_data = si._apply_transforms(columns, si.SubModel.SBE911Plus, sensor_layout)
 
-        assert round(hex_data[str(si.SensorID.TEMPERATURE.value) + "_0"][0], 3) == 4651.168
-        assert round(hex_data[str(si.SensorID.CONDUCTIVITY.value) + "_0"][0], 3) == 6638.984
+        assert (
+            round(hex_data[str(si.SensorID.TEMPERATURE_FREQUENCY.value) + "_0"][0], 3) == 4651.168
+        )
+        assert (
+            round(hex_data[str(si.SensorID.CONDUCTIVITY_FREQUENCY.value) + "_0"][0], 3) == 6638.984
+        )
         assert (
             round(hex_data[str(si.SensorID.DIGIQUARTZ_PRESSURE.value) + "_0"][0], 3) == 33302.258
         )
-        assert round(hex_data[str(si.SensorID.TEMPERATURE.value) + "_1"][0], 3) == 4651.781
-        assert round(hex_data[str(si.SensorID.CONDUCTIVITY.value) + "_1"][0], 3) == 6230.480
+        assert (
+            round(hex_data[str(si.SensorID.TEMPERATURE_FREQUENCY.value) + "_1"][0], 3) == 4651.781
+        )
+        assert (
+            round(hex_data[str(si.SensorID.CONDUCTIVITY_FREQUENCY.value) + "_1"][0], 3) == 6230.480
+        )
         assert round(hex_data[str(si.SensorID.VOLTAGE_0.value) + "_0"][0], 4) == 3.7338
         assert round(hex_data[str(si.SensorID.VOLTAGE_1.value) + "_0"][0], 4) == 0.2112
         assert round(hex_data[str(si.SensorID.VOLTAGE_2.value) + "_0"][0], 4) == 4.9328
@@ -1004,9 +1012,9 @@ class TestReadHexFileSpeed:
         elapsed = time.perf_counter() - start
 
         scans = dataset.sizes["scan"]
-        print(
-            f"read_hex_file: {scans} scans in {elapsed:.3f}s ({elapsed / scans * 1e6:.1f} us/scan)"
-        )
+        # print(
+        #     f"read_hex_file: {scans} scans in {elapsed:.3f}s ({elapsed / scans * 1e6:.1f} us/scan)"
+        # )
         assert scans == 18926
         assert elapsed < 1  # seconds
         assert not dataset[f"{si.SensorID.TEMPERATURE.value}_0"].isnull().any()
@@ -1041,9 +1049,9 @@ class TestReadHexFile:
         elapsed = time.perf_counter() - start
 
         scans = dataset.sizes["scan"]
-        print(
-            f"read_hex_file: {scans} scans in {elapsed:.3f}s ({elapsed / scans * 1e6:.1f} us/scan)"
-        )
+        # print(
+        #     f"read_hex_file: {scans} scans in {elapsed:.3f}s ({elapsed / scans * 1e6:.1f} us/scan)"
+        # )
         assert scans == 15
         assert elapsed < 0.1  # seconds
         assert not dataset[f"{si.SensorID.TEMPERATURE.value}_0"].isnull().any()
