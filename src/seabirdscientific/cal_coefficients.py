@@ -253,21 +253,6 @@ class SPARCoefficients(CoefficientsBaseClass):
 
 
 @dataclass
-class TemperatureSeaFETCoefficients(CoefficientsBaseClass):
-    """
-    :param tdfa0: temperature coefficient
-    :param tdfa1: temperature coefficient
-    :param tdfa2: temperature coefficient
-    :param tdfa3: temperature coefficient
-    """
-
-    tdfa0: float
-    tdfa1: float
-    tdfa2: float
-    tdfa3: float
-
-
-@dataclass
 class ISFETpHCoefficients(CoefficientsBaseClass):
     """
     :param k0: external K0 coefficient

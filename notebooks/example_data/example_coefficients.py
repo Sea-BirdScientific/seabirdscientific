@@ -11,7 +11,6 @@ from seabirdscientific.cal_coefficients import (
     SPARCoefficients,
     TemperatureCoefficients,
     TemperatureFrequencyCoefficients,
-    TemperatureSeaFETCoefficients,
 )
 
 # @dataclass
@@ -262,8 +261,8 @@ ph_external_coefs = ISFETpHCoefficients(k0=-1.434936e00, k2=-1.125230e-03)
 
 ph_internal_coefs = ISFETpHCoefficients(k0=-1.443428e00, k2=-1.223405e-03)
 
-temeprature_seafet_coefs = TemperatureSeaFETCoefficients(
-    tdfa0=-1.542604e-03, tdfa1=5.451845e-04, tdfa2=-1.988318e-05, tdfa3=4.501564e-07
+temeprature_seafet_coefs = TemperatureCoefficients(
+    a0=-1.542604e-03, a1=5.451845e-04, a2=-1.988318e-05, a3=4.501564e-07
 )
 
 altimeter_coefs_sn46604 = AltimeterCoefficients(slope=15, offset=0)
