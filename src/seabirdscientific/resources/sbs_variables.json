@@ -5,7 +5,7 @@
     "units": "",
     "title": "Temperature",
     "info": [
-      "Raw Frequency"
+      "Raw"
     ]
   },
   {
@@ -266,7 +266,7 @@
     "units": "",
     "title": "Conductivity",
     "info": [
-      "Raw Frequency"
+      "Raw"
     ]
   },
   {
@@ -374,7 +374,7 @@
     "units": "",
     "title": "Pressure",
     "info": [
-      "Raw Frequency"
+      "Raw"
     ]
   },
   {
@@ -1942,7 +1942,7 @@
     "units": "deg C",
     "title": "Temperature",
     "info": [
-      "Raw Oxygen",
+      "Raw",
       "SBE63",
       "ITS-90"
     ]
@@ -1953,7 +1953,7 @@
     "units": "deg F",
     "title": "Temperature",
     "info": [
-      "Raw Oxygen",
+      "Raw",
       "SBE63",
       "ITS-90"
     ]
@@ -1964,7 +1964,7 @@
     "units": "deg C",
     "title": "Temperature",
     "info": [
-      "Raw Oxygen",
+      "Raw",
       "SBE63",
       "ITS-90"
     ]
@@ -1975,7 +1975,7 @@
     "units": "deg F",
     "title": "Temperature",
     "info": [
-      "Raw Oxygen",
+      "Raw",
       "SBE63",
       "ITS-90"
     ]
@@ -2589,7 +2589,7 @@
     "units": "",
     "title": "Chlorophyll-a",
     "info": [
-      "Raw Voltage"
+      "Raw"
     ]
   },
   {
@@ -2786,7 +2786,7 @@
     "units": "",
     "title": "backscatter",
     "info": [
-      "Raw Voltage"
+      "Raw"
     ]
   },
   {
@@ -2835,7 +2835,7 @@
     "units": "",
     "title": "Turbidity",
     "info": [
-      "Raw Voltage"
+      "Raw"
     ]
   },
   {
@@ -2938,7 +2938,7 @@
     "units": "V",
     "title": "CStar-Voltage",
     "info": [
-      "Raw Voltage"
+      "Raw"
     ]
   },
   {
@@ -2975,7 +2975,7 @@
     "units": "",
     "title": "PAR",
     "info": [
-      "Raw Voltage"
+      "Raw"
     ]
   },
   {
@@ -2984,7 +2984,7 @@
     "units": "",
     "title": "SPAR",
     "info": [
-      "Raw Voltage"
+      "Raw"
     ]
   },
   {
@@ -3079,7 +3079,7 @@
     "units": "",
     "title": "pH",
     "info": [
-      "Raw Voltage"
+      "Raw"
     ]
   },
   {
@@ -3104,14 +3104,14 @@
     "name": "phIntVolt",
     "units": "volts",
     "title": "pH Internal Raw Voltage",
-    "info": []
+    "info": ["Raw"]
   },
   {
     "aliases": [],
     "name": "phExtVolt",
     "units": "volts",
     "title": "pH External Raw Voltage",
-    "info": []
+    "info": ["Raw"]
   },
   {
     "aliases": [],
@@ -3139,7 +3139,7 @@
     "name": "phTemperatureExternalVolt",
     "units": "volts",
     "title": "pH Reference External Temperature Raw Voltage",
-    "info": []
+    "info": ["Raw"]
   },
   {
     "aliases": [],
@@ -3153,7 +3153,7 @@
     "name": "phTemperatureInternalVolt",
     "units": "volts",
     "title": "pH Reference Internal Temperature Raw Voltage",
-    "info": []
+    "info": ["Raw"]
   },
   {
     "aliases": [],
@@ -3246,7 +3246,7 @@
     "units": "",
     "title": "User-Defined-Polynomial",
     "info": [
-      "Raw Voltage"
+      "Raw"
     ]
   },
   {
@@ -3270,7 +3270,7 @@
     "units": "",
     "title": "User-Defined-Exponential",
     "info": [
-      "Raw Voltage"
+      "Raw"
     ]
   },
   {
@@ -3286,7 +3286,7 @@
     "units": "",
     "title": "User-Defined-Equation",
     "info": [
-      "Raw Voltage"
+      "Raw"
     ]
   },
   {
