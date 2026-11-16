@@ -619,11 +619,14 @@ def convert_sbe63_thermistor(
     """Converts a SBE63 thermistor raw output array to temperature in
     ITS-90 deg C.
 
-    :param instrument_output: raw values from the thermistor
+    :param instrument_output: raw thermistor voltages; values outside 0 < voltage < 3.3 return NaN
     :param coefs: calibration coefficients for the SBE63 sensor
 
     :return: converted thermistor temperature values in ITS-90 deg C
     """
+    instrument_output = np.where(
+        (instrument_output > 0) & (instrument_output < 3.3), instrument_output, np.nan
+    )
     log_raw = np.log((100000 * instrument_output) / (3.3 - instrument_output))
     temperature = (
         1 / (coefs.ta0 + coefs.ta1 * log_raw + coefs.ta2 * log_raw**2 + coefs.ta3 * log_raw**3)
@@ -1398,9 +1401,7 @@ def convert_seafet_temperature(raw_temp, coefs: cc.TemperatureCoefficients):
     """
     temp_log = np.log(raw_temp)
 
-    temp = 1 / (
-        ((coefs.a3 * temp_log + coefs.a2) * temp_log + coefs.a1) * temp_log + coefs.a0
-    )
+    temp = 1 / (((coefs.a3 * temp_log + coefs.a2) * temp_log + coefs.a1) * temp_log + coefs.a0)
 
     temp_c = temp - const.KELVIN_OFFSET_0C
 

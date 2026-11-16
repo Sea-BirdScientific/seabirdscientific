@@ -1020,6 +1020,15 @@ class TestConvertSBE63Oxygen:
         request.node.return_value = thermistor_temperature.tolist()
         assert np.allclose(expected, thermistor_temperature, atol=1e-6)
 
+    def test_thermistor_temperature_invalid_input(self):
+        raw_temperature = np.array([-1.0, 1.12015, -4.0, 0.0, 3.3, 3.4, np.inf, -np.inf, np.nan])
+
+        with np.errstate(invalid="raise", divide="raise"):
+            result = dc.convert_sbe63_thermistor(raw_temperature, tc.oxygen_63_coefs_sn2568)
+
+        assert np.isnan(result[[0, 2, 3, 4, 5, 6, 7, 8]]).all()
+        assert np.isclose(result[1], 2.0002, atol=1e-4)
+
     def test_convert_sbe63_oxygen_therm_volts(self, request):
         raw_oxygen = np.array([31.06, 31.66, 32.59, 33.92, 34.82, 35.44])
         pressure = np.array([0, 0, 0, 0, 0, 0])
