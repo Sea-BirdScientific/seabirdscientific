@@ -884,26 +884,6 @@ def _apply_transforms(
             columns[str(SensorID.SBE911_MODEM_STATUS.value)] = (columns[key] >> 3) & 1
             columns.pop(key)
 
-        else:
-            logger.warning(f"Unexpected SensorID: {sensor_id}")
-
-    # Validate hex length. Ensure length matches what is expected based
-    # on enabled sensors and moored mode. If it does not, set all values
-    # to NaN
-    # if n != len(hex_segment.strip()):
-    #     for key in results:
-    #         results[key] = np.nan
-    #     return results
-
-    # Final validation to check if any values have been set to NaN, and if so,
-    # set all values to NaN
-    # for key, value in results.items():
-    #     if pd.isna(value):
-    #         logger.warning("Invalid scan detected, values set to NaN")
-    #         for key in results:
-    #             results[key] = np.nan
-    #         break
-
     return columns
 
 

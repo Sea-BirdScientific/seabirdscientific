@@ -619,11 +619,14 @@ def convert_sbe63_thermistor(
     """Converts a SBE63 thermistor raw output array to temperature in
     ITS-90 deg C.
 
-    :param instrument_output: raw values from the thermistor
+    :param instrument_output: raw thermistor voltages; values outside 0 < voltage < 3.3 return NaN
     :param coefs: calibration coefficients for the SBE63 sensor
 
     :return: converted thermistor temperature values in ITS-90 deg C
     """
+    instrument_output = np.where(
+        (instrument_output > 0) & (instrument_output < 3.3), instrument_output, np.nan
+    )
     log_raw = np.log((100000 * instrument_output) / (3.3 - instrument_output))
     temperature = (
         1 / (coefs.ta0 + coefs.ta1 * log_raw + coefs.ta2 * log_raw**2 + coefs.ta3 * log_raw**3)
@@ -1390,7 +1393,7 @@ def convert_external_seafet_ph(
     return ph
 
 
-def convert_seafet_temperature(raw_temp, coefs: cc.TemperatureSeaFETCoefficients):
+def convert_seafet_temperature(raw_temp, coefs: cc.TemperatureCoefficients):
     """Converts the raw SeaFET temperature value to ITS-90 Celsius.
 
     :param raw_temp: raw temperature values
@@ -1398,9 +1401,7 @@ def convert_seafet_temperature(raw_temp, coefs: cc.TemperatureSeaFETCoefficients
     """
     temp_log = np.log(raw_temp)
 
-    temp = 1 / (
-        ((coefs.tdfa3 * temp_log + coefs.tdfa2) * temp_log + coefs.tdfa1) * temp_log + coefs.tdfa0
-    )
+    temp = 1 / (((coefs.a3 * temp_log + coefs.a2) * temp_log + coefs.a1) * temp_log + coefs.a0)
 
     temp_c = temp - const.KELVIN_OFFSET_0C
 
@@ -1447,6 +1448,19 @@ def convert_seafet_relative_humidity(humidity_counts: np.ndarray, temperature: n
     np.clip(relative_humidity, a_min=0, a_max=100)
 
     return relative_humidity
+
+
+def convert_ph_counts_to_amps(counts: np.ndarray) -> np.ndarray:
+    """Convert pH board current ADC counts to amps
+
+    :param counts: raw ADC counts
+    :return: current in amps
+    """
+    adc_vref = 2.5
+    gain = 64
+    adc_23bit = 8388608
+    current_scalar = 1 / 1000
+    return (np.asarray(counts) / adc_23bit - 1) * adc_vref / gain * current_scalar
 
 
 def convert_altimeter(

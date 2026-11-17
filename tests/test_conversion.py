@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
+import seabirdscientific.cal_coefficients as cc
 import seabirdscientific.constants as const
 import seabirdscientific.conversion as dc
 import seabirdscientific.eos80_conversion as eos80dc
@@ -932,6 +933,20 @@ class TestSeaFETPH:
 
 
 class TestInternalSeaFETTemperature:
+    def test_convert_seafet_temperature(self):
+        temperature_coefs = cc.TemperatureCoefficients(
+            a0=-1.542604e-03,
+            a1=5.451845e-04,
+            a2=-1.988318e-05,
+            a3=4.501564e-07,
+        )
+        raw_temperature = np.array([1_000_000.0, 1_000_001.0, 1_000_002.0])
+        expected_temperature = np.array([22.58848639, 22.58846421, 22.58844204])
+
+        temperature = dc.convert_seafet_temperature(raw_temperature, temperature_coefs)
+
+        assert np.allclose(expected_temperature, temperature, atol=1e-8)
+
     def test_convert_internal_seafet_temperature(self, request):
         temperature_counts = np.array([25616, 25600])
         expected_temperature = np.array([21.8335, 21.7906])
@@ -953,6 +968,18 @@ class TestSeaFETRelativeHumidity:
 
         request.node.return_value = humidity.tolist()
         assert np.allclose(expected_humidity, humidity, atol=1e-6)
+
+
+class TestPhDiagnostics:
+    counts = np.array([8388608, 12582912, 4194304])
+
+    def test_convert_IK_IB(self):
+        expected = np.array([0, 0.5 * 2.5 / 64 / 1000, -0.5 * 2.5 / 64 / 1000])
+        assert np.allclose(dc.convert_ph_counts_to_amps(self.counts), expected, atol=1e-12)
+
+    def test_convert_VK(self):
+        expected = np.array([0, 1.25, -1.25])
+        assert np.allclose(dc.convert_ph_voltage_counts(self.counts), expected, atol=1e-9)
 
 
 class TestConvertSBE63Oxygen:
@@ -992,6 +1019,15 @@ class TestConvertSBE63Oxygen:
 
         request.node.return_value = thermistor_temperature.tolist()
         assert np.allclose(expected, thermistor_temperature, atol=1e-6)
+
+    def test_thermistor_temperature_invalid_input(self):
+        raw_temperature = np.array([-1.0, 1.12015, -4.0, 0.0, 3.3, 3.4, np.inf, -np.inf, np.nan])
+
+        with np.errstate(invalid="raise", divide="raise"):
+            result = dc.convert_sbe63_thermistor(raw_temperature, tc.oxygen_63_coefs_sn2568)
+
+        assert np.isnan(result[[0, 2, 3, 4, 5, 6, 7, 8]]).all()
+        assert np.isclose(result[1], 2.0002, atol=1e-4)
 
     def test_convert_sbe63_oxygen_therm_volts(self, request):
         raw_oxygen = np.array([31.06, 31.66, 32.59, 33.92, 34.82, 35.44])
