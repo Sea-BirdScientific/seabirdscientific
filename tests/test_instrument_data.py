@@ -179,12 +179,12 @@ class TestReadHex19plus:
             round(hex_data[str(si.SensorID.STRAIN_GAUGE_PRESSURE_TEMPERATURE.value) + "_0"][0], 4)
             == 2.0465
         )
-        assert round(hex_data[str(si.SensorID.VOLTAGE_0.value) + "_0"][0], 4) == 0.1711
-        assert round(hex_data[str(si.SensorID.VOLTAGE_1.value) + "_0"][0], 4) == 1.4173
-        assert round(hex_data[str(si.SensorID.VOLTAGE_2.value) + "_0"][0], 4) == 0.0001
-        assert round(hex_data[str(si.SensorID.VOLTAGE_3.value) + "_0"][0], 4) == 0.0000
-        assert round(hex_data[str(si.SensorID.VOLTAGE_4.value) + "_0"][0], 4) == 0.0002
-        assert round(hex_data[str(si.SensorID.VOLTAGE_5.value) + "_0"][0], 4) == 0.0000
+        assert round(hex_data[str(si.SensorID.VOLTAGE_0.value)][0], 4) == 0.1711
+        assert round(hex_data[str(si.SensorID.VOLTAGE_1.value)][0], 4) == 1.4173
+        assert round(hex_data[str(si.SensorID.VOLTAGE_2.value)][0], 4) == 0.0001
+        assert round(hex_data[str(si.SensorID.VOLTAGE_3.value)][0], 4) == 0.0000
+        assert round(hex_data[str(si.SensorID.VOLTAGE_4.value)][0], 4) == 0.0002
+        assert round(hex_data[str(si.SensorID.VOLTAGE_5.value)][0], 4) == 0.0000
         assert hex_data[str(si.SensorID.ECO_SERIAL_BACKSCATTERING_412.value) + "_0"][0] == 191
         assert hex_data[str(si.SensorID.ECO_SERIAL_BACKSCATTERING_440.value) + "_0"][0] == 50
         assert hex_data[str(si.SensorID.ECO_SERIAL_BACKSCATTERING_470.value) + "_0"][0] == 4130
@@ -256,12 +256,12 @@ class TestReadHex16plusDigiquartz:
             round(hex_data[str(si.SensorID.STRAIN_GAUGE_PRESSURE_TEMPERATURE.value) + "_0"][0], 4)
             == 1.4414
         )
-        assert round(hex_data[str(si.SensorID.VOLTAGE_0.value) + "_0"][0], 4) == 0.0002
-        assert round(hex_data[str(si.SensorID.VOLTAGE_1.value) + "_0"][0], 4) == 0.0002
-        assert round(hex_data[str(si.SensorID.VOLTAGE_2.value) + "_0"][0], 4) == 0.0003
-        assert round(hex_data[str(si.SensorID.VOLTAGE_3.value) + "_0"][0], 4) == 0.0003
-        assert round(hex_data[str(si.SensorID.VOLTAGE_4.value) + "_0"][0], 4) == 0.0007
-        assert round(hex_data[str(si.SensorID.VOLTAGE_5.value) + "_0"][0], 4) == 0.0003
+        assert round(hex_data[str(si.SensorID.VOLTAGE_0.value)][0], 4) == 0.0002
+        assert round(hex_data[str(si.SensorID.VOLTAGE_1.value)][0], 4) == 0.0002
+        assert round(hex_data[str(si.SensorID.VOLTAGE_2.value)][0], 4) == 0.0003
+        assert round(hex_data[str(si.SensorID.VOLTAGE_3.value)][0], 4) == 0.0003
+        assert round(hex_data[str(si.SensorID.VOLTAGE_4.value)][0], 4) == 0.0007
+        assert round(hex_data[str(si.SensorID.VOLTAGE_5.value)][0], 4) == 0.0003
         assert hex_data[str(si.SensorID.SBE63_DISSOLVED_OXYGEN_PHASE.value) + "_0"][0] == -9.999
         assert (
             hex_data[str(si.SensorID.SBE63_DISSOLVED_OXYGEN_TEMPERATURE.value) + "_0"][0]
@@ -357,14 +357,14 @@ class TestReadHexSBE911plus:
         assert (
             round(hex_data[str(si.SensorID.CONDUCTIVITY_FREQUENCY.value) + "_1"][0], 3) == 6230.480
         )
-        assert round(hex_data[str(si.SensorID.VOLTAGE_0.value) + "_0"][0], 4) == 3.7338
-        assert round(hex_data[str(si.SensorID.VOLTAGE_1.value) + "_0"][0], 4) == 0.2112
-        assert round(hex_data[str(si.SensorID.VOLTAGE_2.value) + "_0"][0], 4) == 4.9328
-        assert round(hex_data[str(si.SensorID.VOLTAGE_3.value) + "_0"][0], 4) == 2.3370
-        assert round(hex_data[str(si.SensorID.VOLTAGE_4.value) + "_0"][0], 4) == 2.4884
-        assert round(hex_data[str(si.SensorID.VOLTAGE_5.value) + "_0"][0], 4) == 2.6777
-        assert round(hex_data[str(si.SensorID.VOLTAGE_6.value) + "_0"][0], 4) == 0.1502
-        assert round(hex_data[str(si.SensorID.VOLTAGE_7.value) + "_0"][0], 4) == 2.7912
+        assert round(hex_data[str(si.SensorID.VOLTAGE_0.value)][0], 4) == 3.7338
+        assert round(hex_data[str(si.SensorID.VOLTAGE_1.value)][0], 4) == 0.2112
+        assert round(hex_data[str(si.SensorID.VOLTAGE_2.value)][0], 4) == 4.9328
+        assert round(hex_data[str(si.SensorID.VOLTAGE_3.value)][0], 4) == 2.3370
+        assert round(hex_data[str(si.SensorID.VOLTAGE_4.value)][0], 4) == 2.4884
+        assert round(hex_data[str(si.SensorID.VOLTAGE_5.value)][0], 4) == 2.6777
+        assert round(hex_data[str(si.SensorID.VOLTAGE_6.value)][0], 4) == 0.1502
+        assert round(hex_data[str(si.SensorID.VOLTAGE_7.value)][0], 4) == 2.7912
         assert round(hex_data[str(si.SensorID.SPAR_LINEAR.value) + "_0"][0], 5) == 1.43101
         assert hex_data[str(si.SensorID.NMEA_LATITUDE.value)][0] == 34.2757
         assert hex_data[str(si.SensorID.NMEA_LONGITUDE.value)][0] == -120.0256
