@@ -615,8 +615,20 @@ def _build_hex_sensor_layout(
             SensorID.NMEA_STATUS_AND_SIGN,
             SensorID.DATA_INTEGRITY,
             SensorID.SBE911_DIAGNOSTICS,
+            SensorID.SBE911_PUMP_STATUS,
+            SensorID.SBE911_BOTTOM_CONTACT_STATUS,
+            SensorID.SBE911_CONFIRM_STATUS,
+            SensorID.SBE911_MODEM_STATUS,
             SensorID.INSTRUMENT_DATE_TIME,
             SensorID.SYSTEM_DATE_TIME,
+            SensorID.VOLTAGE_0,
+            SensorID.VOLTAGE_1,
+            SensorID.VOLTAGE_2,
+            SensorID.VOLTAGE_3,
+            SensorID.VOLTAGE_4,
+            SensorID.VOLTAGE_5,
+            SensorID.VOLTAGE_6,
+            SensorID.VOLTAGE_7,
         ]:
             # Don't add replicate suffix
             sensor_layout.append((sensor_id, str(sensor_id.value), hex_length))
