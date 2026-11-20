@@ -1470,3 +1470,39 @@ class TestDeriveGeopotentialAnomaly:
     def test_derive_gpa(self, source_data):
         gpa = eos80dc.derive_gpa(source_data["sva"], source_data["prdM"].values)
         assert np.allclose(gpa, source_data["gpa"].values, rtol=0, atol=1e-3)
+
+
+class TestCustomVoltageConversions:
+    voltages = np.array([0.0, 0.5, 1.0, 2.5, 5.0])
+
+    def test_custom_polynomial(self):
+        coefs = cc.CustomPolynomialCoefficients(a0=1.0, a1=2.0, a2=-0.5, a3=0.1)
+        result = dc.convert_voltage_custom_polynomial(self.voltages, coefs)
+        expected = 1.0 + 2.0 * self.voltages - 0.5 * self.voltages**2 + 0.1 * self.voltages**3
+        assert np.allclose(result, expected)
+
+    def test_custom_polynomial_zero_coefficients(self):
+        coefs = cc.CustomPolynomialCoefficients(a0=0.0, a1=0.0, a2=0.0, a3=0.0)
+        result = dc.convert_voltage_custom_polynomial(self.voltages, coefs)
+        assert np.allclose(result, np.zeros_like(self.voltages))
+
+    def test_custom_polynomial_identity(self):
+        coefs = cc.CustomPolynomialCoefficients(a0=0.0, a1=1.0, a2=0.0, a3=0.0)
+        result = dc.convert_voltage_custom_polynomial(self.voltages, coefs)
+        assert np.allclose(result, self.voltages)
+
+    def test_custom_exponential(self):
+        coefs = cc.CustomExponentialCoefficients(scale_factor=2.0, exponential_factor=0.3)
+        result = dc.convert_voltage_custom_exponential(self.voltages, coefs)
+        expected = 2.0 * 10 ** (self.voltages * 0.3)
+        assert np.allclose(result, expected)
+
+    def test_custom_exponential_known_values(self):
+        coefs = cc.CustomExponentialCoefficients(scale_factor=1.5, exponential_factor=1.0)
+        result = dc.convert_voltage_custom_exponential(np.array([0.0, 1.0, 2.0]), coefs)
+        assert np.allclose(result, [1.5, 15.0, 150.0])
+
+    def test_custom_exponential_negative_factor(self):
+        coefs = cc.CustomExponentialCoefficients(scale_factor=1.0, exponential_factor=-1.0)
+        result = dc.convert_voltage_custom_exponential(np.array([0.0, 1.0, 2.0]), coefs)
+        assert np.allclose(result, [1.0, 0.1, 0.01])

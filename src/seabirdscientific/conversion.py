@@ -1910,3 +1910,32 @@ def convert_cstar_transmittance(raw: np.ndarray, coefs: cc.CstarCoefficients):
     transmittance = raw * coefs.m + coefs.b
 
     return transmittance
+
+
+def convert_voltage_custom_polynomial(
+    voltages: np.ndarray, coefs: cc.CustomPolynomialCoefficients
+) -> np.ndarray:
+    """Applies a custom polynomial function to an array of voltages.
+
+    :param voltages: raw voltage values to be converted
+    :param coefs: a0, a1, a2, a3 polynomial coefficients
+
+    :return: converted voltage values
+    """
+    poly = Polynomial((coefs.a0, coefs.a1, coefs.a2, coefs.a3))
+    return poly(voltages)
+
+
+def convert_voltage_custom_exponential(
+    voltages: np.ndarray, coefs: cc.CustomExponentialCoefficients
+) -> np.ndarray:
+    """Applies a custom exponential function to an array of voltages.
+
+    result = scale_factor * 10 ^ (voltages * exponential_factor)
+
+    :param voltages: raw voltage values to be converted
+    :param coefs: scale_factor and exponential_factor coefficients
+
+    :return: converted voltage values
+    """
+    return coefs.scale_factor * 10 ** (voltages * coefs.exponential_factor)
