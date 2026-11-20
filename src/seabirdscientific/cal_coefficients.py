@@ -312,3 +312,29 @@ class CstarCoefficients(CoefficientsBaseClass):
     m: float
     b: float
     path_length: float
+
+
+@dataclass
+class CustomPolynomialCoefficients(CoefficientsBaseClass):
+    """
+    :param a0: coefficient
+    :param a1: coefficient
+    :param a2: coefficient
+    :param a3: coefficient
+    """
+
+    a0: float
+    a1: float
+    a2: float
+    a3: float
+
+
+@dataclass
+class CustomExponentialCoefficients(CoefficientsBaseClass):
+    """
+    :param scale_factor: scale factor coefficient
+    :param exponential_factor: exponential factor coefficient
+    """
+
+    scale_factor: float
+    exponential_factor: float
