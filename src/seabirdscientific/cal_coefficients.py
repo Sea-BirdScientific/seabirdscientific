@@ -338,4 +338,3 @@ class CustomExponentialCoefficients(CoefficientsBaseClass):
 
     scale_factor: float
     exponential_factor: float
-
