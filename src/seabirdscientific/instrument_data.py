@@ -168,7 +168,7 @@ class SensorID(Enum):
 
 
 """Possible lengths for hex data types"""
-
+HEX_LEN_FREQUENCY = 6
 HEX_LEN_TEMPERATURE = 6
 HEX_LEN_SBE38_TEMPERATURE = 6
 HEX_LEN_CONDUCTIVITY = 6
@@ -331,6 +331,16 @@ def sensor_id_to_hex_length(sensorID: SensorID, sub_model: SubModel):
             return HEX_LEN_VOLTAGE
     else:
         return general_map[sensorID]
+
+
+def not_in_use_to_hex_length(sub_model: SubModel, index: int) -> int:
+    """Hex length for SensorID.NOT_IN_USE, which depends on its zero-based position
+    within the enabled sensor IDs."""
+    if index <= 4:
+        return HEX_LEN_FREQUENCY
+    if sub_model == SubModel.SBE911Plus:
+        return HEX_LEN_SBE911_VOLTAGE
+    return HEX_LEN_VOLTAGE
 
 
 def _read_seasoft_cnv_file(filepath: Path | str) -> xr.Dataset:
@@ -588,9 +598,13 @@ def _build_hex_sensor_layout(
     """Precompute each sensor's output key, suffixed with its zero-based replicate number."""
     replicate_by_sensor_id: dict[SensorID, int] = {}
     sensor_layout: list[tuple[SensorID, str, int]] = []
-    for sensor_id in enabled_sensor_ids:
+    for index, sensor_id in enumerate(enabled_sensor_ids):
         replicate = replicate_by_sensor_id.get(sensor_id, 0)
-        hex_length = sensor_id_to_hex_length(sensor_id, sub_model)
+
+        if sensor_id == SensorID.NOT_IN_USE:
+            hex_length = not_in_use_to_hex_length(sub_model, index)
+        else:
+            hex_length = sensor_id_to_hex_length(sensor_id, sub_model)
 
         if sensor_id in [SensorID.NMEA_LONGITUDE, SensorID.NMEA_LATITUDE]:
             sensor_layout.append(
