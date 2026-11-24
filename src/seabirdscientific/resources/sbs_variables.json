@@ -471,35 +471,63 @@
     "aliases": [],
     "name": "timeS",
     "units": "seconds",
-    "title": "Time",
-    "info": ["Elapsed"]
+    "title": "Elapsed Time",
+    "info": ["instrument"]
   },
   {
     "aliases": [],
     "name": "timeM",
     "units": "minutes",
-    "title": "Time",
-    "info": ["Elapsed"]
+    "title": "Elapsed Time",
+    "info": ["instrument"]
   },
   {
     "aliases": [],
     "name": "timeH",
     "units": "hours",
-    "title": "Time",
-    "info": ["Elapsed"]
+    "title": "Elapsed Time",
+    "info": ["instrument"]
   },
   {
     "aliases": [],
     "name": "timeJ",
     "units": "Julian Days",
-    "title": "Time",
-    "info": ["Elapsed"]
+    "title": "Elapsed Time",
+    "info": ["instrument"]
+  },
+  {
+    "aliases": [],
+    "name": "timeSS",
+    "units": "seconds",
+    "title": "Elapsed Time",
+    "info": ["software"]
+  },
+  {
+    "aliases": [],
+    "name": "timeSM",
+    "units": "minutes",
+    "title": "Elapsed Time",
+    "info": ["software"]
+  },
+  {
+    "aliases": [],
+    "name": "timeSH",
+    "units": "hours",
+    "title": "Elapsed Time",
+    "info": ["software"]
+  },
+  {
+    "aliases": [],
+    "name": "timeSJ",
+    "units": "Julian Days",
+    "title": "Elapsed Time",
+    "info": ["software"]
   },
   {
     "aliases": [],
     "name": "timeN",
     "units": "seconds since January 1, 2000",
-    "title": "Time",
+    "title": "Elapsed Time",
     "info": ["NMEA"]
   },
   {
@@ -514,42 +542,42 @@
     "name": "timeK",
     "units": "seconds since January 1, 2000",
     "title": "Time",
-    "info": ["Instrument"]
+    "info": ["instrument"]
   },
   {
     "aliases": ["timeJV2", "timeSCP"],
     "name": "jdays",
     "units": "Julian Days",
-    "title": "Time",
-    "info": ["Instrument"]
+    "title": "Date",
+    "info": ["instrument"]
   },
   {
     "aliases": [],
     "name": "timeY",
     "units": "seconds since January 1, 1970",
     "title": "Time",
-    "info": ["Computer"]
+    "info": ["software"]
   },
   {
     "aliases": [],
     "name": "time",
     "units": "",
     "title": "Date Time",
-    "info": ["Software"]
+    "info": ["software"]
   },
   {
     "aliases": [],
     "name": "date",
     "units": "",
     "title": "Date",
-    "info": ["Software"]
+    "info": ["software"]
   },
   {
     "aliases": [],
     "name": "timeI",
     "units": "",
     "title": "Date Time",
-    "info": ["Instrument"]
+    "info": ["instrument"]
   },
   {
     "aliases": [],
@@ -563,7 +591,7 @@
     "name": "dateI",
     "units": "",
     "title": "Date",
-    "info": ["Instrument"]
+    "info": ["instrument"]
   },
   {
     "aliases": [],
@@ -576,22 +604,22 @@
     "aliases": [],
     "name": "timeIiso",
     "units": "",
-    "title": "Date Time ISO",
-    "info": ["Instrument"]
+    "title": "Date Time",
+    "info": ["instrument ISO"]
   },
   {
     "aliases": [],
     "name": "timeSiso",
     "units": "",
-    "title": "Date Time ISO",
-    "info": ["Software"]
+    "title": "Date Time",
+    "info": ["software ISO"]
   },
   {
     "aliases": [],
     "name": "timeNiso",
     "units": "",
-    "title": "Date Time ISO",
-    "info": ["NMEA"]
+    "title": "Date Time",
+    "info": ["NMEA ISO"]
   },
   {
     "aliases": [],
